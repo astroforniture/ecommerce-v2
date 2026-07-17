@@ -1,0 +1,5 @@
+# Dipendenze per monitoraggio gare Astro Forniture (Sintel + MePA)
+pandas>=2.0
+requests>=2.28
+openpyxl>=3.1
+python-dotenv>=1.0

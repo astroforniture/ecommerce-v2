@@ -1,0 +1,66 @@
+[
+  {
+    "id": "STL2005",
+    "sku": "STL2005",
+    "name": "Carta fotocopie - A3 - 80 gr - 500 fogli - bianca - Starline",
+    "price": 10.55,
+    "image_url": "https://odmultimedia.eu/immagini/HD/STL2005.jpg",
+    "note": "Seed migrazione 005_seed_office_stl2005.sql; prezzo allineato a update tipico in SQL Editor"
+  },
+  {
+    "id": "STL7413",
+    "sku": "STL7413",
+    "name": "Buste forate Starline",
+    "price": null,
+    "image_url": "https://odmultimedia.eu/immagini/HD/STL7413.jpg",
+    "note": "Seed migrazione 007_seed_office_stl7413.sql"
+  },
+  {
+    "id": "DEMO-A4-80",
+    "sku": "DEMO-A4-80",
+    "name": "Carta A4 80 g/mq — risma 500 fogli (demo catalogo)",
+    "price": 4.9,
+    "image_url": "https://images.unsplash.com/photo-1586075010923-2dd45780fb2d?w=600&q=80",
+    "note": "Articolo dimostrativo tipico catalogo ufficio (non da migration)"
+  },
+  {
+    "id": "DEMO-TONER-BW",
+    "sku": "DEMO-TONER-BW",
+    "name": "Toner compatibile stampante laser monocromatica (demo)",
+    "price": 42.0,
+    "image_url": "https://images.unsplash.com/photo-1612815154858-60aa4c43e64e?w=600&q=80",
+    "note": "Articolo dimostrativo"
+  },
+  {
+    "id": "DEMO-NOTE-A4",
+    "sku": "DEMO-NOTE-A4",
+    "name": "Quaderno a spirale A4 — 80 fogli a righe (demo)",
+    "price": 3.25,
+    "image_url": "https://images.unsplash.com/photo-1544716278-ca5e3f16abd8?w=600&q=80",
+    "note": "Articolo dimostrativo"
+  },
+  {
+    "id": "DEMO-PEN-BLUE",
+    "sku": "DEMO-PEN-BLUE",
+    "name": "Penna gel blu — confezione 12 pezzi (demo)",
+    "price": 2.8,
+    "image_url": "https://images.unsplash.com/photo-1585336261022-680e295ce3fe?w=600&q=80",
+    "note": "Articolo dimostrativo"
+  },
+  {
+    "id": "DEMO-POSTIT",
+    "sku": "DEMO-POSTIT",
+    "name": "Foglietti adesivi — 76×76 mm, giallo (demo)",
+    "price": 1.95,
+    "image_url": "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=600&q=80",
+    "note": "Articolo dimostrativo"
+  },
+  {
+    "id": "DEMO-RINGBINDER",
+    "sku": "DEMO-RINGBINDER",
+    "name": "Raccoglitore ad anelli A4 — dorso 4 cm (demo)",
+    "price": 5.4,
+    "image_url": "https://images.unsplash.com/photo-1503602642458-232111445657?w=600&q=80",
+    "note": "Articolo dimostrativo"
+  }
+]

@@ -1,0 +1,113 @@
+{
+  "esportatoIl": "2026-05-07T12:00:00.000Z",
+  "note": "Backup nomi e URL immagini da codice sorgente (distruggidocumenti: URL assolute odmultimedia; timbri: percorsi /public relativi alla root del sito).",
+  "distruggidocumenti": {
+    "immagineCopertinaHub": "https://odmultimedia.eu/immagini/MD/92766.jpg",
+    "articoli": [
+      {
+        "id": "rexel-secure-s5",
+        "nome": "Distruggidocumenti Secure S5 - taglio a strisce - Rexel",
+        "urlImmagine": "https://odmultimedia.eu/immagini/MD/92766.jpg"
+      },
+      {
+        "id": "rexel-secure-x6",
+        "nome": "Distruggidocumenti Secure X6 - a frammenti - Rexel",
+        "urlImmagine": "https://odmultimedia.eu/immagini/MD/92767_2.jpg"
+      },
+      {
+        "id": "rexel-momentum-x406",
+        "nome": "Distruggidocumenti Momentum X406 - a frammenti - Rexel",
+        "urlImmagine": "https://odmultimedia.eu/immagini/MD/95071.jpg"
+      },
+      {
+        "id": "titanium-080x",
+        "nome": "Distruggidocumenti 080X - a frammenti - 15L - Titanium",
+        "urlImmagine": "https://odmultimedia.eu/immagini/MD/75989.jpg"
+      },
+      {
+        "id": "fellowes-m-7cm",
+        "nome": "Distruggidocumenti M-7CM - a frammenti - nero - Fellowes",
+        "urlImmagine": "https://odmultimedia.eu/immagini/MD/103117.jpg"
+      },
+      {
+        "id": "rexel-momentum-x410",
+        "nome": "Distruggidocumenti Momentum X410 - a frammenti - 23L - Rexel",
+        "urlImmagine": "https://odmultimedia.eu/immagini/MD/90022.jpg"
+      },
+      {
+        "id": "leitz-iq-home-office-p4",
+        "nome": "Distruggidocumenti Home Office P4 - taglio a frammenti 4x28 mm - Leitz IQ",
+        "urlImmagine": "https://odmultimedia.eu/immagini/MD/86814.jpg"
+      },
+      {
+        "id": "fellowes-lx-41",
+        "nome": "Distruggidocumenti LX-41 - a frammenti - nero - Fellowes",
+        "urlImmagine": "https://odmultimedia.eu/immagini/MD/95081.jpg"
+      },
+      {
+        "id": "kobra-c1",
+        "nome": "Distruggidocumenti C1 - frammenti - 18 L - Kobra",
+        "urlImmagine": "https://odmultimedia.eu/immagini/MD/74767.jpg"
+      },
+      {
+        "id": "kobra-hybrid",
+        "nome": "Distruggidocumenti Hybrid - taglio a frammenti 3,5x40 mm - Kobra",
+        "urlImmagine": "https://odmultimedia.eu/immagini/MD/86880.jpg"
+      },
+      {
+        "id": "rexel-optimum-autofeed-50x",
+        "nome": "Distruggidocumenti Optimum AutoFeed+ 50X - a frammenti - Rexel",
+        "urlImmagine": "https://odmultimedia.eu/immagini/MD/92566.jpg"
+      },
+      {
+        "id": "kobra-s4-hybrid",
+        "nome": "Distruggidocumenti S4-HYBRID - a striscia - KOBRA",
+        "urlImmagine": "https://odmultimedia.eu/immagini/MD/99619.jpg"
+      },
+      {
+        "id": "leitz-office-225",
+        "nome": "Distruggidocumenti Office 225 - a micro frammenti - Leitz",
+        "urlImmagine": "https://odmultimedia.eu/immagini/MD/104444.jpg"
+      },
+      {
+        "id": "rexel-mercury-rem820",
+        "nome": "Distruggidocumenti Mercury REM820 - a microframmenti - 21L - Rexel",
+        "urlImmagine": "https://odmultimedia.eu/immagini/MD/80366.jpg"
+      },
+      {
+        "id": "fellowes-automatico-80m",
+        "nome": "Distruggidocumenti automatico - a mini frammento - 80M - Fellowes",
+        "urlImmagine": "https://odmultimedia.eu/immagini/MD/98809.jpg"
+      }
+    ]
+  },
+  "timbri": {
+    "articoli": [
+      {
+        "id": "AF-TIMBRO-AZIENDE",
+        "nome": "Timbro per Aziende e Farmacie",
+        "urlImmagine": "/timbri.jpg"
+      },
+      {
+        "id": "timbro-colore-nero",
+        "nome": "Timbro Trodat — inchiostro Nero",
+        "urlImmagine": "/trodat_nero.jpg"
+      },
+      {
+        "id": "timbro-colore-rosso",
+        "nome": "Timbro Trodat — inchiostro Rosso",
+        "urlImmagine": "/trodat_rosso.jpg"
+      },
+      {
+        "id": "timbro-colore-verde",
+        "nome": "Timbro Trodat — inchiostro Verde",
+        "urlImmagine": "/trodat_verde.jpg"
+      },
+      {
+        "id": "timbro-colore-blu",
+        "nome": "Timbro Trodat — inchiostro Blu",
+        "urlImmagine": "/trodat_blu.jpg"
+      }
+    ]
+  }
+}
