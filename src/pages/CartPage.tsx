@@ -38,7 +38,6 @@ const CUSTOMER_TYPE_OPTIONS: { value: CustomerType; label: string }[] = [
   { value: 'privato', label: 'Privato' },
   { value: 'azienda', label: 'Azienda' },
   { value: 'ente', label: 'Ente' },
-  { value: 'scuola', label: 'Scuola' },
 ]
 
 function CartLineTierHint({ item }: { item: CartItem }) {

@@ -3,6 +3,14 @@ import Footer from './components/Footer'
 import { SiteHeader } from './components/layout/SiteHeader'
 import { CartQuickView } from './components/cart/CartQuickView'
 import { CartDrawerProvider } from './context/CartDrawerContext'
+import { AdminRoute } from './components/auth/AdminRoute'
+import { AdminLayout } from './admin/AdminLayout'
+import { AdminHomePage } from './admin/pages/AdminHomePage'
+import { AdminProductsPage } from './admin/pages/AdminProductsPage'
+import { AdminOrdersPage } from './admin/pages/AdminOrdersPage'
+import { AdminOrderDetailPage } from './admin/pages/AdminOrderDetailPage'
+import { AdminCustomersPage } from './admin/pages/AdminCustomersPage'
+import { AdminLoginPage } from './pages/AdminLoginPage'
 import { CookiePolicyPage } from './pages/CookiePolicyPage'
 import { CheckoutSuccessPage } from './pages/CheckoutSuccessPage'
 import { AstroMedicalPage } from './pages/AstroMedicalPage'
@@ -100,6 +108,23 @@ export default function App() {
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/cookie-policy" element={<CookiePolicyPage />} />
       </Route>
+
+      <Route path="/admin/login" element={<AdminLoginPage />} />
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
+            <AdminLayout />
+          </AdminRoute>
+        }
+      >
+        <Route index element={<AdminHomePage />} />
+        <Route path="products" element={<AdminProductsPage />} />
+        <Route path="orders" element={<AdminOrdersPage />} />
+        <Route path="orders/:id" element={<AdminOrderDetailPage />} />
+        <Route path="customers" element={<AdminCustomersPage />} />
+      </Route>
+
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

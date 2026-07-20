@@ -1,12 +1,20 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { canAccessAdminRoute } from '../../../middleware'
+import { isAdminAuthenticated } from '../../lib/adminAuth'
 
 export function AdminRoute({ children }: { children: ReactNode }) {
   const location = useLocation()
-  const [allowed, setAllowed] = useState<boolean | null>(null)
+  const [allowed, setAllowed] = useState<boolean | null>(() =>
+    isAdminAuthenticated() ? true : null,
+  )
 
   useEffect(() => {
+    if (isAdminAuthenticated()) {
+      setAllowed(true)
+      return
+    }
+
     let cancelled = false
     ;(async () => {
       const ok = await canAccessAdminRoute()
@@ -26,7 +34,7 @@ export function AdminRoute({ children }: { children: ReactNode }) {
   }
 
   if (!allowed) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />
+    return <Navigate to="/admin/login" replace state={{ from: location.pathname }} />
   }
   return <>{children}</>
 }

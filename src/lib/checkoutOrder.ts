@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { CartItem } from '../context/CartContext'
 import { effectiveUnitPrice, lineImponible } from './quantityPricing'
 
-export type CustomerType = 'privato' | 'azienda' | 'ente' | 'scuola'
+export type CustomerType = 'privato' | 'azienda' | 'ente'
 
 export type CheckoutOrderInput = {
   items: CartItem[]
