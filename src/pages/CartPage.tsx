@@ -77,10 +77,14 @@ export function CartPage() {
   const [billingPhone, setBillingPhone] = useState('')
   const [acceptTerms, setAcceptTerms] = useState(false)
   const [wantsElectronicInvoice, setWantsElectronicInvoice] = useState(false)
+  const [syncInvoiceWithBilling, setSyncInvoiceWithBilling] = useState(true)
   const [invoiceCompanyName, setInvoiceCompanyName] = useState('')
   const [invoiceVatNumber, setInvoiceVatNumber] = useState('')
   const [invoiceTaxCode, setInvoiceTaxCode] = useState('')
   const [invoiceSdiOrPec, setInvoiceSdiOrPec] = useState('')
+  const [invoiceAddressStreet, setInvoiceAddressStreet] = useState('')
+  const [invoiceAddressZip, setInvoiceAddressZip] = useState('')
+  const [invoiceAddressCity, setInvoiceAddressCity] = useState('')
   const [orderNotes, setOrderNotes] = useState('')
   const [attemptedCheckout, setAttemptedCheckout] = useState(false)
   const [submitError, setSubmitError] = useState('')
@@ -177,6 +181,57 @@ export function CartPage() {
   const billingDisplayName = isBusinessCustomer
     ? companyName.trim()
     : [firstName.trim(), lastName.trim()].filter(Boolean).join(' ')
+
+  function buildInvoiceFieldsFromBilling() {
+    const resolvedCompany = isBusinessCustomer
+      ? companyName.trim()
+      : [firstName.trim(), lastName.trim()].filter(Boolean).join(' ')
+    const resolvedVat = vatNumber.trim()
+    const vatAsTaxCode = resolvedVat.replace(/^IT/i, '').trim()
+    const resolvedTaxCode = taxCode.trim() || (isBusinessCustomer ? vatAsTaxCode : '')
+    const resolvedSdiOrPec = sdiCode.trim() || pec.trim()
+
+    return {
+      invoiceCompanyName: resolvedCompany,
+      invoiceVatNumber: resolvedVat,
+      invoiceTaxCode: resolvedTaxCode,
+      invoiceSdiOrPec: resolvedSdiOrPec,
+      invoiceAddressStreet: addressStreet,
+      invoiceAddressZip: addressZip,
+      invoiceAddressCity: addressCity,
+    }
+  }
+
+  function applyInvoiceFieldsFromBilling() {
+    const next = buildInvoiceFieldsFromBilling()
+    setInvoiceCompanyName(next.invoiceCompanyName)
+    setInvoiceVatNumber(next.invoiceVatNumber)
+    setInvoiceTaxCode(next.invoiceTaxCode)
+    setInvoiceSdiOrPec(next.invoiceSdiOrPec)
+    setInvoiceAddressStreet(next.invoiceAddressStreet)
+    setInvoiceAddressZip(next.invoiceAddressZip)
+    setInvoiceAddressCity(next.invoiceAddressCity)
+  }
+
+  useEffect(() => {
+    if (!wantsElectronicInvoice || !syncInvoiceWithBilling) return
+    applyInvoiceFieldsFromBilling()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- sync only when billing source fields change
+  }, [
+    wantsElectronicInvoice,
+    syncInvoiceWithBilling,
+    isBusinessCustomer,
+    companyName,
+    firstName,
+    lastName,
+    vatNumber,
+    taxCode,
+    sdiCode,
+    pec,
+    addressStreet,
+    addressZip,
+    addressCity,
+  ])
   const companyNameValid = isBusinessCustomer ? companyName.trim().length >= 2 : true
   const privateNameValid = !isBusinessCustomer
     ? firstName.trim().length >= 2 && lastName.trim().length >= 2
@@ -255,30 +310,38 @@ export function CartPage() {
   function handleCheckoutExtrasChange(
     patch: Partial<{
       wantsElectronicInvoice: boolean
+      syncInvoiceWithBilling: boolean
       invoiceCompanyName: string
       invoiceVatNumber: string
       invoiceTaxCode: string
       invoiceSdiOrPec: string
+      invoiceAddressStreet: string
+      invoiceAddressZip: string
+      invoiceAddressCity: string
       orderNotes: string
     }>,
   ) {
     if ('wantsElectronicInvoice' in patch) {
       const checked = patch.wantsElectronicInvoice ?? false
       setWantsElectronicInvoice(checked)
-      if (checked && !invoiceCompanyName.trim()) {
-        if (isBusinessCustomer) {
-          setInvoiceCompanyName(companyName)
-          setInvoiceVatNumber(vatNumber)
-          setInvoiceTaxCode(taxCode)
-          setInvoiceSdiOrPec(sdiCode.trim() || pec.trim())
-        }
+      if (checked) {
+        setSyncInvoiceWithBilling(true)
+        applyInvoiceFieldsFromBilling()
       }
       return
+    }
+    if ('syncInvoiceWithBilling' in patch) {
+      const sync = patch.syncInvoiceWithBilling ?? false
+      setSyncInvoiceWithBilling(sync)
+      if (sync) applyInvoiceFieldsFromBilling()
     }
     if ('invoiceCompanyName' in patch) setInvoiceCompanyName(patch.invoiceCompanyName ?? '')
     if ('invoiceVatNumber' in patch) setInvoiceVatNumber(patch.invoiceVatNumber ?? '')
     if ('invoiceTaxCode' in patch) setInvoiceTaxCode(patch.invoiceTaxCode ?? '')
     if ('invoiceSdiOrPec' in patch) setInvoiceSdiOrPec(patch.invoiceSdiOrPec ?? '')
+    if ('invoiceAddressStreet' in patch) setInvoiceAddressStreet(patch.invoiceAddressStreet ?? '')
+    if ('invoiceAddressZip' in patch) setInvoiceAddressZip(patch.invoiceAddressZip ?? '')
+    if ('invoiceAddressCity' in patch) setInvoiceAddressCity(patch.invoiceAddressCity ?? '')
     if ('orderNotes' in patch) setOrderNotes(patch.orderNotes ?? '')
   }
 
@@ -817,10 +880,14 @@ export function CartPage() {
               <CheckoutOrderExtras
                 values={{
                   wantsElectronicInvoice,
+                  syncInvoiceWithBilling,
                   invoiceCompanyName,
                   invoiceVatNumber,
                   invoiceTaxCode,
                   invoiceSdiOrPec,
+                  invoiceAddressStreet,
+                  invoiceAddressZip,
+                  invoiceAddressCity,
                   orderNotes,
                 }}
                 onChange={handleCheckoutExtrasChange}

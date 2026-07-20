@@ -5,10 +5,14 @@ const inputClassName =
 
 export type CheckoutOrderExtrasValues = {
   wantsElectronicInvoice: boolean
+  syncInvoiceWithBilling: boolean
   invoiceCompanyName: string
   invoiceVatNumber: string
   invoiceTaxCode: string
   invoiceSdiOrPec: string
+  invoiceAddressStreet: string
+  invoiceAddressZip: string
+  invoiceAddressCity: string
   orderNotes: string
 }
 
@@ -27,10 +31,14 @@ export function CheckoutOrderExtras({
 }: CheckoutOrderExtrasProps) {
   const {
     wantsElectronicInvoice,
+    syncInvoiceWithBilling,
     invoiceCompanyName,
     invoiceVatNumber,
     invoiceTaxCode,
     invoiceSdiOrPec,
+    invoiceAddressStreet,
+    invoiceAddressZip,
+    invoiceAddressCity,
     orderNotes,
   } = values
 
@@ -42,6 +50,10 @@ export function CheckoutOrderExtras({
         sdiOrPec: invoiceSdiOrPec,
       })
     : null
+
+  function editInvoiceField(patch: Partial<CheckoutOrderExtrasValues>) {
+    onChange({ ...patch, syncInvoiceWithBilling: false })
+  }
 
   return (
     <div className="mt-4 space-y-5 border-t border-slate-200 pt-4">
@@ -72,6 +84,27 @@ export function CheckoutOrderExtras({
               <p className="text-xs font-medium text-slate-600">
                 Dati obbligatori per l&apos;emissione della fattura elettronica.
               </p>
+
+              <label className="mt-3 flex cursor-pointer items-start gap-2.5 text-sm text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={syncInvoiceWithBilling}
+                  onChange={(e) => onChange({ syncInvoiceWithBilling: e.target.checked })}
+                  disabled={disabled || !wantsElectronicInvoice}
+                  className="mt-0.5"
+                />
+                <span>
+                  <span className="font-medium text-slate-800">
+                    Usa gli stessi dati di fatturazione
+                  </span>
+                  <span className="mt-0.5 block text-xs text-slate-500">
+                    Precompila e mantieni sincronizzati Ragione Sociale, indirizzo, CAP, città e
+                    P.IVA/CF con i campi principali. Se modifichi un campo qui sotto, la
+                    sincronizzazione si interrompe.
+                  </span>
+                </span>
+              </label>
+
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 <label className="block text-sm sm:col-span-2">
                   <span className="mb-1 block font-medium text-slate-700">
@@ -80,23 +113,56 @@ export function CheckoutOrderExtras({
                   <input
                     type="text"
                     value={invoiceCompanyName}
-                    onChange={(e) => onChange({ invoiceCompanyName: e.target.value })}
+                    onChange={(e) => editInvoiceField({ invoiceCompanyName: e.target.value })}
                     placeholder="Es. Astro Forniture s.r.l."
-                    disabled={disabled || !wantsElectronicInvoice}
+                    disabled={disabled || !wantsElectronicInvoice || syncInvoiceWithBilling}
                     className={inputClassName}
                   />
                   {attemptedCheckout && invoiceValidation && !invoiceValidation.companyNameValid ? (
                     <p className="mt-1 text-xs text-red-700">Ragione sociale obbligatoria.</p>
                   ) : null}
                 </label>
+                <label className="block text-sm sm:col-span-2">
+                  <span className="mb-1 block font-medium text-slate-700">Indirizzo *</span>
+                  <input
+                    type="text"
+                    value={invoiceAddressStreet}
+                    onChange={(e) => editInvoiceField({ invoiceAddressStreet: e.target.value })}
+                    placeholder="Es. Via Roma, 10"
+                    disabled={disabled || !wantsElectronicInvoice || syncInvoiceWithBilling}
+                    className={inputClassName}
+                  />
+                </label>
+                <label className="block text-sm">
+                  <span className="mb-1 block font-medium text-slate-700">CAP *</span>
+                  <input
+                    type="text"
+                    value={invoiceAddressZip}
+                    onChange={(e) => editInvoiceField({ invoiceAddressZip: e.target.value })}
+                    placeholder="46100"
+                    disabled={disabled || !wantsElectronicInvoice || syncInvoiceWithBilling}
+                    className={inputClassName}
+                  />
+                </label>
+                <label className="block text-sm">
+                  <span className="mb-1 block font-medium text-slate-700">Città *</span>
+                  <input
+                    type="text"
+                    value={invoiceAddressCity}
+                    onChange={(e) => editInvoiceField({ invoiceAddressCity: e.target.value })}
+                    placeholder="Mantova"
+                    disabled={disabled || !wantsElectronicInvoice || syncInvoiceWithBilling}
+                    className={inputClassName}
+                  />
+                </label>
                 <label className="block text-sm">
                   <span className="mb-1 block font-medium text-slate-700">Partita IVA *</span>
                   <input
                     type="text"
                     value={invoiceVatNumber}
-                    onChange={(e) => onChange({ invoiceVatNumber: e.target.value })}
+                    onChange={(e) => editInvoiceField({ invoiceVatNumber: e.target.value })}
                     placeholder="Es. IT01234567890"
-                    disabled={disabled || !wantsElectronicInvoice}
+                    disabled={disabled || !wantsElectronicInvoice || syncInvoiceWithBilling}
                     className={inputClassName}
                   />
                   {attemptedCheckout && invoiceValidation && !invoiceValidation.vatNumberValid ? (
@@ -108,9 +174,9 @@ export function CheckoutOrderExtras({
                   <input
                     type="text"
                     value={invoiceTaxCode}
-                    onChange={(e) => onChange({ invoiceTaxCode: e.target.value })}
+                    onChange={(e) => editInvoiceField({ invoiceTaxCode: e.target.value })}
                     placeholder="Es. RSSMRA80A01H501U"
-                    disabled={disabled || !wantsElectronicInvoice}
+                    disabled={disabled || !wantsElectronicInvoice || syncInvoiceWithBilling}
                     className={inputClassName}
                   />
                   {attemptedCheckout && invoiceValidation && !invoiceValidation.taxCodeValid ? (
@@ -124,9 +190,9 @@ export function CheckoutOrderExtras({
                   <input
                     type="text"
                     value={invoiceSdiOrPec}
-                    onChange={(e) => onChange({ invoiceSdiOrPec: e.target.value })}
+                    onChange={(e) => editInvoiceField({ invoiceSdiOrPec: e.target.value })}
                     placeholder="Es. ABCD123 oppure nome@pec.it"
-                    disabled={disabled || !wantsElectronicInvoice}
+                    disabled={disabled || !wantsElectronicInvoice || syncInvoiceWithBilling}
                     className={inputClassName}
                   />
                   {attemptedCheckout && invoiceValidation && !invoiceValidation.sdiOrPecValid ? (
