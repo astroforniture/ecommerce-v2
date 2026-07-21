@@ -26,6 +26,7 @@ import { StripePaymentSection } from '../components/checkout/StripePaymentSectio
 import { validateElectronicInvoice } from '../lib/electronicInvoiceValidation'
 import { persistCheckoutOrder, type CheckoutOrderInput, type CustomerType, isBusinessCustomerType } from '../lib/checkoutOrder'
 import { isStripeConfigured } from '../lib/stripe'
+import { resolveLoggedInUserFormData } from '../lib/userAuth'
 
 const eur = new Intl.NumberFormat('it-IT', {
   style: 'currency',
@@ -99,66 +100,62 @@ export function CartPage() {
       if (!client) return
       setIsProfileLoading(true)
       try {
-        const { data: authData } = await client.auth.getSession()
-        const user = authData.session?.user
+        // Preferisci getUser() per metadata aggiornati; fallback a getSession().
+        const { data: userData } = await client.auth.getUser()
+        const user =
+          userData.user ??
+          (await client.auth.getSession()).data.session?.user ??
+          null
         if (!user || !isMounted) return
 
-        const { data: profile } = await client
+        const profileRes = await client
           .from('profiles')
-          .select(
-            'first_name, last_name, ragione_sociale, email, shipping_address, shipping_city, shipping_zip, shipping_province, default_shipping_address, default_shipping_city, default_shipping_zip_code, default_shipping_province, indirizzo, citta, cap, provincia, vat_number, partita_iva, sdi_code, sdi',
-          )
+          .select('*')
           .eq('id', user.id)
           .maybeSingle()
 
         if (!isMounted) return
+
+        if (profileRes.error && import.meta.env.DEV) {
+          console.warn('Checkout: profilo non caricato, uso user_metadata:', profileRes.error.message)
+        }
+
+        const profileRow =
+          profileRes.data && typeof profileRes.data === 'object'
+            ? (profileRes.data as Record<string, unknown>)
+            : null
+
+        const form = resolveLoggedInUserFormData(user, profileRow)
+
         if (import.meta.env.DEV) {
-          console.debug('Profilo checkout (opzionale):', profile)
+          console.debug('Checkout form da profilo/metadata:', form)
         }
 
-        const resolvedCompanyName = profile?.ragione_sociale?.trim() ?? ''
-        const resolvedFirstName = profile?.first_name?.trim() ?? ''
-        const resolvedLastName = profile?.last_name?.trim() ?? ''
-        const fallbackFullName = [resolvedFirstName, resolvedLastName].filter(Boolean).join(' ').trim()
-        const resolvedEmail = profile?.email?.trim() || user.email?.trim() || ''
-        const resolvedAddress =
-          profile?.shipping_address?.trim() ??
-          profile?.default_shipping_address?.trim() ??
-          profile?.indirizzo?.trim() ??
-          ''
-        const resolvedCity =
-          profile?.shipping_city?.trim() ??
-          profile?.default_shipping_city?.trim() ??
-          profile?.citta?.trim() ??
-          ''
-        const resolvedZip =
-          profile?.shipping_zip?.trim() ??
-          profile?.default_shipping_zip_code?.trim() ??
-          profile?.cap?.trim() ??
-          ''
-        const resolvedProvince = (
-          profile?.shipping_province?.trim() ??
-          profile?.default_shipping_province?.trim() ??
-          profile?.provincia?.trim() ??
-          ''
-        ).toUpperCase()
-        const resolvedVat = profile?.vat_number?.trim() ?? profile?.partita_iva?.trim() ?? ''
-        const resolvedSdi = profile?.sdi_code?.trim() ?? profile?.sdi?.trim() ?? ''
-
-        if (resolvedCompanyName || resolvedVat) {
-          setCustomerType('azienda')
-          setCompanyName(resolvedCompanyName || fallbackFullName)
+        if (form.isCompany) {
+          setCustomerType(form.accountType === 'ente' ? 'ente' : 'azienda')
+          setCompanyName(
+            form.companyName ||
+              [form.firstName, form.lastName].filter(Boolean).join(' ').trim(),
+          )
+          setFirstName('')
+          setLastName('')
         } else {
-          setFirstName(resolvedFirstName)
-          setLastName(resolvedLastName)
+          setCustomerType('privato')
+          setCompanyName('')
+          setFirstName(form.firstName)
+          setLastName(form.lastName)
         }
-        setAddressStreet(resolvedAddress)
-        setAddressCity(resolvedCity)
-        setAddressZip(resolvedZip)
-        setAddressProvince(resolvedProvince)
-        setVatNumber(resolvedVat)
-        setSdiCode(resolvedSdi)
-        setBillingEmail(resolvedEmail)
+
+        setAddressStreet(form.address)
+        setAddressCity(form.city)
+        setAddressZip(form.zipCode)
+        setAddressProvince(form.province)
+        setVatNumber(form.vatNumber)
+        setSdiCode(form.sdiCode)
+        setTaxCode(form.taxCode)
+        setPec(form.pec)
+        setBillingEmail(form.email)
+        setBillingPhone(form.phone)
       } finally {
         if (isMounted) setIsProfileLoading(false)
       }
@@ -604,7 +601,7 @@ export function CartPage() {
                         type="text"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        placeholder="Es. Mario"
+                        placeholder="Nome"
                         disabled={isProfileLoading}
                         className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
                       />
@@ -618,7 +615,7 @@ export function CartPage() {
                         type="text"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        placeholder="Es. Rossi"
+                        placeholder="Cognome"
                         disabled={isProfileLoading}
                         className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
                       />
@@ -635,7 +632,7 @@ export function CartPage() {
                         type="text"
                         value={companyName}
                         onChange={(e) => setCompanyName(e.target.value)}
-                        placeholder="Es. Astro Forniture s.r.l."
+                        placeholder="Ragione sociale"
                         disabled={isProfileLoading}
                         className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
                       />
@@ -649,7 +646,7 @@ export function CartPage() {
                         type="text"
                         value={vatNumber}
                         onChange={(e) => setVatNumber(e.target.value)}
-                        placeholder="Es. IT01234567890"
+                        placeholder="Partita IVA"
                         disabled={isProfileLoading}
                         className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
                       />
@@ -663,7 +660,7 @@ export function CartPage() {
                         type="text"
                         value={sdiCode}
                         onChange={(e) => setSdiCode(e.target.value)}
-                        placeholder="Es. ABCD123"
+                        placeholder="Codice SDI"
                         disabled={isProfileLoading}
                         className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
                       />
@@ -681,7 +678,7 @@ export function CartPage() {
                         type="email"
                         value={pec}
                         onChange={(e) => setPec(e.target.value)}
-                        placeholder="nome@pec.it"
+                        placeholder="PEC"
                         disabled={isProfileLoading}
                         className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
                       />
@@ -694,7 +691,8 @@ export function CartPage() {
                     type="text"
                     value={addressStreet}
                     onChange={(e) => setAddressStreet(e.target.value)}
-                    placeholder="Es. Largo di Porta Pradella, 2"
+                    placeholder="Indirizzo"
+                    autoComplete="street-address"
                     disabled={isProfileLoading}
                     className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
                   />
@@ -708,7 +706,8 @@ export function CartPage() {
                     type="text"
                     value={addressZip}
                     onChange={(e) => setAddressZip(e.target.value)}
-                    placeholder="46100"
+                    placeholder="CAP"
+                    autoComplete="postal-code"
                     disabled={isProfileLoading}
                     className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
                   />
@@ -722,7 +721,8 @@ export function CartPage() {
                     type="text"
                     value={addressCity}
                     onChange={(e) => setAddressCity(e.target.value)}
-                    placeholder="Mantova"
+                    placeholder="Città"
+                    autoComplete="address-level2"
                     disabled={isProfileLoading}
                     className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
                   />
@@ -736,8 +736,9 @@ export function CartPage() {
                     type="text"
                     value={addressProvince}
                     onChange={(e) => setAddressProvince(e.target.value.toUpperCase())}
-                    placeholder="MN"
+                    placeholder="Provincia"
                     maxLength={2}
+                    autoComplete="address-level1"
                     disabled={isProfileLoading}
                     className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
                   />
@@ -754,7 +755,7 @@ export function CartPage() {
                       type="text"
                       value={taxCode}
                       onChange={(e) => setTaxCode(e.target.value)}
-                      placeholder="Opzionale"
+                      placeholder="Codice fiscale"
                       disabled={isProfileLoading}
                       className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
                     />
@@ -770,7 +771,7 @@ export function CartPage() {
                     type="email"
                     value={billingEmail}
                     onChange={(e) => setBillingEmail(e.target.value)}
-                    placeholder="nome@azienda.it"
+                    placeholder="Email"
                     disabled={isProfileLoading}
                     className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
                   />
@@ -781,7 +782,7 @@ export function CartPage() {
                     type="tel"
                     value={billingPhone}
                     onChange={(e) => setBillingPhone(e.target.value)}
-                    placeholder="+39 ..."
+                    placeholder="Telefono"
                     disabled={isProfileLoading}
                     className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
                   />

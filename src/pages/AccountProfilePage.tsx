@@ -13,6 +13,7 @@ import {
   User,
 } from 'lucide-react'
 import { getSupabaseBrowserClient } from '../lib/supabaseClient'
+import { resolveLoggedInUserFormData } from '../lib/userAuth'
 
 type ProfileRow = {
   id: string
@@ -114,8 +115,11 @@ export function AccountProfilePage() {
       setOrdersError('')
       setOrdersLoading(true)
 
-      const { data: sessionData } = await supabase.auth.getSession()
-      const user = sessionData.session?.user
+      const { data: userData } = await supabase.auth.getUser()
+      const user =
+        userData.user ??
+        (await supabase.auth.getSession()).data.session?.user ??
+        null
       if (!user) {
         if (!cancelled) {
           setShouldLogin(true)
@@ -134,7 +138,7 @@ export function AccountProfilePage() {
       if (cancelled) return
 
       if (profileRes.error) {
-        console.warn('Profilo non caricato, continuo con valori vuoti:', profileRes.error.message)
+        console.warn('Profilo non caricato, continuo con user_metadata:', profileRes.error.message)
       }
 
       if (ordersRes.error) {
@@ -172,43 +176,51 @@ export function AccountProfilePage() {
         setOrders(filtered)
       }
 
-      const row = profileRes.data ?? {}
-      const p: ProfileRow | null = profileRes.data
-        ? {
-            id: asString(row.id),
-            first_name: asString(row.first_name) || null,
-            last_name: asString(row.last_name) || null,
-            telefono: asString(row.telefono) || null,
-            account_type: (asString(row.account_type) as 'azienda' | 'privato' | '') || null,
-            ragione_sociale: asString(row.ragione_sociale) || null,
-            partita_iva: asString(row.partita_iva) || null,
-            sdi: asString(row.sdi) || null,
-            indirizzo: asString(row.indirizzo) || null,
-            citta: asString(row.citta) || null,
-            cap: asString(row.cap) || null,
-            provincia: asString(row.provincia) || null,
-            default_shipping_address: asString(row.default_shipping_address) || null,
-            default_shipping_city: asString(row.default_shipping_city) || null,
-            default_shipping_zip_code: asString(row.default_shipping_zip_code) || null,
-            default_shipping_province: asString(row.default_shipping_province) || null,
-            email: asString(row.email) || null,
-            newsletter_opt_in: Boolean(row.newsletter_opt_in),
-          }
-        : null
+      const row = (profileRes.data ?? null) as Record<string, unknown> | null
+      const form = resolveLoggedInUserFormData(user, row)
+
+      const p: ProfileRow = {
+        id: asString(row?.id) || user.id,
+        first_name: form.firstName || null,
+        last_name: form.lastName || null,
+        telefono: form.phone || null,
+        account_type:
+          form.accountType === 'azienda' || form.accountType === 'privato'
+            ? form.accountType
+            : form.isCompany
+              ? 'azienda'
+              : 'privato',
+        ragione_sociale: form.companyName || null,
+        partita_iva: form.vatNumber || null,
+        sdi: form.sdiCode || null,
+        indirizzo: form.address || null,
+        citta: form.city || null,
+        cap: form.zipCode || null,
+        provincia: form.province || null,
+        default_shipping_address: form.address || null,
+        default_shipping_city: form.city || null,
+        default_shipping_zip_code: form.zipCode || null,
+        default_shipping_province: form.province || null,
+        email: form.email || null,
+        newsletter_opt_in: Boolean(row?.newsletter_opt_in),
+      }
 
       setProfile(p)
-      setBillingName(p?.ragione_sociale ?? [p?.first_name, p?.last_name].filter(Boolean).join(' ').trim())
-      setShippingAddress(p?.default_shipping_address ?? p?.indirizzo ?? '')
-      setShippingCity(p?.default_shipping_city ?? p?.citta ?? '')
-      setShippingZip(p?.default_shipping_zip_code ?? p?.cap ?? '')
-      setShippingProvince((p?.default_shipping_province ?? p?.provincia ?? '').toUpperCase())
-      setVatNumber(p?.partita_iva ?? '')
-      setSdiCode(p?.sdi ?? '')
-      setBaseFirstName(p?.first_name ?? '')
-      setBaseLastName(p?.last_name ?? '')
-      setBaseEmail(p?.email ?? user.email ?? '')
-      setBasePhone(p?.telefono ?? '')
-      setNewsletterOptIn(Boolean(p?.newsletter_opt_in))
+      setBillingName(
+        form.companyName ||
+          [form.firstName, form.lastName].filter(Boolean).join(' ').trim(),
+      )
+      setShippingAddress(form.address)
+      setShippingCity(form.city)
+      setShippingZip(form.zipCode)
+      setShippingProvince(form.province)
+      setVatNumber(form.vatNumber)
+      setSdiCode(form.sdiCode)
+      setBaseFirstName(form.firstName)
+      setBaseLastName(form.lastName)
+      setBaseEmail(form.email)
+      setBasePhone(form.phone)
+      setNewsletterOptIn(Boolean(row?.newsletter_opt_in))
       setOrdersLoading(false)
       setLoading(false)
     }
@@ -271,6 +283,13 @@ export function AccountProfilePage() {
     if (!supabase || !profile?.id) return
     const modernRes = await supabase.from('profiles').update(modernPayload).eq('id', profile.id)
     if (!modernRes.error) return
+
+    const msg = `${modernRes.error.message ?? ''}`.toLowerCase()
+    const maybeMissingColumn =
+      msg.includes('column') || msg.includes('schema') || msg.includes('could not find')
+
+    if (!maybeMissingColumn) throw modernRes.error
+
     const fallbackRes = await supabase.from('profiles').update(legacyPayload).eq('id', profile.id)
     if (fallbackRes.error) throw fallbackRes.error
   }
@@ -280,29 +299,90 @@ export function AccountProfilePage() {
     setSaveError('')
     setIsSaving(true)
     try {
+      const address = shippingAddress.trim()
+      const city = shippingCity.trim()
+      const zip = shippingZip.trim()
+      const province = shippingProvince.trim().toUpperCase()
+      const vat = vatNumber.trim()
+      const sdi = sdiCode.trim()
+      const company = billingName.trim()
+
       await updateProfileModernThenLegacy(
         {
-          shipping_address: shippingAddress.trim(),
-          shipping_city: shippingCity.trim(),
-          shipping_zip: shippingZip.trim(),
-          shipping_province: shippingProvince.trim().toUpperCase(),
-          vat_number: vatNumber.trim() || null,
-          sdi_code: sdiCode.trim() || null,
-          ragione_sociale: billingName.trim() || null,
+          shipping_address: address,
+          shipping_city: city,
+          shipping_zip: zip,
+          shipping_province: province,
+          default_shipping_address: address,
+          default_shipping_city: city,
+          default_shipping_zip_code: zip,
+          default_shipping_province: province,
+          indirizzo: address,
+          citta: city,
+          cap: zip,
+          provincia: province,
+          vat_number: vat || null,
+          partita_iva: vat || null,
+          sdi_code: sdi || null,
+          sdi: sdi || null,
+          ragione_sociale: company || null,
         },
         {
-          default_shipping_address: shippingAddress.trim(),
-          default_shipping_city: shippingCity.trim(),
-          default_shipping_zip_code: shippingZip.trim(),
-          default_shipping_province: shippingProvince.trim().toUpperCase(),
-          indirizzo: shippingAddress.trim(),
-          citta: shippingCity.trim(),
-          cap: shippingZip.trim(),
-          provincia: shippingProvince.trim().toUpperCase(),
-          partita_iva: vatNumber.trim() || null,
-          sdi: sdiCode.trim() || null,
-          ragione_sociale: billingName.trim() || null,
+          default_shipping_address: address,
+          default_shipping_city: city,
+          default_shipping_zip_code: zip,
+          default_shipping_province: province,
+          indirizzo: address,
+          citta: city,
+          cap: zip,
+          provincia: province,
+          partita_iva: vat || null,
+          sdi: sdi || null,
+          ragione_sociale: company || null,
         },
+      )
+
+      if (supabase) {
+        await supabase.auth.updateUser({
+          data: {
+            ragione_sociale: company || null,
+            partita_iva: vat || null,
+            vat_number: vat || null,
+            sdi: sdi || null,
+            sdi_code: sdi || null,
+            indirizzo: address,
+            citta: city,
+            cap: zip,
+            provincia: province,
+            shipping_address: address,
+            shipping_city: city,
+            shipping_zip: zip,
+            shipping_province: province,
+            default_shipping_address: address,
+            default_shipping_city: city,
+            default_shipping_zip_code: zip,
+            default_shipping_province: province,
+          },
+        })
+      }
+
+      setProfile((prev) =>
+        prev
+          ? {
+              ...prev,
+              ragione_sociale: company || null,
+              partita_iva: vat || null,
+              sdi: sdi || null,
+              indirizzo: address || null,
+              citta: city || null,
+              cap: zip || null,
+              provincia: province || null,
+              default_shipping_address: address || null,
+              default_shipping_city: city || null,
+              default_shipping_zip_code: zip || null,
+              default_shipping_province: province || null,
+            }
+          : prev,
       )
       setSaveMessage('Dati indirizzo e aziendali aggiornati.')
     } catch (e) {
@@ -330,6 +410,28 @@ export function AccountProfilePage() {
         })
         .eq('id', profile.id)
       if (res.error) throw res.error
+
+      await supabase.auth.updateUser({
+        data: {
+          first_name: baseFirstName.trim() || null,
+          last_name: baseLastName.trim() || null,
+          telefono: basePhone.trim() || null,
+          ragione_sociale: billingName.trim() || mergedFullName || null,
+        },
+      })
+
+      setProfile((prev) =>
+        prev
+          ? {
+              ...prev,
+              first_name: baseFirstName.trim() || null,
+              last_name: baseLastName.trim() || null,
+              telefono: basePhone.trim() || null,
+              email: baseEmail.trim() || null,
+              ragione_sociale: billingName.trim() || mergedFullName || null,
+            }
+          : prev,
+      )
       setSaveMessage('Dati anagrafici aggiornati.')
     } catch (e) {
       setSaveError(e instanceof Error ? e.message : 'Errore aggiornamento dati.')
@@ -475,14 +577,14 @@ export function AccountProfilePage() {
               <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h2 className="text-lg font-semibold text-slate-900">Indirizzi / Dati Aziendali</h2>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <Field label="Ragione Sociale / Intestazione"><input value={billingName} onChange={(e) => setBillingName(e.target.value)} className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
-                  <Field label="P.IVA"><input value={vatNumber} onChange={(e) => setVatNumber(e.target.value)} className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
-                  <Field label="Codice SDI"><input value={sdiCode} onChange={(e) => setSdiCode(e.target.value)} className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
+                  <Field label="Ragione Sociale / Intestazione"><input value={billingName} onChange={(e) => setBillingName(e.target.value)} placeholder="Ragione sociale" className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
+                  <Field label="P.IVA"><input value={vatNumber} onChange={(e) => setVatNumber(e.target.value)} placeholder="Partita IVA" className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
+                  <Field label="Codice SDI"><input value={sdiCode} onChange={(e) => setSdiCode(e.target.value)} placeholder="Codice SDI" className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
                   <div />
-                  <Field label="Via e numero civico"><input value={shippingAddress} onChange={(e) => setShippingAddress(e.target.value)} className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
-                  <Field label="Citta"><input value={shippingCity} onChange={(e) => setShippingCity(e.target.value)} className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
-                  <Field label="CAP"><input value={shippingZip} onChange={(e) => setShippingZip(e.target.value)} className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
-                  <Field label="Provincia"><input value={shippingProvince} onChange={(e) => setShippingProvince(e.target.value.toUpperCase())} maxLength={2} className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
+                  <Field label="Via e numero civico"><input value={shippingAddress} onChange={(e) => setShippingAddress(e.target.value)} placeholder="Indirizzo" className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
+                  <Field label="Citta"><input value={shippingCity} onChange={(e) => setShippingCity(e.target.value)} placeholder="Città" className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
+                  <Field label="CAP"><input value={shippingZip} onChange={(e) => setShippingZip(e.target.value)} placeholder="CAP" className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
+                  <Field label="Provincia"><input value={shippingProvince} onChange={(e) => setShippingProvince(e.target.value.toUpperCase())} placeholder="Provincia" maxLength={2} className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
                 </div>
                 <button type="button" onClick={handleSaveAddressesAndCompany} disabled={isSaving} className="mt-4 inline-flex rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800 disabled:opacity-60">{isSaving ? 'Salvataggio...' : 'Salva dati indirizzo e aziendali'}</button>
               </article>
@@ -492,10 +594,10 @@ export function AccountProfilePage() {
               <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h2 className="text-lg font-semibold text-slate-900">Nome-Email-Telefono</h2>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <Field label="Nome"><input value={baseFirstName} onChange={(e) => setBaseFirstName(e.target.value)} className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
-                  <Field label="Cognome"><input value={baseLastName} onChange={(e) => setBaseLastName(e.target.value)} className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
-                  <Field label="Email"><input value={baseEmail} onChange={(e) => setBaseEmail(e.target.value)} className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
-                  <Field label="Telefono"><input value={basePhone} onChange={(e) => setBasePhone(e.target.value)} className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
+                  <Field label="Nome"><input value={baseFirstName} onChange={(e) => setBaseFirstName(e.target.value)} placeholder="Nome" className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
+                  <Field label="Cognome"><input value={baseLastName} onChange={(e) => setBaseLastName(e.target.value)} placeholder="Cognome" className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
+                  <Field label="Email"><input value={baseEmail} onChange={(e) => setBaseEmail(e.target.value)} placeholder="Email" className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
+                  <Field label="Telefono"><input value={basePhone} onChange={(e) => setBasePhone(e.target.value)} placeholder="Telefono" className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm" /></Field>
                 </div>
                 <button type="button" onClick={handleSaveBaseProfile} disabled={isSaving} className="mt-4 inline-flex rounded-lg bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800 disabled:opacity-60">{isSaving ? 'Salvataggio...' : 'Salva dati base'}</button>
               </article>

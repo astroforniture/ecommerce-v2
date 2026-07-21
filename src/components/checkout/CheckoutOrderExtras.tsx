@@ -114,7 +114,7 @@ export function CheckoutOrderExtras({
                     type="text"
                     value={invoiceCompanyName}
                     onChange={(e) => editInvoiceField({ invoiceCompanyName: e.target.value })}
-                    placeholder="Es. Astro Forniture s.r.l."
+                    placeholder="Ragione sociale"
                     disabled={disabled || !wantsElectronicInvoice || syncInvoiceWithBilling}
                     className={inputClassName}
                   />
@@ -128,7 +128,7 @@ export function CheckoutOrderExtras({
                     type="text"
                     value={invoiceAddressStreet}
                     onChange={(e) => editInvoiceField({ invoiceAddressStreet: e.target.value })}
-                    placeholder="Es. Via Roma, 10"
+                    placeholder="Indirizzo"
                     disabled={disabled || !wantsElectronicInvoice || syncInvoiceWithBilling}
                     className={inputClassName}
                   />
@@ -139,7 +139,7 @@ export function CheckoutOrderExtras({
                     type="text"
                     value={invoiceAddressZip}
                     onChange={(e) => editInvoiceField({ invoiceAddressZip: e.target.value })}
-                    placeholder="46100"
+                    placeholder="CAP"
                     disabled={disabled || !wantsElectronicInvoice || syncInvoiceWithBilling}
                     className={inputClassName}
                   />
@@ -150,7 +150,7 @@ export function CheckoutOrderExtras({
                     type="text"
                     value={invoiceAddressCity}
                     onChange={(e) => editInvoiceField({ invoiceAddressCity: e.target.value })}
-                    placeholder="Mantova"
+                    placeholder="Città"
                     disabled={disabled || !wantsElectronicInvoice || syncInvoiceWithBilling}
                     className={inputClassName}
                   />
@@ -161,7 +161,7 @@ export function CheckoutOrderExtras({
                     type="text"
                     value={invoiceVatNumber}
                     onChange={(e) => editInvoiceField({ invoiceVatNumber: e.target.value })}
-                    placeholder="Es. IT01234567890"
+                    placeholder="Partita IVA"
                     disabled={disabled || !wantsElectronicInvoice || syncInvoiceWithBilling}
                     className={inputClassName}
                   />
@@ -175,7 +175,7 @@ export function CheckoutOrderExtras({
                     type="text"
                     value={invoiceTaxCode}
                     onChange={(e) => editInvoiceField({ invoiceTaxCode: e.target.value })}
-                    placeholder="Es. RSSMRA80A01H501U"
+                    placeholder="Codice fiscale"
                     disabled={disabled || !wantsElectronicInvoice || syncInvoiceWithBilling}
                     className={inputClassName}
                   />
@@ -191,7 +191,7 @@ export function CheckoutOrderExtras({
                     type="text"
                     value={invoiceSdiOrPec}
                     onChange={(e) => editInvoiceField({ invoiceSdiOrPec: e.target.value })}
-                    placeholder="Es. ABCD123 oppure nome@pec.it"
+                    placeholder="Codice SDI o PEC"
                     disabled={disabled || !wantsElectronicInvoice || syncInvoiceWithBilling}
                     className={inputClassName}
                   />
@@ -219,7 +219,7 @@ export function CheckoutOrderExtras({
             id="checkout-order-notes"
             value={orderNotes}
             onChange={(e) => onChange({ orderNotes: e.target.value })}
-            placeholder="Es: Consegnare solo la mattina, lasciare al portiere, scala B..."
+            placeholder="Note ordine"
             disabled={disabled}
             rows={4}
             className="min-h-[7.5rem] w-full resize-y rounded-xl border border-slate-300 bg-white px-3.5 py-3 text-sm leading-relaxed text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"

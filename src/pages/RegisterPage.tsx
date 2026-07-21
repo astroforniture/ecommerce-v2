@@ -335,7 +335,7 @@ export function RegisterPage() {
                             <Input
                               type="email"
                               className="h-11 rounded-lg py-3"
-                              placeholder="fatturazione@pec.azienda.it"
+                              placeholder="PEC"
                               {...register('pecEmail')}
                             />
                           </Field>

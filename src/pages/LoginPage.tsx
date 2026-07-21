@@ -89,7 +89,7 @@ export function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="nome@azienda.it"
+                  placeholder="Email"
                 />
               </div>
               <div className="space-y-1.5">
