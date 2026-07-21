@@ -14,6 +14,7 @@ const customerServiceLinks = [
   { label: 'Richiesta catalogo', to: '/home' },
   { label: 'Termini e condizioni', to: '/termini-condizioni-vendita' },
   { label: 'Privacy', to: '/privacy-policy' },
+  { label: 'Cookie Policy', to: '/cookie-policy' },
 ]
 
 const guaranteesLinks = [

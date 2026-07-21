@@ -88,7 +88,8 @@ export function searchableProductMatchesTerm(
   }
 
   const haystack = buildProductSearchHaystack(fields)
-  if (t.length >= 5 && flexibleTermMatchesInHaystack(haystack, term)) return true
+  if (options?.suggestAutocomplete && t.length >= 3 && haystack.includes(t)) return true
+  if (t.length >= 3 && flexibleTermMatchesInHaystack(haystack, term)) return true
 
   return (
     normalizedTextContainsWholeWord(fields.name, t) ||

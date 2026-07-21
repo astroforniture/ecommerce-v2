@@ -35,6 +35,7 @@ import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { AccountProfilePage } from './pages/AccountProfilePage'
 import { CategoryPromoWidget } from './components/promo/CategoryPromoWidget'
+import { CookieConsentBanner } from './components/cookies/CookieConsentBanner'
 
 function PlaceholderPage() {
   return (
@@ -69,6 +70,7 @@ function MacchineUfficioLegacyRedirect() {
 
 export default function App() {
   return (
+    <>
     <Routes>
       <Route element={<StorefrontLayout />}>
         {/* FORCE_REBUILD_2026_04_29: refresh router and homepage layout */}
@@ -127,6 +129,8 @@ export default function App() {
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    <CookieConsentBanner />
+    </>
   )
 }
 

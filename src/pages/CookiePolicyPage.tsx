@@ -1,8 +1,11 @@
+import { Link } from 'react-router-dom'
+import { openCookiePreferencesEvent } from '../lib/cookieConsent'
+
 type TocItem = { id: string; label: string }
 
 const TOC: TocItem[] = [
   { id: 'cosa-sono', label: '1. Cosa sono i cookie' },
-  { id: 'cookie-tecnici', label: '2. Cookie tecnici utilizzati' },
+  { id: 'categorie', label: '2. Categorie di cookie' },
   { id: 'base-giuridica', label: '3. Base giuridica' },
   { id: 'durata', label: '4. Durata e gestione cookie' },
   { id: 'diritti', label: '5. Diritti dell utente' },
@@ -14,6 +17,16 @@ export function CookiePolicyPage() {
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold tracking-tight text-slate-900">Cookie Policy</h1>
         <p className="mt-3 text-sm text-slate-600">Informazioni sull&apos;uso dei cookie e tecnologie analoghe.</p>
+
+        <div className="mt-5">
+          <button
+            type="button"
+            onClick={() => openCookiePreferencesEvent()}
+            className="inline-flex h-10 items-center justify-center rounded-lg bg-brand-700 px-4 text-sm font-semibold text-white transition hover:bg-brand-800"
+          >
+            Gestisci preferenze cookie
+          </button>
+        </div>
 
         <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-base font-semibold text-slate-900">Indice</h2>
@@ -36,22 +49,32 @@ export function CookiePolicyPage() {
           </p>
         </section>
 
-        <section id="cookie-tecnici" className="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
-          <h3 className="text-lg font-semibold text-slate-900">2. Cookie tecnici utilizzati</h3>
+        <section id="categorie" className="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
+          <h3 className="text-lg font-semibold text-slate-900">2. Categorie di cookie</h3>
+          <ul className="mt-2 list-disc space-y-2 pl-5 text-sm leading-relaxed text-slate-700">
+            <li>
+              <strong>Tecnici:</strong> indispensabili al carrello, sessione e sicurezza. Sempre attivi, senza
+              consenso preventivo.
+            </li>
+            <li>
+              <strong>Analitici:</strong> misurano l&apos;uso del sito in forma aggregata. Attivati solo con consenso.
+            </li>
+            <li>
+              <strong>Marketing:</strong> possono supportare contenuti e offerte personalizzate. Attivati solo con
+              consenso.
+            </li>
+          </ul>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            Il sito utilizza cookie tecnici strettamente necessari al funzionamento del carrello, alla gestione della
-            sessione utente e alla fruizione delle funzionalita essenziali di acquisto.
-          </p>
-          <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            Tali cookie non richiedono consenso preventivo, in quanto indispensabili all&apos;erogazione del servizio richiesto.
+            La scelta viene salvata nel browser (localStorage) e non viene riproposta a ogni pagina; puoi
+            modificarla in qualsiasi momento dal banner o da questa pagina.
           </p>
         </section>
 
         <section id="base-giuridica" className="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
           <h3 className="text-lg font-semibold text-slate-900">3. Base giuridica</h3>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            Il trattamento dei dati tramite cookie tecnici si fonda sull&apos;esecuzione del servizio richiesto dall&apos;utente e
-            sul legittimo interesse del Titolare a garantire la sicurezza e l&apos;efficienza della piattaforma.
+            Per i cookie tecnici il trattamento si fonda sull&apos;esecuzione del servizio richiesto. Per analitici e
+            marketing la base giuridica è il consenso dell&apos;utente, revocabile in ogni momento.
           </p>
         </section>
 
@@ -60,7 +83,12 @@ export function CookiePolicyPage() {
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
             I cookie tecnici possono essere di sessione o persistenti per il tempo strettamente necessario. L&apos;utente puo
             gestire o disabilitare i cookie tramite le impostazioni del browser; tale disabilitazione puo compromettere
-            il funzionamento del carrello e del checkout.
+            il funzionamento del carrello e del checkout. Per analitici e marketing usa il pulsante &quot;Gestisci
+            preferenze cookie&quot; sopra oppure consulta la{' '}
+            <Link to="/privacy-policy" className="font-semibold text-brand-700 hover:underline">
+              Privacy Policy
+            </Link>
+            .
           </p>
         </section>
 

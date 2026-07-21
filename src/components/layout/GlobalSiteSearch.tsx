@@ -30,7 +30,7 @@ import { CATALOG_CONNECTION_ERROR_MESSAGE } from '../../lib/catalogConnectionErr
 const PLACEHOLDER_ROTATE = ['Cerca tra migliaia di prodotti...'] as const
 
 const PLACEHOLDER_INTERVAL_MS = 3200
-const SUGGEST_DEBOUNCE_MS = 300
+const SUGGEST_DEBOUNCE_MS = 80
 const CATALOG_URL_DEBOUNCE_MS = 300
 const MIN_CHARS_SUGGEST = 2
 
@@ -181,8 +181,8 @@ export function GlobalSiteSearch() {
 
   const showInputSpinner =
     !isCatalogConnectionError &&
-    ((!useLocalSearch && isDebouncingSuggest) ||
-      (suggestEnabled && (isFetching || isIndexLoading)))
+    !useLocalSearch &&
+    (isDebouncingSuggest || (suggestEnabled && (isFetching || isIndexLoading)))
   const suggestLoading =
     showSuggestionsPanel &&
     !isCatalogConnectionError &&

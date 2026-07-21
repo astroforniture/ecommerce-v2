@@ -17,7 +17,7 @@ import {
   timbroMatchesUrlKey,
 } from '../lib/timbroAziendeFarmacieProduct'
 import { resolveSyntheticOfficeProductByCatalogKey } from '../lib/syntheticOfficeCatalogProducts'
-import { searchOfficeProductsClient, LOCAL_SEARCH_CATALOG_MAX, setOfficeSearchIndexFromProducts, shouldUseLocalSearchOnly } from '../lib/officeClientSearch'
+import { searchOfficeProductsClient, setOfficeSearchIndexFromProducts, shouldUseLocalSearchOnly } from '../lib/officeClientSearch'
 import { isGeneralOfficeShopCatalogProduct } from '../lib/isGeneralOfficeShopCatalogProduct'
 import { isExcludedFromOfficeSearchSuggestions } from '../lib/isOfficeProductAstroMedicalLine'
 import {
@@ -2695,30 +2695,22 @@ export type OfficeSearchCatalogIndex = {
 }
 
 /**
- * Scarica una volta il catalogo shop (probe) per decidere strategia autocomplete:
- * meno di 100 articoli ufficio → indice locale; altrimenti query `.ilike` per richiesta.
+ * Scarica il catalogo shop per l'indice autocomplete fuzzy locale (una volta per sessione).
+ * L'autocomplete resta istantaneo anche con cataloghi grandi: niente `.ilike` per keystroke.
  */
 export async function fetchOfficeSearchCatalogIndex(): Promise<OfficeSearchCatalogIndex> {
   const supabase = getSupabaseBrowserClient()
   const injected = getInjectedLocalCatalogProducts().filter(isGeneralOfficeShopCatalogProduct)
 
   if (!supabase) {
-    const useLocalSearch = injected.length < LOCAL_SEARCH_CATALOG_MAX
-    if (useLocalSearch) setOfficeSearchIndexFromProducts(injected, true)
-    else setOfficeSearchIndexFromProducts([], false)
-    return { products: injected, useLocalSearch }
+    setOfficeSearchIndexFromProducts(injected, true)
+    return { products: injected, useLocalSearch: true }
   }
 
-  const probeLimit = LOCAL_SEARCH_CATALOG_MAX + 1
-  const rows = await fetchShopProductListOrdered(supabase, probeLimit)
+  const rows = await fetchShopProductListOrdered(supabase)
   const shop = rows
     .map(mapRowToOfficeProduct)
     .filter(isGeneralOfficeShopCatalogProduct)
-
-  if (rows.length >= probeLimit) {
-    setOfficeSearchIndexFromProducts([], false)
-    return { products: [], useLocalSearch: false }
-  }
 
   const byId = new Map<string, OfficeProduct>()
   for (const p of shop) byId.set(String(p.id), p)
@@ -2727,10 +2719,8 @@ export async function fetchOfficeSearchCatalogIndex(): Promise<OfficeSearchCatal
     if (!byId.has(id)) byId.set(id, p)
   }
   const products = Array.from(byId.values())
-  const useLocalSearch = products.length < LOCAL_SEARCH_CATALOG_MAX
-  if (useLocalSearch) setOfficeSearchIndexFromProducts(products, true)
-  else setOfficeSearchIndexFromProducts([], false)
-  return { products, useLocalSearch }
+  setOfficeSearchIndexFromProducts(products, true)
+  return { products, useLocalSearch: true }
 }
 
 export async function fetchOfficeProductSearchSuggestions(

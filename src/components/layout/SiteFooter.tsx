@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { openCookiePreferencesEvent } from '../../lib/cookieConsent'
 
 export function SiteFooter() {
   return (
@@ -15,6 +16,13 @@ export function SiteFooter() {
           <Link className="hover:text-brand-800 hover:underline" to="/cookie-policy">
             Cookie Policy
           </Link>
+          <button
+            type="button"
+            onClick={() => openCookiePreferencesEvent()}
+            className="hover:text-brand-800 hover:underline"
+          >
+            Preferenze cookie
+          </button>
         </nav>
       </div>
     </footer>

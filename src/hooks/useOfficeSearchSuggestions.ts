@@ -66,15 +66,13 @@ export function useOfficeSearchSuggestions({
 
   useEffect(() => {
     if (!indexQuery.data) return
-    if (indexQuery.data.useLocalSearch) {
-      setOfficeSearchIndexFromProducts(indexQuery.data.products, true)
-    }
+    setOfficeSearchIndexFromProducts(indexQuery.data.products, true)
   }, [indexQuery.data])
 
   const useLocalSearch = useMemo(() => {
     if (!isSupabaseConfigured()) return true
+    if (indexQuery.data?.useLocalSearch) return true
     if (indexQuery.isError) return true
-    if (indexQuery.data) return indexQuery.data.useLocalSearch
     return shouldUseLocalSearchOnly()
   }, [indexQuery.data, indexQuery.isError])
 

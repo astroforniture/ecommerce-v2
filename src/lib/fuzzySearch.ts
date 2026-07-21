@@ -34,10 +34,9 @@ function levenshtein(a: string, b: string): number {
 }
 
 function maxEditDistanceForTerm(term: string): number {
-  if (term.length <= 3) return 1
-  if (term.length <= 6) return 1
-  if (term.length <= 10) return 2
-  return Math.max(2, Math.floor(term.length * 0.22))
+  if (term.length <= 4) return 1
+  if (term.length <= 8) return 2
+  return Math.max(2, Math.floor(term.length * 0.25))
 }
 
 /**
@@ -75,14 +74,14 @@ export function flexibleTermMatchesInHaystack(haystackNormalized: string, term: 
   if (!t) return true
   if (/^\d{3,6}$/.test(t)) return haystackNormalized.includes(t)
 
-  if (t.length >= 6 && haystackNormalized.includes(t)) return true
+  if (haystackNormalized.includes(t)) return true
 
   const words = haystackNormalized.split(/[^a-z0-9]+/).filter((w) => w.length > 0)
   for (const w of words) {
     if (flexibleItalianWordMatch(w, t)) return true
   }
 
-  if (t.length >= 8) {
+  if (t.length >= 4) {
     return fuzzyTermMatches(haystackNormalized, term)
   }
 
