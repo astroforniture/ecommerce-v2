@@ -12,9 +12,12 @@ import {
   getStripePromise,
   isStripeConfigured,
   isStripeLiveOnLocalHttp,
+  logCheckoutError,
+  logStripeKeyDiagnostics,
   stripeElementsAppearance,
   stripeLocalDevBlockMessage,
   getStripeFrontendConfigError,
+  getStripePublishableKeyMode,
 } from '../../lib/stripe'
 
 type StripePaymentFormProps = {
@@ -50,7 +53,8 @@ function PaymentFormInner({
 
   async function handlePay(e: React.FormEvent) {
     e.preventDefault()
-    if (import.meta.env.DEV) console.log('[Stripe] handlePay: start')
+    console.log('[Stripe] handlePay: start')
+    logStripeKeyDiagnostics('confirmPayment')
 
     onAttempt()
     setPayError('')
@@ -59,7 +63,7 @@ function PaymentFormInner({
     if (billingIncomplete) {
       const msg =
         'Compila tutti i dati di fatturazione e accetta i Termini e Condizioni prima di pagare.'
-      if (import.meta.env.DEV) console.warn('[Stripe] handlePay: billing incomplete')
+      console.warn('[Stripe] handlePay: billing incomplete')
       setPayError(msg)
       onError(msg)
       return
@@ -67,7 +71,7 @@ function PaymentFormInner({
 
     if (!stripe) {
       const msg = 'Stripe non è ancora pronto. Attendi qualche secondo e riprova.'
-      if (import.meta.env.DEV) console.warn('[Stripe] handlePay: stripe null')
+      console.warn('[Stripe] handlePay: stripe null')
       setPayError(msg)
       onError(msg)
       return
@@ -75,7 +79,7 @@ function PaymentFormInner({
 
     if (!elements) {
       const msg = 'Modulo pagamento non pronto. Ricarica la pagina e riprova.'
-      if (import.meta.env.DEV) console.warn('[Stripe] handlePay: elements null')
+      console.warn('[Stripe] handlePay: elements null')
       setPayError(msg)
       onError(msg)
       return
@@ -83,17 +87,17 @@ function PaymentFormInner({
 
     onSubmittingChange(true)
     try {
-      if (import.meta.env.DEV) console.log('[Stripe] handlePay: elements.submit()')
+      console.log('[Stripe] handlePay: elements.submit()')
       const { error: submitError } = await elements.submit()
       if (submitError) {
+        logCheckoutError('elements.submit', submitError)
         const msg = submitError.message ?? 'Dati di pagamento non validi.'
-        if (import.meta.env.DEV) console.warn('[Stripe] elements.submit error:', submitError)
         setPayError(msg)
         onError(msg)
         return
       }
 
-      if (import.meta.env.DEV) console.log('[Stripe] handlePay: confirmPayment()')
+      console.log('[Stripe] handlePay: confirmPayment()')
       const confirmParams: {
         return_url: string
         receipt_email?: string
@@ -111,18 +115,31 @@ function PaymentFormInner({
       })
 
       if (error) {
-        if (import.meta.env.DEV) console.warn('[Stripe] confirmPayment error:', error)
-        const msg = error.message ?? 'Pagamento non riuscito.'
+        logCheckoutError('confirmPayment', error)
+        console.log('[Stripe] confirmPayment error object:', error)
+        const mode = getStripePublishableKeyMode()
+        const mismatchHint =
+          mode === 'live'
+            ? ' Stai usando pk_live_: la carta 4242 funziona solo in modalità TEST (pk_test_ + sk_test_).'
+            : mode === 'test'
+              ? ' Verifica che su Supabase STRIPE_SECRET_KEY sia sk_test_… (stesso account Stripe del pk_test_).'
+              : ''
+        const msg = `${error.message ?? 'Pagamento non riuscito.'}${mismatchHint}`
         setPayError(msg)
         onError(msg)
         return
       }
 
-      if (import.meta.env.DEV) console.log('[Stripe] confirmPayment result:', paymentIntent?.status)
+      console.log('[Stripe] confirmPayment result:', paymentIntent)
 
       if (paymentIntent?.status === 'succeeded') {
-        if (import.meta.env.DEV) console.log('[Stripe] handlePay: success', paymentIntent.id)
-        await onPaymentSucceeded(paymentIntent.id)
+        console.log('[Stripe] handlePay: success', paymentIntent.id)
+        try {
+          await onPaymentSucceeded(paymentIntent.id)
+        } catch (orderErr) {
+          logCheckoutError('onPaymentSucceeded / orders', orderErr)
+          throw orderErr
+        }
         return
       }
 
@@ -144,13 +161,13 @@ function PaymentFormInner({
       setPayError(msg)
       onError(msg)
     } catch (err) {
+      logCheckoutError('handlePay exception', err)
       const msg = err instanceof Error ? err.message : 'Errore imprevisto durante il pagamento.'
-      if (import.meta.env.DEV) console.error('[Stripe] handlePay exception:', err)
       setPayError(msg)
       onError(msg)
     } finally {
       onSubmittingChange(false)
-      if (import.meta.env.DEV) console.log('[Stripe] handlePay: end')
+      console.log('[Stripe] handlePay: end')
     }
   }
 
@@ -168,6 +185,7 @@ function PaymentFormInner({
         }}
         onLoadError={(event) => {
           setElementReady(false)
+          logCheckoutError('PaymentElement onLoadError', event.error)
           setElementLoadError(
             event.error?.message ??
               'Impossibile caricare il modulo carta. Verifica chiavi Stripe test/live e HTTPS.',
@@ -253,6 +271,7 @@ export function StripePaymentSection(props: StripePaymentFormProps) {
 
     if (import.meta.env.DEV) {
       console.log('[Stripe] createPaymentIntent request', { amountCents })
+      logStripeKeyDiagnostics('prepareIntent')
     }
 
     void createPaymentIntent({
@@ -266,11 +285,21 @@ export function StripePaymentSection(props: StripePaymentFormProps) {
         if (!result.ok) {
           setClientSecret(null)
           setIntentError(result.error)
-          if (import.meta.env.DEV) console.warn('[Stripe] createPaymentIntent failed:', result.error)
+          console.warn('[Stripe] createPaymentIntent failed:', result.error)
+          logCheckoutError('createPaymentIntent result.ok=false', result)
           return
         }
-        if (import.meta.env.DEV) console.log('[Stripe] clientSecret received')
+        console.log('[Stripe] clientSecret received', {
+          paymentIntentId: result.paymentIntentId,
+          clientSecretPrefix: result.clientSecret.slice(0, 18) + '…',
+        })
         setClientSecret(result.clientSecret)
+      })
+      .catch((err) => {
+        if (requestId !== intentRequestId.current) return
+        logCheckoutError('createPaymentIntent promise reject', err)
+        setClientSecret(null)
+        setIntentError(err instanceof Error ? err.message : 'Errore creazione PaymentIntent.')
       })
       .finally(() => {
         if (requestId === intentRequestId.current) setLoadingIntent(false)

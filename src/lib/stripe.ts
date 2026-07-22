@@ -19,6 +19,64 @@ export function getStripePublishableKey(): string | undefined {
   return key
 }
 
+/** Modalità chiave pubblica senza esporre il valore completo. */
+export function getStripePublishableKeyMode(): 'test' | 'live' | 'unknown' | 'missing' {
+  const key = getStripePublishableKey()
+  if (!key) return 'missing'
+  if (key.startsWith('pk_test_')) return 'test'
+  if (key.startsWith('pk_live_')) return 'live'
+  return 'unknown'
+}
+
+export function logStripeKeyDiagnostics(context: string): void {
+  const mode = getStripePublishableKeyMode()
+  const key = getStripePublishableKey()
+  console.log(`[Stripe][${context}] chiave frontend`, {
+    mode,
+    prefix: key ? `${key.slice(0, 12)}…` : null,
+    expected:
+      mode === 'test'
+        ? 'Backend Supabase deve usare STRIPE_SECRET_KEY=sk_test_…'
+        : mode === 'live'
+          ? 'Backend Supabase deve usare STRIPE_SECRET_KEY=sk_live_…'
+          : 'Configura VITE_STRIPE_PUBLISHABLE_KEY (pk_test_… o pk_live_…)',
+    note:
+      'Carta 4242 funziona solo con chiavi TEST (pk_test_ + sk_test_). Con pk_live_/sk_live_ Stripe risponde 400.',
+  })
+}
+
+/** Serializza errori Stripe / Supabase / generici per la console. */
+export function logCheckoutError(context: string, error: unknown): void {
+  console.error(`[Checkout][${context}] errore grezzo:`, error)
+  if (error && typeof error === 'object') {
+    const e = error as Record<string, unknown>
+    console.error(`[Checkout][${context}] dettaglio:`, {
+      type: e.type,
+      code: e.code,
+      decline_code: e.decline_code,
+      message: e.message,
+      status: e.status,
+      statusCode: e.statusCode,
+      requestId: e.requestId ?? e.request_id,
+      payment_intent: e.payment_intent,
+      paymentIntent: e.paymentIntent,
+      source: e.source,
+      details: e.details,
+      hint: e.hint,
+      name: e.name,
+      stack: e.stack,
+      context: e.context,
+      raw: (() => {
+        try {
+          return JSON.parse(JSON.stringify(error))
+        } catch {
+          return String(error)
+        }
+      })(),
+    })
+  }
+}
+
 export function isStripeConfigured(): boolean {
   return Boolean(getStripePublishableKey())
 }

@@ -156,8 +156,32 @@ Deno.serve(async (req) => {
       paymentIntentId: paymentIntent.id,
     })
   } catch (err) {
+    console.error('create-payment-intent error:', err)
     const message = err instanceof Error ? err.message : 'Errore interno Stripe.'
-    console.error('create-payment-intent error:', message)
-    return json({ error: message }, 500)
+    const stripeType =
+      err && typeof err === 'object' && 'type' in err
+        ? String((err as { type?: string }).type ?? '')
+        : ''
+    const stripeCode =
+      err && typeof err === 'object' && 'code' in err
+        ? String((err as { code?: string }).code ?? '')
+        : ''
+    const secret = Deno.env.get('STRIPE_SECRET_KEY')?.trim() ?? ''
+    console.error('create-payment-intent stripe fields:', {
+      message,
+      type: stripeType,
+      code: stripeCode,
+      secretKeyMode: secret.startsWith('sk_test_')
+        ? 'test'
+        : secret.startsWith('sk_live_')
+          ? 'live'
+          : secret
+            ? 'unknown'
+            : 'missing',
+    })
+    return json(
+      { error: message, type: stripeType || undefined, code: stripeCode || undefined },
+      500,
+    )
   }
 })

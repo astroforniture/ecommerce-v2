@@ -1,5 +1,6 @@
 import { FunctionsHttpError } from '@supabase/supabase-js'
 import { getSupabaseBrowserClient } from '../lib/supabaseClient'
+import { logCheckoutError, logStripeKeyDiagnostics } from '../lib/stripe'
 
 /** Dati fatturazione/spedizione dal form carrello (guest o profilo parziale). Tutti opzionali. */
 export type CheckoutBillingPayload = {
@@ -61,20 +62,34 @@ export async function createPaymentIntent(
     return { ok: false, error: 'Importo ordine non valido per Stripe (minimo 0,50 €).' }
   }
 
+  logStripeKeyDiagnostics('createPaymentIntent')
+
   const billing = input.billing ? stripUndefined(input.billing as Record<string, unknown>) : {}
+  const requestBody = {
+    amount: input.amountCents,
+    currency: input.currency ?? 'eur',
+    customerEmail: input.customerEmail?.trim() || undefined,
+    billing,
+    metadata: input.metadata ?? {},
+  }
+
+  console.log('[Stripe] createPaymentIntent body:', requestBody)
 
   const { data, error } = await supabase.functions.invoke('create-payment-intent', {
-    body: {
-      amount: input.amountCents,
-      currency: input.currency ?? 'eur',
-      customerEmail: input.customerEmail?.trim() || undefined,
-      billing,
-      metadata: input.metadata ?? {},
-    },
+    body: requestBody,
   })
 
   if (error) {
+    logCheckoutError('createPaymentIntent / Edge Function', error)
     if (error instanceof FunctionsHttpError) {
+      console.log('[Stripe] FunctionsHttpError.context:', error.context)
+      try {
+        const cloned = error.context.clone()
+        const text = await cloned.text()
+        console.log('[Stripe] FunctionsHttpError body text:', text)
+      } catch (readErr) {
+        console.log('[Stripe] impossibile leggere body errore function:', readErr)
+      }
       const detail = await readFunctionErrorMessage(error)
       return {
         ok: false,
@@ -89,6 +104,8 @@ export async function createPaymentIntent(
     }
   }
 
+  console.log('[Stripe] createPaymentIntent response data:', data)
+
   const payload = data as {
     clientSecret?: string
     paymentIntentId?: string
@@ -96,10 +113,12 @@ export async function createPaymentIntent(
   } | null
 
   if (payload?.error) {
+    logCheckoutError('createPaymentIntent payload.error', payload)
     return { ok: false, error: payload.error }
   }
 
   if (!payload?.clientSecret) {
+    logCheckoutError('createPaymentIntent missing clientSecret', payload)
     return {
       ok: false,
       error:

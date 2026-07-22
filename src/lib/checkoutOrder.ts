@@ -118,6 +118,22 @@ export async function persistCheckoutOrder(
   const { data, error } = await supabase.from('orders').insert(orderPayload).select('id').single()
 
   if (error) {
+    console.error('[Supabase][/orders] insert fallito — oggetto errore completo:', error)
+    console.error('[Supabase][/orders] dettaglio:', {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+      status: (error as { status?: number }).status,
+      payloadKeys: Object.keys(orderPayload),
+      payloadSample: {
+        customer_name: orderPayload.customer_name,
+        customer_email: orderPayload.customer_email,
+        total_amount: orderPayload.total_amount,
+        stripe_payment_intent_id: orderPayload.stripe_payment_intent_id,
+        wants_electronic_invoice: orderPayload.wants_electronic_invoice,
+      },
+    })
     return {
       ok: false,
       error: `Invio ordine non riuscito. Verifica i dati e riprova. Dettaglio: ${error.message}`,
@@ -126,6 +142,7 @@ export async function persistCheckoutOrder(
 
   const orderId = (data as { id?: string } | null)?.id ?? ''
   if (!orderId) {
+    console.error('[Supabase][/orders] insert ok ma id assente — data:', data)
     return { ok: false, error: 'Ordine creato ma ID ordine non disponibile.' }
   }
 
@@ -140,7 +157,19 @@ export async function persistCheckoutOrder(
 
   const { error: itemsError } = await supabase.from('order_items').insert(orderItemsPayload)
   if (itemsError) {
+    console.error('[Supabase][/order_items] insert fallito — oggetto errore completo:', itemsError)
+    console.error('[Supabase][/order_items] dettaglio:', {
+      message: itemsError.message,
+      code: itemsError.code,
+      details: itemsError.details,
+      hint: itemsError.hint,
+      orderId,
+      itemsCount: orderItemsPayload.length,
+    })
     const rollbackRes = await supabase.from('orders').delete().eq('id', orderId)
+    if (rollbackRes.error) {
+      console.error('[Supabase][/orders] rollback fallito:', rollbackRes.error)
+    }
     const rollbackHint = rollbackRes.error
       ? ` Rollback fallito: ${rollbackRes.error.message}`
       : ' Ordine annullato automaticamente.'

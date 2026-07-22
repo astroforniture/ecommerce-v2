@@ -356,16 +356,24 @@ export function CartPage() {
     }
 
     const customerEmail = await resolveCustomerEmail(supabase)
+    console.log('[Checkout] completeOrder start', {
+      customerEmail,
+      stripePaymentIntentId,
+      itemsCount: items.length,
+    })
+
     const result = await persistCheckoutOrder(
       supabase,
       buildCheckoutInput(customerEmail, stripePaymentIntentId),
     )
 
     if (!result.ok) {
+      console.error('[Checkout] completeOrder fallito:', result)
       setSubmitError(result.error)
       return false
     }
 
+    console.log('[Checkout] completeOrder ok:', result)
     clearCart()
     navigate('/checkout/success', { state: { orderRef: result.orderRef } })
     return true
