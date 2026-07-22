@@ -17,6 +17,12 @@ import { buildSurgicalInstrumentsAstroMedicalOfficeProducts } from '../data/surg
 
 export const TIMBRO_AZIENDE_FARMACIE_ID = 'AF-TIMBRO-AZIENDE'
 export const TIMBRO_AZIENDE_FARMACIE_SKU = 'AF-TIMBRO-AZIENDE'
+export const CANCELLERIA_SUB_TIMBRI = 'Timbri'
+export const TIMBRI_HUB_COVER_IMAGE_URL = '/timbri.jpg'
+
+export function cancelleriaTimbriListingPath(): string {
+  return '/office-products?category=Cancelleria&cancelleriaView=timbri'
+}
 
 export type TrodatModelSpec = {
   code: string
@@ -49,17 +55,17 @@ export function buildTimbroAziendeFarmacieOfficeProduct(): OfficeProduct {
   return {
     id: TIMBRO_AZIENDE_FARMACIE_ID,
     name: 'Timbro per Aziende e Farmacie',
-    brand: 'Trodat',
+    brand: 'TRODAT / COLOP',
     producerCode: TIMBRO_AZIENDE_FARMACIE_SKU,
     category: 'Cancelleria',
-    subcategory: 'Timbri',
+    subcategory: CANCELLERIA_SUB_TIMBRI,
     mainFeatures: {
-      Tipologia: 'Timbro personalizzabile Trodat',
+      Tipologia: 'Timbro personalizzabile TRODAT / COLOP',
     },
-    imageUrl: '/timbri.jpg',
+    imageUrl: TIMBRI_HUB_COVER_IMAGE_URL,
     description:
-      'Timbro autoinchiostrante personalizzabile. Scegli il modello Trodat, il colore dell’inchiostro e il testo per ogni riga disponibile. Prezzo su preventivo.',
-    price: 0,
+      'Timbro autoinchiostrante professionale ideale per aziende, professionisti, farmacie e studi medici. Personalizzabile con ragione sociale, P.IVA e dati aziendali.',
+    price: 12.9,
   }
 }
 
@@ -162,7 +168,6 @@ export function buildTimbroDefaultCartVariant(): {
 
 export function getInjectedLocalCatalogProducts(): OfficeProduct[] {
   return [
-    buildTimbroAziendeFarmacieOfficeProduct(),
     ...buildDistruggidocumentiOfficeProducts(),
     ...buildEtichettatriciOfficeProducts(),
     ...buildCasseDitronOfficeProducts(),

@@ -5,12 +5,14 @@ type Props = {
   onClick: () => void
   /** Contenuto area immagine (tipicamente `aspect-square` + `img`). */
   media: ReactNode
+  /** Testo breve sotto il titolo (es. hub Shopper). */
+  description?: string
 }
 
 /**
  * Tile sottocategoria dashboard (Archivio Ufficio / Cancelleria): bordo, ombra, titolo sotto il media.
  */
-export function OfficeSubcategoryTile({ title, onClick, media }: Props) {
+export function OfficeSubcategoryTile({ title, onClick, media, description }: Props) {
   return (
     <button
       type="button"
@@ -20,6 +22,9 @@ export function OfficeSubcategoryTile({ title, onClick, media }: Props) {
       {media}
       <div className="border-t border-slate-100 px-4 py-3">
         <p className="text-sm font-semibold text-slate-900 group-hover:text-brand-900">{title}</p>
+        {description ? (
+          <p className="mt-1 text-xs leading-relaxed text-slate-600">{description}</p>
+        ) : null}
       </div>
     </button>
   )

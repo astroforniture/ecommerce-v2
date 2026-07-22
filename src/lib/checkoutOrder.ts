@@ -37,7 +37,7 @@ export type CheckoutOrderInput = {
   shippingFee: number
   totalWithVat: number
   stripePaymentIntentId?: string
-  wantsElectronicInvoice: boolean
+  /** Campi e-invoice: derivati dai dati di fatturazione (sempre richiesti a DB). */
   invoiceCompanyName: string
   invoiceVatNumber: string
   invoiceTaxCode: string
@@ -148,19 +148,11 @@ function buildOrdersInsertPayload(input: CheckoutOrderInput): Record<string, unk
     billing_vat: isBusiness ? input.vatNumber.trim() || undefined : undefined,
     billing_sdi: isBusiness ? input.sdiCode.trim() || undefined : undefined,
     billing_tax_code: input.taxCode.trim() || undefined,
-    wants_electronic_invoice: input.wantsElectronicInvoice || undefined,
-    e_invoice_company_name: input.wantsElectronicInvoice
-      ? input.invoiceCompanyName.trim() || undefined
-      : undefined,
-    e_invoice_vat: input.wantsElectronicInvoice
-      ? input.invoiceVatNumber.trim() || undefined
-      : undefined,
-    e_invoice_tax_code: input.wantsElectronicInvoice
-      ? input.invoiceTaxCode.trim() || undefined
-      : undefined,
-    e_invoice_sdi_or_pec: input.wantsElectronicInvoice
-      ? input.invoiceSdiOrPec.trim() || undefined
-      : undefined,
+    wants_electronic_invoice: true,
+    e_invoice_company_name: input.invoiceCompanyName.trim() || undefined,
+    e_invoice_vat: input.invoiceVatNumber.trim() || undefined,
+    e_invoice_tax_code: input.invoiceTaxCode.trim() || undefined,
+    e_invoice_sdi_or_pec: input.invoiceSdiOrPec.trim() || undefined,
     order_notes: combinedNotes || undefined,
     stripe_payment_intent_id: input.stripePaymentIntentId?.trim() || undefined,
     payment_method: input.stripePaymentIntentId ? 'stripe' : undefined,

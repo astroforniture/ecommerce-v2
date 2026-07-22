@@ -6,7 +6,6 @@ import { effectiveUnitPrice } from '../../lib/quantityPricing'
 import { productDetailPath } from '../../lib/productRoutes'
 import { withOfficeImageCacheBust } from '../../lib/officeImageCacheBust'
 import { OFFICE_CATALOG_DATA_REVISION } from '../../api/officeProductsSupabase'
-import { isTimbroAziendeFarmacieProduct } from '../../lib/timbroAziendeFarmacieProduct'
 
 const eur = new Intl.NumberFormat('it-IT', {
   style: 'currency',
@@ -21,7 +20,6 @@ type Props = {
 
 export function CompactOfficeProductCard({ product, disableDetailLink }: Props) {
   const [imgOk, setImgOk] = useState(true)
-  const isQuote = isTimbroAziendeFarmacieProduct(product)
 
   useEffect(() => {
     setImgOk(true)
@@ -55,14 +53,10 @@ export function CompactOfficeProductCard({ product, disableDetailLink }: Props) 
         <h3 className="line-clamp-2 min-h-[2.5rem] text-xs font-semibold leading-snug text-slate-900 sm:text-[13px]">
           {displayTitle}
         </h3>
-        {isQuote ? (
-          <p className="text-xs font-semibold text-slate-600">Su preventivo</p>
-        ) : (
-          <p className="text-xs font-bold tabular-nums text-brand-800 sm:text-sm">
-            {eur.format(unitImponible)}
-            <span className="ml-0.5 text-[10px] font-semibold text-slate-500">+ IVA</span>
-          </p>
-        )}
+        <p className="text-xs font-bold tabular-nums text-brand-800 sm:text-sm">
+          {eur.format(unitImponible)}
+          <span className="ml-0.5 text-[10px] font-semibold text-slate-500">+ IVA</span>
+        </p>
       </div>
     </>
   )

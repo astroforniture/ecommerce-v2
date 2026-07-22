@@ -143,7 +143,10 @@ export function isCasseDitronOfficeProductId(id: string): boolean {
 
 /** Prodotti venduti solo su preventivo: nessun prezzo pubblico né acquisto online. */
 export function isQuoteOnlyOfficeProduct(
-  product: Pick<OfficeProduct, 'id'> | null | undefined,
+  product: Pick<OfficeProduct, 'id' | 'producerCode'> | null | undefined,
 ): boolean {
-  return isCasseDitronOfficeProductId(String(product?.id ?? ''))
+  const id = String(product?.id ?? '')
+  const sku = String(product?.producerCode ?? '')
+  if (isCasseDitronOfficeProductId(id) || isCasseDitronOfficeProductId(sku)) return true
+  return false
 }

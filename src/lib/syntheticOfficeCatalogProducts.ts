@@ -13,8 +13,16 @@ import {
   buildEtichettatriciOfficeProducts,
   macchineUfficioEtichettatriciListingPath,
 } from '../data/macchineEtichettatrici'
-import { buildPileOfficeProducts, cancelleriaPileListingPath } from '../data/pileProducts'
+import {
+  buildPileOfficeProducts,
+  cancelleriaPileListingPath,
+} from '../data/pileProducts'
 import { buildQuaderniOfficeProducts, cancelleriaQuaderniListingPath } from '../data/quaderniProducts'
+import {
+  cancelleriaShopperCartaPath,
+  cancelleriaShopperPlasticaPath,
+  resolveShopperProductByCatalogKey,
+} from '../data/shopperCancelleria'
 import {
   buildIHealthAstroMedicalOfficeProducts,
   iHealthCanonicalProductId,
@@ -89,6 +97,7 @@ export function isStaticSyntheticOfficeProduct(
     id.startsWith('AF-LAB-') ||
     id.startsWith('AF-WELL-') ||
     id.startsWith('AF-PROINSTR-') ||
+    id.startsWith('AF-SHOPPER-') ||
     id.startsWith('gima-')
   )
 }
@@ -115,6 +124,9 @@ export function resolveSyntheticOfficeProductByCatalogKey(key: string): OfficePr
   }
   if (k.startsWith('AF-QUAD-')) {
     return buildQuaderniOfficeProducts().find((p) => p.id === k || p.producerCode === k) ?? null
+  }
+  if (k.startsWith('AF-SHOPPER-')) {
+    return resolveShopperProductByCatalogKey(k)
   }
   if (k.startsWith('AF-IHEALTH-')) {
     const canon = iHealthCanonicalProductId(k)
@@ -177,6 +189,12 @@ export function staticSyntheticOfficeListingPath(product: Pick<OfficeProduct, 'i
   }
   if (id.startsWith('AF-QUAD-')) {
     return cancelleriaQuaderniListingPath()
+  }
+  if (id.startsWith('AF-SHOPPER-CARTA-') || id === 'AF-SHOPPER-CARTA-MAINETTI') {
+    return cancelleriaShopperCartaPath()
+  }
+  if (id.startsWith('AF-SHOPPER-PLASTICA-') || id === 'AF-SHOPPER-PLASTICA-MATERBI') {
+    return cancelleriaShopperPlasticaPath()
   }
   if (
     id.startsWith('AF-IHEALTH-') ||

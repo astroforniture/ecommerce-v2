@@ -64,9 +64,10 @@ type OfficeProductsLegacyRow = {
 /**
  * `public.products`: select allineati allo schema reale su Supabase.
  * Ordine = più completo → minimale: colonne assenti (es. description, category) non devono bloccare il catalogo con 400.
- * Non includere mai `brand`, `sku`, `parent_sku`, `variants`, `main_features` nel select finché non sono garantiti nello schema.
+ * Non includere `parent_sku` / `main_features` nel select catalogo finché non sono garantiti nello schema.
  */
 const PRODUCT_SHOP_SELECT_FALLBACKS: readonly string[] = [
+  'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name',
   'id, name, description, price, category, subcategory, image_url, format',
   'id, name, description, price, category, subcategory, image_url',
@@ -77,8 +78,18 @@ const PRODUCT_SHOP_SELECT_FALLBACKS: readonly string[] = [
   'id, name',
 ]
 
-/** Alias per fetch scheda / sku / id: stessi fallback del catalogo shop. */
-const PRODUCT_DETAIL_SELECT_FALLBACKS = PRODUCT_SHOP_SELECT_FALLBACKS
+/** Fetch scheda prodotto: prova prima con `variants` (JSONB misure/colori). */
+const PRODUCT_DETAIL_SELECT_FALLBACKS: readonly string[] = [
+  'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants',
+  'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name',
+  'id, name, description, price, category, subcategory, image_url, format',
+  'id, name, description, price, category, subcategory, image_url',
+  'id, name, price, category, subcategory, image_url',
+  'id, name, description, price, category, image_url',
+  'id, name, price, category, image_url',
+  'id, name, image_url',
+  'id, name',
+]
 
 /** Famiglia `parent_sku`: select minimi; il filtro `.eq('parent_sku')` non impone colonne extra nel select. */
 const FAMILY_SELECT_FALLBACKS = PRODUCT_SHOP_SELECT_FALLBACKS
@@ -1201,6 +1212,21 @@ function parseVariantOption(raw: unknown): ProductVariantOption | null {
   const skuRaw = r.sku ?? r.code
   const qualityRaw = r.quality ?? r.qualità ?? r.livello
   const finishRaw = r.finish ?? r.finitura
+  const packLabelRaw = r.packLabel ?? r.pack_label ?? r.confezione
+  const packQtyRaw = r.packQty ?? r.pack_qty ?? r.quantity_per_pack
+  const priceRaw = r.price ?? r.unit_price
+  const packQtyNum =
+    typeof packQtyRaw === 'number'
+      ? packQtyRaw
+      : typeof packQtyRaw === 'string'
+        ? Number.parseInt(packQtyRaw, 10)
+        : NaN
+  const priceNum =
+    typeof priceRaw === 'number'
+      ? priceRaw
+      : typeof priceRaw === 'string'
+        ? Number.parseFloat(priceRaw)
+        : NaN
   return {
     label,
     hex: typeof hexRaw === 'string' ? hexRaw.trim() || undefined : undefined,
@@ -1208,6 +1234,9 @@ function parseVariantOption(raw: unknown): ProductVariantOption | null {
     image_url: typeof imgRaw === 'string' ? imgRaw.trim() || undefined : undefined,
     quality: typeof qualityRaw === 'string' ? qualityRaw.trim() || undefined : undefined,
     finish: typeof finishRaw === 'string' ? finishRaw.trim() || undefined : undefined,
+    packLabel: typeof packLabelRaw === 'string' ? packLabelRaw.trim() || undefined : undefined,
+    packQty: Number.isFinite(packQtyNum) && packQtyNum > 0 ? packQtyNum : undefined,
+    price: Number.isFinite(priceNum) ? priceNum : undefined,
   }
 }
 
@@ -3060,6 +3089,56 @@ export async function fetchOfficeProductsShowcase(limit = 8): Promise<OfficeProd
   return combined
 }
 
+/**
+ * Pool economico per upsell carrello: `products` con prezzo imponibile ≤ maxUnitImponibile
+ * e immagine presente. Ordine per prezzo; lo shuffle resta al chiamante.
+ */
+export async function fetchCheapOfficeProductsForUpsell(
+  maxUnitImponibile = 15,
+  poolLimit = 80,
+): Promise<OfficeProduct[]> {
+  const supabase = getSupabaseBrowserClient()
+  if (!supabase) return []
+
+  const cap = Math.min(120, Math.max(12, poolLimit))
+  const maxPrice = Math.max(0.01, maxUnitImponibile)
+
+  for (const cols of PRODUCT_SHOP_SELECT_FALLBACKS) {
+    if (!cols.includes('price')) continue
+    const hasImageCol = cols.includes('image_url')
+    try {
+      let q = supabase
+        .from(SHOP_PRODUCTS_TABLE)
+        .select(cols)
+        .gt('price', 0)
+        .lte('price', maxPrice)
+
+      if (hasImageCol) {
+        q = q.not('image_url', 'is', null)
+      }
+
+      const res = await q.order('price', { ascending: true }).limit(cap)
+      if (res.error) {
+        if (isMissingColumnPostgrestError(res.error)) continue
+        console.warn('[officeProducts] upsell cheap pool:', res.error)
+        return []
+      }
+
+      return ((res.data ?? []) as unknown as OfficeProductRow[])
+        .map(mapRowToOfficeProduct)
+        .filter((p) => {
+          const price = Number(p.price)
+          if (!Number.isFinite(price) || price <= 0 || price > maxPrice) return false
+          return Boolean((p.imageUrl ?? '').trim()) && Boolean(p.name?.trim())
+        })
+    } catch (e) {
+      console.warn('[officeProducts] upsell cheap pool (eccezione):', e)
+    }
+  }
+
+  return []
+}
+
 /** Evita `.eq('id', …)` con SKU tipo `IMPULSE75-A4` su colonna `id` uuid (22P02 / 400). */
 function looksLikePostgresUuid(s: string): boolean {
   const t = s.trim()
@@ -3302,10 +3381,6 @@ export async function fetchOfficeProductByIdentifier(
   const key = decodeProductPathParam(idOrSku)
   if (!key) return null
 
-  if (timbroMatchesUrlKey(key)) {
-    return buildTimbroAziendeFarmacieOfficeProduct()
-  }
-
   const synthetic = resolveSyntheticOfficeProductByCatalogKey(key)
   if (synthetic) {
     return synthetic
@@ -3328,6 +3403,10 @@ export async function fetchOfficeProductByIdentifier(
   }
 
   if (!row) {
+    // Fallback solo se il SKU storico del configuratore non è ancora in DB.
+    if (timbroMatchesUrlKey(key)) {
+      return buildTimbroAziendeFarmacieOfficeProduct()
+    }
     console.error(
       '[fetchOfficeProductByIdentifier] Nessun prodotto trovato (0 righe).',
       JSON.stringify(

@@ -117,7 +117,7 @@ export function SiteHeader() {
               <img
                 src="/logo-astro-forniture.png"
                 alt="Astro Forniture"
-                className="h-10 w-auto object-contain sm:h-11"
+                className="h-[42px] w-auto origin-center object-contain sm:h-[46px]"
                 loading="eager"
                 decoding="async"
               />

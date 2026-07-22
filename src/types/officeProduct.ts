@@ -14,6 +14,12 @@ export type ProductVariantOption = {
   quality?: string
   /** Es. buste forate: Liscio / Buccia. */
   finish?: string
+  /** Prezzo imponibile della variante (es. misure shopper). */
+  price?: number
+  /** Pezzi per confezione della variante. */
+  packQty?: number
+  /** Etichetta confezione (es. «Scatola 500 pz»). */
+  packLabel?: string
 }
 
 export interface OfficeProduct {

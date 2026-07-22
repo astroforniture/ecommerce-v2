@@ -14,6 +14,8 @@ type OrderCostBreakdownProps = {
   deliveryMethod?: DeliveryMethod
   className?: string
   compact?: boolean
+  /** Tipografia e spaziatura più evidenti (sidebar checkout). */
+  prominent?: boolean
 }
 
 export function OrderCostBreakdown({
@@ -21,24 +23,31 @@ export function OrderCostBreakdown({
   deliveryMethod = 'shipping',
   className = '',
   compact = false,
+  prominent = false,
 }: OrderCostBreakdownProps) {
   const breakdown = useMemo(
     () => orderCostBreakdown(merchandiseIvato, deliveryMethod),
     [deliveryMethod, merchandiseIvato],
   )
 
-  const rowClass = compact ? 'text-xs' : 'text-sm'
+  const rowClass = compact ? 'text-xs' : prominent ? 'text-[15px]' : 'text-sm'
   const labelClass = `${rowClass} text-slate-600`
-  const valueClass = `${rowClass} shrink-0 text-right font-medium tabular-nums text-slate-900`
+  const valueClass = `${rowClass} shrink-0 text-right font-semibold tabular-nums text-slate-900`
   const totalLabelClass = compact
     ? 'text-sm font-bold text-slate-900'
-    : 'text-base font-bold text-brand-900'
+    : prominent
+      ? 'text-lg font-bold text-brand-900'
+      : 'text-base font-bold text-brand-900'
   const totalValueClass = compact
     ? 'text-sm font-bold tabular-nums text-slate-900'
-    : 'text-lg font-bold tabular-nums text-brand-900'
+    : prominent
+      ? 'text-2xl font-bold tabular-nums text-brand-900'
+      : 'text-lg font-bold tabular-nums text-brand-900'
+  const gapClass = prominent ? 'space-y-3' : 'space-y-2'
+  const totalPad = prominent ? 'mt-2 pt-4' : compact ? 'pt-2.5' : 'mt-1 pt-3'
 
   return (
-    <dl className={`space-y-2 ${className}`} aria-label="Riepilogo costi">
+    <dl className={`${gapClass} ${className}`} aria-label="Riepilogo costi">
       <div className="flex items-baseline justify-between gap-4">
         <dt className={labelClass}>Totale imponibile</dt>
         <dd className={valueClass}>{eur.format(breakdown.taxableTotal)}</dd>
@@ -50,18 +59,14 @@ export function OrderCostBreakdown({
       <div className="flex items-baseline justify-between gap-4">
         <dt className={labelClass}>Spedizione</dt>
         <dd
-          className={`${compact ? 'text-xs' : 'text-sm'} shrink-0 text-right font-semibold tabular-nums ${
+          className={`${rowClass} shrink-0 text-right font-semibold tabular-nums ${
             breakdown.shippingFee === 0 ? 'text-emerald-600' : 'text-slate-900'
           }`}
         >
           {breakdown.shippingFee === 0 ? 'Gratis' : eur.format(breakdown.shippingFee)}
         </dd>
       </div>
-      <div
-        className={`flex items-baseline justify-between gap-4 border-t border-slate-200 ${
-          compact ? 'pt-2.5' : 'mt-1 pt-3'
-        }`}
-      >
+      <div className={`flex items-baseline justify-between gap-4 border-t border-slate-200 ${totalPad}`}>
         <dt className={totalLabelClass}>Totale da pagare</dt>
         <dd className={totalValueClass}>{eur.format(breakdown.totalDue)}</dd>
       </div>

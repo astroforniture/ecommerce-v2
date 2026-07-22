@@ -32,6 +32,8 @@ type StripePaymentFormProps = {
   onSubmittingChange: (value: boolean) => void
   onError: (message: string) => void
   onPaymentSucceeded: (paymentIntentId: string) => Promise<void>
+  /** Layout più ampio per sidebar checkout Step 2. */
+  prominent?: boolean
 }
 
 function PaymentFormInner({
@@ -44,6 +46,7 @@ function PaymentFormInner({
   onSubmittingChange,
   onError,
   onPaymentSucceeded,
+  prominent = false,
 }: StripePaymentFormProps) {
   const stripe = useStripe()
   const elements = useElements()
@@ -175,7 +178,7 @@ function PaymentFormInner({
   const payButtonDisabled = isSubmitting || !elementReady || !stripe || !elements
 
   return (
-    <form onSubmit={handlePay} className="space-y-4" noValidate>
+    <form onSubmit={handlePay} className={prominent ? 'space-y-5' : 'space-y-4'} noValidate>
       <PaymentElement
         options={{ layout: 'tabs' }}
         onReady={() => {
@@ -215,16 +218,20 @@ function PaymentFormInner({
       <button
         type="submit"
         disabled={payButtonDisabled}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60"
+        className={
+          prominent
+            ? 'inline-flex w-full items-center justify-center gap-2.5 rounded-xl bg-brand-700 px-6 py-4 text-base font-extrabold uppercase tracking-wide text-white shadow-md transition hover:bg-brand-800 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60'
+            : 'inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60'
+        }
       >
         {isSubmitting ? (
           <>
-            <Loader2 className="size-4 animate-spin" aria-hidden />
+            <Loader2 className={prominent ? 'size-5 animate-spin' : 'size-4 animate-spin'} aria-hidden />
             Elaborazione pagamento…
           </>
         ) : (
           <>
-            <CreditCard className="size-4" aria-hidden />
+            <CreditCard className={prominent ? 'size-5' : 'size-4'} aria-hidden />
             Paga {eur.format(amountIvato)}
           </>
         )}
@@ -236,7 +243,7 @@ function PaymentFormInner({
         </p>
       ) : null}
 
-      <p className="text-xs text-slate-500">
+      <p className={prominent ? 'text-sm text-slate-500' : 'text-xs text-slate-500'}>
         Pagamento protetto da Stripe. In modalità test usa la carta{' '}
         <code className="rounded bg-slate-100 px-1">4242 4242 4242 4242</code>.
       </p>
@@ -328,12 +335,27 @@ export function StripePaymentSection(props: StripePaymentFormProps) {
   }
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5">
-      <h3 className="inline-flex items-center gap-2 text-base font-semibold text-slate-900">
-        <CreditCard className="size-5 text-brand-700" aria-hidden />
+    <div
+      className={
+        props.prominent
+          ? 'rounded-2xl border border-brand-100 bg-gradient-to-b from-brand-50/40 to-white p-5 sm:p-6'
+          : 'rounded-2xl border border-slate-200 bg-white p-5'
+      }
+    >
+      <h3
+        className={
+          props.prominent
+            ? 'inline-flex items-center gap-2.5 text-lg font-bold text-slate-900'
+            : 'inline-flex items-center gap-2 text-base font-semibold text-slate-900'
+        }
+      >
+        <CreditCard
+          className={props.prominent ? 'size-6 text-brand-700' : 'size-5 text-brand-700'}
+          aria-hidden
+        />
         Pagamento con carta
       </h3>
-      <p className="mt-1 text-sm text-slate-600">
+      <p className={props.prominent ? 'mt-1.5 text-sm text-slate-600' : 'mt-1 text-sm text-slate-600'}>
         Inserisci i dati della carta nel modulo sicuro Stripe.
       </p>
 
@@ -358,7 +380,7 @@ export function StripePaymentSection(props: StripePaymentFormProps) {
       ) : null}
 
       {clientSecret && stripePromise ? (
-        <div className="mt-4 min-h-[12rem]">
+        <div className={props.prominent ? 'mt-5 min-h-[14rem]' : 'mt-4 min-h-[12rem]'}>
           <Elements
             key={clientSecret}
             stripe={stripePromise}

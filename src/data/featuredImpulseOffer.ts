@@ -41,4 +41,5 @@ export const OFFERTA_GIMA_IMAGE_PATH = '/offerta-gima.jpg'
  * Categoria catalogo per la promo Shopper (personalizzazione).
  * Modifica se nel tuo catalogo le shopper sono altrove (es. `?search=Shopper`).
  */
-export const SHOPPER_PROMO_CATEGORY_HREF = '/office-products?category=Cancelleria'
+export const SHOPPER_PROMO_CATEGORY_HREF =
+  '/office-products?category=Cancelleria&cancelleriaView=shopper'

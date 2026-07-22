@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { FileText, Plus } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
@@ -10,7 +10,6 @@ import {
 import {
   freeShippingUpsellQueryKey,
   pickFreeShippingUpsellProducts,
-  pickFreeShippingUpsellProductsSync,
   productUnitIvato,
 } from '../../lib/freeShippingUpsellProducts'
 import { OFFICE_CATALOG_DATA_REVISION } from '../../api/officeProductsSupabase'
@@ -82,19 +81,27 @@ export function FreeShippingUpsellSection({
 }: FreeShippingUpsellSectionProps) {
   const { items, addOfficeProduct } = useCart()
   const cartProductIds = useMemo(() => new Set(items.map((item) => item.id)), [items])
+  const cartProductIdList = useMemo(() => [...cartProductIds], [cartProductIds])
   const needsUpsell = merchandiseIvato < FREE_SHIPPING_THRESHOLD_IVATO && items.length > 0
   const upsellLimit = compact ? 3 : 4
+  /** Nuovo seed a ogni mount della sezione (apertura/ricarica carrello). */
+  const visitSeedRef = useRef(
+    `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`,
+  )
 
   const upsellQuery = useQuery({
-    queryKey: freeShippingUpsellQueryKey(merchandiseIvato, [...cartProductIds]),
-    queryFn: () => pickFreeShippingUpsellProducts(merchandiseIvato, cartProductIds, upsellLimit),
+    queryKey: freeShippingUpsellQueryKey(
+      merchandiseIvato,
+      cartProductIdList,
+      visitSeedRef.current,
+      upsellLimit,
+    ),
+    queryFn: () =>
+      pickFreeShippingUpsellProducts(merchandiseIvato, cartProductIds, upsellLimit),
     enabled: needsUpsell,
-    initialData: () =>
-      needsUpsell
-        ? pickFreeShippingUpsellProductsSync(merchandiseIvato, cartProductIds, upsellLimit)
-        : [],
-    initialDataUpdatedAt: 0,
-    staleTime: 60_000,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
     refetchOnWindowFocus: false,
   })
 

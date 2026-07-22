@@ -27,6 +27,8 @@ export type OfficeProductDetailPurchasePanelProps = {
   quantityDiscountTable?: ReactNode
   /** Solo preventivo: nasconde prezzo, quantità e carrello. */
   quoteOnly?: boolean
+  /** Suffisso unità prezzo (default "/ pezzo"). Es. "/ confezione". */
+  priceUnitSuffix?: string
 }
 
 /**
@@ -44,6 +46,7 @@ export function OfficeProductDetailPurchasePanel({
   rootClassName,
   quantityDiscountTable,
   quoteOnly = false,
+  priceUnitSuffix = '/ pezzo',
 }: OfficeProductDetailPurchasePanelProps) {
   const root = ['mt-3 w-full space-y-3', rootClassName].filter(Boolean).join(' ')
 
@@ -62,7 +65,7 @@ export function OfficeProductDetailPurchasePanel({
         <p className="text-sm font-medium text-slate-500">{priceLineLabel}</p>
         <p className="mt-1 text-lg font-semibold tabular-nums text-brand-600">
           {eur.format(unitForQty)} + IVA{' '}
-          <span className="text-base font-normal text-slate-600">/ pezzo</span>
+          <span className="text-base font-normal text-slate-600">{priceUnitSuffix}</span>
         </p>
 
         <div className="mt-3 flex flex-wrap items-center gap-2.5">

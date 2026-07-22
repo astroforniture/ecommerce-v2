@@ -58,7 +58,6 @@ export function OfficeProductCard({
   }
 
   const isQuoteOnly = isQuoteOnlyOfficeProduct(product)
-  const isQuoteTimbro = isTimbroAziendeFarmacieProduct(product)
   const unitImponible = effectiveUnitPrice(
     product.price,
     product.quantityPriceTiers,
@@ -141,20 +140,14 @@ export function OfficeProductCard({
         >
           {!isQuoteOnly ? (
             <div>
-              {isQuoteTimbro ? (
-                <p className="text-sm font-semibold text-slate-700">Prezzo su preventivo</p>
-              ) : (
-                <>
-                  <p className={priceCls}>
-                    {eur.format(unitImponible)} + IVA
-                  </p>
-                  {!suppressQuantityTierHint && quantityDiscountHint ? (
-                    <p className="mt-1 text-xs font-medium text-brand-700">
-                      da {quantityDiscountHint.minQuantity} pz: {eur.format(quantityDiscountHint.unitPrice)}
-                    </p>
-                  ) : null}
-                </>
-              )}
+              <p className={priceCls}>
+                {eur.format(unitImponible)} + IVA
+              </p>
+              {!suppressQuantityTierHint && quantityDiscountHint ? (
+                <p className="mt-1 text-xs font-medium text-brand-700">
+                  da {quantityDiscountHint.minQuantity} pz: {eur.format(quantityDiscountHint.unitPrice)}
+                </p>
+              ) : null}
             </div>
           ) : null}
           {isQuoteOnly ? (
@@ -167,19 +160,11 @@ export function OfficeProductCard({
             <button
               type="button"
               onClick={handleAddToCart}
-              aria-label={
-                isQuoteTimbro
-                  ? `Richiedi preventivo per ${displayTitle}`
-                  : `Aggiungi ${displayTitle} al carrello`
-              }
+              aria-label={`Aggiungi ${displayTitle} al carrello`}
               className={btnCls}
             >
               <ShoppingCart className={compactGrid ? 'size-3.5' : 'size-4'} aria-hidden />
-              {justAdded
-                ? 'Aggiunto'
-                : isQuoteTimbro
-                  ? 'Richiedi preventivo'
-                  : 'Acquista'}
+              {justAdded ? 'Aggiunto' : 'Acquista'}
             </button>
           )}
         </div>

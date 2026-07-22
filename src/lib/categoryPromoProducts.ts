@@ -118,12 +118,13 @@ export async function fetchCategoryPromoData(
   }
 
   const injected = getInjectedLocalCatalogProducts()
-  const mergedById = new Map<string, OfficeProduct>()
+  const mergedByKey = new Map<string, OfficeProduct>()
   for (const p of [...products, ...injected]) {
-    mergedById.set(String(p.id), p)
+    const key = (p.producerCode || p.id).trim().toLowerCase() || String(p.id)
+    if (!mergedByKey.has(key)) mergedByKey.set(key, p)
   }
 
-  const scoped = filterCategoryProducts([...mergedById.values()], categoryLabel, subcategory)
+  const scoped = filterCategoryProducts([...mergedByKey.values()], categoryLabel, subcategory)
   const bestseller = pickBestseller(scoped)
   const offer = pickOfferProduct(scoped, bestseller?.id)
 

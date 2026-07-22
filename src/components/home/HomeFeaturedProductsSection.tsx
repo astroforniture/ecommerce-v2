@@ -31,15 +31,19 @@ function mergeFeaturedProducts(
   local: ReturnType<typeof getInjectedLocalCatalogProducts>,
   remote: readonly OfficeProduct[],
 ): OfficeProduct[] {
-  const byId = new Map<string, OfficeProduct>()
+  const byKey = new Map<string, OfficeProduct>()
+  const keyOf = (p: OfficeProduct) =>
+    (p.producerCode || p.id).trim().toLowerCase() || String(p.id)
+
   for (const p of local) {
-    if (isHomeFeaturedShowcaseProduct(p)) byId.set(String(p.id), p)
+    if (isHomeFeaturedShowcaseProduct(p)) byKey.set(keyOf(p), p)
   }
   for (const p of remote) {
     if (!isHomeFeaturedShowcaseProduct(p)) continue
-    if (!byId.has(String(p.id))) byId.set(String(p.id), p)
+    const k = keyOf(p)
+    if (!byKey.has(k)) byKey.set(k, p)
   }
-  return [...byId.values()]
+  return [...byKey.values()]
 }
 
 function getLocalFeaturedProducts(): OfficeProduct[] {

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft, FileText, Loader2 } from 'lucide-react'
+import { ArrowLeft, FileText, Loader2, Mail } from 'lucide-react'
 import {
   STABILO_OHPEN_TIP_MM,
   BIG_SEI_ROTA_COLOR_LABELS,
@@ -117,6 +117,13 @@ import {
   isQuoteOnlyOfficeProduct,
 } from '../data/casseDitronProducts'
 import {
+  buildShopperCartaOfficeProducts,
+  buildShopperPlasticaOfficeProducts,
+  isShopperSizeVariantProduct,
+  matchesShopperCartaProduct,
+  matchesShopperPlasticaProduct,
+} from '../data/shopperCancelleria'
+import {
   buildDistruggidocumentiOfficeProducts,
   isDistruggidocumentiOfficeProductId,
 } from '../data/distruggidocumentiProducts'
@@ -215,6 +222,9 @@ const eur = new Intl.NumberFormat('it-IT', {
   style: 'currency',
   currency: 'EUR',
 })
+
+const SHOPPER_PERSONALIZZATE_MAILTO =
+  'mailto:info@astro-forniture.it?subject=Richiesta%20preventivo%20Shopper%20Personalizzate'
 const SEO_META_DESCRIPTION_NAME = 'description'
 const SEO_CANONICAL_REL = 'canonical'
 const SEO_JSONLD_ID = 'seo-product-jsonld'
@@ -841,6 +851,10 @@ export function ProductDetailPage() {
     return n.includes('raccoglitore') && n.includes('starbox')
   }, [product?.name])
   const isImpulse75A4 = useMemo(() => isImpulse75A4OfficeProduct(product), [product])
+  const isShopperSizeVariant = useMemo(
+    () => isShopperSizeVariantProduct(product),
+    [product],
+  )
   const isOxfordG85 = useMemo(() => {
     const n = (product?.name ?? '').toLowerCase()
     return (
@@ -1753,6 +1767,13 @@ export function ProductDetailPage() {
       if (isCasseDitronOfficeProductId(product.id)) {
         return buildCasseDitronOfficeProducts().filter((p) => p.id !== product.id)
       }
+      if (matchesShopperCartaProduct(product) || matchesShopperPlasticaProduct(product)) {
+        const siblings = [
+          ...buildShopperCartaOfficeProducts(),
+          ...buildShopperPlasticaOfficeProducts(),
+        ]
+        return siblings.filter((p) => p.id !== product.id).slice(0, 4)
+      }
       if (isPileOfficeProductId(product.id)) {
         return buildPileOfficeProducts()
           .filter((p) => p.id !== product.id)
@@ -2197,6 +2218,13 @@ export function ProductDetailPage() {
       return bigSeiRotaPriceForThicknessCm(cm) ?? product?.price
     }
     if (isColorCopyA3 || isColorCopyA4) return selectedColorCopyA3Option.price
+    if (
+      isShopperSizeVariant &&
+      selectedJsonVariant &&
+      typeof selectedJsonVariant.price === 'number'
+    ) {
+      return selectedJsonVariant.price
+    }
     return product?.price
   }, [
     isImpulse75A4,
@@ -2220,6 +2248,8 @@ export function ProductDetailPage() {
     isColorCopyA4,
     selectedColorCopyA3Option.price,
     selectedStarboxThickness,
+    isShopperSizeVariant,
+    selectedJsonVariant,
     product?.name,
     product?.price,
   ])
@@ -2573,6 +2603,7 @@ export function ProductDetailPage() {
   function handleAddToCart() {
     if (!product) return
     if (isQuoteOnlyOfficeProduct(product)) return
+    if (isShopperSizeVariant && !selectedJsonVariant) return
     if (showJsonVariants && !selectedJsonVariant && !isStaticSynthetic) return
     const cartBaseProduct = isPentelMarker
       ? effectivePentelProduct ?? product
@@ -2698,6 +2729,14 @@ export function ProductDetailPage() {
               price: typeof effectiveBasePrice === 'number' ? effectiveBasePrice : productForCart.price,
               quantityPriceTiers: effectiveQuantityTiers ?? [],
             }
+          : isShopperSizeVariant
+            ? {
+                ...productForCart,
+                price:
+                  typeof effectiveBasePrice === 'number'
+                    ? effectiveBasePrice
+                    : productForCart.price,
+              }
           : productForCart
     addOfficeProduct(
       cartPayloadProduct,
@@ -3061,6 +3100,33 @@ export function ProductDetailPage() {
               </div>
             ) : null}
 
+            {isShopperSizeVariant ? (
+              <aside
+                className="mt-4 rounded-2xl border border-sky-200/80 bg-gradient-to-b from-sky-50 via-white to-white p-4 shadow-sm ring-1 ring-sky-100/70 sm:p-5"
+                aria-label="Shopper personalizzate con logo"
+              >
+                <p className="text-sm font-semibold leading-snug text-slate-900 sm:text-base">
+                  Ti servono shopper personalizzate con il tuo logo?
+                </p>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  Mandaci una mail a{' '}
+                  <a
+                    href={SHOPPER_PERSONALIZZATE_MAILTO}
+                    className="font-semibold text-brand-800 underline-offset-2 transition hover:text-brand-900 hover:underline"
+                  >
+                    info@astro-forniture.it
+                  </a>
+                </p>
+                <a
+                  href={SHOPPER_PERSONALIZZATE_MAILTO}
+                  className="mt-3.5 inline-flex w-full items-center justify-center gap-2.5 rounded-xl bg-brand-800 px-4 py-3.5 text-sm font-bold text-white shadow-md shadow-brand-900/15 transition hover:bg-brand-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 sm:text-[0.9375rem]"
+                >
+                  <Mail className="size-5 shrink-0" aria-hidden />
+                  Richiedi preventivo via email
+                </a>
+              </aside>
+            ) : null}
+
             <dl className="mt-3 space-y-1.5 text-xs text-slate-500">
               <div className="flex gap-2">
                 <dt className="w-16 shrink-0 font-medium text-slate-500">Categoria</dt>
@@ -3079,6 +3145,53 @@ export function ProductDetailPage() {
             <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
               {displayProductName}
             </h1>
+
+            {isShopperSizeVariant && jsonVariants.length > 0 ? (
+              <section className="mt-4" aria-label="Scegli la misura">
+                <h2 className="text-sm font-semibold text-slate-900">Scegli la Misura:</h2>
+                <p className="mt-1 text-xs text-slate-600">
+                  Seleziona il formato: prezzo e confezione si aggiornano automaticamente.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {jsonVariants.map((opt) => {
+                    const selected = selectedJsonVariant?.label === opt.label
+                    return (
+                      <button
+                        key={`${opt.label}-${opt.sku ?? ''}`}
+                        type="button"
+                        onClick={() => setSelectedJsonVariant(opt)}
+                        aria-pressed={selected}
+                        className={[
+                          'rounded-full border px-3.5 py-2 text-left text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
+                          selected
+                            ? 'border-brand-600 bg-brand-600 text-white shadow-sm'
+                            : 'border-slate-300 bg-white text-slate-800 hover:border-brand-400 hover:bg-brand-50',
+                        ].join(' ')}
+                      >
+                        {opt.label}
+                      </button>
+                    )
+                  })}
+                </div>
+                <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50/80 px-3.5 py-3 text-sm text-slate-700">
+                  <p>
+                    Misura:{' '}
+                    <span className="font-semibold text-slate-900">
+                      {selectedJsonVariant?.label ?? '—'}
+                    </span>
+                  </p>
+                  <p className="mt-1">
+                    Confezione:{' '}
+                    <span className="font-semibold text-slate-900">
+                      {selectedJsonVariant?.packLabel ??
+                        (selectedJsonVariant?.packQty
+                          ? `${selectedJsonVariant.packQty} pz`
+                          : '—')}
+                    </span>
+                  </p>
+                </div>
+              </section>
+            ) : null}
 
             {!isStaticSynthetic ? (
               <>
@@ -3875,7 +3988,7 @@ export function ProductDetailPage() {
               </section>
             ) : null}
 
-            {showJsonVariants ? (
+            {showJsonVariants && !isShopperSizeVariant ? (
               <div className="mt-3.5">
                 <h2 className="text-sm font-semibold text-slate-900">Scegli Modello</h2>
                 <div className={variantGridClass}>
@@ -4561,7 +4674,13 @@ export function ProductDetailPage() {
 
             <OfficeProductDetailPurchasePanel
               priceLineLabel={
-                showQuantityDiscountTable ? 'Per la quantità selezionata' : 'Prezzo unitario'
+                isShopperSizeVariant
+                  ? selectedJsonVariant?.label
+                    ? `Prezzo — ${selectedJsonVariant.label}`
+                    : 'Prezzo confezione'
+                  : showQuantityDiscountTable
+                    ? 'Per la quantità selezionata'
+                    : 'Prezzo unitario'
               }
               unitForQty={unitForQty}
               lineTotal={lineTotal}
@@ -4571,6 +4690,7 @@ export function ProductDetailPage() {
               justAdded={justAdded}
               productName={displayProductName}
               quoteOnly={isQuoteOnlyOfficeProduct(product)}
+              priceUnitSuffix={isShopperSizeVariant ? '/ confezione' : '/ pezzo'}
               rootClassName={isStaticSynthetic ? 'mt-6 sm:mt-8' : undefined}
               quantityDiscountTable={
                 isQuoteOnlyOfficeProduct(product) ? undefined : quantityDiscountTableNode

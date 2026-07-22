@@ -28,6 +28,7 @@ import {
   OfficeSubcategoryTile,
   OFFICE_SUBCATEGORY_TILE_GRID_CLASS,
 } from '../components/office/OfficeSubcategoryTile'
+import { MacchinePanoramicaCarousel } from '../components/macchine/MacchinePanoramicaCarousel'
 
 const distruggiListingPath = macchineUfficioDistruggiDocumentiListingPath()
 const etichettatriciListingPath = macchineUfficioEtichettatriciListingPath()
@@ -161,11 +162,26 @@ export function MacchineUfficioHubPage() {
         </div>
       </header>
 
-      <section className="pt-10" aria-labelledby="macchine-sottocategorie-heading">
-        <h2 id="macchine-sottocategorie-heading" className="sr-only">
+      <section className="pt-10" aria-labelledby="macchine-panoramica-carousel-heading">
+        <h2
+          id="macchine-panoramica-carousel-heading"
+          className="text-lg font-bold tracking-tight text-slate-900 sm:text-xl"
+        >
+          Panoramica
+        </h2>
+        <p className="mt-1.5 max-w-2xl text-sm text-slate-600">
+          Soluzioni per il punto cassa e la gestione dei pagamenti — scopri i modelli in evidenza.
+        </p>
+        <div className="mt-5">
+          <MacchinePanoramicaCarousel />
+        </div>
+      </section>
+
+      <section className="pt-12" aria-labelledby="macchine-sottocategorie-heading">
+        <h2 id="macchine-sottocategorie-heading" className="text-lg font-bold tracking-tight text-slate-900 sm:text-xl">
           Sottocategorie
         </h2>
-        <div className={OFFICE_SUBCATEGORY_TILE_GRID_CLASS}>
+        <div className={`mt-5 ${OFFICE_SUBCATEGORY_TILE_GRID_CLASS}`}>
           <OfficeSubcategoryTile
             title={MACCHINE_SUB_DISTRUGGI_DOCUMENTI_LABEL}
             onClick={() => void navigate(distruggiListingPath)}

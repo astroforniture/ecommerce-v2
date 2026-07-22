@@ -38,6 +38,24 @@ import { productDetailPath } from '../lib/productRoutes'
 import type { OfficeProduct } from '../types/officeProduct'
 import { buildPileOfficeProducts, PILE_HUB_COVER_IMAGE_URL } from '../data/pileProducts'
 import { buildQuaderniOfficeProducts, QUADERNI_HUB_COVER_IMAGE_URL } from '../data/quaderniProducts'
+import {
+  buildShopperCartaOfficeProducts,
+  buildShopperPlasticaOfficeProducts,
+  CANCELLERIA_SUB_SHOPPER,
+  CANCELLERIA_VIEW_SHOPPER,
+  CANCELLERIA_VIEW_SHOPPER_CARTA,
+  CANCELLERIA_VIEW_SHOPPER_PLASTICA,
+  isShopperIntermediateHub,
+  isShopperLeafListingView,
+  matchesShopperCartaProduct,
+  matchesShopperPlasticaProduct,
+  SHOPPER_CHILD_TILES,
+  SHOPPER_HUB_COVER_IMAGE_URL,
+} from '../data/shopperCancelleria'
+import {
+  isTimbroAziendeFarmacieProduct,
+  TIMBRI_HUB_COVER_IMAGE_URL,
+} from '../lib/timbroAziendeFarmacieProduct'
 import { buildDistruggidocumentiOfficeProducts } from '../data/distruggidocumentiProducts'
 import { mergeLineaAstroMedicalCatalog } from '../data/lineaAstroMedicalCombined'
 import {
@@ -71,6 +89,10 @@ type CancelleriaHubId =
   | 'evidenziatori'
   | 'pile'
   | 'quaderni'
+  | 'timbri'
+  | typeof CANCELLERIA_VIEW_SHOPPER
+  | typeof CANCELLERIA_VIEW_SHOPPER_CARTA
+  | typeof CANCELLERIA_VIEW_SHOPPER_PLASTICA
 
 const SORT_OPTIONS: Array<{ value: SortBy; label: string }> = [
   { value: 'price-asc', label: 'Prezzo crescente' },
@@ -135,6 +157,16 @@ const CANCELLERIA_HUB_CARDS: Array<{
     id: 'quaderni',
     title: 'Quaderni',
     imageUrl: QUADERNI_HUB_COVER_IMAGE_URL,
+  },
+  {
+    id: 'timbri',
+    title: 'Timbri',
+    imageUrl: TIMBRI_HUB_COVER_IMAGE_URL,
+  },
+  {
+    id: CANCELLERIA_VIEW_SHOPPER,
+    title: CANCELLERIA_SUB_SHOPPER,
+    imageUrl: SHOPPER_HUB_COVER_IMAGE_URL,
   },
 ]
 
@@ -208,7 +240,12 @@ function withVariantInListingName(product: OfficeProduct): OfficeProduct {
 }
 
 function isCancelleriaSyntheticListingView(view: CancelleriaHubId | null): boolean {
-  return view === 'pile' || view === 'quaderni'
+  return (
+    view === 'pile' ||
+    view === 'quaderni' ||
+    view === CANCELLERIA_VIEW_SHOPPER_CARTA ||
+    view === CANCELLERIA_VIEW_SHOPPER_PLASTICA
+  )
 }
 
 function isStaticSyntheticListingView(
@@ -229,7 +266,11 @@ function isCancelleriaHubId(raw: string): raw is CancelleriaHubId {
     raw === 'cucitrici' ||
     raw === 'evidenziatori' ||
     raw === 'pile' ||
-    raw === 'quaderni'
+    raw === 'quaderni' ||
+    raw === 'timbri' ||
+    raw === CANCELLERIA_VIEW_SHOPPER ||
+    raw === CANCELLERIA_VIEW_SHOPPER_CARTA ||
+    raw === CANCELLERIA_VIEW_SHOPPER_PLASTICA
   )
 }
 
@@ -239,6 +280,21 @@ function matchesCancelleriaHubProduct(product: OfficeProduct, hub: CancelleriaHu
   }
   if (hub === 'quaderni') {
     return product.id.startsWith('AF-QUAD-')
+  }
+  if (hub === 'timbri') {
+    if (isTimbroAziendeFarmacieProduct(product)) return true
+    const sub = (product.subcategory ?? '').trim().toLowerCase()
+    if (sub === 'timbri') return true
+    return normNameLite(product.name).includes('timbro')
+  }
+  if (hub === CANCELLERIA_VIEW_SHOPPER) {
+    return matchesShopperCartaProduct(product) || matchesShopperPlasticaProduct(product)
+  }
+  if (hub === CANCELLERIA_VIEW_SHOPPER_CARTA) {
+    return matchesShopperCartaProduct(product)
+  }
+  if (hub === CANCELLERIA_VIEW_SHOPPER_PLASTICA) {
+    return matchesShopperPlasticaProduct(product)
   }
   const n = normNameLite(product.name)
   if (hub === 'nastri') return n.includes('nastro')
@@ -486,6 +542,18 @@ export function OfficePage() {
     }
     if (selectedCategoryNorm === 'cancelleria' && selectedCancelleriaView === 'quaderni') {
       return buildQuaderniOfficeProducts()
+    }
+    if (
+      selectedCategoryNorm === 'cancelleria' &&
+      selectedCancelleriaView === CANCELLERIA_VIEW_SHOPPER_CARTA
+    ) {
+      return buildShopperCartaOfficeProducts()
+    }
+    if (
+      selectedCategoryNorm === 'cancelleria' &&
+      selectedCancelleriaView === CANCELLERIA_VIEW_SHOPPER_PLASTICA
+    ) {
+      return buildShopperPlasticaOfficeProducts()
     }
     if (selectedCategoryNorm === LINEA_ASTRO_MEDICAL_CATEGORY_NORM) {
       return mergeLineaAstroMedicalCatalog(normalizedProducts)
@@ -783,6 +851,10 @@ export function OfficePage() {
     selectedCategoryNorm === 'archivio' && !selectedSubcategory && !searchTrim
   const showCancelleriaDashboard =
     selectedCategoryNorm === 'cancelleria' && !selectedCancelleriaView && !searchTrim
+  const showShopperDashboard =
+    selectedCategoryNorm === 'cancelleria' &&
+    isShopperIntermediateHub(selectedCancelleriaView) &&
+    !searchTrim
   const isArchivioCategory = selectedCategoryNorm === 'archivio'
   const isMacchineUfficioCategory = selectedCategoryNorm === 'macchine per ufficio'
   const isCancelleriaCategory = selectedCategoryNorm === 'cancelleria'
@@ -867,10 +939,20 @@ export function OfficePage() {
             {isCancelleriaCategory && selectedCancelleriaView ? (
               <button
                 type="button"
-                onClick={() => setCancelleriaView(null)}
+                onClick={() => {
+                  if (isShopperLeafListingView(selectedCancelleriaView)) {
+                    setCancelleriaView(CANCELLERIA_VIEW_SHOPPER)
+                    return
+                  }
+                  setCancelleriaView(null)
+                }}
                 className="inline-flex shrink-0 items-center justify-center rounded-lg border border-brand-200 bg-white px-4 py-2.5 text-sm font-semibold text-brand-800 transition hover:bg-brand-50"
               >
-                Mostra box Cancelleria
+                {isShopperLeafListingView(selectedCancelleriaView)
+                  ? 'Torna a Shopper'
+                  : isShopperIntermediateHub(selectedCancelleriaView)
+                    ? 'Mostra box Cancelleria'
+                    : 'Mostra box Cancelleria'}
               </button>
             ) : null}
           </div>
@@ -1037,7 +1119,44 @@ export function OfficePage() {
           </section>
         ) : null}
 
-        {!showArchivioDashboard && !showCancelleriaDashboard ? (
+        {showShopperDashboard ? (
+          <section className="mt-3" aria-labelledby="shopper-hub-heading">
+            <div className="mb-5 max-w-2xl">
+              <h2
+                id="shopper-hub-heading"
+                className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl"
+              >
+                Shopper
+              </h2>
+              <p className="mt-1.5 text-sm text-slate-600 sm:text-base">
+                Scegli il tipo di shopper: carta kraft oppure plastica/compostabile.
+              </p>
+            </div>
+            <div className={OFFICE_SUBCATEGORY_TILE_GRID_CLASS}>
+              {SHOPPER_CHILD_TILES.map((tile) => (
+                <OfficeSubcategoryTile
+                  key={tile.id}
+                  title={tile.title}
+                  description={tile.description}
+                  onClick={() => setCancelleriaView(tile.id)}
+                  media={
+                    <div className="aspect-square w-full bg-slate-50">
+                      <img
+                        src={tile.imageUrl}
+                        alt={tile.title}
+                        className="size-full object-contain p-4"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                  }
+                />
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {!showArchivioDashboard && !showCancelleriaDashboard && !showShopperDashboard ? (
         <section className="py-12" aria-labelledby="office-catalog-heading">
           <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
             <label className="block max-w-md">
