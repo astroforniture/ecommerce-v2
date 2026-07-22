@@ -1,0 +1,15 @@
+# https://www.asforniture.it/robots.txt
+User-agent: *
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+# Area admin esclusa dall'indicizzazione
+Disallow: /admin
+Disallow: /admin/
+
+Sitemap: https://www.asforniture.it/sitemap.xml

@@ -31,12 +31,32 @@ async function generate() {
   await readEnvFile(path.join(root, '.env'))
   await readEnvFile(path.join(root, '.env.local'))
 
-  const siteUrl = (process.env.VITE_SITE_URL || 'https://www.astroforniture.it').replace(/\/$/, '')
+  const siteUrl = (process.env.VITE_SITE_URL || 'https://www.asforniture.it').replace(/\/$/, '')
   const supabaseUrl = process.env.VITE_SUPABASE_URL
   const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY
 
-  const staticUrls = ['/', '/office-products', '/privacy-policy', '/cookie-policy', '/termini-condizioni-vendita']
+  const staticUrls = [
+    '/',
+    '/home',
+    '/office-products',
+    '/office-products?category=Cancelleria',
+    '/office-products?category=Cancelleria&cancelleriaView=shopper',
+    '/office-products?category=Cancelleria&cancelleriaView=shopper-carta',
+    '/office-products?category=Cancelleria&cancelleriaView=shopper-plastica',
+    '/office-products?category=Cancelleria&cancelleriaView=timbri',
+    '/office-products?category=Carta',
+    '/office-products?category=Archivio',
+    '/prodotti/macchine-per-ufficio',
+    '/prodotti/macchine-per-ufficio/casse-ditron',
+    '/prodotti/macchine-per-ufficio/distruggi-documenti',
+    '/prodotti/macchine-per-ufficio/etichettatrici',
+    '/servizi/rilegature',
+    '/privacy-policy',
+    '/cookie-policy',
+    '/termini-condizioni-vendita',
+  ]
   const urls = [...staticUrls]
+  const seen = new Set(urls)
 
   if (supabaseUrl && supabaseKey) {
     /** Allineato al catalogo shop: `public.products` (stessa tabella di `fetchOfficeProductByIdentifier`). */
@@ -50,9 +70,17 @@ async function generate() {
     if (res.ok) {
       const rows = await res.json()
       for (const row of rows) {
-        if (row?.id) urls.push(`/product/${encodeURIComponent(String(row.id))}`)
+        if (!row?.id) continue
+        const u = `/product/${encodeURIComponent(String(row.id))}`
+        if (seen.has(u)) continue
+        seen.add(u)
+        urls.push(u)
       }
+    } else {
+      console.warn('[sitemap] products fetch failed:', res.status, await res.text().catch(() => ''))
     }
+  } else {
+    console.warn('[sitemap] VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY mancanti: solo URL statici')
   }
 
   const today = new Date().toISOString()
@@ -72,6 +100,7 @@ ${urls
   const outDir = path.join(root, 'public')
   await mkdir(outDir, { recursive: true })
   await writeFile(path.join(outDir, 'sitemap.xml'), xml, 'utf8')
+  console.log(`[sitemap] written ${urls.length} URLs → public/sitemap.xml (${siteUrl})`)
 }
 
 generate().catch((err) => {

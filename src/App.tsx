@@ -36,6 +36,7 @@ import { RegisterPage } from './pages/RegisterPage'
 import { AccountProfilePage } from './pages/AccountProfilePage'
 import { CategoryPromoWidget } from './components/promo/CategoryPromoWidget'
 import { CookieConsentBanner } from './components/cookies/CookieConsentBanner'
+import { SiteSeoDefaults } from './components/seo/SiteSeoDefaults'
 
 function PlaceholderPage() {
   return (
@@ -137,6 +138,7 @@ export default function App() {
 function StorefrontLayout() {
   return (
     <CartDrawerProvider>
+      <SiteSeoDefaults />
       <SiteHeader />
       <Outlet />
       <CategoryPromoWidget />
