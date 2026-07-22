@@ -73,6 +73,44 @@ export function AdminOrderDetailPage() {
     if (method.includes('ritiro a mantova')) return 0
     return order?.shippingFee ?? 0
   }, [order?.deliveryMethod, order?.shippingFee])
+  const billingAddressLine = useMemo(() => {
+    if (!order) return ''
+    return formatAddressLine(
+      order.billingStreet,
+      order.billingZip,
+      order.billingCity,
+      order.billingProvince,
+    )
+  }, [order])
+  const deliveryAddressDisplay = useMemo(() => {
+    if (!order) return '—'
+    const shippingLine = formatAddressLine(
+      order.shippingStreet,
+      order.shippingZip,
+      order.shippingCity,
+      order.shippingProvince,
+    )
+    if (!shippingLine) {
+      return billingAddressLine || "Uguale all'indirizzo cliente"
+    }
+    if (
+      billingAddressLine &&
+      normalizeAddressKey(shippingLine) === normalizeAddressKey(billingAddressLine)
+    ) {
+      return "Uguale all'indirizzo cliente"
+    }
+    // Confronta anche solo via/CAP/città rispetto all'indirizzo fatturazione (stesso checkout).
+    const shippingCore = formatAddressLine(order.shippingStreet, order.shippingZip, order.shippingCity)
+    const billingCore = formatAddressLine(order.billingStreet, order.billingZip, order.billingCity)
+    if (
+      shippingCore &&
+      billingCore &&
+      normalizeAddressKey(shippingCore) === normalizeAddressKey(billingCore)
+    ) {
+      return "Uguale all'indirizzo cliente"
+    }
+    return shippingLine
+  }, [order, billingAddressLine])
   const totalOrder = order?.total ?? 0
   const taxableNoVat = totalOrder / 1.22
   const vatAmount = totalOrder - taxableNoVat
@@ -172,10 +210,8 @@ export function AdminOrderDetailPage() {
           <Info label="P.IVA" value={order.billingVat} />
           <Info label="Codice SDI" value={order.billingSdi} />
           <Info label="Codice Fiscale" value={order.billingTaxCode} />
-          <Info
-            label="Indirizzo"
-            value={[order.billingStreet, order.billingZip, order.billingCity, order.billingProvince].filter(Boolean).join(', ')}
-          />
+          <Info label="Indirizzo" value={billingAddressLine} />
+          <Info label="Indirizzo di Consegna" value={deliveryAddressDisplay} />
           <Info label="Telefono" value={order.billingPhone} />
           <Info label="Consegna" value={order.deliveryMethod} />
           {order.wantsElectronicInvoice ? (
@@ -262,6 +298,28 @@ export function AdminOrderDetailPage() {
       </Card>
     </div>
   )
+}
+
+function formatAddressLine(
+  street?: string,
+  zip?: string,
+  city?: string,
+  province?: string,
+): string {
+  return [street, zip, city, province]
+    .map((part) => (part ?? '').trim())
+    .filter(Boolean)
+    .join(', ')
+}
+
+function normalizeAddressKey(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ')
 }
 
 function Info({ label, value }: { label: string; value?: string }) {

@@ -20,6 +20,10 @@ export type AdminOrder = {
   billingProvince?: string
   billingEmail?: string
   billingPhone?: string
+  shippingStreet?: string
+  shippingZip?: string
+  shippingCity?: string
+  shippingProvince?: string
   wantsElectronicInvoice?: boolean
   eInvoiceCompanyName?: string
   eInvoiceVat?: string
@@ -52,6 +56,41 @@ export type AdminOrderDetail = AdminOrder & {
 
 function asString(value: unknown): string {
   return typeof value === 'string' ? value : ''
+}
+
+/** Estrae indirizzo spedizione da colonne dedicate o da JSON/text in `shipping_address`. */
+function parseShippingAddressFields(row: Record<string, unknown>): {
+  street: string
+  zip: string
+  city: string
+  province: string
+} {
+  let street =
+    asString(row.shipping_street) ||
+    asString(row.shipping_address_street) ||
+    asString(row.delivery_address)
+  let zip = asString(row.shipping_zip) || asString(row.shipping_cap)
+  let city = asString(row.shipping_city)
+  let province = asString(row.shipping_province)
+
+  const rawAddress = row.shipping_address
+  if (rawAddress && typeof rawAddress === 'object' && !Array.isArray(rawAddress)) {
+    const obj = rawAddress as Record<string, unknown>
+    street =
+      street ||
+      asString(obj.street) ||
+      asString(obj.address) ||
+      asString(obj.indirizzo) ||
+      asString(obj.line1)
+    zip = zip || asString(obj.zip) || asString(obj.cap) || asString(obj.postal_code)
+    city = city || asString(obj.city) || asString(obj.citta)
+    province = province || asString(obj.province) || asString(obj.provincia)
+  } else if (typeof rawAddress === 'string' && rawAddress.trim()) {
+    // Colonna text: spesso è solo la via; se non abbiamo street, usiamo il testo intero.
+    if (!street) street = rawAddress.trim()
+  }
+
+  return { street, zip, city, province }
 }
 
 function asNumber(value: unknown): number {
@@ -110,6 +149,7 @@ function asDetailItems(value: unknown): AdminOrderDetailItem[] {
 }
 
 function fromRow(row: Record<string, unknown>): AdminOrder {
+  const shipping = parseShippingAddressFields(row)
   return {
     id: asString(row.id) || asString(row.order_id),
     createdAt: asString(row.created_at) || asString(row.order_date) || asString(row.createdAt),
@@ -120,7 +160,7 @@ function fromRow(row: Record<string, unknown>): AdminOrder {
       'Cliente non indicato',
     total: asNumber(row.total_amount ?? row.total ?? row.grand_total),
     taxableTotal: asNumber(row.taxable_total ?? row.subtotal ?? row.imponibile),
-    shippingFee: asNumber(row.shipping_fee ?? row.shipping_total),
+    shippingFee: asNumber(row.shipping_fee ?? row.shipping_cost ?? row.shipping_total),
     vatTotal: asNumber(row.vat_total ?? row.vat_amount ?? row.iva_total),
     deliveryMethod:
       asString(row.delivery_method) || asString(row.shipping_method) || 'Spedizione',
@@ -137,6 +177,10 @@ function fromRow(row: Record<string, unknown>): AdminOrder {
     billingProvince: asString(row.billing_province) || asString(row.address_province),
     billingEmail: asString(row.billing_email) || asString(row.email),
     billingPhone: asString(row.billing_phone) || asString(row.phone),
+    shippingStreet: shipping.street || undefined,
+    shippingZip: shipping.zip || undefined,
+    shippingCity: shipping.city || undefined,
+    shippingProvince: shipping.province || undefined,
     wantsElectronicInvoice: row.wants_electronic_invoice === true,
     eInvoiceCompanyName: asString(row.e_invoice_company_name),
     eInvoiceVat: asString(row.e_invoice_vat),

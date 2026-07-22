@@ -22,6 +22,7 @@ import { TIMBRO_AZIENDE_FARMACIE_SKU } from '../lib/timbroAziendeFarmacieProduct
 import { FreeShippingUpsellSection } from '../components/cart/FreeShippingUpsellSection'
 import { OrderCostBreakdown } from '../components/cart/OrderCostBreakdown'
 import { CheckoutOrderExtras } from '../components/checkout/CheckoutOrderExtras'
+import { CheckoutAddressCards } from '../components/checkout/CheckoutAddressCards'
 import { StripePaymentSection } from '../components/checkout/StripePaymentSection'
 import { validateElectronicInvoice } from '../lib/electronicInvoiceValidation'
 import { persistCheckoutOrder, type CheckoutOrderInput, type CustomerType, isBusinessCustomerType } from '../lib/checkoutOrder'
@@ -34,12 +35,6 @@ const eur = new Intl.NumberFormat('it-IT', {
 })
 
 type DeliveryMethod = 'shipping' | 'pickup'
-
-const CUSTOMER_TYPE_OPTIONS: { value: CustomerType; label: string }[] = [
-  { value: 'privato', label: 'Privato' },
-  { value: 'azienda', label: 'Azienda' },
-  { value: 'ente', label: 'Ente' },
-]
 
 function CartLineTierHint({ item }: { item: CartItem }) {
   const rows = useMemo(
@@ -87,10 +82,20 @@ export function CartPage() {
   const [invoiceAddressZip, setInvoiceAddressZip] = useState('')
   const [invoiceAddressCity, setInvoiceAddressCity] = useState('')
   const [orderNotes, setOrderNotes] = useState('')
+  /** true = consegna = fatturazione (default). */
+  const [sameAsBillingAddress, setSameAsBillingAddress] = useState(true)
+  const [shippingCareOf, setShippingCareOf] = useState('')
+  const [shippingStreet, setShippingStreet] = useState('')
+  const [shippingZip, setShippingZip] = useState('')
+  const [shippingCity, setShippingCity] = useState('')
+  const [shippingProvince, setShippingProvince] = useState('')
+  const [shippingNotes, setShippingNotes] = useState('')
   const [attemptedCheckout, setAttemptedCheckout] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isProfileLoading, setIsProfileLoading] = useState(false)
+  /** Dati fatturazione bloccati: utente loggato con profilo/metadata caricati. */
+  const [billingLocked, setBillingLocked] = useState(false)
 
   useEffect(() => {
     let isMounted = true
@@ -156,6 +161,12 @@ export function CartPage() {
         setPec(form.pec)
         setBillingEmail(form.email)
         setBillingPhone(form.phone)
+        // Default spedizione = indirizzo profilo (override solo se checkbox attiva).
+        setShippingStreet(form.address)
+        setShippingCity(form.city)
+        setShippingZip(form.zipCode)
+        setShippingProvince(form.province)
+        setBillingLocked(true)
       } finally {
         if (isMounted) setIsProfileLoading(false)
       }
@@ -253,6 +264,29 @@ export function CartPage() {
       sdiOrPec: invoiceSdiOrPec,
     }).isValid
 
+  const useCustomShipping = !sameAsBillingAddress
+  const effectiveShippingStreet = useCustomShipping
+    ? shippingStreet.trim()
+    : addressStreet.trim()
+  const effectiveShippingZip = useCustomShipping ? shippingZip.trim() : addressZip.trim()
+  const effectiveShippingCity = useCustomShipping
+    ? shippingCity.trim()
+    : addressCity.trim()
+  const effectiveShippingProvince = useCustomShipping
+    ? shippingProvince.trim().toUpperCase()
+    : addressProvince.trim().toUpperCase()
+  const effectiveShippingCareOf = useCustomShipping ? shippingCareOf.trim() : ''
+  const effectiveShippingNotes = useCustomShipping ? shippingNotes.trim() : ''
+
+  const shippingStreetValid =
+    deliveryMethod === 'pickup' || effectiveShippingStreet.length >= 4
+  const shippingZipValid =
+    deliveryMethod === 'pickup' || /^\d{5}$/.test(effectiveShippingZip)
+  const shippingCityValid =
+    deliveryMethod === 'pickup' || effectiveShippingCity.length >= 2
+  const shippingProvinceValid =
+    deliveryMethod === 'pickup' || /^[A-Za-z]{2}$/.test(effectiveShippingProvince)
+
   const billingValid =
     privateNameValid &&
     companyNameValid &&
@@ -263,10 +297,30 @@ export function CartPage() {
     vatValid &&
     sdiValid &&
     taxCodeValid
-  const checkoutBlocked = !billingValid || !termsValid || !electronicInvoiceValid
+  const shippingValid =
+    shippingStreetValid && shippingZipValid && shippingCityValid && shippingProvinceValid
+  const checkoutBlocked =
+    !billingValid || !shippingValid || !termsValid || !electronicInvoiceValid
   const stripeEnabled = isStripeConfigured()
   const deliveryLabel =
     deliveryMethod === 'pickup' ? 'Ritiro a Mantova' : 'Spedizione a domicilio'
+
+  function handleSameAsBillingChange(same: boolean) {
+    setSameAsBillingAddress(same)
+    if (same) {
+      setShippingStreet(addressStreet)
+      setShippingZip(addressZip)
+      setShippingCity(addressCity)
+      setShippingProvince(addressProvince)
+      setShippingCareOf('')
+      setShippingNotes('')
+    } else {
+      setShippingStreet((prev) => prev || addressStreet)
+      setShippingZip((prev) => prev || addressZip)
+      setShippingCity((prev) => prev || addressCity)
+      setShippingProvince((prev) => prev || addressProvince)
+    }
+  }
 
   function buildCheckoutInput(
     customerEmail: string,
@@ -282,6 +336,12 @@ export function CartPage() {
       addressCity,
       addressZip,
       addressProvince,
+      shippingStreet: effectiveShippingStreet,
+      shippingCity: effectiveShippingCity,
+      shippingZip: effectiveShippingZip,
+      shippingProvince: effectiveShippingProvince,
+      shippingCareOf: effectiveShippingCareOf,
+      shippingNotes: effectiveShippingNotes,
       vatNumber,
       sdiCode,
       taxCode,
@@ -412,31 +472,32 @@ export function CartPage() {
     () => ({
       billingName: billingDisplayName || undefined,
       customerType,
-      addressStreet: addressStreet.trim() || undefined,
-      addressCity: addressCity.trim() || undefined,
-      addressZip: addressZip.trim() || undefined,
-      addressProvince: addressProvince.trim() || undefined,
+      addressStreet: effectiveShippingStreet || undefined,
+      addressCity: effectiveShippingCity || undefined,
+      addressZip: effectiveShippingZip || undefined,
+      addressProvince: effectiveShippingProvince || undefined,
       billingPhone: billingPhone.trim() || undefined,
       deliveryMethod: deliveryLabel,
       isCompany: isBusinessCustomer,
       vatNumber: isBusinessCustomer ? vatNumber.trim() || undefined : undefined,
       sdiCode: isBusinessCustomer ? sdiCode.trim() || undefined : undefined,
       pec: isBusinessCustomer ? pec.trim() || undefined : undefined,
-      checkoutMode: 'guest' as const,
+      checkoutMode: (billingLocked ? 'logged_in' : 'guest') as 'guest' | 'logged_in',
     }),
     [
       billingDisplayName,
       customerType,
-      addressStreet,
-      addressCity,
-      addressZip,
-      addressProvince,
+      effectiveShippingStreet,
+      effectiveShippingCity,
+      effectiveShippingZip,
+      effectiveShippingProvince,
       billingPhone,
       deliveryLabel,
       isBusinessCustomer,
       vatNumber,
       sdiCode,
       pec,
+      billingLocked,
     ],
   )
 
@@ -567,244 +628,46 @@ export function CartPage() {
               )
             })}
 
-            <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5">
-              <h3 className="text-base font-semibold text-slate-900">Dati di Fatturazione</h3>
-              {isProfileLoading ? (
-                <p className="mt-2 text-xs font-medium text-brand-800">
-                  Caricamento dati profilo in corso...
-                </p>
-              ) : null}
-
-              <div className="mt-4">
-                <span className="mb-2 block text-sm font-medium text-slate-700">Tipo cliente</span>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  {CUSTOMER_TYPE_OPTIONS.map((option) => {
-                    const selected = customerType === option.value
-                    return (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => setCustomerType(option.value)}
-                        disabled={isProfileLoading}
-                        aria-pressed={selected}
-                        className={`h-10 rounded-lg border px-3 text-sm font-medium transition-colors ${
-                          selected
-                            ? 'border-brand-500 bg-brand-50 text-brand-900 ring-2 ring-brand-500/20'
-                            : 'border-slate-300 bg-white text-slate-700 hover:border-brand-300 hover:bg-brand-50/50'
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                {!isBusinessCustomer ? (
-                  <>
-                    <label className="block text-sm">
-                      <span className="mb-1 block font-medium text-slate-700">Nome *</span>
-                      <input
-                        type="text"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        placeholder="Nome"
-                        disabled={isProfileLoading}
-                        className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
-                      />
-                      {attemptedCheckout && firstName.trim().length < 2 ? (
-                        <p className="mt-1 text-xs text-red-700">Nome obbligatorio.</p>
-                      ) : null}
-                    </label>
-                    <label className="block text-sm">
-                      <span className="mb-1 block font-medium text-slate-700">Cognome *</span>
-                      <input
-                        type="text"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        placeholder="Cognome"
-                        disabled={isProfileLoading}
-                        className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
-                      />
-                      {attemptedCheckout && lastName.trim().length < 2 ? (
-                        <p className="mt-1 text-xs text-red-700">Cognome obbligatorio.</p>
-                      ) : null}
-                    </label>
-                  </>
-                ) : (
-                  <>
-                    <label className="block text-sm sm:col-span-2">
-                      <span className="mb-1 block font-medium text-slate-700">Ragione Sociale *</span>
-                      <input
-                        type="text"
-                        value={companyName}
-                        onChange={(e) => setCompanyName(e.target.value)}
-                        placeholder="Ragione sociale"
-                        disabled={isProfileLoading}
-                        className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
-                      />
-                      {attemptedCheckout && !companyNameValid ? (
-                        <p className="mt-1 text-xs text-red-700">Ragione sociale obbligatoria.</p>
-                      ) : null}
-                    </label>
-                    <label className="block text-sm">
-                      <span className="mb-1 block font-medium text-slate-700">P.IVA *</span>
-                      <input
-                        type="text"
-                        value={vatNumber}
-                        onChange={(e) => setVatNumber(e.target.value)}
-                        placeholder="Partita IVA"
-                        disabled={isProfileLoading}
-                        className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
-                      />
-                      {attemptedCheckout && !vatValid ? (
-                        <p className="mt-1 text-xs text-red-700">P.IVA non valida.</p>
-                      ) : null}
-                    </label>
-                    <label className="block text-sm">
-                      <span className="mb-1 block font-medium text-slate-700">Codice Univoco (SDI) *</span>
-                      <input
-                        type="text"
-                        value={sdiCode}
-                        onChange={(e) => setSdiCode(e.target.value)}
-                        placeholder="Codice SDI"
-                        disabled={isProfileLoading}
-                        className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
-                      />
-                      {attemptedCheckout && !sdiValid ? (
-                        <p className="mt-1 text-xs text-red-700">
-                          Codice SDI non valido (deve avere 7 caratteri).
-                        </p>
-                      ) : null}
-                    </label>
-                    <label className="block text-sm sm:col-span-2">
-                      <span className="mb-1 block font-medium text-slate-700">
-                        PEC <span className="font-normal text-slate-500">(Facoltativo)</span>
-                      </span>
-                      <input
-                        type="email"
-                        value={pec}
-                        onChange={(e) => setPec(e.target.value)}
-                        placeholder="PEC"
-                        disabled={isProfileLoading}
-                        className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
-                      />
-                    </label>
-                  </>
-                )}
-                <label className="block text-sm sm:col-span-2">
-                  <span className="mb-1 block font-medium text-slate-700">Via e numero civico *</span>
-                  <input
-                    type="text"
-                    value={addressStreet}
-                    onChange={(e) => setAddressStreet(e.target.value)}
-                    placeholder="Indirizzo"
-                    autoComplete="street-address"
-                    disabled={isProfileLoading}
-                    className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
-                  />
-                  {attemptedCheckout && !addressStreetValid ? (
-                    <p className="mt-1 text-xs text-red-700">Indirizzo non valido.</p>
-                  ) : null}
-                </label>
-                <label className="block text-sm">
-                  <span className="mb-1 block font-medium text-slate-700">CAP *</span>
-                  <input
-                    type="text"
-                    value={addressZip}
-                    onChange={(e) => setAddressZip(e.target.value)}
-                    placeholder="CAP"
-                    autoComplete="postal-code"
-                    disabled={isProfileLoading}
-                    className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
-                  />
-                  {attemptedCheckout && !zipValid ? (
-                    <p className="mt-1 text-xs text-red-700">CAP non valido (5 cifre).</p>
-                  ) : null}
-                </label>
-                <label className="block text-sm">
-                  <span className="mb-1 block font-medium text-slate-700">Citta *</span>
-                  <input
-                    type="text"
-                    value={addressCity}
-                    onChange={(e) => setAddressCity(e.target.value)}
-                    placeholder="Città"
-                    autoComplete="address-level2"
-                    disabled={isProfileLoading}
-                    className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
-                  />
-                  {attemptedCheckout && !cityValid ? (
-                    <p className="mt-1 text-xs text-red-700">Citta obbligatoria.</p>
-                  ) : null}
-                </label>
-                <label className="block text-sm">
-                  <span className="mb-1 block font-medium text-slate-700">Provincia *</span>
-                  <input
-                    type="text"
-                    value={addressProvince}
-                    onChange={(e) => setAddressProvince(e.target.value.toUpperCase())}
-                    placeholder="Provincia"
-                    maxLength={2}
-                    autoComplete="address-level1"
-                    disabled={isProfileLoading}
-                    className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
-                  />
-                  {attemptedCheckout && !provinceValid ? (
-                    <p className="mt-1 text-xs text-red-700">Provincia non valida (2 lettere).</p>
-                  ) : null}
-                </label>
-                {!isBusinessCustomer ? (
-                  <label className="block text-sm">
-                    <span className="mb-1 block font-medium text-slate-700">
-                      Codice Fiscale <span className="font-normal text-slate-500">(Facoltativo)</span>
-                    </span>
-                    <input
-                      type="text"
-                      value={taxCode}
-                      onChange={(e) => setTaxCode(e.target.value)}
-                      placeholder="Codice fiscale"
-                      disabled={isProfileLoading}
-                      className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
-                    />
-                    {attemptedCheckout && !taxCodeValid ? (
-                      <p className="mt-1 text-xs text-red-700">Codice Fiscale non valido.</p>
-                    ) : null}
-                  </label>
-                ) : null}
-
-                <label className="block text-sm">
-                  <span className="mb-1 block font-medium text-slate-700">Email (Opzionale)</span>
-                  <input
-                    type="email"
-                    value={billingEmail}
-                    onChange={(e) => setBillingEmail(e.target.value)}
-                    placeholder="Email"
-                    disabled={isProfileLoading}
-                    className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
-                  />
-                </label>
-                <label className="block text-sm">
-                  <span className="mb-1 block font-medium text-slate-700">Numero di Telefono (Opzionale)</span>
-                  <input
-                    type="tel"
-                    value={billingPhone}
-                    onChange={(e) => setBillingPhone(e.target.value)}
-                    placeholder="Telefono"
-                    disabled={isProfileLoading}
-                    className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-slate-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
-                  />
-                </label>
-                {attemptedCheckout && !billingValid ? (
-                  <p className="sm:col-span-2 text-xs font-medium text-red-700">
-                    Compila tutti i campi obbligatori:{' '}
-                    {isBusinessCustomer
-                      ? 'ragione sociale, P.IVA, codice SDI e indirizzo completo (via, CAP, città, provincia).'
-                      : 'nome, cognome e indirizzo completo (via, CAP, città, provincia).'}
-                  </p>
-                ) : null}
-              </div>
-            </div>
+            <CheckoutAddressCards
+              isProfileLoading={isProfileLoading}
+              billingLocked={billingLocked}
+              customerType={customerType}
+              firstName={firstName}
+              lastName={lastName}
+              companyName={companyName}
+              vatNumber={vatNumber}
+              taxCode={taxCode}
+              sdiCode={sdiCode}
+              pec={pec}
+              addressStreet={addressStreet}
+              addressZip={addressZip}
+              addressCity={addressCity}
+              addressProvince={addressProvince}
+              billingEmail={billingEmail}
+              billingPhone={billingPhone}
+              deliveryMethod={deliveryMethod}
+              sameAsBillingAddress={sameAsBillingAddress}
+              onSameAsBillingChange={handleSameAsBillingChange}
+              shippingCareOf={shippingCareOf}
+              shippingStreet={shippingStreet}
+              shippingZip={shippingZip}
+              shippingCity={shippingCity}
+              shippingProvince={shippingProvince}
+              shippingNotes={shippingNotes}
+              onShippingCareOfChange={setShippingCareOf}
+              onShippingStreetChange={setShippingStreet}
+              onShippingZipChange={setShippingZip}
+              onShippingCityChange={setShippingCity}
+              onShippingProvinceChange={setShippingProvince}
+              onShippingNotesChange={setShippingNotes}
+              attemptedCheckout={attemptedCheckout}
+              billingValid={billingValid}
+              shippingStreetValid={shippingStreetValid}
+              shippingZipValid={shippingZipValid}
+              shippingCityValid={shippingCityValid}
+              shippingProvinceValid={shippingProvinceValid}
+              shippingValid={shippingValid}
+            />
 
             <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5">
               <h3 className="text-base font-semibold text-slate-900">Metodo di Consegna</h3>
@@ -833,7 +696,10 @@ export function CartPage() {
                     name="delivery-method"
                     value="pickup"
                     checked={deliveryMethod === 'pickup'}
-                    onChange={() => setDeliveryMethod('pickup')}
+                    onChange={() => {
+                      setDeliveryMethod('pickup')
+                      setSameAsBillingAddress(true)
+                    }}
                     className="mt-0.5"
                   />
                   <span>
