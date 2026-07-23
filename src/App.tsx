@@ -30,6 +30,7 @@ import { OfficePage } from './pages/OfficePage'
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage'
 import { ProductDetailPage } from './pages/ProductDetailPage'
 import { BindingServicePage } from './pages/BindingServicePage'
+import { ServizioDetailPage } from './pages/ServizioDetailPage'
 import { TermsSalesPage } from './pages/TermsSalesPage'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
@@ -37,6 +38,7 @@ import { AccountProfilePage } from './pages/AccountProfilePage'
 import { CategoryPromoWidget } from './components/promo/CategoryPromoWidget'
 import { CookieConsentBanner } from './components/cookies/CookieConsentBanner'
 import { SiteSeoDefaults } from './components/seo/SiteSeoDefaults'
+import { SERVIZI_PAGES, type ServizioSlug } from './data/serviziCatalog'
 
 function PlaceholderPage() {
   return (
@@ -69,6 +71,20 @@ function MacchineUfficioLegacyRedirect() {
   return <Navigate to={`${MACCHINE_UFFICIO_BASE_PATH}${rest}${location.search}`} replace />
 }
 
+/** Redirect permanente dei vecchi URL `/product/:id` → `/prodotti/:slug`. */
+function LegacyProductPathRedirect() {
+  const { productId = '' } = useParams<{ productId: string }>()
+  const location = useLocation()
+  const segment = productId.trim()
+  if (!segment) return <Navigate to="/" replace />
+  return (
+    <Navigate
+      to={`/prodotti/${encodeURIComponent(segment)}${location.search}${location.hash}`}
+      replace
+    />
+  )
+}
+
 export default function App() {
   return (
     <>
@@ -99,10 +115,22 @@ export default function App() {
           path="/cancelleria"
           element={<Navigate to="/office-products?category=Cancelleria" replace />}
         />
-        <Route path="/product/:productId" element={<ProductDetailPage />} />
+        <Route path="/prodotti/:slug" element={<ProductDetailPage />} />
+        <Route
+          path="/product/:productId"
+          element={<LegacyProductPathRedirect />}
+        />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
         <Route path="/servizi/rilegature" element={<BindingServicePage />} />
+        {(Object.keys(SERVIZI_PAGES) as ServizioSlug[]).map((slug) => (
+          <Route
+            key={slug}
+            path={`/servizi/${slug}`}
+            element={<ServizioDetailPage slug={slug} />}
+          />
+        ))}
+        <Route path="/servizi/:slug" element={<ServizioDetailPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/account/profile" element={<AccountProfilePage />} />

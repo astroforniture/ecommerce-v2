@@ -1,5 +1,44 @@
 {
+  "buildCommand": "npx playwright install chromium && npm run build",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/office-products",
+      "has": [{ "type": "query", "key": "category", "value": "Cancelleria" }, { "type": "query", "key": "cancelleriaView", "value": "shopper-carta" }],
+      "destination": "/prerender/office-products/category-Cancelleria/view-shopper-carta/index.html"
+    },
+    {
+      "source": "/office-products",
+      "has": [{ "type": "query", "key": "category", "value": "Cancelleria" }, { "type": "query", "key": "cancelleriaView", "value": "shopper-plastica" }],
+      "destination": "/prerender/office-products/category-Cancelleria/view-shopper-plastica/index.html"
+    },
+    {
+      "source": "/office-products",
+      "has": [{ "type": "query", "key": "category", "value": "Cancelleria" }, { "type": "query", "key": "cancelleriaView", "value": "shopper" }],
+      "destination": "/prerender/office-products/category-Cancelleria/view-shopper/index.html"
+    },
+    {
+      "source": "/office-products",
+      "has": [{ "type": "query", "key": "category", "value": "Cancelleria" }, { "type": "query", "key": "cancelleriaView", "value": "timbri" }],
+      "destination": "/prerender/office-products/category-Cancelleria/view-timbri/index.html"
+    },
+    {
+      "source": "/office-products",
+      "has": [{ "type": "query", "key": "category", "value": "Cancelleria" }],
+      "destination": "/prerender/office-products/category-Cancelleria/index.html"
+    },
+    {
+      "source": "/office-products",
+      "has": [{ "type": "query", "key": "category", "value": "Carta" }],
+      "destination": "/prerender/office-products/category-Carta/index.html"
+    },
+    {
+      "source": "/office-products",
+      "has": [{ "type": "query", "key": "category", "value": "Archivio" }],
+      "destination": "/prerender/office-products/category-Archivio/index.html"
+    },
+    {
+      "source": "/((?!assets/).*)",
+      "destination": "/index.html"
+    }
   ]
 }

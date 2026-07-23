@@ -205,7 +205,8 @@ export function CheckoutAddressCards({
         <div className="space-y-2.5 bg-slate-50 px-3 py-2.5">
           {deliveryMethod === 'pickup' ? (
             <div className="rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-xs text-brand-900">
-              Ritiro gratuito a Mantova: l&apos;indirizzo di consegna non è necessario.
+              Ritiro gratuito in sede (Porto Mantovano): l&apos;indirizzo di consegna non è
+              necessario. Dettagli e mappa sotto in &quot;Metodo di consegna&quot;.
             </div>
           ) : (
             <>

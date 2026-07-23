@@ -1,7 +1,35 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 
+import {
+  clearSeoReady,
+  markSeoReady,
+  setCanonical,
+  setMetaName,
+  setMetaProperty,
+  SITE_LOGO_URL,
+  SITE_ORIGIN,
+} from '../lib/siteSeo'
+
 export function BindingServicePage() {
+  useEffect(() => {
+    clearSeoReady()
+    const title = 'Rilegature Notarili e Tesi | Astro Forniture (asforniture.it)'
+    const description =
+      'Servizio di rilegature professionali per notai e tesi. Materiali, formati e finiture dedicate — Astro Forniture.'
+    const canonical = `${SITE_ORIGIN}/servizi/rilegature`
+    document.title = title
+    setMetaName('description', description)
+    setCanonical(canonical)
+    setMetaProperty('og:title', title)
+    setMetaProperty('og:description', description)
+    setMetaProperty('og:url', canonical)
+    setMetaProperty('og:type', 'website')
+    setMetaProperty('og:image', SITE_LOGO_URL)
+    markSeoReady()
+  }, [])
+
   return (
     <main className="min-h-[60vh] bg-gradient-to-b from-brand-50/40 to-white">
       <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
@@ -15,6 +43,7 @@ export function BindingServicePage() {
 
         <section
           id="tesi"
+          data-seo-page="servizio"
           className="mt-6 scroll-mt-24 rounded-3xl border border-slate-200 bg-white p-7 shadow-sm sm:p-10"
         >
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-700">

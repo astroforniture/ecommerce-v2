@@ -1,4 +1,17 @@
 import { Award, Clock, Handshake, Headphones } from 'lucide-react'
+import { Link } from 'react-router-dom'
+
+import {
+  COMPANY_EMAIL,
+  COMPANY_LANDLINE_DISPLAY,
+  COMPANY_LANDLINE_TEL,
+  COMPANY_MAILTO,
+  COMPANY_MOBILE_DISPLAY,
+  COMPANY_MOBILE_TEL,
+  COMPANY_PICKUP_MAPS_URL,
+  COMPANY_TRADE_NAME,
+} from '../data/companyContacts'
+import { SERVIZI_NAV_ITEMS } from '../data/serviziCatalog'
 
 const FOOTER_VALUES: ReadonlyArray<{
   title: string
@@ -58,25 +71,64 @@ const Footer = () => {
       </section>
 
       <div className="w-full border-t border-slate-200 px-4 py-8 text-slate-700 md:px-8">
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-2">
           <div className="space-y-1.5 text-sm leading-relaxed md:text-left">
-            <p className="font-semibold text-slate-900">Astro Forniture di Borella Mario</p>
+            <p className="font-semibold text-slate-900">{COMPANY_TRADE_NAME}</p>
+            <p>Astro Forniture di Borella Mario</p>
             <p>Sede: Str Cisa 7 - 46047 Porto M.no (MN)</p>
             <p className="text-xs text-slate-600 sm:text-sm">
               C.F.: BRLMRA78D11L750E - P.IVA: 02383560204
             </p>
             <p className="text-xs text-slate-600 sm:text-sm">
               SDI: T04ZHR3 - Tel.{' '}
-              <a className="underline-offset-4 hover:underline" href="tel:0376329959">
-                0376 329959
+              <a className="underline-offset-4 hover:underline" href={COMPANY_LANDLINE_TEL}>
+                {COMPANY_LANDLINE_DISPLAY}
+              </a>
+            </p>
+            <p className="text-xs text-slate-600 sm:text-sm">
+              Cellulare / WhatsApp:{' '}
+              <a className="underline-offset-4 hover:underline" href={COMPANY_MOBILE_TEL}>
+                {COMPANY_MOBILE_DISPLAY}
               </a>
             </p>
             <p>
               Email:{' '}
-              <a className="underline-offset-4 hover:underline" href="mailto:info@astro-forniture.it">
-                info@astro-forniture.it
+              <a className="underline-offset-4 hover:underline" href={COMPANY_MAILTO}>
+                {COMPANY_EMAIL}
               </a>
             </p>
+            <p className="text-xs text-slate-600 sm:text-sm">
+              Ritiro in sede:{' '}
+              <a
+                className="underline-offset-4 hover:underline"
+                href={COMPANY_PICKUP_MAPS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Apri mappa Google
+              </a>
+            </p>
+          </div>
+
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-slate-900">Servizi</p>
+            <ul className="mt-3 space-y-2 text-sm">
+              {SERVIZI_NAV_ITEMS.map((item) => (
+                <li key={item.href}>
+                  <Link className="text-slate-700 underline-offset-4 hover:underline" to={item.href}>
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <Link
+                  className="text-slate-700 underline-offset-4 hover:underline"
+                  to="/servizi/rilegature"
+                >
+                  Rilegature Notarili e Tesi
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
       </div>

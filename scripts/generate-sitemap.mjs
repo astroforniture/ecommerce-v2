@@ -51,6 +51,11 @@ async function generate() {
     '/prodotti/macchine-per-ufficio/distruggi-documenti',
     '/prodotti/macchine-per-ufficio/etichettatrici',
     '/servizi/rilegature',
+    '/servizi/timbri-personalizzati',
+    '/servizi/noleggio-stampanti',
+    '/servizi/shopper-personalizzate',
+    '/servizi/biglietti-da-visita',
+    '/servizi/vetrofanie',
     '/privacy-policy',
     '/cookie-policy',
     '/termini-condizioni-vendita',
@@ -59,8 +64,8 @@ async function generate() {
   const seen = new Set(urls)
 
   if (supabaseUrl && supabaseKey) {
-    /** Allineato al catalogo shop: `public.products` (stessa tabella di `fetchOfficeProductByIdentifier`). */
-    const endpoint = `${supabaseUrl.replace(/\/$/, '')}/rest/v1/products?select=id&order=id.asc`
+    /** Allineato al catalogo shop: URL canonici `/prodotti/:slug`. */
+    const endpoint = `${supabaseUrl.replace(/\/$/, '')}/rest/v1/products?select=id,sku,name&order=id.asc`
     const res = await fetch(endpoint, {
       headers: {
         apikey: supabaseKey,
@@ -70,8 +75,17 @@ async function generate() {
     if (res.ok) {
       const rows = await res.json()
       for (const row of rows) {
-        if (!row?.id) continue
-        const u = `/product/${encodeURIComponent(String(row.id))}`
+        const key = String(row?.sku ?? row?.id ?? '').trim()
+        if (!key) continue
+        const nameSlug = String(row?.name ?? '')
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '')
+          .slice(0, 80)
+        const segment = nameSlug ? `${nameSlug}--${key}` : key
+        const u = `/prodotti/${encodeURIComponent(segment)}`
         if (seen.has(u)) continue
         seen.add(u)
         urls.push(u)

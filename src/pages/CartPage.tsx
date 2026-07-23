@@ -23,6 +23,7 @@ import { FreeShippingUpsellSection } from '../components/cart/FreeShippingUpsell
 import { OrderCostBreakdown } from '../components/cart/OrderCostBreakdown'
 import { CheckoutAddressCards } from '../components/checkout/CheckoutAddressCards'
 import { CheckoutStepIndicator } from '../components/checkout/CheckoutStepIndicator'
+import { PickupStoreConfirmBox } from '../components/checkout/PickupStoreConfirmBox'
 import { StripePaymentSection } from '../components/checkout/StripePaymentSection'
 import { persistCheckoutOrder, type CheckoutOrderInput, type CustomerType, isBusinessCustomerType } from '../lib/checkoutOrder'
 import { isStripeConfigured } from '../lib/stripe'
@@ -686,21 +687,12 @@ export function CartPage() {
                               Ritiro gratuito in negozio
                             </span>
                             <span className="text-slate-600">
-                              Pronto al ritiro presso il punto vendita di Mantova.
+                              Pronto al ritiro presso il punto vendita di Porto Mantovano.
                             </span>
                           </span>
                         </label>
                       </div>
-                      {deliveryMethod === 'pickup' ? (
-                        <div className="mt-3 rounded-xl border border-brand-200 bg-brand-50/50 p-3.5 text-sm">
-                          <p className="font-semibold text-brand-900">
-                            TuttUfficio - Astro Forniture - Buffetti
-                          </p>
-                          <p className="mt-1 text-slate-700">
-                            Largo di Porta Pradella, 2, 46100 Mantova (MN)
-                          </p>
-                        </div>
-                      ) : null}
+                      {deliveryMethod === 'pickup' ? <PickupStoreConfirmBox /> : null}
                     </section>
 
                     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">

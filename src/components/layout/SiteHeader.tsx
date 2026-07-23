@@ -35,6 +35,7 @@ import {
 } from '../../data/macchineEtichettatrici'
 import { macchineUfficioHubPath } from '../../lib/macchineUfficioRoutes'
 import { useCartDrawer } from '../../context/CartDrawerContext'
+import { SERVIZI_NAV_ITEMS } from '../../data/serviziCatalog'
 
 type HeaderNavLink = {
   type: 'link'
@@ -72,6 +73,11 @@ const HEADER_NAV_ITEMS: HeaderNavItem[] = [
     ],
   },
   { type: 'link', label: 'Cartucce & Toner', href: cartucceTonerCategoryHref() },
+  {
+    type: 'dropdown',
+    label: 'Servizi',
+    items: SERVIZI_NAV_ITEMS.map((item) => ({ label: item.label, href: item.href })),
+  },
 ]
 
 const HEADER_NAV_LINK_CLASS =
@@ -158,7 +164,7 @@ export function SiteHeader() {
                       <ChevronDown className="size-4 opacity-70" aria-hidden />
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="center" className="min-w-[12rem]">
+                  <DropdownMenuContent align="center" className="min-w-[14rem]">
                     {item.items.map((subItem) => (
                       <DropdownMenuItem key={subItem.label} asChild className="cursor-pointer">
                         <Link to={subItem.href}>{subItem.label}</Link>

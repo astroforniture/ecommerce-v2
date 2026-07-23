@@ -93,6 +93,7 @@ import {
   productDetailPath,
   productDetailUrlSegment,
 } from '../lib/productRoutes'
+import { clearSeoReady, markSeoReady } from '../lib/siteSeo'
 import {
   modelFinishFromProduct,
   modelFinishFromVariant,
@@ -690,7 +691,8 @@ const COLOR_COPY_A4_GRAMMAGE_OPTIONS = [
 
 export function ProductDetailPage() {
   const ENABLE_ARCHIVE_BOX_VARIANTS = false
-  const { productId: rawProductId = '' } = useParams<{ productId: string }>()
+  const params = useParams<{ slug?: string; productId?: string }>()
+  const rawProductId = params.slug ?? params.productId ?? ''
   const navigate = useNavigate()
   /** Stesso valore usato in fetch: decodifica sicura + NFC (deve coincidere con `producerCode` / id in DB). */
   const productKey = useMemo(() => decodeProductPathParam(rawProductId), [rawProductId])
@@ -2430,6 +2432,18 @@ export function ProductDetailPage() {
   ])
 
   useEffect(() => {
+    clearSeoReady()
+  }, [productKey])
+
+  useEffect(() => {
+    if (query.isPending) return
+    if (query.isError || !query.data) {
+      document.title = 'Prodotto non trovato | Astro Forniture'
+      markSeoReady()
+    }
+  }, [query.isPending, query.isError, query.data])
+
+  useEffect(() => {
     if (!product) return
 
     const quoteOnly = isQuoteOnlyOfficeProduct(product)
@@ -2446,7 +2460,7 @@ export function ProductDetailPage() {
     const representativeMember =
       scopedFamilyMembers.find((m) => m.id === representativeId) ?? product
     const canonicalSegment = productDetailUrlSegment(representativeMember)
-    const canonicalUrl = `${window.location.origin}/product/${encodeURIComponent(canonicalSegment)}`
+    const canonicalUrl = `${window.location.origin}/prodotti/${encodeURIComponent(canonicalSegment)}`
 
     document.title = title
     setMetaDescription(metaDescription)
@@ -2569,6 +2583,7 @@ export function ProductDetailPage() {
       itemListElement: breadcrumbItems,
     }
     upsertJsonLdById(SEO_BREADCRUMB_JSONLD_ID, breadcrumbLd)
+    markSeoReady()
   }, [
     product,
     archivePreview,
@@ -2998,7 +3013,7 @@ export function ProductDetailPage() {
 
   if (query.isError || !product) {
     return (
-      <main className="mx-auto max-w-4xl px-4 py-16">
+      <main className="mx-auto max-w-4xl px-4 py-16" data-seo-page="product-missing">
         <p className="text-lg font-semibold text-slate-900">Prodotto non trovato</p>
         <p className="mt-2 text-muted">
           {query.isError && query.error instanceof Error
@@ -3021,7 +3036,7 @@ export function ProductDetailPage() {
   }
 
   return (
-    <main className="min-h-[60vh] bg-gradient-to-b from-brand-50/50 to-white">
+    <main className="min-h-[60vh] bg-gradient-to-b from-brand-50/50 to-white" data-seo-page="product">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <Link
           to={

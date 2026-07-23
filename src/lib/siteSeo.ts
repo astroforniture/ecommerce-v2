@@ -122,4 +122,17 @@ export function applySiteBrandSeo(options?: { pathname?: string }) {
   setMetaName('twitter:image', SITE_LOGO_URL)
 
   upsertJsonLdById(SITE_BRAND_JSONLD_ID, SITE_BRAND_JSONLD as unknown as Record<string, unknown>)
+  markSeoReady()
 }
+
+/** Flag per Playwright prerender: meta + contenuti pronti. */
+export function markSeoReady() {
+  if (typeof document === 'undefined') return
+  document.documentElement.setAttribute('data-seo-ready', 'true')
+}
+
+export function clearSeoReady() {
+  if (typeof document === 'undefined') return
+  document.documentElement.removeAttribute('data-seo-ready')
+}
+
