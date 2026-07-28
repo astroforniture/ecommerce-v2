@@ -119,6 +119,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328591304',
     brand: 'Edipro',
     format: '17 x 9,9 cm',
+    imageUrl: '/images/d06c153f-a63e-428c-ada0-6a10dfb17f4a.jpg',
     description:
       'Blocco comande Edipro a 2 copie autoricalcanti, formato 17 × 9,9 cm.',
   },
@@ -130,6 +131,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328550417',
     brand: 'Edipro',
     format: '9,9 x 17 cm',
+    imageUrl: '/images/298dec2f-59c6-4cf3-b8a1-c27af2d613ab.jpg',
     description:
       'Blocco ricevuta d’affitto Edipro 50×2 autoricalcante, formato 9,9 × 17 cm. Per condominio e edilizia.',
   },
@@ -139,6 +141,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     subcategory: MODULISTICA_SUB_CONDOMINIO,
     brand: 'Edipro',
     format: '31 x 24,5 cm',
+    imageUrl: '/images/c3febc55-30f2-46b3-a8a9-832277f0f492.jpg',
     description:
       'Verbale assemblea di condominio Edipro, 96 pagine, formato 31 × 24,5 cm.',
   },
@@ -149,6 +152,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328556310',
     brand: 'Edipro',
     format: '9,9 x 17 cm',
+    imageUrl: '/images/6a8681b7-1de7-41c7-8029-404fd446c481.jpg',
     description:
       'Blocco ricevuta generica Edipro 50×2 autoricalcante, formato 9,9 × 17 cm.',
   },
@@ -159,6 +163,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328210410',
     brand: 'Edipro',
     format: '29,7 x 23 cm',
+    imageUrl: '/images/792ed7ed-83b7-494d-bff4-16ac1c9d1d47.jpg',
     description:
       'Registro prima nota IVA corrispettivi Edipro 13×2 (1 anno) autoricalcante, formato 29,7 × 23 cm.',
   },
@@ -169,6 +174,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328210212',
     brand: 'Edipro',
     format: '29,7 x 23 cm',
+    imageUrl: '/images/8f0739b7-da7e-4e04-803a-4965a5e9162d.jpg',
     description:
       'Registro prima nota IVA corrispettivi Edipro 25×2 (2 anni) autoricalcante, formato 29,7 × 23 cm.',
   },
@@ -178,6 +184,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     subcategory: MODULISTICA_SUB_CONDOMINIO,
     brand: 'Edipro',
     format: '31 x 24,5 cm',
+    imageUrl: '/images/222fc477-e9ee-4642-9d17-8833d55d9f9d.jpg',
     description:
       'Registro dei corrispettivi Edipro per mancato o irregolare funzionamento dei registratori di cassa, formato 31 × 24,5 cm.',
   },
@@ -199,6 +206,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328534912',
     brand: 'Edipro',
     format: '14,8 x 22 cm',
+    imageUrl: '/images/c2cfacd0-627a-4182-a211-497694042b2a.jpg',
     description:
       'Blocco prima nota cassa Edipro 50×2 autoricalcante, formato 14,8 × 22 cm.',
   },
@@ -209,6 +217,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328535001',
     brand: 'Edipro',
     format: '22 x 29,7 cm',
+    imageUrl: '/images/f8291f0e-e4a5-43e8-964b-583c72260f0a.jpg',
     description:
       'Blocco prima nota cassa Edipro 50×2 autoricalcante (cassa-banca), formato 22 × 29,7 cm.',
   },
@@ -229,6 +238,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328535605',
     brand: 'Edipro',
     format: '29,7 x 22 cm',
+    imageUrl: '/images/8ccdad5c-d9b7-4310-b271-c0044ef12a1c.jpg',
     description:
       'Blocco prima nota cassa Edipro 100 fogli uso mano (entrata – uscita – IVA), formato 29,7 × 22 cm.',
   },
@@ -249,6 +259,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328535919',
     brand: 'Edipro',
     format: '29,7 x 22 cm',
+    imageUrl: '/images/ee4bb8de-1d14-4b04-b9fd-ff408aed5277.jpg',
     description:
       'Blocco prima nota cassa Edipro 50×2 autoricalcante (entrate – uscite), formato 29,7 × 22 cm.',
   },
@@ -259,6 +270,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328527914',
     brand: 'Edipro',
     format: '22 x 14,8 cm',
+    imageUrl: '/images/1ebf60d5-d1ba-419f-b002-50cb6aa27555.jpg',
     description:
       'Blocco fattura generica Edipro 50×2 autoricalcante, formato 22 × 14,8 cm.',
   },
@@ -268,6 +280,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     subcategory: MODULISTICA_SUB_CONTABILITA,
     brand: 'Edipro',
     format: '24 x 17 cm',
+    imageUrl: '/images/718ff514-7368-4dc4-85c2-0055ca641fbf.jpg',
     description:
       'Scadenzario effetti passivi Edipro con spirale e indici plastificati, 36 fogli, formato 24 × 17 cm.',
   },
@@ -289,6 +302,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328527518',
     brand: 'Edipro',
     format: '9,9 x 17 cm',
+    imageUrl: '/images/e67b1190-6a40-443a-b831-8a4fdcddcb62.jpg',
     description:
       'Ricevuta sanitaria Edipro 50×2 autoricalcanti, formato 9,9 × 17 cm.',
   },
@@ -299,6 +313,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     subcategory: MODULISTICA_SUB_REGISTRI_CONTABILI,
     brand: 'Edipro',
     format: '24 x 17 cm',
+    imageUrl: '/images/26586a3f-bcdc-47a9-8522-879efc5ee053.jpg',
     description:
       'Scadenzario effetti attivi Edipro con spirale e indici plastificati, 36 fogli, formato 24 × 17 cm.',
   },
@@ -308,6 +323,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     subcategory: MODULISTICA_SUB_REGISTRI_CONTABILI,
     brand: 'Edipro',
     format: '17 x 12 cm',
+    imageUrl: '/images/6dd78a36-4f78-4b7f-874d-1b343db3ed31.jpg',
     description: 'Registro dare/avere/saldo Edipro, 96 pagine, formato 17 × 12 cm.',
   },
   {
@@ -324,6 +340,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     subcategory: MODULISTICA_SUB_REGISTRI_CONTABILI,
     brand: 'Edipro',
     format: '24 x 17 cm',
+    imageUrl: '/images/8016ed36-fec6-4814-9ee1-a52d9f4de98a.jpg',
     description: 'Registro cassa entrate/uscite Edipro, 96 pagine, formato 24 × 17 cm.',
   },
   {
@@ -332,6 +349,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     subcategory: MODULISTICA_SUB_REGISTRI_CONTABILI,
     brand: 'Edipro',
     format: '31 x 24,5 cm',
+    imageUrl: '/images/55037817-9ba0-4a46-ab8e-bd40cd82a800.jpg',
     description: 'Registro 3 colonne Edipro, 96 pagine, formato 31 × 24,5 cm.',
   },
   {
@@ -340,6 +358,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     subcategory: MODULISTICA_SUB_REGISTRI_CONTABILI,
     brand: 'Edipro',
     format: '17 x 12 cm',
+    imageUrl: '/images/481977de-4f37-43e5-94c5-8effefc09045.jpg',
     description: 'Registro libro cassa Edipro, 96 pagine, formato 17 × 12 cm.',
   },
   // Registri Fiscali e IVA
@@ -349,6 +368,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     subcategory: MODULISTICA_SUB_REGISTRI_FISCALI,
     brand: 'Edipro',
     format: '31 x 24,5 cm',
+    imageUrl: '/images/5ba2c8ee-973b-4456-96b3-aac779f14a2c.jpg',
     description: 'Giornale degli affari Edipro, 96 pagine, formato 31 × 24,5 cm.',
   },
   {
@@ -357,6 +377,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     subcategory: MODULISTICA_SUB_REGISTRI_FISCALI,
     brand: 'Edipro',
     format: '31 x 24,5 cm',
+    imageUrl: '/images/5fb4c36a-99b6-415e-966e-86f40125e00d.jpg',
     description:
       'Registro IVA corrispettivi Edipro, 15 pagine numerate, formato 31 × 24,5 cm.',
   },
@@ -366,6 +387,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     subcategory: MODULISTICA_SUB_REGISTRI_FISCALI,
     brand: 'Edipro',
     format: '31 x 24,5 cm',
+    imageUrl: '/images/ec49d2be-fc99-4a91-8e29-55278111be90.jpg',
     description:
       'Registro acquisti beni usati Edipro, 23 pagine numerate, formato 31 × 24,5 cm.',
   },
@@ -375,6 +397,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     subcategory: MODULISTICA_SUB_REGISTRI_FISCALI,
     brand: 'Edipro',
     format: '31 x 24,5 cm',
+    imageUrl: '/images/b0292a0e-2440-4a32-a52a-6fcd32136524.jpg',
     description:
       'Registro IVA fatture Edipro, 22 pagine numerate, formato 31 × 24,5 cm.',
   },
@@ -385,6 +408,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     subcategory: MODULISTICA_SUB_REGISTRI_BENI_USATI,
     brand: 'Edipro',
     format: '31 x 24,5 cm',
+    imageUrl: '/images/972d6ca2-7136-4917-91fb-facff83a4523.jpg',
     description:
       'Registro vendite beni usati Edipro, 23 pagine numerate, formato 31 × 24,5 cm.',
   },
@@ -396,6 +420,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328519926',
     brand: 'Edipro',
     format: '9,9 x 17 cm',
+    imageUrl: '/images/a0d59abb-d8ad-4bb2-a129-418e1091f206.jpg',
     description:
       'Blocco buono di consegna Edipro 33×3 autoricalcante, formato 9,9 × 17 cm.',
   },
@@ -416,6 +441,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328519711',
     brand: 'Edipro',
     format: '12 x 17,5 cm',
+    imageUrl: '/images/acd68330-ccd7-4966-a019-5e2850498133.jpg',
     description:
       'Blocco buono di consegna Edipro 50×2 autoricalcante, formato 12 × 17,5 cm.',
   },
@@ -426,6 +452,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328520915',
     brand: 'Edipro',
     format: '22 x 14,8 cm',
+    imageUrl: '/images/b81e025a-a6f2-4666-8ecc-ec6d54009ef2.jpg',
     description:
       'Blocco buono di consegna Edipro 50×2 autoricalcante, formato 22 × 14,8 cm.',
   },
@@ -436,6 +463,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328521714',
     brand: 'Edipro',
     format: '14,8 x 22 cm',
+    imageUrl: '/images/5138f9f1-8b53-44c2-88be-d9a573b8f19e.jpg',
     description:
       'Blocco nota di consegna tentata vendita Edipro 50×2 autoricalcante, formato 14,8 × 22 cm.',
   },
@@ -447,6 +475,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328521523',
     brand: 'Edipro',
     format: '22 x 14,8 cm',
+    imageUrl: '/images/67916f2e-6c8e-4bd5-afa0-48539f0193c3.jpg',
     description:
       'Blocco documento di trasporto Edipro 33×3 autoricalcante, formato 22 × 14,8 cm.',
   },
@@ -457,6 +486,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328521929',
     brand: 'Edipro',
     format: '29,7 x 22 cm',
+    imageUrl: '/images/2534e81f-339e-4485-8400-f3367285121e.jpg',
     description:
       'Blocco documento di trasporto Edipro 33×3 autoricalcante, formato 29,7 × 22 cm.',
   },
@@ -467,6 +497,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328521417',
     brand: 'Edipro',
     format: '22 x 14,8 cm',
+    imageUrl: '/images/54ff20b5-7ee1-47b9-8072-0689994338d5.jpg',
     description:
       'Blocco documento di trasporto Edipro 50×2 autoricalcante, formato 22 × 14,8 cm.',
   },
@@ -477,6 +508,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328521813',
     brand: 'Edipro',
     format: '29,7 x 22 cm',
+    imageUrl: '/images/d24a0031-d576-4d01-85a7-5bfa004a03bf.jpg',
     description:
       'Blocco documento di trasporto Edipro 25×4 autoricalcante, formato 29,7 × 22 cm.',
   },

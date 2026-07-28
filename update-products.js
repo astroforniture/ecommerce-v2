@@ -7,6 +7,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { createClient } from '@supabase/supabase-js'
 import { fileURLToPath } from 'node:url'
+import { buildModulisticaImageProducts } from './scripts/build-modulistica-image-products.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = __dirname
@@ -29,130 +30,8 @@ function readEnvFile(filePath) {
 readEnvFile(path.join(root, '.env'))
 readEnvFile(path.join(root, '.env.local'))
 
-/** Path immagini verificati su disco (corretti rispetto a typo comuni). */
-const productsToUpdate = [
-  {
-    sku: 'E 5220 G',
-    title:
-      'Blocco documento di trasporto carico per tentata vendita 50×2 autoricalcante – Formato 29,7×22',
-    category: 'Modulistica',
-    subcategory: 'Documenti di Trasporto e Tentata Vendita',
-    image: '/images/5a2bd0c9-2438-4f03-8594-7dbc2d48802d.jpg',
-    ean: '8023328522018',
-    format: '29,7 x 22 cm',
-    brand: 'Edipro',
-    description:
-      'Blocco documento di trasporto carico per tentata vendita Edipro 50×2 autoricalcante, formato 29,7 × 22 cm.',
-  },
-  {
-    sku: 'E 5221 C',
-    title: 'Blocco D.D.T. fattura tentata vendita 50×2 autoricalcante – Formato 29,7×22',
-    category: 'Modulistica',
-    subcategory: 'Documenti di Trasporto e Tentata Vendita',
-    image: '/images/3ed3120b-c35b-4039-a941-b10b6dca6d1c.jpg',
-    ean: '8023328522117',
-    format: '29,7 x 22 cm',
-    brand: 'Edipro',
-    description:
-      'Blocco D.D.T. fattura tentata vendita Edipro 50×2 autoricalcante, formato 29,7 × 22 cm.',
-  },
-  {
-    sku: 'E 5183',
-    title: 'Blocco buono di consegna 100 fogli uso mano – Formato 9,9×17',
-    category: 'Modulistica',
-    subcategory: 'Buoni di Consegna e Ricevute',
-    image: '/images/2cbbb207-0340-42bb-afd5-4217dd356ff0.jpg',
-    ean: '8023328518301',
-    format: '9,9 x 17 cm',
-    brand: 'Edipro',
-    description:
-      'Blocco buono di consegna Edipro 100 fogli uso mano, formato 9,9 × 17 cm.',
-  },
-  {
-    sku: 'E 3399',
-    title: 'Schede - 2 colonne - 24 x 17 cm (verticale) - Edipro - conf. 100 pezzi',
-    category: 'Modulistica',
-    subcategory: 'Schede Contabili e Maste',
-    image: '/images/0f73bb8f-8dbc-4b0a-bed3-69a6b148ad4f.jpg',
-    ean: '8023328339906',
-    format: '24 x 17 cm',
-    brand: 'Edipro',
-    description:
-      'Schede contabili Edipro a 2 colonne, formato 24 × 17 cm verticale, confezione da 100 pezzi.',
-  },
-  {
-    sku: 'E 3369',
-    title: 'Schede - 3 colonne - 17 x 24 cm orizzontale - Edipro - conf. 100 pezzi',
-    category: 'Modulistica',
-    subcategory: 'Schede Contabili e Maste',
-    image: '/images/67e70187-52d7-4788-bd05-54495c728c0c.jpg',
-    ean: '8023328336905',
-    format: '17 x 24 cm',
-    brand: 'Edipro',
-    description:
-      'Schede contabili Edipro a 3 colonne, formato 17 × 24 cm orizzontale, confezione da 100 pezzi.',
-  },
-  {
-    sku: 'E 3259',
-    title: 'Schede - 3 colonne - 15 x 21 cm orizzontale - Edipro - conf. 100 pezzi',
-    category: 'Modulistica',
-    subcategory: 'Schede Contabili e Maste',
-    image: '/images/80e3b5c6-de8e-4d92-bcb9-5dfe75970e79.jpg',
-    ean: '8023328325909',
-    format: '15 x 21 cm',
-    brand: 'Edipro',
-    description:
-      'Schede contabili Edipro a 3 colonne, formato 15 × 21 cm orizzontale, confezione da 100 pezzi.',
-  },
-  {
-    sku: 'E 3406',
-    title: 'Schede - 3 colonne - 24 x 17 cm verticale - Edipro - conf. 100 pezzi',
-    category: 'Modulistica',
-    subcategory: 'Schede Contabili e Maste',
-    image: '/images/9754b9bb-7d4e-4967-a8dd-a99dde182fe8.jpg',
-    ean: '8023328340605',
-    format: '24 x 17 cm',
-    brand: 'Edipro',
-    description:
-      'Schede contabili Edipro a 3 colonne, formato 24 × 17 cm verticale, confezione da 100 pezzi.',
-  },
-  {
-    sku: 'E 5348 C',
-    title: 'Blocco fattura/ricevuta fiscale barbiere 50×2 autoricalcante – Formato 22×9,9',
-    category: 'Modulistica',
-    subcategory: 'Ricevute Fiscali e Fatture',
-    image: '/images/82aed2d3-b9a7-4813-8183-2abd6fee6add.jpg',
-    ean: '8023328534813',
-    format: '22 x 9,9 cm',
-    brand: 'Edipro',
-    description:
-      'Blocco fattura/ricevuta fiscale barbiere Edipro 50×2 autoricalcante, formato 22 × 9,9 cm.',
-  },
-  {
-    sku: 'E 5342 C',
-    title: 'Blocco fattura/ricevuta fiscale parrucchiere 50×2 autoricalcante – Formato 22×9,9',
-    category: 'Modulistica',
-    subcategory: 'Ricevute Fiscali e Fatture',
-    image: '/images/86e56334-f38d-4d6e-b0aa-2ef9b6fc565a.jpg',
-    ean: '8023328534219',
-    format: '22 x 9,9 cm',
-    brand: 'Edipro',
-    description:
-      'Blocco fattura/ricevuta fiscale parrucchiere Edipro 50×2 autoricalcante, formato 22 × 9,9 cm.',
-  },
-  {
-    sku: 'E 5340 C',
-    title: 'Blocco fattura/ricevuta fiscale generica 50×2 autoricalcante – Formato 22×14,8',
-    category: 'Modulistica',
-    subcategory: 'Ricevute Fiscali e Fatture',
-    image: '/images/92c5e4d1-0e14-4191-8a5d-6fad90ab6ad3.jpg',
-    ean: '8023328534011',
-    format: '22 x 14,8 cm',
-    brand: 'Edipro',
-    description:
-      'Blocco fattura/ricevuta fiscale generica Edipro 50×2 autoricalcante, formato 22 × 14,8 cm.',
-  },
-]
+/** Prodotti Modulistica con immagine mappata da public/images. */
+const productsToUpdate = buildModulisticaImageProducts()
 
 function assertImagesExist() {
   const missing = []
@@ -179,34 +58,26 @@ function updateLocalCatalogTs() {
   let changed = 0
 
   for (const p of productsToUpdate) {
-    const skuRe = new RegExp(
-      `(sku:\\s*'${p.sku.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}',\\s*\\n\\s*name:\\s*)'[^']*'`,
+    const skuEsc = p.sku.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const blockRe = new RegExp(
+      `(sku:\\s*'${skuEsc}'[\\s\\S]*?)(\\n\\s*description:\\s*)`,
       'm',
     )
-    if (!skuRe.test(src)) {
+    if (!blockRe.test(src)) {
       console.warn(`  [catalog] SKU non trovato: ${p.sku}`)
       continue
     }
-    src = src.replace(skuRe, `$1'${p.title.replace(/'/g, "\\'")}'`)
-
-    // Ensure / replace imageUrl immediately after format (or before description)
-    const blockRe = new RegExp(
-      `(sku:\\s*'${p.sku.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}'[\\s\\S]*?)(description:\\s*)`,
-      'm',
-    )
     src = src.replace(blockRe, (full, before, descKey) => {
       let next = before
-      if (/imageUrl:\s*'[^']*'/.test(before)) {
-        next = before.replace(/imageUrl:\s*'[^']*'/, `imageUrl: '${p.image}'`)
+      if (/imageUrl:\s*'[^']*'/.test(next)) {
+        next = next.replace(/imageUrl:\s*'[^']*'/, `imageUrl: '${p.image}'`)
       } else {
-        next = before.replace(/\n(\s*)(description:)/, `\n$1imageUrl: '${p.image}',\n$1$2`)
-        // if description already matched via descKey path:
-        if (next === before) {
-          return `${before}imageUrl: '${p.image}',\n    ${descKey}`
-        }
+        next = `${next}\n    imageUrl: '${p.image}',`
       }
-      if (/ean:\s*'[^']*'/.test(next)) {
-        next = next.replace(/ean:\s*'[^']*'/, `ean: '${p.ean}'`)
+      if (p.ean) {
+        if (/ean:\s*'[^']*'/.test(next)) {
+          next = next.replace(/ean:\s*'[^']*'/, `ean: '${p.ean}'`)
+        }
       }
       return `${next}${descKey}`
     })
@@ -218,9 +89,9 @@ function updateLocalCatalogTs() {
 }
 
 function writeSqlMigration() {
-  const out = path.join(root, 'supabase', 'migrations', '041_modulistica_product_images.sql')
+  const out = path.join(root, 'supabase', 'migrations', '042_modulistica_product_images_full.sql')
   const lines = [
-    '-- Modulistica: aggiorna immagini/metadati prodotti (generato da update-products.js)',
+    '-- Modulistica: aggiorna image_url per tutti i prodotti mappati (generato da update-products.js)',
     '',
   ]
   for (const p of productsToUpdate) {
@@ -233,19 +104,23 @@ function writeSqlMigration() {
         `category = '${esc(p.category)}', ` +
         `subcategory = '${esc(p.subcategory)}', ` +
         `format = '${esc(p.format)}', ` +
-        `ean = '${esc(p.ean)}', ` +
+        `ean = ${p.ean ? `'${esc(p.ean)}'` : 'null'}, ` +
         `description = '${esc(p.description)}' ` +
         `where sku = '${esc(p.sku)}';`,
     )
     lines.push(
       `insert into public.products (sku, name, price, image_url, brand, category, subcategory, format, ean, description, stock) ` +
-        `select '${esc(p.sku)}', '${esc(p.title)}', 0, '${esc(p.image)}', '${esc(p.brand)}', '${esc(p.category)}', '${esc(p.subcategory)}', '${esc(p.format)}', '${esc(p.ean)}', '${esc(p.description)}', 100 ` +
+        `select '${esc(p.sku)}', '${esc(p.title)}', 0, '${esc(p.image)}', '${esc(p.brand)}', '${esc(p.category)}', '${esc(p.subcategory)}', '${esc(p.format)}', ${p.ean ? `'${esc(p.ean)}'` : 'null'}, '${esc(p.description)}', 100 ` +
         `where not exists (select 1 from public.products where sku = '${esc(p.sku)}');`,
     )
     lines.push('')
   }
+  lines.push(
+    `select count(*)::int as modulistica_with_local_images from public.products where category = 'Modulistica' and image_url like '/images/%';`,
+  )
   writeFileSync(out, lines.join('\n'), 'utf8')
   console.log(`OK: SQL scritto in ${path.relative(root, out)}`)
+  return out
 }
 
 async function upsertViaDatabaseUrl() {
@@ -335,7 +210,7 @@ async function upsertViaServiceRole() {
 }
 
 async function upsertViaSupabaseCliLinked() {
-  const sqlRel = path.join('supabase', 'migrations', '041_modulistica_product_images.sql')
+  const sqlRel = path.join('supabase', 'migrations', '042_modulistica_product_images_full.sql')
   const sqlPath = path.join(root, sqlRel)
   if (!existsSync(sqlPath)) return { ok: false, reason: 'missing-sql' }
 
