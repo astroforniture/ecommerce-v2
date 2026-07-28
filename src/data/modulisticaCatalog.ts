@@ -196,6 +196,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328534905',
     brand: 'Edipro',
     format: '14,8 x 22 cm',
+    imageUrl: '/images/86e56334-f38d-4d6e-b0aa-2ef9b6fc565a.jpg',
     description:
       'Blocco prima nota cassa Edipro 100 fogli uso mano, formato 14,8 × 22 cm.',
   },
@@ -249,6 +250,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328535612',
     brand: 'Edipro',
     format: '29,7 x 22 cm',
+    imageUrl: '/images/92c5e4d1-0e14-4191-8a5d-6fad90ab6ad3.jpg',
     description:
       'Blocco prima nota cassa Edipro 50×2 autoricalcante (entrate – uscite - IVA), formato 29,7 × 22 cm.',
   },
@@ -600,7 +602,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328534813',
     brand: 'Edipro',
     format: '22 x 9,9 cm',
-    imageUrl: '/images/82aed2d3-b9a7-4813-8183-2abd6fee6add.jpg',
+    imageUrl: '/images/ad8ad89c-fa28-4b8f-bee6-9be1d057cd55.jpg',
     description:
       'Blocco fattura/ricevuta fiscale barbiere Edipro 50×2 autoricalcante, formato 22 × 9,9 cm.',
   },
@@ -611,7 +613,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328534219',
     brand: 'Edipro',
     format: '22 x 9,9 cm',
-    imageUrl: '/images/86e56334-f38d-4d6e-b0aa-2ef9b6fc565a.jpg',
+    imageUrl: '/images/dc4d3188-fbf5-4645-b85c-0ed980e37de4.jpg',
     description:
       'Blocco fattura/ricevuta fiscale parrucchiere Edipro 50×2 autoricalcante, formato 22 × 9,9 cm.',
   },
@@ -622,7 +624,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328534011',
     brand: 'Edipro',
     format: '22 x 14,8 cm',
-    imageUrl: '/images/92c5e4d1-0e14-4191-8a5d-6fad90ab6ad3.jpg',
+    imageUrl: '/images/82aed2d3-b9a7-4813-8183-2abd6fee6add.jpg',
     description:
       'Blocco fattura/ricevuta fiscale generica Edipro 50×2 autoricalcante, formato 22 × 14,8 cm.',
   },

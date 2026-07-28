@@ -17,9 +17,12 @@ export const MODULISTICA_IMAGE_BY_SKU = {
   'E 3369': '/images/67e70187-52d7-4788-bd05-54495c728c0c.jpg',
   'E 3259': '/images/80e3b5c6-de8e-4d92-bcb9-5dfe75970e79.jpg',
   'E 3406': '/images/9754b9bb-7d4e-4967-a8dd-a99dde182fe8.jpg',
-  'E 5348 C': '/images/82aed2d3-b9a7-4813-8183-2abd6fee6add.jpg',
-  'E 5342 C': '/images/86e56334-f38d-4d6e-b0aa-2ef9b6fc565a.jpg',
-  'E 5340 C': '/images/92c5e4d1-0e14-4191-8a5d-6fad90ab6ad3.jpg',
+  // Ricevute fiscali: mapping corretto dopo audit copertine (SKU stampato)
+  'E 5340 C': '/images/82aed2d3-b9a7-4813-8183-2abd6fee6add.jpg',
+  'E 5348 C': '/images/ad8ad89c-fa28-4b8f-bee6-9be1d057cd55.jpg',
+  'E 5342 C': '/images/dc4d3188-fbf5-4645-b85c-0ed980e37de4.jpg',
+  'E 5349': '/images/86e56334-f38d-4d6e-b0aa-2ef9b6fc565a.jpg',
+  'E 5356 A': '/images/92c5e4d1-0e14-4191-8a5d-6fad90ab6ad3.jpg',
   'E 5279 A': '/images/1ebf60d5-d1ba-419f-b002-50cb6aa27555.jpg',
   'E 2108': '/images/222fc477-e9ee-4642-9d17-8833d55d9f9d.jpg',
   'E 5219 CT': '/images/2534e81f-339e-4485-8400-f3367285121e.jpg',
@@ -53,6 +56,16 @@ export const MODULISTICA_IMAGE_BY_SKU = {
   'E 5359 A': '/images/ee4bb8de-1d14-4b04-b9fd-ff408aed5277.jpg',
   'E 5350': '/images/f8291f0e-e4a5-43e8-964b-583c72260f0a.jpg',
 }
+
+/** SKU catalogo senza foto unica in public/images (usano cover hub generica). */
+export const MODULISTICA_SKUS_MISSING_UNIQUE_IMAGE = [
+  'E 5916',
+  'E 9117',
+  'E 5351',
+  'E 5567 C',
+  'E2666',
+  'E 5196 C',
+]
 
 const SUB_LABEL = {
   MODULISTICA_SUB_ALBERGHI: 'Alberghi e Ristoranti',

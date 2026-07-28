@@ -89,9 +89,9 @@ function updateLocalCatalogTs() {
 }
 
 function writeSqlMigration() {
-  const out = path.join(root, 'supabase', 'migrations', '042_modulistica_product_images_full.sql')
+  const out = path.join(root, 'supabase', 'migrations', '043_modulistica_product_images_audit_fix.sql')
   const lines = [
-    '-- Modulistica: aggiorna image_url per tutti i prodotti mappati (generato da update-products.js)',
+    '-- Modulistica: fix mapping immagini dopo audit SKU stampati (generato da update-products.js)',
     '',
   ]
   for (const p of productsToUpdate) {
@@ -210,7 +210,7 @@ async function upsertViaServiceRole() {
 }
 
 async function upsertViaSupabaseCliLinked() {
-  const sqlRel = path.join('supabase', 'migrations', '042_modulistica_product_images_full.sql')
+  const sqlRel = path.join('supabase', 'migrations', '043_modulistica_product_images_audit_fix.sql')
   const sqlPath = path.join(root, sqlRel)
   if (!existsSync(sqlPath)) return { ok: false, reason: 'missing-sql' }
 
