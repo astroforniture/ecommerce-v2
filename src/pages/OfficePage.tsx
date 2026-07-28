@@ -53,6 +53,22 @@ import {
   SHOPPER_HUB_COVER_IMAGE_URL,
 } from '../data/shopperCancelleria'
 import {
+  BUSTE_HUB_COVER_IMAGE_URL,
+  CANCELLERIA_SUB_BUSTE,
+  CANCELLERIA_VIEW_BUSTE,
+  mergeBusteListingProducts,
+  matchesBusteHubProduct,
+} from '../data/sacbollBuste'
+import {
+  MODULISTICA_CATEGORY,
+  MODULISTICA_CATEGORY_NORM,
+  MODULISTICA_HUB_COVER_IMAGE_URL,
+  MODULISTICA_SUBCATEGORIES,
+  mergeModulisticaListingProducts,
+  matchesModulisticaSubcategoryFilter,
+  modulisticaCategoryHref,
+} from '../data/modulisticaCatalog'
+import {
   isTimbroAziendeFarmacieProduct,
   TIMBRI_HUB_COVER_IMAGE_URL,
 } from '../lib/timbroAziendeFarmacieProduct'
@@ -90,6 +106,7 @@ type CancelleriaHubId =
   | 'pile'
   | 'quaderni'
   | 'timbri'
+  | typeof CANCELLERIA_VIEW_BUSTE
   | typeof CANCELLERIA_VIEW_SHOPPER
   | typeof CANCELLERIA_VIEW_SHOPPER_CARTA
   | typeof CANCELLERIA_VIEW_SHOPPER_PLASTICA
@@ -162,6 +179,11 @@ const CANCELLERIA_HUB_CARDS: Array<{
     id: 'timbri',
     title: 'Timbri',
     imageUrl: TIMBRI_HUB_COVER_IMAGE_URL,
+  },
+  {
+    id: CANCELLERIA_VIEW_BUSTE,
+    title: CANCELLERIA_SUB_BUSTE,
+    imageUrl: BUSTE_HUB_COVER_IMAGE_URL,
   },
   {
     id: CANCELLERIA_VIEW_SHOPPER,
@@ -243,6 +265,7 @@ function isCancelleriaSyntheticListingView(view: CancelleriaHubId | null): boole
   return (
     view === 'pile' ||
     view === 'quaderni' ||
+    view === CANCELLERIA_VIEW_BUSTE ||
     view === CANCELLERIA_VIEW_SHOPPER_CARTA ||
     view === CANCELLERIA_VIEW_SHOPPER_PLASTICA
   )
@@ -268,6 +291,7 @@ function isCancelleriaHubId(raw: string): raw is CancelleriaHubId {
     raw === 'pile' ||
     raw === 'quaderni' ||
     raw === 'timbri' ||
+    raw === CANCELLERIA_VIEW_BUSTE ||
     raw === CANCELLERIA_VIEW_SHOPPER ||
     raw === CANCELLERIA_VIEW_SHOPPER_CARTA ||
     raw === CANCELLERIA_VIEW_SHOPPER_PLASTICA
@@ -286,6 +310,9 @@ function matchesCancelleriaHubProduct(product: OfficeProduct, hub: CancelleriaHu
     const sub = (product.subcategory ?? '').trim().toLowerCase()
     if (sub === 'timbri') return true
     return normNameLite(product.name).includes('timbro')
+  }
+  if (hub === CANCELLERIA_VIEW_BUSTE) {
+    return matchesBusteHubProduct(product)
   }
   if (hub === CANCELLERIA_VIEW_SHOPPER) {
     return matchesShopperCartaProduct(product) || matchesShopperPlasticaProduct(product)
@@ -543,6 +570,9 @@ export function OfficePage() {
     if (selectedCategoryNorm === 'cancelleria' && selectedCancelleriaView === 'quaderni') {
       return buildQuaderniOfficeProducts()
     }
+    if (selectedCategoryNorm === 'cancelleria' && selectedCancelleriaView === CANCELLERIA_VIEW_BUSTE) {
+      return mergeBusteListingProducts(normalizedProducts)
+    }
     if (
       selectedCategoryNorm === 'cancelleria' &&
       selectedCancelleriaView === CANCELLERIA_VIEW_SHOPPER_CARTA
@@ -555,11 +585,17 @@ export function OfficePage() {
     ) {
       return buildShopperPlasticaOfficeProducts()
     }
+    if (selectedCategoryNorm === 'modulistica') {
+      return mergeModulisticaListingProducts(
+        normalizedProducts,
+        selectedSubcategory || undefined,
+      )
+    }
     if (selectedCategoryNorm === LINEA_ASTRO_MEDICAL_CATEGORY_NORM) {
       return mergeLineaAstroMedicalCatalog(normalizedProducts)
     }
     return normalizedProducts
-  }, [selectedCategoryNorm, selectedCancelleriaView, normalizedProducts])
+  }, [selectedCategoryNorm, selectedCancelleriaView, selectedSubcategory, normalizedProducts])
 
   const selectedFeatures = useMemo(() => {
     const map = new Map<string, Set<string>>()
@@ -581,6 +617,9 @@ export function OfficePage() {
       }
       if (activeCategory === 'carta' && selectedSubcategory) {
         if (!matchesCartaSubcategoryFilter(p, selectedSubcategory)) return false
+      }
+      if (activeCategory === MODULISTICA_CATEGORY_NORM && selectedSubcategory) {
+        if (!matchesModulisticaSubcategoryFilter(p, selectedSubcategory)) return false
       }
       if (activeCategory === LINEA_ASTRO_MEDICAL_CATEGORY_NORM && selectedSubcategory) {
         if (!matchesAstroMedicalSubcategoryFilter(p, selectedSubcategory)) return false
@@ -849,6 +888,8 @@ export function OfficePage() {
 
   const showArchivioDashboard =
     selectedCategoryNorm === 'archivio' && !selectedSubcategory && !searchTrim
+  const showModulisticaDashboard =
+    selectedCategoryNorm === MODULISTICA_CATEGORY_NORM && !selectedSubcategory && !searchTrim
   const showCancelleriaDashboard =
     selectedCategoryNorm === 'cancelleria' && !selectedCancelleriaView && !searchTrim
   const showShopperDashboard =
@@ -856,6 +897,7 @@ export function OfficePage() {
     isShopperIntermediateHub(selectedCancelleriaView) &&
     !searchTrim
   const isArchivioCategory = selectedCategoryNorm === 'archivio'
+  const isModulisticaCategory = selectedCategoryNorm === MODULISTICA_CATEGORY_NORM
   const isMacchineUfficioCategory = selectedCategoryNorm === 'macchine per ufficio'
   const isCancelleriaCategory = selectedCategoryNorm === 'cancelleria'
   const isCartucceTonerCategory = selectedCategoryNorm === CARTUCCE_TONER_CATEGORY_NORM
@@ -874,6 +916,7 @@ export function OfficePage() {
         className={[
           'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8',
           isArchivioCategory ||
+          isModulisticaCategory ||
           isCancelleriaCategory ||
           isCartucceTonerCategory ||
           isMacchineUfficioCategory ||
@@ -882,7 +925,7 @@ export function OfficePage() {
             : 'py-16 sm:py-20',
         ].join(' ')}
       >
-        {!showArchivioDashboard ? (
+        {!showArchivioDashboard && !showModulisticaDashboard ? (
           <Link
             to="/"
             className="inline-flex items-center gap-2 text-sm font-semibold text-brand-700 transition hover:text-brand-900"
@@ -919,7 +962,34 @@ export function OfficePage() {
           </nav>
         ) : null}
 
-        {categoryFromUrl && !showArchivioDashboard ? (
+        {isModulisticaCategory && !showModulisticaDashboard ? (
+          <nav className="mt-6 text-sm text-slate-500" aria-label="Breadcrumb">
+            <ol className="flex flex-wrap items-center gap-2">
+              <li>
+                <Link to="/" className="transition hover:text-brand-800">
+                  Home
+                </Link>
+              </li>
+              <li aria-hidden>/</li>
+              <li>
+                <Link
+                  to={modulisticaCategoryHref()}
+                  className="font-medium text-slate-800 transition hover:text-brand-800"
+                >
+                  {MODULISTICA_CATEGORY}
+                </Link>
+              </li>
+              {selectedSubcategory ? (
+                <>
+                  <li aria-hidden>/</li>
+                  <li className="font-medium text-slate-800">{selectedSubcategory}</li>
+                </>
+              ) : null}
+            </ol>
+          </nav>
+        ) : null}
+
+        {categoryFromUrl && !showArchivioDashboard && !showModulisticaDashboard ? (
           <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-brand-200 bg-white px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
               Risultati per:{' '}
@@ -1093,6 +1163,42 @@ export function OfficePage() {
           </section>
         ) : null}
 
+        {showModulisticaDashboard ? (
+          <section className="mt-3" aria-labelledby="modulistica-hub-heading">
+            <div className="mb-5 max-w-2xl">
+              <h2
+                id="modulistica-hub-heading"
+                className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl"
+              >
+                {MODULISTICA_CATEGORY}
+              </h2>
+              <p className="mt-1.5 text-sm text-slate-600 sm:text-base">
+                Scegli la sottocategoria: Alberghi, Condominio, Contabilità, Ricevute, Registri, Buoni, DDT, Schede o Fatture.
+              </p>
+            </div>
+            <div className={OFFICE_SUBCATEGORY_TILE_GRID_CLASS}>
+              {MODULISTICA_SUBCATEGORIES.map((subcat) => (
+                <OfficeSubcategoryTile
+                  key={`modulistica-subcat-${subcat}`}
+                  title={subcat}
+                  onClick={() => setSubcategoryFilter(subcat)}
+                  media={
+                    <div className="aspect-square w-full bg-slate-50">
+                      <img
+                        src={MODULISTICA_HUB_COVER_IMAGE_URL}
+                        alt={subcat}
+                        className="size-full object-contain p-4"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                  }
+                />
+              ))}
+            </div>
+          </section>
+        ) : null}
+
         {showCancelleriaDashboard ? (
           <section className="mt-3">
             <div className={OFFICE_SUBCATEGORY_TILE_GRID_CLASS}>
@@ -1156,7 +1262,10 @@ export function OfficePage() {
           </section>
         ) : null}
 
-        {!showArchivioDashboard && !showCancelleriaDashboard && !showShopperDashboard ? (
+        {!showArchivioDashboard &&
+        !showModulisticaDashboard &&
+        !showCancelleriaDashboard &&
+        !showShopperDashboard ? (
         <section className="py-12" aria-labelledby="office-catalog-heading">
           <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
             <label className="block max-w-md">

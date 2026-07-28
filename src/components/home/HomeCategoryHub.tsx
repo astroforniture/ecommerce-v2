@@ -11,6 +11,7 @@ type HomeCategoryLink = {
 const HOME_CATEGORY_LINKS: HomeCategoryLink[] = [
   { id: 'archivio', label: 'Archivio', href: '/office-products?category=Archivio' },
   { id: 'cancelleria', label: 'Cancelleria', href: '/office-products?category=Cancelleria' },
+  { id: 'modulistica', label: 'Modulistica', href: '/office-products?category=Modulistica' },
   { id: 'carta', label: 'Carta', href: '/office-products?category=Carta' },
   { id: 'cartucce-toner', label: 'Cartucce & Toner', href: cartucceTonerCategoryHref() },
   { id: 'informatica', label: 'Informatica', href: '/categoria/informatica' },

@@ -24,6 +24,14 @@ import {
   resolveShopperProductByCatalogKey,
 } from '../data/shopperCancelleria'
 import {
+  cancelleriaBusteListingPath,
+  resolveSacbollProductByCatalogKey,
+} from '../data/sacbollBuste'
+import {
+  modulisticaCategoryHref,
+  resolveModulisticaProductByCatalogKey,
+} from '../data/modulisticaCatalog'
+import {
   buildIHealthAstroMedicalOfficeProducts,
   iHealthCanonicalProductId,
   lineaAstroMedicalIHealthListingPath,
@@ -98,6 +106,7 @@ export function isStaticSyntheticOfficeProduct(
     id.startsWith('AF-WELL-') ||
     id.startsWith('AF-PROINSTR-') ||
     id.startsWith('AF-SHOPPER-') ||
+    id.startsWith('AF-SACBOLL-') ||
     id.startsWith('gima-')
   )
 }
@@ -128,6 +137,11 @@ export function resolveSyntheticOfficeProductByCatalogKey(key: string): OfficePr
   if (k.startsWith('AF-SHOPPER-')) {
     return resolveShopperProductByCatalogKey(k)
   }
+  if (k.startsWith('AF-SACBOLL-')) {
+    return resolveSacbollProductByCatalogKey(k)
+  }
+  const modulistica = resolveModulisticaProductByCatalogKey(k)
+  if (modulistica) return modulistica
   if (k.startsWith('AF-IHEALTH-')) {
     const canon = iHealthCanonicalProductId(k)
     return resolveLineaAstroMedicalSyntheticByGimaId(canon)
@@ -195,6 +209,12 @@ export function staticSyntheticOfficeListingPath(product: Pick<OfficeProduct, 'i
   }
   if (id.startsWith('AF-SHOPPER-PLASTICA-') || id === 'AF-SHOPPER-PLASTICA-MATERBI') {
     return cancelleriaShopperPlasticaPath()
+  }
+  if (id.startsWith('AF-SACBOLL-')) {
+    return cancelleriaBusteListingPath()
+  }
+  if (resolveModulisticaProductByCatalogKey(id)) {
+    return modulisticaCategoryHref()
   }
   if (
     id.startsWith('AF-IHEALTH-') ||

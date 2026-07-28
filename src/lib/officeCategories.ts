@@ -3,6 +3,12 @@ import {
   LINEA_ASTRO_MEDICAL_CATEGORY_NORM,
   isAstroMedicalProductCategory,
 } from '../data/iHealthAstroMedicalProducts'
+import {
+  MODULISTICA_CATEGORY,
+  MODULISTICA_CATEGORY_NORM,
+} from '../data/modulisticaCatalog'
+
+export { MODULISTICA_CATEGORY, MODULISTICA_CATEGORY_NORM }
 
 /**
  * Taxonomia catalogo office lato frontend (allineata al reset DB).
@@ -12,6 +18,7 @@ export const OFFICE_CATALOG_CANONICAL_CATEGORIES = [
   'Carta',
   'Archivio',
   'Cancelleria',
+  MODULISTICA_CATEGORY,
   'Cartucce & Toner',
   'Macchine per Ufficio',
   LINEA_ASTRO_MEDICAL_CATEGORY,
@@ -32,6 +39,7 @@ export type OfficeCatalogDisplayCategory =
 /** Ordine voci filtro sidebar / coerenza UI */
 export const OFFICE_CATEGORY_FILTER_ORDER: readonly OfficeCatalogDisplayCategory[] = [
   'Cancelleria',
+  MODULISTICA_CATEGORY,
   CARTUCCE_TONER_CATEGORY,
   'Macchine per Ufficio',
   LINEA_ASTRO_MEDICAL_CATEGORY,
@@ -87,6 +95,8 @@ export function officeCategoryFilterFromUrlParam(
   const t = param.trim()
   if (t.localeCompare('Cancelleria', 'it', { sensitivity: 'base' }) === 0)
     return 'cancelleria'
+  if (t.localeCompare(MODULISTICA_CATEGORY, 'it', { sensitivity: 'base' }) === 0)
+    return MODULISTICA_CATEGORY_NORM
   if (t.localeCompare('Macchine per Ufficio', 'it', { sensitivity: 'base' }) === 0)
     return 'macchine per ufficio'
   if (t.localeCompare(LINEA_ASTRO_MEDICAL_CATEGORY, 'it', { sensitivity: 'base' }) === 0)

@@ -125,6 +125,12 @@ import {
   matchesShopperPlasticaProduct,
 } from '../data/shopperCancelleria'
 import {
+  buildSacbollOfficeProducts,
+  isSacbollSizeVariantProduct,
+  matchesSacbollProduct,
+  sacbollDisplayNameForVariant,
+} from '../data/sacbollBuste'
+import {
   buildDistruggidocumentiOfficeProducts,
   isDistruggidocumentiOfficeProductId,
 } from '../data/distruggidocumentiProducts'
@@ -853,10 +859,9 @@ export function ProductDetailPage() {
     return n.includes('raccoglitore') && n.includes('starbox')
   }, [product?.name])
   const isImpulse75A4 = useMemo(() => isImpulse75A4OfficeProduct(product), [product])
-  const isShopperSizeVariant = useMemo(
-    () => isShopperSizeVariantProduct(product),
-    [product],
-  )
+  const isShopperSizeVariant = useMemo(() => isShopperSizeVariantProduct(product), [product])
+  const isSacbollSizeVariant = useMemo(() => isSacbollSizeVariantProduct(product), [product])
+  const isPackSizeVariant = isShopperSizeVariant || isSacbollSizeVariant
   const isOxfordG85 = useMemo(() => {
     const n = (product?.name ?? '').toLowerCase()
     return (
@@ -1433,6 +1438,9 @@ export function ProductDetailPage() {
     if (isBlasettiMailpack) {
       return `Busta a sacco Mailpack - ${blasettiMailpackFormatDisplayCm(effectiveBlasettiMailpackFormat)}`
     }
+    if (isSacbollSizeVariant) {
+      return sacbollDisplayNameForVariant(selectedJsonVariant)
+    }
     if (isStarlineCartellina) {
       const model =
         selectedCartellinaModel ??
@@ -1500,6 +1508,8 @@ export function ProductDetailPage() {
     effectivePentelColor,
     isBlasettiMailpack,
     effectiveBlasettiMailpackFormat,
+    isSacbollSizeVariant,
+    selectedJsonVariant,
     isStarlineCartellina,
     selectedCartellinaProduct?.name,
     selectedCartellinaProduct?.brand,
@@ -1775,6 +1785,11 @@ export function ProductDetailPage() {
           ...buildShopperPlasticaOfficeProducts(),
         ]
         return siblings.filter((p) => p.id !== product.id).slice(0, 4)
+      }
+      if (matchesSacbollProduct(product)) {
+        return buildSacbollOfficeProducts()
+          .filter((p) => p.id !== product.id)
+          .slice(0, 4)
       }
       if (isPileOfficeProductId(product.id)) {
         return buildPileOfficeProducts()
@@ -2221,7 +2236,7 @@ export function ProductDetailPage() {
     }
     if (isColorCopyA3 || isColorCopyA4) return selectedColorCopyA3Option.price
     if (
-      isShopperSizeVariant &&
+      isPackSizeVariant &&
       selectedJsonVariant &&
       typeof selectedJsonVariant.price === 'number'
     ) {
@@ -2250,7 +2265,7 @@ export function ProductDetailPage() {
     isColorCopyA4,
     selectedColorCopyA3Option.price,
     selectedStarboxThickness,
-    isShopperSizeVariant,
+    isPackSizeVariant,
     selectedJsonVariant,
     product?.name,
     product?.price,
@@ -2451,9 +2466,11 @@ export function ProductDetailPage() {
       ? `${displayProductName} — Richiedi preventivo | Astro Forniture`
       : `Acquista ${displayProductName} al miglior prezzo su Astro Forniture`
     const skuForMeta =
-      isStarlineCartellina && effectiveCartellinaProduct?.producerCode
-        ? effectiveCartellinaProduct.producerCode
-        : product.producerCode
+      isSacbollSizeVariant && selectedJsonVariant?.sku
+        ? selectedJsonVariant.sku
+        : isStarlineCartellina && effectiveCartellinaProduct?.producerCode
+          ? effectiveCartellinaProduct.producerCode
+          : product.producerCode
     const metaDescription = quoteOnly
       ? `Scopri ${displayProductName} (${skuForMeta}) di ${product.brand} su Astro Forniture. Configurazione e listino su preventivo.`
       : `Scopri ${displayProductName} (${skuForMeta}) di ${product.brand} su Astro Forniture. Prezzo imponibile e acquisto rapido online.`
@@ -2618,7 +2635,7 @@ export function ProductDetailPage() {
   function handleAddToCart() {
     if (!product) return
     if (isQuoteOnlyOfficeProduct(product)) return
-    if (isShopperSizeVariant && !selectedJsonVariant) return
+    if (isPackSizeVariant && !selectedJsonVariant) return
     if (showJsonVariants && !selectedJsonVariant && !isStaticSynthetic) return
     const cartBaseProduct = isPentelMarker
       ? effectivePentelProduct ?? product
@@ -2744,13 +2761,16 @@ export function ProductDetailPage() {
               price: typeof effectiveBasePrice === 'number' ? effectiveBasePrice : productForCart.price,
               quantityPriceTiers: effectiveQuantityTiers ?? [],
             }
-          : isShopperSizeVariant
+          : isPackSizeVariant
             ? {
                 ...productForCart,
+                name: displayProductName,
+                description: displayProductDescription || productForCart.description,
                 price:
                   typeof effectiveBasePrice === 'number'
                     ? effectiveBasePrice
                     : productForCart.price,
+                imageUrl: selectedJsonVariant?.image_url?.trim() || productForCart.imageUrl,
               }
           : productForCart
     addOfficeProduct(
@@ -3058,13 +3078,15 @@ export function ProductDetailPage() {
                 key={`pdp-hero-${product.id}-${heroImageUrl}`}
                 src={heroImageUrl}
                 alt={`${displayProductName} — SKU ${
-                  isStarlineCartellina
-                    ? (effectiveCartellinaProduct?.producerCode ?? product.producerCode)
-                    : isPentelMarker
-                      ? (effectivePentelProduct?.producerCode ?? product.producerCode)
-                      : isBlasettiMailpack
-                        ? (effectiveBlasettiMailpackProduct?.producerCode ?? product.producerCode)
-                        : (surfaceProduct?.producerCode ?? product.producerCode)
+                  isSacbollSizeVariant && selectedJsonVariant?.sku
+                    ? selectedJsonVariant.sku
+                    : isStarlineCartellina
+                      ? (effectiveCartellinaProduct?.producerCode ?? product.producerCode)
+                      : isPentelMarker
+                        ? (effectivePentelProduct?.producerCode ?? product.producerCode)
+                        : isBlasettiMailpack
+                          ? (effectiveBlasettiMailpackProduct?.producerCode ?? product.producerCode)
+                          : (surfaceProduct?.producerCode ?? product.producerCode)
                 }`}
                 loading="lazy"
                 decoding="async"
@@ -3205,6 +3227,98 @@ export function ProductDetailPage() {
                     </span>
                   </p>
                 </div>
+              </section>
+            ) : null}
+
+            {isSacbollSizeVariant && jsonVariants.length > 0 ? (
+              <section className="mt-4" aria-label="Seleziona formato Sacboll">
+                <h2 className="text-sm font-semibold text-slate-900">Seleziona il formato</h2>
+                <p className="mt-1 text-xs text-slate-600">
+                  Foto, dimensioni, SKU, EAN e prezzo si aggiornano in tempo reale.
+                </p>
+                <div className="mt-3 grid grid-cols-5 gap-2 sm:grid-cols-5">
+                  {jsonVariants.map((opt) => {
+                    const code = (opt.formatCode ?? opt.label).trim()
+                    const selected =
+                      (selectedJsonVariant?.formatCode ?? selectedJsonVariant?.label) === code ||
+                      selectedJsonVariant?.label === opt.label
+                    return (
+                      <button
+                        key={`${code}-${opt.sku ?? ''}`}
+                        type="button"
+                        onClick={() => setSelectedJsonVariant(opt)}
+                        aria-pressed={selected}
+                        title={opt.outerCm ? `${code} — ${opt.outerCm}` : code}
+                        className={[
+                          'rounded-xl border px-2 py-2.5 text-center text-sm font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
+                          selected
+                            ? 'border-brand-600 bg-brand-600 text-white shadow-sm'
+                            : 'border-slate-300 bg-white text-slate-800 hover:border-brand-400 hover:bg-brand-50',
+                        ].join(' ')}
+                      >
+                        {code}
+                      </button>
+                    )
+                  })}
+                </div>
+                <dl className="mt-3 grid gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-700 sm:grid-cols-2">
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                      Formato
+                    </dt>
+                    <dd className="mt-0.5 font-semibold text-slate-900">
+                      {selectedJsonVariant?.formatCode ?? selectedJsonVariant?.label ?? '—'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                      Esterno
+                    </dt>
+                    <dd className="mt-0.5 font-semibold text-slate-900">
+                      {selectedJsonVariant?.outerCm ?? '—'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                      Interno utile
+                    </dt>
+                    <dd className="mt-0.5 font-semibold text-slate-900">
+                      {selectedJsonVariant?.innerCm ?? selectedJsonVariant?.finish ?? '—'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                      Confezione
+                    </dt>
+                    <dd className="mt-0.5 font-semibold text-slate-900">
+                      {selectedJsonVariant?.packLabel ?? 'Conf. 10 pz'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                      SKU
+                    </dt>
+                    <dd className="mt-0.5 font-semibold text-slate-900">
+                      {selectedJsonVariant?.sku ?? '—'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                      EAN
+                    </dt>
+                    <dd className="mt-0.5 font-semibold text-slate-900">
+                      {selectedJsonVariant?.ean ?? '—'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                      Cod. Blasetti
+                    </dt>
+                    <dd className="mt-0.5 font-semibold text-slate-900">
+                      {selectedJsonVariant?.quality ?? '—'}
+                    </dd>
+                  </div>
+                </dl>
               </section>
             ) : null}
 
@@ -4003,7 +4117,7 @@ export function ProductDetailPage() {
               </section>
             ) : null}
 
-            {showJsonVariants && !isShopperSizeVariant ? (
+            {showJsonVariants && !isPackSizeVariant ? (
               <div className="mt-3.5">
                 <h2 className="text-sm font-semibold text-slate-900">Scegli Modello</h2>
                 <div className={variantGridClass}>
@@ -4689,9 +4803,9 @@ export function ProductDetailPage() {
 
             <OfficeProductDetailPurchasePanel
               priceLineLabel={
-                isShopperSizeVariant
+                isPackSizeVariant
                   ? selectedJsonVariant?.label
-                    ? `Prezzo — ${selectedJsonVariant.label}`
+                    ? `Prezzo — formato ${selectedJsonVariant.formatCode ?? selectedJsonVariant.label}`
                     : 'Prezzo confezione'
                   : showQuantityDiscountTable
                     ? 'Per la quantità selezionata'
@@ -4705,7 +4819,7 @@ export function ProductDetailPage() {
               justAdded={justAdded}
               productName={displayProductName}
               quoteOnly={isQuoteOnlyOfficeProduct(product)}
-              priceUnitSuffix={isShopperSizeVariant ? '/ confezione' : '/ pezzo'}
+              priceUnitSuffix={isPackSizeVariant ? '/ confezione' : '/ pezzo'}
               rootClassName={isStaticSynthetic ? 'mt-6 sm:mt-8' : undefined}
               quantityDiscountTable={
                 isQuoteOnlyOfficeProduct(product) ? undefined : quantityDiscountTableNode

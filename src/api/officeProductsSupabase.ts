@@ -38,7 +38,7 @@ import { debugLogVetrinaProdottiNomi } from '../lib/debugShowcaseCatalog'
  * Aumenta dopo pulizie massicce su `public.products` (es. titoli): nuove `queryKey` in React Query
  * così il client non riusa dati serializzati vecchi con titoli obsoleti.
  */
-export const OFFICE_CATALOG_DATA_REVISION = 226
+export const OFFICE_CATALOG_DATA_REVISION = 233
 
 const SUPPRESSED_PRODUCTS_BY_ID = new Set([
   '55acce14-88cd-4b12-807d-cd2753894639', // Starbox dorso 5 cm arancio (rimozione richiesta)
@@ -67,6 +67,7 @@ type OfficeProductsLegacyRow = {
  * Non includere `parent_sku` / `main_features` nel select catalogo finché non sono garantiti nello schema.
  */
 const PRODUCT_SHOP_SELECT_FALLBACKS: readonly string[] = [
+  'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants, ean',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name',
   'id, name, description, price, category, subcategory, image_url, format',
@@ -80,6 +81,7 @@ const PRODUCT_SHOP_SELECT_FALLBACKS: readonly string[] = [
 
 /** Fetch scheda prodotto: prova prima con `variants` (JSONB misure/colori). */
 const PRODUCT_DETAIL_SELECT_FALLBACKS: readonly string[] = [
+  'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants, ean',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name',
   'id, name, description, price, category, subcategory, image_url, format',
@@ -1187,6 +1189,7 @@ type OfficeProductRow = ShopProductRow & {
   subcategory?: string | null
   description?: string | null
   format?: string | null
+  ean?: string | null
   variants?: unknown
   main_features?: unknown
 }
@@ -1215,6 +1218,10 @@ function parseVariantOption(raw: unknown): ProductVariantOption | null {
   const packLabelRaw = r.packLabel ?? r.pack_label ?? r.confezione
   const packQtyRaw = r.packQty ?? r.pack_qty ?? r.quantity_per_pack
   const priceRaw = r.price ?? r.unit_price
+  const eanRaw = r.ean ?? r.barcode ?? r.gtin
+  const formatCodeRaw = r.formatCode ?? r.format_code
+  const outerRaw = r.outerCm ?? r.outer_cm ?? r.formato_esterno ?? r.outer
+  const innerRaw = r.innerCm ?? r.inner_cm ?? r.formato_interno ?? r.inner
   const packQtyNum =
     typeof packQtyRaw === 'number'
       ? packQtyRaw
@@ -1237,6 +1244,10 @@ function parseVariantOption(raw: unknown): ProductVariantOption | null {
     packLabel: typeof packLabelRaw === 'string' ? packLabelRaw.trim() || undefined : undefined,
     packQty: Number.isFinite(packQtyNum) && packQtyNum > 0 ? packQtyNum : undefined,
     price: Number.isFinite(priceNum) ? priceNum : undefined,
+    ean: typeof eanRaw === 'string' ? eanRaw.trim() || undefined : undefined,
+    formatCode: typeof formatCodeRaw === 'string' ? formatCodeRaw.trim() || undefined : undefined,
+    outerCm: typeof outerRaw === 'string' ? outerRaw.trim() || undefined : undefined,
+    innerCm: typeof innerRaw === 'string' ? innerRaw.trim() || undefined : undefined,
   }
 }
 
@@ -1476,7 +1487,11 @@ function mapRowToOfficeProduct(row: OfficeProductRow): OfficeProduct {
     description: description || undefined,
     price: Number.isFinite(rawPrice) ? Number(rawPrice) : undefined,
     format: String((row as OfficeProductRow).format ?? '').trim() || undefined,
+    ean: String((row as OfficeProductRow).ean ?? '').trim() || undefined,
     variants: parseVariantsJson(row.variants),
+  }
+  if (mapped.ean && !mapped.mainFeatures.EAN) {
+    mapped.mainFeatures = { ...mapped.mainFeatures, EAN: mapped.ean }
   }
   return applyEuroboxEsselteCatalog(
     applyBigSeiRotaCatalog(

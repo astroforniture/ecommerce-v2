@@ -54,6 +54,7 @@ type HeaderNavItem = HeaderNavLink | HeaderNavDropdown
 const HEADER_NAV_ITEMS: HeaderNavItem[] = [
   { type: 'link', label: 'Archivio ufficio', href: '/office-products?category=Archivio' },
   { type: 'link', label: 'Cancelleria', href: '/office-products?category=Cancelleria' },
+  { type: 'link', label: 'Modulistica', href: '/office-products?category=Modulistica' },
   {
     type: 'dropdown',
     label: 'Macchine per Ufficio',
