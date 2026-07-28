@@ -3,21 +3,14 @@ import type { OfficeProduct } from '../types/officeProduct'
 export const MODULISTICA_CATEGORY = 'Modulistica' as const
 export const MODULISTICA_CATEGORY_NORM = 'modulistica'
 
+/** Macro-categorie Edipro (hub pulito, senza micro-sottocategorie ridondanti). */
 export const MODULISTICA_SUB_ALBERGHI = 'Alberghi e Ristoranti' as const
-export const MODULISTICA_SUB_CONDOMINIO = 'Condominio, Edilizia e Registri' as const
-export const MODULISTICA_SUB_CONTABILITA = 'Contabilità, Cassa e Fatture' as const
-export const MODULISTICA_SUB_RICEVUTE = 'Ricevute Sportive e Varie' as const
-export const MODULISTICA_SUB_REGISTRI_CONTABILI = 'Registri Contabili e Cassa' as const
-export const MODULISTICA_SUB_REGISTRI_FISCALI = 'Registri Fiscali e IVA' as const
-export const MODULISTICA_SUB_REGISTRI_BENI_USATI = 'Registri Fiscali e Beni Usati' as const
-export const MODULISTICA_SUB_BUONI_CONSEGNA = 'Buoni di Consegna e Tentata Vendita' as const
-export const MODULISTICA_SUB_DDT = 'Documenti di Trasporto (DDT)' as const
-export const MODULISTICA_SUB_DDT_TENTATA = 'Documenti di Trasporto e Tentata Vendita' as const
-export const MODULISTICA_SUB_BUONI_RICEVUTE = 'Buoni di Consegna e Ricevute' as const
-export const MODULISTICA_SUB_SCHEDE = 'Schede Contabili e Maste' as const
-export const MODULISTICA_SUB_RICEVUTE_FISCALI = 'Ricevute Fiscali e Fatture' as const
+export const MODULISTICA_SUB_CONDOMINIO = 'Condominio ed Edilizia' as const
+export const MODULISTICA_SUB_CONTABILITA = 'Contabilità IVA e Generale' as const
+export const MODULISTICA_SUB_MAGAZZINO = 'Magazzino e Trasporti' as const
+export const MODULISTICA_SUB_STAMPATI_FISCALI = 'Stampati Fiscali' as const
 
-/** Alias legacy (migration precedente). */
+/** Alias legacy → macro ufficiali (URL, DB, migration precedenti). */
 const MODULISTICA_SUBCATEGORY_ALIASES: Record<string, string> = {
   'alberghi ristoranti': MODULISTICA_SUB_ALBERGHI,
   'alberghi e ristoranti': MODULISTICA_SUB_ALBERGHI,
@@ -25,38 +18,44 @@ const MODULISTICA_SUBCATEGORY_ALIASES: Record<string, string> = {
   'condominio, edilizia e registri': MODULISTICA_SUB_CONDOMINIO,
   'contabilità, cassa e fatture': MODULISTICA_SUB_CONTABILITA,
   'contabilita, cassa e fatture': MODULISTICA_SUB_CONTABILITA,
-  'ricevute sportive e varie': MODULISTICA_SUB_RICEVUTE,
-  'registri contabili e cassa': MODULISTICA_SUB_REGISTRI_CONTABILI,
-  'registri fiscali e iva': MODULISTICA_SUB_REGISTRI_FISCALI,
-  'registri fiscali e beni usati': MODULISTICA_SUB_REGISTRI_BENI_USATI,
-  'buoni di consegna e tentata vendita': MODULISTICA_SUB_BUONI_CONSEGNA,
-  'documenti di trasporto (ddt)': MODULISTICA_SUB_DDT,
-  'documenti di trasporto': MODULISTICA_SUB_DDT,
-  'documenti di trasporto e tentata vendita': MODULISTICA_SUB_DDT_TENTATA,
-  'buoni di consegna e ricevute': MODULISTICA_SUB_BUONI_RICEVUTE,
-  'schede contabili e maste': MODULISTICA_SUB_SCHEDE,
-  'ricevute fiscali e fatture': MODULISTICA_SUB_RICEVUTE_FISCALI,
+  'contabilità iva e generale': MODULISTICA_SUB_CONTABILITA,
+  'contabilita iva e generale': MODULISTICA_SUB_CONTABILITA,
+  'ricevute sportive e varie': MODULISTICA_SUB_STAMPATI_FISCALI,
+  'registri contabili e cassa': MODULISTICA_SUB_CONTABILITA,
+  'registri fiscali e iva': MODULISTICA_SUB_CONTABILITA,
+  'registri fiscali e beni usati': MODULISTICA_SUB_CONTABILITA,
+  'schede contabili e maste': MODULISTICA_SUB_CONTABILITA,
+  'buoni di consegna e tentata vendita': MODULISTICA_SUB_MAGAZZINO,
+  'documenti di trasporto (ddt)': MODULISTICA_SUB_MAGAZZINO,
+  'documenti di trasporto': MODULISTICA_SUB_MAGAZZINO,
+  'documenti di trasporto e tentata vendita': MODULISTICA_SUB_MAGAZZINO,
+  'buoni di consegna e ricevute': MODULISTICA_SUB_MAGAZZINO,
+  'magazzino e trasporti': MODULISTICA_SUB_MAGAZZINO,
+  'ricevute fiscali e fatture': MODULISTICA_SUB_STAMPATI_FISCALI,
+  'stampati fiscali': MODULISTICA_SUB_STAMPATI_FISCALI,
 }
 
 export const MODULISTICA_SUBCATEGORIES = [
   MODULISTICA_SUB_ALBERGHI,
   MODULISTICA_SUB_CONDOMINIO,
   MODULISTICA_SUB_CONTABILITA,
-  MODULISTICA_SUB_RICEVUTE,
-  MODULISTICA_SUB_REGISTRI_CONTABILI,
-  MODULISTICA_SUB_REGISTRI_FISCALI,
-  MODULISTICA_SUB_REGISTRI_BENI_USATI,
-  MODULISTICA_SUB_BUONI_CONSEGNA,
-  MODULISTICA_SUB_DDT,
-  MODULISTICA_SUB_DDT_TENTATA,
-  MODULISTICA_SUB_BUONI_RICEVUTE,
-  MODULISTICA_SUB_SCHEDE,
-  MODULISTICA_SUB_RICEVUTE_FISCALI,
+  MODULISTICA_SUB_MAGAZZINO,
+  MODULISTICA_SUB_STAMPATI_FISCALI,
 ] as const
 
 export type ModulisticaSubcategory = (typeof MODULISTICA_SUBCATEGORIES)[number]
 
+/** Cover hub Modulistica (macro padre). */
 export const MODULISTICA_HUB_COVER_IMAGE_URL = '/cancelleria-penne.jpg'
+
+/** Cover tile per ciascuna macro-categoria (foto prodotto rappresentativa). */
+export const MODULISTICA_SUBCATEGORY_COVER_IMAGE: Record<ModulisticaSubcategory, string> = {
+  [MODULISTICA_SUB_ALBERGHI]: '/images/d06c153f-a63e-428c-ada0-6a10dfb17f4a.jpg',
+  [MODULISTICA_SUB_CONDOMINIO]: '/images/298dec2f-59c6-4cf3-b8a1-c27af2d613ab.jpg',
+  [MODULISTICA_SUB_CONTABILITA]: '/images/86e56334-f38d-4d6e-b0aa-2ef9b6fc565a.jpg',
+  [MODULISTICA_SUB_MAGAZZINO]: '/images/2534e81f-339e-4485-8400-f3367285121e.jpg',
+  [MODULISTICA_SUB_STAMPATI_FISCALI]: '/images/82aed2d3-b9a7-4813-8183-2abd6fee6add.jpg',
+}
 
 export function modulisticaCategoryHref(subcategory?: string): string {
   const params = new URLSearchParams()
@@ -123,7 +122,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     description:
       'Blocco comande Edipro a 2 copie autoricalcanti, formato 17 × 9,9 cm.',
   },
-  // Condominio, Edilizia e Registri
+  // Condominio ed Edilizia
   {
     sku: 'E 5504 C',
     name: 'Blocco ricevuta d’affitto 50×2 autoricalcante – Formato 9,9×17',
@@ -159,7 +158,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E 2104 A',
     name: 'Registro prima nota IVA corrispettivi 13×2 (1 anno) autoricalcante – Formato 29,7×23',
-    subcategory: MODULISTICA_SUB_CONDOMINIO,
+    subcategory: MODULISTICA_SUB_CONTABILITA,
     ean: '8023328210410',
     brand: 'Edipro',
     format: '29,7 x 23 cm',
@@ -170,7 +169,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E 2102 A',
     name: 'Registro prima nota IVA corrispettivi 25×2 (2 anni) autoricalcante – Formato 29,7×23',
-    subcategory: MODULISTICA_SUB_CONDOMINIO,
+    subcategory: MODULISTICA_SUB_CONTABILITA,
     ean: '8023328210212',
     brand: 'Edipro',
     format: '29,7 x 23 cm',
@@ -181,14 +180,14 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E 2108',
     name: 'Registro dei corrispettivi per mancato o irregolare funzionamento registratori di cassa – Formato 31×24,5',
-    subcategory: MODULISTICA_SUB_CONDOMINIO,
+    subcategory: MODULISTICA_SUB_CONTABILITA,
     brand: 'Edipro',
     format: '31 x 24,5 cm',
     imageUrl: '/images/222fc477-e9ee-4642-9d17-8833d55d9f9d.jpg',
     description:
       'Registro dei corrispettivi Edipro per mancato o irregolare funzionamento dei registratori di cassa, formato 31 × 24,5 cm.',
   },
-  // Contabilità, Cassa e Fatture
+  // Contabilità IVA e Generale
   {
     sku: 'E 5349',
     name: 'Blocco prima nota cassa 100 fogli uso mano – Formato 14,8×22',
@@ -286,11 +285,11 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     description:
       'Scadenzario effetti passivi Edipro con spirale e indici plastificati, 36 fogli, formato 24 × 17 cm.',
   },
-  // Ricevute Sportive e Varie
+  // Stampati Fiscali
   {
     sku: 'E 5567 C',
     name: 'Blocco ricevuta di pagamento per attività sportive 50×2 autoricalcante – Formato 9,9×17',
-    subcategory: MODULISTICA_SUB_RICEVUTE,
+    subcategory: MODULISTICA_SUB_STAMPATI_FISCALI,
     ean: '8023328556716',
     brand: 'Edipro',
     format: '9,9 x 17 cm',
@@ -300,7 +299,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E 5275 CN',
     name: 'Ricevuta Sanitaria 50x2 autoricalcanti - Formato 9,9x17',
-    subcategory: MODULISTICA_SUB_RICEVUTE,
+    subcategory: MODULISTICA_SUB_STAMPATI_FISCALI,
     ean: '8023328527518',
     brand: 'Edipro',
     format: '9,9 x 17 cm',
@@ -308,11 +307,11 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     description:
       'Ricevuta sanitaria Edipro 50×2 autoricalcanti, formato 9,9 × 17 cm.',
   },
-  // Registri Contabili e Cassa
+  // Contabilità IVA e Generale — registri contabili
   {
     sku: 'E4034',
     name: 'Scadenzario effetti attivi con spirale e indici plastificati 36 fogli – Formato 24×17',
-    subcategory: MODULISTICA_SUB_REGISTRI_CONTABILI,
+    subcategory: MODULISTICA_SUB_CONTABILITA,
     brand: 'Edipro',
     format: '24 x 17 cm',
     imageUrl: '/images/26586a3f-bcdc-47a9-8522-879efc5ee053.jpg',
@@ -322,7 +321,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E2656',
     name: 'Registro dare/avere/saldo 96 pagine – Formato 17×12',
-    subcategory: MODULISTICA_SUB_REGISTRI_CONTABILI,
+    subcategory: MODULISTICA_SUB_CONTABILITA,
     brand: 'Edipro',
     format: '17 x 12 cm',
     imageUrl: '/images/6dd78a36-4f78-4b7f-874d-1b343db3ed31.jpg',
@@ -331,7 +330,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E2666',
     name: 'Registro due colonne 96 pagine – Formato 24×17',
-    subcategory: MODULISTICA_SUB_REGISTRI_CONTABILI,
+    subcategory: MODULISTICA_SUB_CONTABILITA,
     brand: 'Edipro',
     format: '24 x 17 cm',
     description: 'Registro due colonne Edipro, 96 pagine, formato 24 × 17 cm.',
@@ -339,7 +338,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E2686',
     name: 'Registro cassa entrate/uscite 96 pagine – Formato 24×17',
-    subcategory: MODULISTICA_SUB_REGISTRI_CONTABILI,
+    subcategory: MODULISTICA_SUB_CONTABILITA,
     brand: 'Edipro',
     format: '24 x 17 cm',
     imageUrl: '/images/8016ed36-fec6-4814-9ee1-a52d9f4de98a.jpg',
@@ -348,7 +347,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E2769',
     name: 'Registro 3 colonne 96 pagine – Formato 31×24,5',
-    subcategory: MODULISTICA_SUB_REGISTRI_CONTABILI,
+    subcategory: MODULISTICA_SUB_CONTABILITA,
     brand: 'Edipro',
     format: '31 x 24,5 cm',
     imageUrl: '/images/55037817-9ba0-4a46-ab8e-bd40cd82a800.jpg',
@@ -357,17 +356,17 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E2649',
     name: 'Registro libro cassa 96 pagine – Formato 17×12',
-    subcategory: MODULISTICA_SUB_REGISTRI_CONTABILI,
+    subcategory: MODULISTICA_SUB_CONTABILITA,
     brand: 'Edipro',
     format: '17 x 12 cm',
     imageUrl: '/images/481977de-4f37-43e5-94c5-8effefc09045.jpg',
     description: 'Registro libro cassa Edipro, 96 pagine, formato 17 × 12 cm.',
   },
-  // Registri Fiscali e IVA
+  // Contabilità IVA e Generale — registri fiscali
   {
     sku: 'E2172',
     name: 'Giornale degli affari 96 pagine – Formato 31×24,5',
-    subcategory: MODULISTICA_SUB_REGISTRI_FISCALI,
+    subcategory: MODULISTICA_SUB_CONTABILITA,
     brand: 'Edipro',
     format: '31 x 24,5 cm',
     imageUrl: '/images/5ba2c8ee-973b-4456-96b3-aac779f14a2c.jpg',
@@ -376,7 +375,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E2103',
     name: 'Registro IVA corrispettivi 15 pagine numerate – Formato 31×24,5',
-    subcategory: MODULISTICA_SUB_REGISTRI_FISCALI,
+    subcategory: MODULISTICA_SUB_CONTABILITA,
     brand: 'Edipro',
     format: '31 x 24,5 cm',
     imageUrl: '/images/5fb4c36a-99b6-415e-966e-86f40125e00d.jpg',
@@ -386,7 +385,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E2117',
     name: 'Registro acquisti beni usati 23 pagine numerate – Formato 31×24,5',
-    subcategory: MODULISTICA_SUB_REGISTRI_FISCALI,
+    subcategory: MODULISTICA_SUB_CONTABILITA,
     brand: 'Edipro',
     format: '31 x 24,5 cm',
     imageUrl: '/images/ec49d2be-fc99-4a91-8e29-55278111be90.jpg',
@@ -396,29 +395,29 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E2133',
     name: 'Registro IVA fatture 22 pagine numerate – Formato 31×24,5',
-    subcategory: MODULISTICA_SUB_REGISTRI_FISCALI,
+    subcategory: MODULISTICA_SUB_CONTABILITA,
     brand: 'Edipro',
     format: '31 x 24,5 cm',
     imageUrl: '/images/b0292a0e-2440-4a32-a52a-6fcd32136524.jpg',
     description:
       'Registro IVA fatture Edipro, 22 pagine numerate, formato 31 × 24,5 cm.',
   },
-  // Registri Fiscali e Beni Usati
+  // Contabilità IVA e Generale — beni usati
   {
     sku: 'E2134',
     name: 'Registro vendite beni usati 23 pagine numerate – Formato 31×24,5',
-    subcategory: MODULISTICA_SUB_REGISTRI_BENI_USATI,
+    subcategory: MODULISTICA_SUB_CONTABILITA,
     brand: 'Edipro',
     format: '31 x 24,5 cm',
     imageUrl: '/images/972d6ca2-7136-4917-91fb-facff83a4523.jpg',
     description:
       'Registro vendite beni usati Edipro, 23 pagine numerate, formato 31 × 24,5 cm.',
   },
-  // Buoni di Consegna e Tentata Vendita
+  // Magazzino e Trasporti — buoni di consegna
   {
     sku: 'E 5199 CT',
     name: 'Blocco buono di consegna 33×3 autoricalcante – Formato 9,9×17',
-    subcategory: MODULISTICA_SUB_BUONI_CONSEGNA,
+    subcategory: MODULISTICA_SUB_MAGAZZINO,
     ean: '8023328519926',
     brand: 'Edipro',
     format: '9,9 x 17 cm',
@@ -429,7 +428,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E 5196 C',
     name: 'Blocco buono di consegna 50×2 autoricalcante – Formato 9,9×17',
-    subcategory: MODULISTICA_SUB_BUONI_CONSEGNA,
+    subcategory: MODULISTICA_SUB_MAGAZZINO,
     ean: '8023328519612',
     brand: 'Edipro',
     format: '9,9 x 17 cm',
@@ -439,7 +438,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E 5197 C',
     name: 'Blocco buono di consegna 50×2 autoricalcante – Formato 12×17,5',
-    subcategory: MODULISTICA_SUB_BUONI_CONSEGNA,
+    subcategory: MODULISTICA_SUB_MAGAZZINO,
     ean: '8023328519711',
     brand: 'Edipro',
     format: '12 x 17,5 cm',
@@ -450,7 +449,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E 5209 C',
     name: 'Blocco buono di consegna 50×2 autoricalcante – Formato 22×14,8',
-    subcategory: MODULISTICA_SUB_BUONI_CONSEGNA,
+    subcategory: MODULISTICA_SUB_MAGAZZINO,
     ean: '8023328520915',
     brand: 'Edipro',
     format: '22 x 14,8 cm',
@@ -461,7 +460,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E 5217 A',
     name: 'Blocco nota di consegna tentata vendita 50×2 autoricalcante – Formato 14,8×22',
-    subcategory: MODULISTICA_SUB_BUONI_CONSEGNA,
+    subcategory: MODULISTICA_SUB_MAGAZZINO,
     ean: '8023328521714',
     brand: 'Edipro',
     format: '14,8 x 22 cm',
@@ -469,11 +468,11 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     description:
       'Blocco nota di consegna tentata vendita Edipro 50×2 autoricalcante, formato 14,8 × 22 cm.',
   },
-  // Documenti di Trasporto (DDT)
+  // Magazzino e Trasporti — DDT
   {
     sku: 'E 5215 CT',
     name: 'Blocco documento di trasporto 33×3 autoricalcante – Formato 22×14,8',
-    subcategory: MODULISTICA_SUB_DDT,
+    subcategory: MODULISTICA_SUB_MAGAZZINO,
     ean: '8023328521523',
     brand: 'Edipro',
     format: '22 x 14,8 cm',
@@ -484,7 +483,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E 5219 CT',
     name: 'Blocco documento di trasporto 33×3 autoricalcante – Formato 29,7×22',
-    subcategory: MODULISTICA_SUB_DDT,
+    subcategory: MODULISTICA_SUB_MAGAZZINO,
     ean: '8023328521929',
     brand: 'Edipro',
     format: '29,7 x 22 cm',
@@ -495,7 +494,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E 5214 C',
     name: 'Blocco documento di trasporto 50×2 autoricalcante – Formato 22×14,8',
-    subcategory: MODULISTICA_SUB_DDT,
+    subcategory: MODULISTICA_SUB_MAGAZZINO,
     ean: '8023328521417',
     brand: 'Edipro',
     format: '22 x 14,8 cm',
@@ -506,7 +505,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E 5218 C',
     name: 'Blocco documento di trasporto 25×4 autoricalcante – Formato 29,7×22',
-    subcategory: MODULISTICA_SUB_DDT,
+    subcategory: MODULISTICA_SUB_MAGAZZINO,
     ean: '8023328521813',
     brand: 'Edipro',
     format: '29,7 x 22 cm',
@@ -514,11 +513,11 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     description:
       'Blocco documento di trasporto Edipro 25×4 autoricalcante, formato 29,7 × 22 cm.',
   },
-  // Documenti di Trasporto e Tentata Vendita
+  // Magazzino e Trasporti — DDT tentata vendita
   {
     sku: 'E 5220 G',
     name: 'Blocco documento di trasporto carico per tentata vendita 50×2 autoricalcante – Formato 29,7×22',
-    subcategory: MODULISTICA_SUB_DDT_TENTATA,
+    subcategory: MODULISTICA_SUB_MAGAZZINO,
     ean: '8023328522018',
     brand: 'Edipro',
     format: '29,7 x 22 cm',
@@ -529,7 +528,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E 5221 C',
     name: 'Blocco D.D.T. fattura tentata vendita 50×2 autoricalcante – Formato 29,7×22',
-    subcategory: MODULISTICA_SUB_DDT_TENTATA,
+    subcategory: MODULISTICA_SUB_MAGAZZINO,
     ean: '8023328522117',
     brand: 'Edipro',
     format: '29,7 x 22 cm',
@@ -537,11 +536,11 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     description:
       'Blocco D.D.T. fattura tentata vendita Edipro 50×2 autoricalcante, formato 29,7 × 22 cm.',
   },
-  // Buoni di Consegna e Ricevute
+  // Magazzino e Trasporti — buoni / ricevute
   {
     sku: 'E 5183',
     name: 'Blocco buono di consegna 100 fogli uso mano – Formato 9,9×17',
-    subcategory: MODULISTICA_SUB_BUONI_RICEVUTE,
+    subcategory: MODULISTICA_SUB_MAGAZZINO,
     ean: '8023328518301',
     brand: 'Edipro',
     format: '9,9 x 17 cm',
@@ -549,11 +548,11 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     description:
       'Blocco buono di consegna Edipro 100 fogli uso mano, formato 9,9 × 17 cm.',
   },
-  // Schede Contabili e Maste
+  // Contabilità IVA e Generale — schede
   {
     sku: 'E 3399',
     name: 'Schede - 2 colonne - 24 x 17 cm (verticale) - Edipro - conf. 100 pezzi',
-    subcategory: MODULISTICA_SUB_SCHEDE,
+    subcategory: MODULISTICA_SUB_CONTABILITA,
     ean: '8023328339906',
     brand: 'Edipro',
     format: '24 x 17 cm',
@@ -564,7 +563,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E 3369',
     name: 'Schede - 3 colonne - 17 x 24 cm orizzontale - Edipro - conf. 100 pezzi',
-    subcategory: MODULISTICA_SUB_SCHEDE,
+    subcategory: MODULISTICA_SUB_CONTABILITA,
     ean: '8023328336905',
     brand: 'Edipro',
     format: '17 x 24 cm',
@@ -575,7 +574,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E 3259',
     name: 'Schede - 3 colonne - 15 x 21 cm orizzontale - Edipro - conf. 100 pezzi',
-    subcategory: MODULISTICA_SUB_SCHEDE,
+    subcategory: MODULISTICA_SUB_CONTABILITA,
     ean: '8023328325909',
     brand: 'Edipro',
     format: '15 x 21 cm',
@@ -586,7 +585,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E 3406',
     name: 'Schede - 3 colonne - 24 x 17 cm verticale - Edipro - conf. 100 pezzi',
-    subcategory: MODULISTICA_SUB_SCHEDE,
+    subcategory: MODULISTICA_SUB_CONTABILITA,
     ean: '8023328340605',
     brand: 'Edipro',
     format: '24 x 17 cm',
@@ -594,11 +593,11 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     description:
       'Schede contabili Edipro a 3 colonne, formato 24 × 17 cm verticale, confezione da 100 pezzi.',
   },
-  // Ricevute Fiscali e Fatture
+  // Stampati Fiscali — ricevute fiscali / fatture
   {
     sku: 'E 5348 C',
     name: 'Blocco fattura/ricevuta fiscale barbiere 50×2 autoricalcante – Formato 22×9,9',
-    subcategory: MODULISTICA_SUB_RICEVUTE_FISCALI,
+    subcategory: MODULISTICA_SUB_STAMPATI_FISCALI,
     ean: '8023328534813',
     brand: 'Edipro',
     format: '22 x 9,9 cm',
@@ -609,7 +608,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E 5342 C',
     name: 'Blocco fattura/ricevuta fiscale parrucchiere 50×2 autoricalcante – Formato 22×9,9',
-    subcategory: MODULISTICA_SUB_RICEVUTE_FISCALI,
+    subcategory: MODULISTICA_SUB_STAMPATI_FISCALI,
     ean: '8023328534219',
     brand: 'Edipro',
     format: '22 x 9,9 cm',
@@ -620,7 +619,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   {
     sku: 'E 5340 C',
     name: 'Blocco fattura/ricevuta fiscale generica 50×2 autoricalcante – Formato 22×14,8',
-    subcategory: MODULISTICA_SUB_RICEVUTE_FISCALI,
+    subcategory: MODULISTICA_SUB_STAMPATI_FISCALI,
     ean: '8023328534011',
     brand: 'Edipro',
     format: '22 x 14,8 cm',

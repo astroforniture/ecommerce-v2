@@ -69,18 +69,10 @@ export const MODULISTICA_SKUS_MISSING_UNIQUE_IMAGE = [
 
 const SUB_LABEL = {
   MODULISTICA_SUB_ALBERGHI: 'Alberghi e Ristoranti',
-  MODULISTICA_SUB_CONDOMINIO: 'Condominio, Edilizia e Registri',
-  MODULISTICA_SUB_CONTABILITA: 'Contabilità, Cassa e Fatture',
-  MODULISTICA_SUB_RICEVUTE: 'Ricevute Sportive e Varie',
-  MODULISTICA_SUB_REGISTRI_CONTABILI: 'Registri Contabili e Cassa',
-  MODULISTICA_SUB_REGISTRI_FISCALI: 'Registri Fiscali e IVA',
-  MODULISTICA_SUB_REGISTRI_BENI_USATI: 'Registri Fiscali e Beni Usati',
-  MODULISTICA_SUB_BUONI_CONSEGNA: 'Buoni di Consegna e Tentata Vendita',
-  MODULISTICA_SUB_DDT: 'Documenti di Trasporto (DDT)',
-  MODULISTICA_SUB_DDT_TENTATA: 'Documenti di Trasporto e Tentata Vendita',
-  MODULISTICA_SUB_BUONI_RICEVUTE: 'Buoni di Consegna e Ricevute',
-  MODULISTICA_SUB_SCHEDE: 'Schede Contabili e Maste',
-  MODULISTICA_SUB_RICEVUTE_FISCALI: 'Ricevute Fiscali e Fatture',
+  MODULISTICA_SUB_CONDOMINIO: 'Condominio ed Edilizia',
+  MODULISTICA_SUB_CONTABILITA: 'Contabilità IVA e Generale',
+  MODULISTICA_SUB_MAGAZZINO: 'Magazzino e Trasporti',
+  MODULISTICA_SUB_STAMPATI_FISCALI: 'Stampati Fiscali',
 }
 
 function unquote(s) {

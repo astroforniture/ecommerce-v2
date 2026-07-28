@@ -62,8 +62,8 @@ import {
 import {
   MODULISTICA_CATEGORY,
   MODULISTICA_CATEGORY_NORM,
-  MODULISTICA_HUB_COVER_IMAGE_URL,
   MODULISTICA_SUBCATEGORIES,
+  MODULISTICA_SUBCATEGORY_COVER_IMAGE,
   mergeModulisticaListingProducts,
   matchesModulisticaSubcategoryFilter,
   modulisticaCategoryHref,
@@ -1173,7 +1173,7 @@ export function OfficePage() {
                 {MODULISTICA_CATEGORY}
               </h2>
               <p className="mt-1.5 text-sm text-slate-600 sm:text-base">
-                Scegli la sottocategoria: Alberghi, Condominio, Contabilità, Ricevute, Registri, Buoni, DDT, Schede o Fatture.
+                Scegli la macro-categoria: Alberghi e Ristoranti, Condominio ed Edilizia, Contabilità IVA e Generale, Magazzino e Trasporti o Stampati Fiscali.
               </p>
             </div>
             <div className={OFFICE_SUBCATEGORY_TILE_GRID_CLASS}>
@@ -1185,7 +1185,7 @@ export function OfficePage() {
                   media={
                     <div className="aspect-square w-full bg-slate-50">
                       <img
-                        src={MODULISTICA_HUB_COVER_IMAGE_URL}
+                        src={MODULISTICA_SUBCATEGORY_COVER_IMAGE[subcat]}
                         alt={subcat}
                         className="size-full object-contain p-4"
                         loading="lazy"
