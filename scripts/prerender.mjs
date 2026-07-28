@@ -19,7 +19,14 @@ const CONCURRENCY = Math.max(1, Number(process.env.PRERENDER_CONCURRENCY || 2))
 const NAV_TIMEOUT_MS = Number(process.env.PRERENDER_TIMEOUT_MS || 45000)
 
 function shouldSkip() {
-  const v = String(process.env.PRERENDER ?? '1').trim().toLowerCase()
+  // Su Vercel/CI il prerender Playwright non fa parte del build di produzione.
+  // Override esplicito: PRERENDER=1
+  const raw = process.env.PRERENDER
+  if (raw == null || String(raw).trim() === '') {
+    if (process.env.VERCEL || process.env.CI) return true
+    return false
+  }
+  const v = String(raw).trim().toLowerCase()
   return v === '0' || v === 'false' || v === 'off' || v === 'no'
 }
 
