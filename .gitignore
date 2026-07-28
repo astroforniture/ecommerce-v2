@@ -27,3 +27,6 @@ dist-ssr
 *.sw?
 
 .vercel
+
+# SQL generato dallo sync catalogo produzione
+scripts/.generated/
