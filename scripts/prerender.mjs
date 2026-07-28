@@ -123,29 +123,60 @@ async function parseSitemapRoutes() {
   return routes
 }
 
-function waitForPreviewReady(proc, timeoutMs = 60000) {
+function waitForPreviewReady(proc, timeoutMs = 90000) {
   return new Promise((resolve, reject) => {
+    let settled = false
     const timer = setTimeout(() => {
+      if (settled) return
+      settled = true
       reject(new Error(`vite preview non pronto entro ${timeoutMs}ms`))
     }, timeoutMs)
 
+    const done = () => {
+      if (settled) return
+      settled = true
+      clearTimeout(timer)
+      resolve()
+    }
+
     const onData = (buf) => {
       const text = buf.toString()
+      process.stdout.write(`[vite preview] ${text}`)
       if (
         text.includes('Local:') ||
+        text.includes('Network:') ||
         text.includes(`http://localhost:${PREVIEW_PORT}`) ||
         text.includes(`http://127.0.0.1:${PREVIEW_PORT}`)
       ) {
-        clearTimeout(timer)
-        resolve()
+        done()
       }
     }
     proc.stdout?.on('data', onData)
     proc.stderr?.on('data', onData)
     proc.on('exit', (code) => {
+      if (settled) return
+      settled = true
       clearTimeout(timer)
       reject(new Error(`vite preview uscito con codice ${code}`))
     })
+
+    // Poll HTTP: più affidabile di parsing stdout (buffering su CI/Vercel)
+    const started = Date.now()
+    const poll = async () => {
+      while (!settled && Date.now() - started < timeoutMs) {
+        try {
+          const res = await fetch(`${PREVIEW_ORIGIN}/`, { signal: AbortSignal.timeout(2000) })
+          if (res.status > 0) {
+            done()
+            return
+          }
+        } catch {
+          // non ancora in ascolto
+        }
+        await new Promise((r) => setTimeout(r, 400))
+      }
+    }
+    void poll()
   })
 }
 
@@ -275,5 +306,10 @@ async function main() {
 
 main().catch((err) => {
   console.error('[prerender]', err)
+  // Su Vercel/CI non bloccare il deploy SPA: il prerender è best-effort SEO.
+  if (process.env.VERCEL || process.env.CI) {
+    console.warn('[prerender] errore non bloccante su CI/Vercel — deploy continua senza HTML prerender')
+    process.exit(0)
+  }
   process.exit(1)
 })
