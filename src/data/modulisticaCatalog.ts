@@ -228,6 +228,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328535100',
     brand: 'Edipro',
     format: '22 x 14,8 cm',
+    imageUrl: '/images/E5351.jpg',
     description:
       'Blocco stato di cassa Edipro 100 fogli uso mano, formato 22 × 14,8 cm.',
   },
