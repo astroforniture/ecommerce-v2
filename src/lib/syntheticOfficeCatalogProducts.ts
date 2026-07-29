@@ -5,6 +5,7 @@ import {
   buildCasseDitronOfficeProducts,
   macchineUfficioCasseDitronListingPath,
 } from '../data/casseDitronProducts'
+import { resolveCrossSellCatalogProductById } from '../data/crossSellCatalog'
 import {
   buildDistruggidocumentiOfficeProducts,
   macchineUfficioDistruggiDocumentiListingPath,
@@ -111,6 +112,7 @@ export function isStaticSyntheticOfficeProduct(
     id.startsWith('AF-PROINSTR-') ||
     id.startsWith('AF-SHOPPER-') ||
     id.startsWith('AF-SACBOLL-') ||
+    id.startsWith('AF-XS-') ||
     id.startsWith('gima-')
   )
 }
@@ -131,6 +133,9 @@ export function resolveSyntheticOfficeProductByCatalogKey(key: string): OfficePr
   }
   if (k.startsWith('AF-DITRON-')) {
     return buildCasseDitronOfficeProducts().find((p) => p.id === k || p.producerCode === k) ?? null
+  }
+  if (k.startsWith('AF-XS-')) {
+    return resolveCrossSellCatalogProductById(k)
   }
   if (k.startsWith('AF-PILE-')) {
     return buildPileOfficeProducts().find((p) => p.id === k || p.producerCode === k) ?? null
@@ -202,6 +207,9 @@ export function staticSyntheticOfficeListingPath(product: Pick<OfficeProduct, 'i
     return macchineUfficioEtichettatriciListingPath()
   }
   if (id.startsWith('AF-DITRON-')) {
+    return macchineUfficioCasseDitronListingPath()
+  }
+  if (id.startsWith('AF-XS-')) {
     return macchineUfficioCasseDitronListingPath()
   }
   if (id.startsWith('AF-PILE-')) {
