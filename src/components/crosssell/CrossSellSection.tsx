@@ -1,8 +1,7 @@
-import { FileText, Plus, ShoppingCart } from 'lucide-react'
+import { Plus, ShoppingCart } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
-import { withOfficeImageCacheBust } from '../../lib/officeImageCacheBust'
-import { OFFICE_CATALOG_DATA_REVISION } from '../../api/officeProductsSupabase'
 import { productUnitIvato } from '../../lib/freeShippingUpsellProducts'
+import { ProductThumb } from './ProductThumb'
 import type { OfficeProduct } from '../../types/officeProduct'
 
 const eur = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' })
@@ -13,25 +12,17 @@ type CrossSellCardProps = {
 }
 
 function CrossSellCard({ product, onAdd }: CrossSellCardProps) {
-  const imageUrl = withOfficeImageCacheBust(product.imageUrl, OFFICE_CATALOG_DATA_REVISION)
   const unitIvato = productUnitIvato(product, 1)
   const hasPrice = unitIvato > 0
 
   return (
     <li className="flex min-w-[min(220px,calc(100vw-3rem))] max-w-[220px] shrink-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md sm:min-w-[200px] sm:max-w-[200px]">
-      <div className="flex h-28 items-center justify-center overflow-hidden bg-slate-50 p-2">
-        {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt=""
-            className="max-h-full max-w-full object-contain"
-            loading="lazy"
-            decoding="async"
-          />
-        ) : (
-          <FileText className="size-10 text-brand-200" strokeWidth={1.25} aria-hidden />
-        )}
-      </div>
+      <ProductThumb
+        imageUrl={product.imageUrl}
+        alt={product.name}
+        className="flex h-28 items-center justify-center overflow-hidden bg-slate-50 p-2"
+        imgClassName="max-h-full max-w-full object-contain"
+      />
       <div className="flex flex-1 flex-col p-3">
         <p className="line-clamp-2 text-xs font-semibold leading-snug text-slate-900">
           {product.name}

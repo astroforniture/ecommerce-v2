@@ -20,7 +20,7 @@ function imp(ivato: number) {
 // ---------------------------------------------------------------------------
 
 export const CROSS_SELL_PRODUCTS: readonly OfficeProduct[] = [
-  // --- Rotoli termici ---
+  // --- Rotoli termici (asset locali in public/images) ---
   {
     id: 'AF-XS-ROTOLI-TERMICI-57',
     name: 'Rotoli Termici 57×40 mm – Conf. 10 pz',
@@ -136,7 +136,7 @@ export const CROSS_SELL_PRODUCTS: readonly OfficeProduct[] = [
     category: 'Servizi',
     subcategory: 'Grafica',
     mainFeatures: { Formato: 'Digitale + stampa', Consegna: 'Preventivo su richiesta' },
-    imageUrl: '/images/grafica-personalizzata.jpg',
+    imageUrl: '/logo-astro-forniture.png',
     price: undefined,
   },
 ] as const

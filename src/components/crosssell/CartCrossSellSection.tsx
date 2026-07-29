@@ -1,10 +1,9 @@
 import { useMemo } from 'react'
-import { FileText, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { getCrossSellForCart } from '../../data/crossSellCatalog'
-import { withOfficeImageCacheBust } from '../../lib/officeImageCacheBust'
-import { OFFICE_CATALOG_DATA_REVISION } from '../../api/officeProductsSupabase'
 import { productUnitIvato } from '../../lib/freeShippingUpsellProducts'
+import { ProductThumb } from './ProductThumb'
 import type { OfficeProduct } from '../../types/officeProduct'
 
 const eur = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' })
@@ -16,25 +15,18 @@ function CrossSellRow({
   product: OfficeProduct
   onAdd: (p: OfficeProduct) => void
 }) {
-  const imageUrl = withOfficeImageCacheBust(product.imageUrl, OFFICE_CATALOG_DATA_REVISION)
   const unitIvato = productUnitIvato(product, 1)
   const hasPrice = unitIvato > 0
 
   return (
     <li className="flex items-center gap-2.5 rounded-lg border border-slate-200/90 bg-white px-2 py-2">
-      <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-md bg-slate-50">
-        {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt=""
-            className="max-h-full max-w-full object-contain p-0.5"
-            loading="lazy"
-            decoding="async"
-          />
-        ) : (
-          <FileText className="size-5 text-brand-200" strokeWidth={1.25} aria-hidden />
-        )}
-      </div>
+      <ProductThumb
+        imageUrl={product.imageUrl}
+        alt={product.name}
+        className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-md bg-slate-50"
+        imgClassName="max-h-full max-w-full object-contain p-0.5"
+        iconClassName="size-5 text-brand-200"
+      />
       <div className="min-w-0 flex-1">
         <p className="line-clamp-2 text-xs font-semibold leading-snug text-slate-900">
           {product.name}
