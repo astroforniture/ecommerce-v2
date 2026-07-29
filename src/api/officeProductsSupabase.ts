@@ -73,6 +73,7 @@ type OfficeProductsLegacyRow = {
  * Non includere `parent_sku` / `main_features` nel select catalogo finché non sono garantiti nello schema.
  */
 const PRODUCT_SHOP_SELECT_FALLBACKS: readonly string[] = [
+  'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq, related_product_ids',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url',
@@ -90,6 +91,7 @@ const PRODUCT_SHOP_SELECT_FALLBACKS: readonly string[] = [
 
 /** Fetch scheda prodotto: prova prima con `variants` (JSONB misure/colori). */
 const PRODUCT_DETAIL_SELECT_FALLBACKS: readonly string[] = [
+  'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq, related_product_ids',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url',
@@ -1207,6 +1209,7 @@ type OfficeProductRow = ShopProductRow & {
   faq?: unknown
   variants?: unknown
   main_features?: unknown
+  related_product_ids?: unknown
 }
 
 function jsonbToMainFeatures(raw: unknown): Record<string, string> {
@@ -1281,6 +1284,12 @@ function parseVariantsJson(raw: unknown): ProductVariantOption[] | undefined {
     }
   }
   return undefined
+}
+
+function parseRelatedProductIds(raw: unknown): string[] | undefined {
+  if (!Array.isArray(raw)) return undefined
+  const ids = raw.filter((v) => typeof v === 'string' && v.trim()).map((v) => (v as string).trim())
+  return ids.length ? ids : undefined
 }
 
 function tokenizeSearchTerms(raw: string): string[] {
@@ -1507,9 +1516,13 @@ function mapRowToOfficeProduct(row: OfficeProductRow): OfficeProduct {
     brochureUrl: String((row as OfficeProductRow).brochure_url ?? '').trim() || undefined,
     faq: parseProductFaq((row as OfficeProductRow).faq),
     variants: parseVariantsJson(row.variants),
+    relatedProductIds: parseRelatedProductIds((row as OfficeProductRow).related_product_ids),
   }
   if (!mapped.faq?.length) {
     delete mapped.faq
+  }
+  if (!mapped.relatedProductIds?.length) {
+    delete mapped.relatedProductIds
   }
   if (mapped.ean && !mapped.mainFeatures.EAN) {
     mapped.mainFeatures = { ...mapped.mainFeatures, EAN: mapped.ean }

@@ -105,6 +105,8 @@ import { isTimbroAziendeFarmacieProduct } from '../lib/timbroAziendeFarmacieProd
 import { TimbroAziendeFarmacieDetail } from '../components/product/TimbroAziendeFarmacieDetail'
 import { OfficeProductDetailPurchasePanel } from '../components/product/OfficeProductDetailPurchasePanel'
 import { ProductFaqSection } from '../components/faq/ProductFaqSection'
+import { CrossSellSection } from '../components/crosssell/CrossSellSection'
+import { getCrossSellForProduct } from '../data/crossSellCatalog'
 import {
   OfficeProductDetailDescriptionSection,
   OfficeProductDetailRelatedSection,
@@ -4865,6 +4867,8 @@ export function ProductDetailPage() {
                 : []
           }
         />
+
+        <CrossSellSection products={getCrossSellForProduct(product)} />
 
         <OfficeProductDetailRelatedSection
           products={relatedProducts}

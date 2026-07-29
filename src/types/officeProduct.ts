@@ -61,6 +61,8 @@ export interface OfficeProduct {
   brochureUrl?: string
   /** Opzionale: FAQ prodotto (array domande/risposte). */
   faq?: FaqItem[]
+  /** Opzionale: ID prodotti correlati specifici (cross-selling). Fallback: regola per categoria. */
+  relatedProductIds?: string[]
   /** Opzionale: da tabella Supabase product_quantity_prices */
   quantityPriceTiers?: QuantityPriceTier[]
   /** Opzionale: colonna JSONB `variants` su public.products */

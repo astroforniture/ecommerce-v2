@@ -10,6 +10,7 @@ import { withOfficeImageCacheBust } from '../../lib/officeImageCacheBust'
 import { OFFICE_CATALOG_DATA_REVISION } from '../../api/officeProductsSupabase'
 import { FreeShippingProgressBar } from './FreeShippingProgressBar'
 import { CartDrawerFreeShippingUpsell } from './CartDrawerFreeShippingUpsell'
+import { CartCrossSellSection } from '../crosssell/CartCrossSellSection'
 import { OrderCostBreakdown } from './OrderCostBreakdown'
 
 const eur = new Intl.NumberFormat('it-IT', {
@@ -158,6 +159,13 @@ export function CartSlideOver() {
             </ul>
           )}
         </div>
+
+        {items.length > 0 ? (
+          <CartCrossSellSection
+            className="shrink-0 border-t border-slate-100 bg-white px-4 py-3"
+            limit={3}
+          />
+        ) : null}
 
         {items.length > 0 ? (
           <CartDrawerFreeShippingUpsell
