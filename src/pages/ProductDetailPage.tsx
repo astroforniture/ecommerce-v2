@@ -759,6 +759,8 @@ export function ProductDetailPage() {
     return getCrossSellForProduct(product, 8, {
       carta: crossSellPoolsQuery.data?.carta,
       buste: crossSellPoolsQuery.data?.buste,
+      cancelleria: crossSellPoolsQuery.data?.cancelleria,
+      distruggi: crossSellPoolsQuery.data?.distruggi,
     })
   }, [product, crossSellPoolsQuery.data])
 

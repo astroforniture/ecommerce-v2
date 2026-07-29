@@ -14,6 +14,11 @@ import {
   MACCHINE_SUB_ETICHETTATRICI_LABEL,
 } from './macchineEtichettatrici'
 import {
+  buildDistruggidocumentiOfficeProducts,
+  isDistruggidocumentiOfficeProductId,
+  MACCHINE_SUB_DISTRUGGI_DOCUMENTI_LABEL,
+} from './distruggidocumentiProducts'
+import {
   CARTA_SUBCATEGORY_A3,
   CARTA_SUBCATEGORY_A4,
   CARTA_SUBCATEGORY_TERMICA,
@@ -182,6 +187,8 @@ export type OfficeCrossSellGroup =
   | 'buste-trasparenti'
   | 'etichettatrici'
   | 'cartucce-toner'
+  | 'distruggi-documenti'
+  | 'cancelleria'
 
 export const OFFICE_CROSS_SELL_RING: readonly OfficeCrossSellGroup[] = [
   'archivio',
@@ -189,6 +196,8 @@ export const OFFICE_CROSS_SELL_RING: readonly OfficeCrossSellGroup[] = [
   'buste-trasparenti',
   'etichettatrici',
   'cartucce-toner',
+  'distruggi-documenti',
+  'cancelleria',
 ] as const
 
 /** Pool curato Archivio / Carta / Buste — SKU/id reali da `public.products`. */
@@ -306,6 +315,8 @@ const OFFICE_RING_CURATED: Record<
 export type CrossSellDbPools = {
   carta?: readonly OfficeProduct[]
   buste?: readonly OfficeProduct[]
+  cancelleria?: readonly OfficeProduct[]
+  distruggi?: readonly OfficeProduct[]
 }
 
 function poolEtichettatrici(): OfficeProduct[] {
@@ -315,6 +326,13 @@ function poolEtichettatrici(): OfficeProduct[] {
 function poolCartucceToner(): OfficeProduct[] {
   return buildCartucceTonerOfficeProducts()
 }
+
+function poolDistruggiFallback(): OfficeProduct[] {
+  return buildDistruggidocumentiOfficeProducts()
+}
+
+const CANCELLERIA_ESSENTIAL_RE =
+  /penna|penne|biro|roller|sfera|cucitric|stapler|spillatric|nastro\s*adesiv|scotch|evidenziat|highlighter|fermagli|punti\b|marcat|marker|clip\b|matita|matite/i
 
 function isCartaA4orA3(product: Pick<OfficeProduct, 'category' | 'subcategory'>): boolean {
   if ((product.category ?? '').localeCompare('Carta', 'it', { sensitivity: 'base' }) !== 0) {
@@ -342,9 +360,31 @@ function isBusteTrasparentiProduct(product: OfficeProduct): boolean {
   return /buste?\s*(forate|trasparent|ppl)/i.test(name) || /cartellin.*\ba\s*l\b/i.test(name)
 }
 
+function isCancelleriaEssentialProduct(
+  product: Pick<OfficeProduct, 'category' | 'subcategory' | 'name'>,
+): boolean {
+  if ((product.category ?? '').localeCompare('Cancelleria', 'it', { sensitivity: 'base' }) !== 0) {
+    return false
+  }
+  return CANCELLERIA_ESSENTIAL_RE.test(`${product.name} ${product.subcategory ?? ''}`)
+}
+
+function isDistruggiProduct(
+  product: Pick<OfficeProduct, 'id' | 'category' | 'subcategory' | 'name'>,
+): boolean {
+  if (isDistruggidocumentiOfficeProductId(product.id)) return true
+  const hay = `${product.name} ${product.subcategory ?? ''} ${product.category ?? ''}`.toLowerCase()
+  if (hay.includes('distrugg')) return true
+  return (product.subcategory ?? '')
+    .toLowerCase()
+    .includes(MACCHINE_SUB_DISTRUGGI_DOCUMENTI_LABEL.toLowerCase())
+}
+
 export function detectOfficeCrossSellGroup(
   product: Pick<OfficeProduct, 'id' | 'category' | 'subcategory' | 'name' | 'producerCode'>,
 ): OfficeCrossSellGroup | null {
+  if (isDistruggiProduct(product)) return 'distruggi-documenti'
+
   if (isEtichettatriciOfficeProductId(product.id)) return 'etichettatrici'
   if (
     (product.subcategory ?? '')
@@ -368,6 +408,11 @@ export function detectOfficeCrossSellGroup(
 
   if (isCartaA4orA3(product)) return 'carta'
 
+  if (isCancelleriaEssentialProduct(product)) return 'cancelleria'
+  if ((product.category ?? '').localeCompare('Cancelleria', 'it', { sensitivity: 'base' }) === 0) {
+    return 'cancelleria'
+  }
+
   if ((product.category ?? '').localeCompare('Archivio', 'it', { sensitivity: 'base' }) === 0) {
     return 'archivio'
   }
@@ -381,25 +426,35 @@ function isCassaProduct(product: Pick<OfficeProduct, 'id' | 'category' | 'subcat
   return ['casse', 'registratori', 'cassa', 'ditron'].some((pat) => haystack.includes(pat))
 }
 
+export type CrossSellSlot = {
+  key: string
+  label: string
+  pool: OfficeProduct[]
+  /** Sfasamento rotazione (due slot stessa categoria mostrano prodotti diversi). */
+  tickOffset?: number
+}
+
 export type CrossSellResult = {
   products: OfficeProduct[]
-  /** Slot 1 — Carta A4/A3 (pool DB o curato). */
+  /** Slot dinamici con rotazione 3s. */
+  slots: CrossSellSlot[]
+  /** @deprecated Compat — usare `slots`. */
   rotateCarta: OfficeProduct[]
-  /** Slot 2 — Buste Trasparenti (pool DB o curato). */
+  /** @deprecated Compat — usare `slots`. */
   rotateBuste: OfficeProduct[]
-  /** Slot 3 — Etichettatrici. */
+  /** @deprecated Compat — usare `slots`. */
   rotateEtichettatrici: OfficeProduct[]
-  /** Slot 4 — Cartucce & Toner. */
+  /** @deprecated Compat — usare `slots`. */
   rotateCartucceToner: OfficeProduct[]
-  /** Quattro slot fissi (Carta / Buste / Etichettatrici / Toner). */
+  /** True quando la UI usa slot tipizzati con label. */
   fourSlots: boolean
-  /** Abilita auto-play rotazione 3s. */
   autoPlay: boolean
 }
 
 function emptyCrossSell(): CrossSellResult {
   return {
     products: [],
+    slots: [],
     rotateCarta: [],
     rotateBuste: [],
     rotateEtichettatrici: [],
@@ -422,8 +477,33 @@ function mergePool(
   return [...byId.values()]
 }
 
+function resultFromSlots(
+  slots: CrossSellSlot[],
+  extras?: Partial<
+    Pick<
+      CrossSellResult,
+      'rotateCarta' | 'rotateBuste' | 'rotateEtichettatrici' | 'rotateCartucceToner'
+    >
+  >,
+): CrossSellResult {
+  const products = slots
+    .map((s) => s.pool[0])
+    .filter((p): p is OfficeProduct => Boolean(p))
+  const autoPlay = slots.some((s) => s.pool.length > 1)
+  return {
+    products,
+    slots,
+    rotateCarta: extras?.rotateCarta ?? [],
+    rotateBuste: extras?.rotateBuste ?? [],
+    rotateEtichettatrici: extras?.rotateEtichettatrici ?? [],
+    rotateCartucceToner: extras?.rotateCartucceToner ?? [],
+    fourSlots: slots.length > 0,
+    autoPlay,
+  }
+}
+
 /**
- * Cross-sell PDP: priorità relatedProductIds → casse → 4 slot fissi (Carta/Buste/Etch/Toner).
+ * Cross-sell PDP: relatedProductIds → casse → slot dinamici (ufficio / distruggi / cancelleria).
  */
 export function getCrossSellForProduct(
   product: OfficeProduct,
@@ -457,31 +537,77 @@ export function getCrossSellForProduct(
     OFFICE_RING_CURATED['buste-trasparenti'],
     product.id,
   )
+  const rotateCancelleria = mergePool(dbPools?.cancelleria, [], product.id)
+  const rotateDistruggi = mergePool(
+    dbPools?.distruggi,
+    poolDistruggiFallback(),
+    product.id,
+  )
   const rotateEtichettatrici = poolEtichettatrici().filter((p) => p.id !== product.id)
   const rotateCartucceToner = poolCartucceToner().filter((p) => p.id !== product.id)
 
-  const products = [
-    rotateCarta[0],
-    rotateBuste[0],
-    rotateEtichettatrici[0],
-    rotateCartucceToner[0],
-  ].filter((p): p is OfficeProduct => Boolean(p))
+  // Distruggi Documenti → Carta + Cancelleria (alternate)
+  if (group === 'distruggi-documenti') {
+    const slots: CrossSellSlot[] = [
+      { key: 'carta', label: 'Carta', pool: rotateCarta, tickOffset: 0 },
+      { key: 'cancelleria', label: 'Cancelleria', pool: rotateCancelleria, tickOffset: 0 },
+      { key: 'carta-b', label: 'Carta', pool: rotateCarta, tickOffset: 1 },
+      {
+        key: 'cancelleria-b',
+        label: 'Cancelleria',
+        pool: rotateCancelleria,
+        tickOffset: 1,
+      },
+    ].filter((s) => s.pool.length > 0)
+    return resultFromSlots(slots, { rotateCarta })
+  }
 
-  const autoPlay =
-    rotateCarta.length > 1 ||
-    rotateBuste.length > 1 ||
-    rotateEtichettatrici.length > 1 ||
-    rotateCartucceToner.length > 1
+  // Cancelleria → Carta + Distruggi (+ Buste / Etichettatrici)
+  if (group === 'cancelleria') {
+    const slots: CrossSellSlot[] = [
+      { key: 'carta', label: 'Carta', pool: rotateCarta },
+      { key: 'distruggi', label: 'Distruggi Documenti', pool: rotateDistruggi },
+      { key: 'buste', label: 'Buste', pool: rotateBuste },
+      { key: 'etichettatrici', label: 'Etichettatrici', pool: rotateEtichettatrici },
+    ].filter((s) => s.pool.length > 0)
+    return resultFromSlots(slots, {
+      rotateCarta,
+      rotateBuste,
+      rotateEtichettatrici,
+    })
+  }
 
-  return {
-    products,
+  // Carta → slot classici + Distruggi Documenti
+  if (group === 'carta') {
+    const slots: CrossSellSlot[] = [
+      { key: 'carta', label: 'Carta', pool: rotateCarta },
+      { key: 'buste', label: 'Buste', pool: rotateBuste },
+      { key: 'distruggi', label: 'Distruggi Documenti', pool: rotateDistruggi },
+      { key: 'etichettatrici', label: 'Etichettatrici', pool: rotateEtichettatrici },
+      { key: 'toner', label: 'Cartucce & Toner', pool: rotateCartucceToner },
+    ].filter((s) => s.pool.length > 0)
+    return resultFromSlots(slots, {
+      rotateCarta,
+      rotateBuste,
+      rotateEtichettatrici,
+      rotateCartucceToner,
+    })
+  }
+
+  // Anello ufficio restante (archivio / buste / etch / toner)
+  const slots: CrossSellSlot[] = [
+    { key: 'carta', label: 'Carta', pool: rotateCarta },
+    { key: 'buste', label: 'Buste', pool: rotateBuste },
+    { key: 'etichettatrici', label: 'Etichettatrici', pool: rotateEtichettatrici },
+    { key: 'toner', label: 'Cartucce & Toner', pool: rotateCartucceToner },
+  ].filter((s) => s.pool.length > 0)
+
+  return resultFromSlots(slots, {
     rotateCarta,
     rotateBuste,
     rotateEtichettatrici,
     rotateCartucceToner,
-    fourSlots: true,
-    autoPlay,
-  }
+  })
 }
 
 /**

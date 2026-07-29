@@ -4848,23 +4848,88 @@ export async function fetchRelatedOfficeProducts(
 export type CrossSellRotationPools = {
   carta: OfficeProduct[]
   buste: OfficeProduct[]
+  cancelleria: OfficeProduct[]
+  distruggi: OfficeProduct[]
+}
+
+const CANCELLERIA_ESSENTIAL_RE =
+  /penna|penne|biro|roller|sfera|cucitric|stapler|spillatric|nastro\s*adesiv|scotch|evidenziat|highlighter|fermagli|punti\b|marcat|marker|clip\b|matita|matite/i
+
+function isCancelleriaEssentialProduct(p: OfficeProduct): boolean {
+  if ((p.category ?? '').toLowerCase() !== 'cancelleria') return false
+  const hay = `${p.name} ${p.subcategory ?? ''} ${p.brand ?? ''}`
+  return CANCELLERIA_ESSENTIAL_RE.test(hay)
+}
+
+function cancelleriaEssentialBucket(p: OfficeProduct): string {
+  const n = `${p.name} ${p.subcategory ?? ''}`.toLowerCase()
+  if (/penna|penne|biro|roller|sfera/.test(n)) return 'penne'
+  if (/cucitric|stapler|spillatric/.test(n)) return 'cucitrici'
+  if (/nastro\s*adesiv|scotch/.test(n)) return 'nastri'
+  if (/evidenziat|highlighter/.test(n)) return 'evidenziatori'
+  if (/fermagli|clip\b/.test(n)) return 'fermagli'
+  if (/\bpunti\b/.test(n)) return 'punti'
+  if (/marcat|marker/.test(n)) return 'marcatori'
+  if (/matita|matite/.test(n)) return 'matite'
+  return 'altro'
+}
+
+/** Round-robin tra bucket per varietà di tipologie cancelleria. */
+function diversifyByBucket(
+  products: OfficeProduct[],
+  bucketOf: (p: OfficeProduct) => string,
+  limit: number,
+): OfficeProduct[] {
+  const buckets = new Map<string, OfficeProduct[]>()
+  for (const p of products) {
+    const b = bucketOf(p)
+    const list = buckets.get(b) ?? []
+    list.push(p)
+    buckets.set(b, list)
+  }
+  const keys = [...buckets.keys()].sort()
+  const out: OfficeProduct[] = []
+  const seen = new Set<string>()
+  let i = 0
+  while (out.length < limit && keys.length > 0) {
+    const key = keys[i % keys.length]!
+    const list = buckets.get(key)
+    const next = list?.shift()
+    if (next && !seen.has(next.id)) {
+      seen.add(next.id)
+      out.push(next)
+    }
+    if (!list || list.length === 0) {
+      buckets.delete(key)
+      keys.splice(i % Math.max(keys.length, 1), 1)
+      if (keys.length === 0) break
+      i = i % keys.length
+      continue
+    }
+    i += 1
+  }
+  return out
 }
 
 /**
- * Pool reali per slot cross-sell PDP: Carta A4/A3 (no termica) e Buste Trasparenti.
+ * Pool reali per slot cross-sell PDP:
+ * Carta A4/A3, Buste Trasparenti, Cancelleria essenziale, Distruggi Documenti.
  */
 export async function fetchCrossSellRotationPools(
   limitPerPool = 24,
 ): Promise<CrossSellRotationPools> {
-  const supabase = getSupabaseBrowserClient()
-  if (!supabase) {
-    return { carta: [], buste: [] }
+  const empty: CrossSellRotationPools = {
+    carta: [],
+    buste: [],
+    cancelleria: [],
+    distruggi: [],
   }
+  const supabase = getSupabaseBrowserClient()
+  if (!supabase) return empty
 
-  const [cartaRows, busteRows, quantityFetch] = await Promise.all([
+  const [cartaRows, busteRows, cancRows, distruggiRows, quantityFetch] = await Promise.all([
     fetchShopProductRowsCategoryIlike(supabase, 'Carta', 80),
     (async () => {
-      // Preferisci filtro subcategory; fallback category Archivio
       for (const cols of PRODUCT_SHOP_SELECT_FALLBACKS) {
         const bySub = await supabase
           .from(SHOP_PRODUCTS_TABLE)
@@ -4877,14 +4942,55 @@ export async function fetchCrossSellRotationPools(
       }
       return fetchShopProductRowsCategoryIlike(supabase, 'Archivio', 80)
     })(),
+    fetchShopProductRowsCategoryIlike(supabase, 'Cancelleria', 160),
+    (async () => {
+      const out: OfficeProductRow[] = []
+      for (const cols of PRODUCT_SHOP_SELECT_FALLBACKS) {
+        const byName = await supabase
+          .from(SHOP_PRODUCTS_TABLE)
+          .select(cols)
+          .ilike('name', '%distrugg%')
+          .order('name', { ascending: true })
+          .limit(60)
+        if (!byName.error) {
+          out.push(...((byName.data ?? []) as unknown as OfficeProductRow[]))
+          break
+        }
+        if (!isMissingColumnPostgrestError(byName.error)) {
+          console.warn('[cross-sell] distruggi name query:', byName.error)
+          break
+        }
+      }
+      if (out.length === 0) {
+        for (const cols of PRODUCT_SHOP_SELECT_FALLBACKS) {
+          const bySub = await supabase
+            .from(SHOP_PRODUCTS_TABLE)
+            .select(cols)
+            .ilike('subcategory', '%Distruggi%')
+            .order('name', { ascending: true })
+            .limit(60)
+          if (!bySub.error) {
+            out.push(...((bySub.data ?? []) as unknown as OfficeProductRow[]))
+            break
+          }
+          if (!isMissingColumnPostgrestError(bySub.error)) break
+        }
+      }
+      if (out.length > 0) return out
+      return fetchShopProductRowsCategoryIlike(supabase, 'Macchine', 80)
+    })(),
     fetchQuantityPriceTiersByProductId(),
   ])
 
   const { tiersByProductId } = quantityFetch
 
-  const carta = cartaRows
-    .map(mapRowToOfficeProduct)
-    .map((p) => attachQuantityTiers(p, tiersByProductId))
+  const withMeta = (rows: OfficeProductRow[]) =>
+    rows
+      .map(mapRowToOfficeProduct)
+      .map((p) => attachQuantityTiers(p, tiersByProductId))
+      .filter((p) => Boolean((p.producerCode || p.id || '').trim()) && Boolean((p.imageUrl ?? '').trim()))
+
+  const carta = withMeta(cartaRows)
     .filter((p) => {
       const cat = (p.category ?? '').toLowerCase()
       if (cat !== 'carta') return false
@@ -4901,12 +5007,9 @@ export async function fetchCrossSellRotationPools(
         /\ba3\b/.test(name)
       )
     })
-    .filter((p) => Boolean((p.producerCode || p.id || '').trim()) && Boolean((p.imageUrl ?? '').trim()))
     .slice(0, limitPerPool)
 
-  const buste = busteRows
-    .map(mapRowToOfficeProduct)
-    .map((p) => attachQuantityTiers(p, tiersByProductId))
+  const buste = withMeta(busteRows)
     .filter((p) => {
       const sub = (p.subcategory ?? '').toLowerCase()
       const name = (p.name ?? '').toLowerCase()
@@ -4916,10 +5019,34 @@ export async function fetchCrossSellRotationPools(
         (name.includes('buste') || name.includes('busta') || name.includes('cartellina'))
       )
     })
-    .filter((p) => Boolean((p.producerCode || p.id || '').trim()) && Boolean((p.imageUrl ?? '').trim()))
     .slice(0, limitPerPool)
 
-  return { carta, buste }
+  const cancelleriaRaw = withMeta(cancRows)
+  const cancelleriaEssentials = diversifyByBucket(
+    cancelleriaRaw.filter(isCancelleriaEssentialProduct),
+    cancelleriaEssentialBucket,
+    limitPerPool,
+  )
+  const cancelleria =
+    cancelleriaEssentials.length >= 4
+      ? cancelleriaEssentials
+      : diversifyByBucket(
+          [
+            ...cancelleriaEssentials,
+            ...cancelleriaRaw.filter((p) => !cancelleriaEssentials.some((e) => e.id === p.id)),
+          ],
+          cancelleriaEssentialBucket,
+          limitPerPool,
+        )
+
+  const distruggi = withMeta(distruggiRows)
+    .filter((p) => {
+      const hay = `${p.name} ${p.subcategory ?? ''} ${p.category ?? ''}`.toLowerCase()
+      return hay.includes('distrugg')
+    })
+    .slice(0, limitPerPool)
+
+  return { carta, buste, cancelleria, distruggi }
 }
 
 /** Stock per tabella admin; fallback silenzioso se colonna assente nello schema. */

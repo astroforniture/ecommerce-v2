@@ -11,8 +11,6 @@ import type { OfficeProduct } from '../../types/officeProduct'
 const eur = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' })
 const AUTO_PLAY_MS = 3000
 
-const SLOT_KEYS = ['carta', 'buste', 'etichettatrici', 'toner'] as const
-
 type CrossSellCardProps = {
   product: OfficeProduct
   slotLabel?: string
@@ -81,9 +79,13 @@ function CrossSellCard({ product, slotLabel, onAdd }: CrossSellCardProps) {
   )
 }
 
-function pickRotating(pool: readonly OfficeProduct[], tick: number): OfficeProduct | null {
+function pickRotating(
+  pool: readonly OfficeProduct[],
+  tick: number,
+  tickOffset = 0,
+): OfficeProduct | null {
   if (pool.length === 0) return null
-  return pool[tick % pool.length] ?? null
+  return pool[(tick + tickOffset) % pool.length] ?? null
 }
 
 type CrossSellSectionProps = {
@@ -94,7 +96,7 @@ type CrossSellSectionProps = {
 }
 
 /**
- * Sezione cross-sell PDP: 4 slot fissi (Carta / Buste / Etichettatrici / Toner) con rotazione 3s.
+ * Sezione cross-sell PDP con slot dinamici e rotazione automatica ogni 3s.
  */
 export function CrossSellSection({
   crossSell,
@@ -107,22 +109,17 @@ export function CrossSellSection({
   const [paused, setPaused] = useState(false)
 
   const displaySlots = useMemo(() => {
-    if (crossSell.fourSlots) {
-      const slots: Array<{ key: (typeof SLOT_KEYS)[number]; label: string; product: OfficeProduct }> =
-        []
-      const carta = pickRotating(crossSell.rotateCarta, tick)
-      const buste = pickRotating(crossSell.rotateBuste, tick)
-      const etch = pickRotating(crossSell.rotateEtichettatrici, tick)
-      const toner = pickRotating(crossSell.rotateCartucceToner, tick)
-      if (carta) slots.push({ key: 'carta', label: 'Carta', product: carta })
-      if (buste) slots.push({ key: 'buste', label: 'Buste', product: buste })
-      if (etch) slots.push({ key: 'etichettatrici', label: 'Etichettatrici', product: etch })
-      if (toner) slots.push({ key: 'toner', label: 'Cartucce & Toner', product: toner })
-      return slots
+    if (crossSell.slots.length > 0) {
+      const out: Array<{ key: string; label: string; product: OfficeProduct }> = []
+      for (const slot of crossSell.slots) {
+        const product = pickRotating(slot.pool, tick, slot.tickOffset ?? 0)
+        if (product) out.push({ key: slot.key, label: slot.label, product })
+      }
+      return out
     }
 
     return crossSell.products.map((product, i) => ({
-      key: SLOT_KEYS[i % SLOT_KEYS.length]!,
+      key: `list-${i}`,
       label: '',
       product,
     }))
@@ -138,19 +135,17 @@ export function CrossSellSection({
 
   useEffect(() => {
     setTick(0)
-  }, [
-    crossSell.rotateCarta,
-    crossSell.rotateBuste,
-    crossSell.rotateEtichettatrici,
-    crossSell.rotateCartucceToner,
-    crossSell.products,
-  ])
+  }, [crossSell.slots, crossSell.products])
 
   if (displaySlots.length === 0) return null
 
   function handleAdd(product: OfficeProduct) {
     addOfficeProduct(product, 1)
   }
+
+  const slotLabels = [
+    ...new Set(displaySlots.map((s) => s.label).filter(Boolean)),
+  ]
 
   return (
     <section
@@ -186,15 +181,15 @@ export function CrossSellSection({
           <CrossSellCard
             key={`${slot.key}-${slot.product.id}`}
             product={slot.product}
-            slotLabel={crossSell.fourSlots ? slot.label : undefined}
+            slotLabel={crossSell.fourSlots ? slot.label || undefined : undefined}
             onAdd={handleAdd}
           />
         ))}
       </ul>
       {crossSell.autoPlay ? (
         <p className="mt-2 text-[11px] text-slate-500">
-          {crossSell.fourSlots
-            ? 'Carta, Buste, Etichettatrici e Cartucce & Toner in rotazione automatica'
+          {slotLabels.length > 0
+            ? `${slotLabels.join(', ')} in rotazione automatica`
             : 'Anteprime in rotazione automatica'}
           {paused ? ' (in pausa)' : ''}.
         </p>
