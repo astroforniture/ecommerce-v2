@@ -4850,6 +4850,10 @@ export type CrossSellRotationPools = {
   buste: OfficeProduct[]
   cancelleria: OfficeProduct[]
   distruggi: OfficeProduct[]
+  cartaTermica: OfficeProduct[]
+  shopper: OfficeProduct[]
+  alberghi: OfficeProduct[]
+  casse: OfficeProduct[]
 }
 
 const CANCELLERIA_ESSENTIAL_RE =
@@ -4912,8 +4916,7 @@ function diversifyByBucket(
 }
 
 /**
- * Pool reali per slot cross-sell PDP:
- * Carta A4/A3, Buste Trasparenti, Cancelleria essenziale, Distruggi Documenti.
+ * Pool reali per slot cross-sell PDP (ufficio + hospitality).
  */
 export async function fetchCrossSellRotationPools(
   limitPerPool = 24,
@@ -4923,61 +4926,85 @@ export async function fetchCrossSellRotationPools(
     buste: [],
     cancelleria: [],
     distruggi: [],
+    cartaTermica: [],
+    shopper: [],
+    alberghi: [],
+    casse: [],
   }
   const supabase = getSupabaseBrowserClient()
   if (!supabase) return empty
+  const client = supabase
 
-  const [cartaRows, busteRows, cancRows, distruggiRows, quantityFetch] = await Promise.all([
-    fetchShopProductRowsCategoryIlike(supabase, 'Carta', 80),
+  async function fetchBySubcategoryIlike(pattern: string, limit = 80): Promise<OfficeProductRow[]> {
+    for (const cols of PRODUCT_SHOP_SELECT_FALLBACKS) {
+      const res = await client
+        .from(SHOP_PRODUCTS_TABLE)
+        .select(cols)
+        .ilike('subcategory', pattern)
+        .order('name', { ascending: true })
+        .limit(limit)
+      if (!res.error) return (res.data ?? []) as unknown as OfficeProductRow[]
+      if (!isMissingColumnPostgrestError(res.error)) break
+    }
+    return []
+  }
+
+  async function fetchByNameIlike(pattern: string, limit = 80): Promise<OfficeProductRow[]> {
+    for (const cols of PRODUCT_SHOP_SELECT_FALLBACKS) {
+      const res = await client
+        .from(SHOP_PRODUCTS_TABLE)
+        .select(cols)
+        .ilike('name', pattern)
+        .order('name', { ascending: true })
+        .limit(limit)
+      if (!res.error) return (res.data ?? []) as unknown as OfficeProductRow[]
+      if (!isMissingColumnPostgrestError(res.error)) break
+    }
+    return []
+  }
+
+  const [
+    cartaRows,
+    busteRows,
+    cancRows,
+    distruggiRows,
+    alberghiRows,
+    shopperRows,
+    casseRows,
+    quantityFetch,
+  ] = await Promise.all([
+    fetchShopProductRowsCategoryIlike(client, 'Carta', 120),
     (async () => {
-      for (const cols of PRODUCT_SHOP_SELECT_FALLBACKS) {
-        const bySub = await supabase
-          .from(SHOP_PRODUCTS_TABLE)
-          .select(cols)
-          .ilike('subcategory', '%Buste Trasparenti%')
-          .order('name', { ascending: true })
-          .limit(80)
-        if (!bySub.error) return (bySub.data ?? []) as unknown as OfficeProductRow[]
-        if (!isMissingColumnPostgrestError(bySub.error)) break
-      }
-      return fetchShopProductRowsCategoryIlike(supabase, 'Archivio', 80)
+      const bySub = await fetchBySubcategoryIlike('%Buste Trasparenti%', 80)
+      if (bySub.length > 0) return bySub
+      return fetchShopProductRowsCategoryIlike(client, 'Archivio', 80)
     })(),
-    fetchShopProductRowsCategoryIlike(supabase, 'Cancelleria', 160),
+    fetchShopProductRowsCategoryIlike(client, 'Cancelleria', 160),
     (async () => {
-      const out: OfficeProductRow[] = []
-      for (const cols of PRODUCT_SHOP_SELECT_FALLBACKS) {
-        const byName = await supabase
-          .from(SHOP_PRODUCTS_TABLE)
-          .select(cols)
-          .ilike('name', '%distrugg%')
-          .order('name', { ascending: true })
-          .limit(60)
-        if (!byName.error) {
-          out.push(...((byName.data ?? []) as unknown as OfficeProductRow[]))
-          break
-        }
-        if (!isMissingColumnPostgrestError(byName.error)) {
-          console.warn('[cross-sell] distruggi name query:', byName.error)
-          break
-        }
-      }
-      if (out.length === 0) {
-        for (const cols of PRODUCT_SHOP_SELECT_FALLBACKS) {
-          const bySub = await supabase
-            .from(SHOP_PRODUCTS_TABLE)
-            .select(cols)
-            .ilike('subcategory', '%Distruggi%')
-            .order('name', { ascending: true })
-            .limit(60)
-          if (!bySub.error) {
-            out.push(...((bySub.data ?? []) as unknown as OfficeProductRow[]))
-            break
-          }
-          if (!isMissingColumnPostgrestError(bySub.error)) break
-        }
-      }
-      if (out.length > 0) return out
-      return fetchShopProductRowsCategoryIlike(supabase, 'Macchine', 80)
+      const byName = await fetchByNameIlike('%distrugg%', 60)
+      if (byName.length > 0) return byName
+      const bySub = await fetchBySubcategoryIlike('%Distruggi%', 60)
+      if (bySub.length > 0) return bySub
+      return fetchShopProductRowsCategoryIlike(client, 'Macchine', 80)
+    })(),
+    (async () => {
+      const bySub = await fetchBySubcategoryIlike('%Alberghi%', 80)
+      if (bySub.length > 0) return bySub
+      const byName = await fetchByNameIlike('%comand%', 80)
+      return byName
+    })(),
+    (async () => {
+      const bySub = await fetchBySubcategoryIlike('%Shopper%', 80)
+      if (bySub.length > 0) return bySub
+      const byNameShopper = await fetchByNameIlike('%shopper%', 80)
+      const byNameSacchetto = await fetchByNameIlike('%sacchett%', 80)
+      return [...byNameShopper, ...byNameSacchetto]
+    })(),
+    (async () => {
+      const bySub = await fetchBySubcategoryIlike('%Casse%', 60)
+      const byName = await fetchByNameIlike('%registrator%', 60)
+      const byCassa = await fetchByNameIlike('%cassa%', 60)
+      return [...bySub, ...byName, ...byCassa]
     })(),
     fetchQuantityPriceTiersByProductId(),
   ])
@@ -4990,7 +5017,9 @@ export async function fetchCrossSellRotationPools(
       .map((p) => attachQuantityTiers(p, tiersByProductId))
       .filter((p) => Boolean((p.producerCode || p.id || '').trim()) && Boolean((p.imageUrl ?? '').trim()))
 
-  const carta = withMeta(cartaRows)
+  const cartaAll = withMeta(cartaRows)
+
+  const carta = cartaAll
     .filter((p) => {
       const cat = (p.category ?? '').toLowerCase()
       if (cat !== 'carta') return false
@@ -5009,6 +5038,16 @@ export async function fetchCrossSellRotationPools(
     })
     .slice(0, limitPerPool)
 
+  const cartaTermica = cartaAll
+    .filter((p) => {
+      const cat = (p.category ?? '').toLowerCase()
+      if (cat !== 'carta') return false
+      const sub = (p.subcategory ?? '').toLowerCase()
+      const name = (p.name ?? '').toLowerCase()
+      return sub.includes('termica') || name.includes('termica') || name.includes('termic')
+    })
+    .slice(0, limitPerPool)
+
   const buste = withMeta(busteRows)
     .filter((p) => {
       const sub = (p.subcategory ?? '').toLowerCase()
@@ -5021,7 +5060,11 @@ export async function fetchCrossSellRotationPools(
     })
     .slice(0, limitPerPool)
 
-  const cancelleriaRaw = withMeta(cancRows)
+  const cancelleriaRaw = withMeta(cancRows).filter((p) => {
+    const sub = (p.subcategory ?? '').toLowerCase()
+    const name = (p.name ?? '').toLowerCase()
+    return !sub.includes('shopper') && !name.includes('shopper')
+  })
   const cancelleriaEssentials = diversifyByBucket(
     cancelleriaRaw.filter(isCancelleriaEssentialProduct),
     cancelleriaEssentialBucket,
@@ -5046,7 +5089,61 @@ export async function fetchCrossSellRotationPools(
     })
     .slice(0, limitPerPool)
 
-  return { carta, buste, cancelleria, distruggi }
+  const alberghi = withMeta(alberghiRows)
+    .filter((p) => {
+      const hay = `${p.name} ${p.subcategory ?? ''} ${p.category ?? ''}`.toLowerCase()
+      return (
+        hay.includes('alberghi') ||
+        hay.includes('ristorant') ||
+        hay.includes('comand') ||
+        (p.category ?? '').toLowerCase() === 'modulistica'
+      )
+    })
+    .slice(0, limitPerPool)
+
+  const shopperSeen = new Set<string>()
+  const shopper = withMeta(shopperRows)
+    .filter((p) => {
+      const hay = `${p.name} ${p.subcategory ?? ''}`.toLowerCase()
+      return hay.includes('shopper') || hay.includes('sacchett') || hay.includes('asporto')
+    })
+    .filter((p) => {
+      if (shopperSeen.has(p.id)) return false
+      shopperSeen.add(p.id)
+      return true
+    })
+    .slice(0, limitPerPool)
+
+  const casseSeen = new Set<string>()
+  const casse = withMeta(casseRows)
+    .filter((p) => {
+      const hay = `${p.name} ${p.subcategory ?? ''} ${p.category ?? ''} ${p.id}`.toLowerCase()
+      if (hay.includes('raccoglitore') || hay.includes('registratore starbox')) return false
+      return (
+        hay.includes('casse') ||
+        hay.includes('cassa') ||
+        hay.includes('registrator') ||
+        hay.includes('ditron') ||
+        hay.includes('telematic')
+      )
+    })
+    .filter((p) => {
+      if (casseSeen.has(p.id)) return false
+      casseSeen.add(p.id)
+      return true
+    })
+    .slice(0, limitPerPool)
+
+  return {
+    carta,
+    buste,
+    cancelleria,
+    distruggi,
+    cartaTermica,
+    shopper,
+    alberghi,
+    casse,
+  }
 }
 
 /** Stock per tabella admin; fallback silenzioso se colonna assente nello schema. */

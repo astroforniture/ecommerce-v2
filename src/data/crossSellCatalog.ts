@@ -1,8 +1,8 @@
 /**
  * Catalogo cross-selling Astro Forniture.
  *
- * - Casse Ditron → accessori POS (statici)
- * - Anello bidirezionale: Archivio ↔ Carta A4/A3 ↔ Buste Trasparenti ↔ Etichettatrici ↔ Cartucce & Toner
+ * - Casse Ditron / hospitality ↔ Carta Termica ↔ Shopper ↔ Alberghi e Ristoranti
+ * - Anello ufficio: Archivio ↔ Carta A4/A3 ↔ Buste ↔ Etichettatrici ↔ Toner ↔ Distruggi ↔ Cancelleria
  * - Essenziali fissi per carrello/checkout
  */
 
@@ -19,12 +19,30 @@ import {
   MACCHINE_SUB_DISTRUGGI_DOCUMENTI_LABEL,
 } from './distruggidocumentiProducts'
 import {
+  buildCartaTermicaOfficeProducts,
+} from './cartaTermicaCatalog'
+import {
+  buildModulisticaOfficeProducts,
+  MODULISTICA_CATEGORY,
+  MODULISTICA_SUB_ALBERGHI,
+  canonicalizeModulisticaSubcategory,
+} from './modulisticaCatalog'
+import {
+  buildCasseDitronOfficeProducts,
+  isCasseDitronOfficeProductId,
+} from './casseDitronProducts'
+import {
+  buildShopperCartaOfficeProducts,
+  buildShopperPlasticaOfficeProducts,
+  matchesShopperCartaProduct,
+  matchesShopperPlasticaProduct,
+} from './shopperCancelleria'
+import {
   CARTA_SUBCATEGORY_A3,
   CARTA_SUBCATEGORY_A4,
   CARTA_SUBCATEGORY_TERMICA,
   CARTUCCE_TONER_CATEGORY,
 } from '../lib/officeCategories'
-import { isCasseDitronOfficeProductId } from './casseDitronProducts'
 
 const BUSTE_TRASPARENTI_SUB = 'Buste Trasparenti' as const
 
@@ -189,6 +207,10 @@ export type OfficeCrossSellGroup =
   | 'cartucce-toner'
   | 'distruggi-documenti'
   | 'cancelleria'
+  | 'alberghi-ristoranti'
+  | 'carta-termica'
+  | 'shopper'
+  | 'casse'
 
 export const OFFICE_CROSS_SELL_RING: readonly OfficeCrossSellGroup[] = [
   'archivio',
@@ -317,6 +339,10 @@ export type CrossSellDbPools = {
   buste?: readonly OfficeProduct[]
   cancelleria?: readonly OfficeProduct[]
   distruggi?: readonly OfficeProduct[]
+  cartaTermica?: readonly OfficeProduct[]
+  shopper?: readonly OfficeProduct[]
+  alberghi?: readonly OfficeProduct[]
+  casse?: readonly OfficeProduct[]
 }
 
 function poolEtichettatrici(): OfficeProduct[] {
@@ -329,6 +355,22 @@ function poolCartucceToner(): OfficeProduct[] {
 
 function poolDistruggiFallback(): OfficeProduct[] {
   return buildDistruggidocumentiOfficeProducts()
+}
+
+function poolCartaTermicaFallback(): OfficeProduct[] {
+  return buildCartaTermicaOfficeProducts()
+}
+
+function poolAlberghiFallback(): OfficeProduct[] {
+  return buildModulisticaOfficeProducts(MODULISTICA_SUB_ALBERGHI)
+}
+
+function poolCasseFallback(): OfficeProduct[] {
+  return buildCasseDitronOfficeProducts()
+}
+
+function poolShopperFallback(): OfficeProduct[] {
+  return [...buildShopperCartaOfficeProducts(), ...buildShopperPlasticaOfficeProducts()]
 }
 
 const CANCELLERIA_ESSENTIAL_RE =
@@ -348,6 +390,22 @@ function isCartaA4orA3(product: Pick<OfficeProduct, 'category' | 'subcategory'>)
     sub.localeCompare(CARTA_SUBCATEGORY_A3, 'it', { sensitivity: 'base' }) === 0 ||
     /\ba4\b/i.test(sub) ||
     /\ba3\b/i.test(sub)
+  )
+}
+
+function isCartaTermicaProduct(
+  product: Pick<OfficeProduct, 'category' | 'subcategory' | 'name' | 'id'>,
+): boolean {
+  const sub = (product.subcategory ?? '').trim()
+  if (sub.localeCompare(CARTA_SUBCATEGORY_TERMICA, 'it', { sensitivity: 'base' }) === 0) {
+    return true
+  }
+  const hay = `${product.name} ${product.subcategory ?? ''}`.toLowerCase()
+  if (!hay.includes('termica') && !hay.includes('termic')) return false
+  return (
+    (product.category ?? '').localeCompare('Carta', 'it', { sensitivity: 'base' }) === 0 ||
+    hay.includes('rotolo') ||
+    hay.includes('pos')
   )
 }
 
@@ -380,10 +438,49 @@ function isDistruggiProduct(
     .includes(MACCHINE_SUB_DISTRUGGI_DOCUMENTI_LABEL.toLowerCase())
 }
 
+function isShopperProduct(
+  product: Pick<OfficeProduct, 'id' | 'producerCode' | 'category' | 'subcategory' | 'name'>,
+): boolean {
+  if (matchesShopperCartaProduct(product as OfficeProduct)) return true
+  if (matchesShopperPlasticaProduct(product as OfficeProduct)) return true
+  const hay = `${product.name} ${product.subcategory ?? ''} ${product.id} ${product.producerCode ?? ''}`.toLowerCase()
+  return hay.includes('shopper') || (hay.includes('sacchett') && hay.includes('asporto'))
+}
+
+function isAlberghiRistorantiProduct(
+  product: Pick<OfficeProduct, 'category' | 'subcategory' | 'name'>,
+): boolean {
+  const sub = canonicalizeModulisticaSubcategory(product.subcategory)
+  if (sub === MODULISTICA_SUB_ALBERGHI) return true
+  const hay = `${product.name} ${product.subcategory ?? ''} ${product.category ?? ''}`.toLowerCase()
+  if (hay.includes('alberghi') && hay.includes('ristorant')) return true
+  return (
+    (product.category ?? '').localeCompare(MODULISTICA_CATEGORY, 'it', { sensitivity: 'base' }) ===
+      0 &&
+    (hay.includes('comand') || hay.includes('ristorant') || hay.includes('alberg'))
+  )
+}
+
+function isCassaProduct(product: Pick<OfficeProduct, 'id' | 'category' | 'subcategory' | 'name'>): boolean {
+  if (isCasseDitronOfficeProductId(product.id)) return true
+  const haystack =
+    `${product.category} ${product.subcategory ?? ''} ${product.id} ${product.name ?? ''}`.toLowerCase()
+  if (haystack.includes('raccoglitore') || haystack.includes('starbox')) return false
+  return ['casse ditron', 'registratore telematic', 'registratori di cassa', 'cassa automatic'].some(
+    (pat) => haystack.includes(pat),
+  ) ||
+    ((haystack.includes('casse') || haystack.includes('ditron')) &&
+      (haystack.includes('macchine') || haystack.includes('cassa')))
+}
+
 export function detectOfficeCrossSellGroup(
   product: Pick<OfficeProduct, 'id' | 'category' | 'subcategory' | 'name' | 'producerCode'>,
 ): OfficeCrossSellGroup | null {
   if (isDistruggiProduct(product)) return 'distruggi-documenti'
+  if (isCassaProduct(product)) return 'casse'
+  if (isCartaTermicaProduct(product)) return 'carta-termica'
+  if (isShopperProduct(product)) return 'shopper'
+  if (isAlberghiRistorantiProduct(product)) return 'alberghi-ristoranti'
 
   if (isEtichettatriciOfficeProductId(product.id)) return 'etichettatrici'
   if (
@@ -418,12 +515,6 @@ export function detectOfficeCrossSellGroup(
   }
 
   return null
-}
-
-function isCassaProduct(product: Pick<OfficeProduct, 'id' | 'category' | 'subcategory'>): boolean {
-  if (isCasseDitronOfficeProductId(product.id)) return true
-  const haystack = `${product.category} ${product.subcategory ?? ''} ${product.id}`.toLowerCase()
-  return ['casse', 'registratori', 'cassa', 'ditron'].some((pat) => haystack.includes(pat))
 }
 
 export type CrossSellSlot = {
@@ -503,7 +594,7 @@ function resultFromSlots(
 }
 
 /**
- * Cross-sell PDP: relatedProductIds → casse → slot dinamici (ufficio / distruggi / cancelleria).
+ * Cross-sell PDP: relatedProductIds → hospitality / ufficio slot dinamici.
  */
 export function getCrossSellForProduct(
   product: OfficeProduct,
@@ -514,13 +605,6 @@ export function getCrossSellForProduct(
   if (specificIds.length > 0) {
     const products = specificIds
       .map((id) => CROSS_SELL_BY_ID.get(id))
-      .filter((p): p is OfficeProduct => p !== undefined)
-      .slice(0, limit)
-    return { ...emptyCrossSell(), products }
-  }
-
-  if (isCassaProduct(product)) {
-    const products = CROSS_SELL_IDS_CASSE.map((id) => CROSS_SELL_BY_ID.get(id))
       .filter((p): p is OfficeProduct => p !== undefined)
       .slice(0, limit)
     return { ...emptyCrossSell(), products }
@@ -543,8 +627,93 @@ export function getCrossSellForProduct(
     poolDistruggiFallback(),
     product.id,
   )
+  const rotateCartaTermica = mergePool(
+    dbPools?.cartaTermica,
+    poolCartaTermicaFallback(),
+    product.id,
+  )
+  const rotateShopper = mergePool(dbPools?.shopper, poolShopperFallback(), product.id)
+  const rotateAlberghi = mergePool(dbPools?.alberghi, poolAlberghiFallback(), product.id)
+  const rotateCasse = mergePool(dbPools?.casse, poolCasseFallback(), product.id)
   const rotateEtichettatrici = poolEtichettatrici().filter((p) => p.id !== product.id)
   const rotateCartucceToner = poolCartucceToner().filter((p) => p.id !== product.id)
+
+  // Hospitality ring: Alberghi ↔ Carta Termica ↔ Casse ↔ Shopper
+  if (
+    group === 'alberghi-ristoranti' ||
+    group === 'carta-termica' ||
+    group === 'shopper' ||
+    group === 'casse'
+  ) {
+    const hospitalitySlots: CrossSellSlot[] = []
+    if (group !== 'carta-termica') {
+      hospitalitySlots.push({
+        key: 'carta-termica',
+        label: 'Carta Termica',
+        pool: rotateCartaTermica,
+      })
+    }
+    if (group !== 'casse') {
+      hospitalitySlots.push({
+        key: 'casse',
+        label: 'Casse Automatiche',
+        pool: rotateCasse,
+      })
+    }
+    if (group !== 'shopper') {
+      hospitalitySlots.push({
+        key: 'shopper',
+        label: 'Shopper',
+        pool: rotateShopper,
+      })
+    }
+    if (group !== 'alberghi-ristoranti') {
+      hospitalitySlots.push({
+        key: 'alberghi',
+        label: 'Alberghi e Ristoranti',
+        pool: rotateAlberghi,
+      })
+    }
+    // Varietà extra: secondo slot carta termica / shopper con offset
+    if (group === 'alberghi-ristoranti' || group === 'casse') {
+      if (rotateCartaTermica.length > 1) {
+        hospitalitySlots.push({
+          key: 'carta-termica-b',
+          label: 'Carta Termica',
+          pool: rotateCartaTermica,
+          tickOffset: 1,
+        })
+      }
+      if (rotateShopper.length > 1) {
+        hospitalitySlots.push({
+          key: 'shopper-b',
+          label: 'Shopper',
+          pool: rotateShopper,
+          tickOffset: 1,
+        })
+      }
+    }
+    if (group === 'carta-termica' || group === 'shopper') {
+      if (rotateAlberghi.length > 1) {
+        hospitalitySlots.push({
+          key: 'alberghi-b',
+          label: 'Alberghi e Ristoranti',
+          pool: rotateAlberghi,
+          tickOffset: 1,
+        })
+      }
+      if (rotateCasse.length > 1) {
+        hospitalitySlots.push({
+          key: 'casse-b',
+          label: 'Casse Automatiche',
+          pool: rotateCasse,
+          tickOffset: 1,
+        })
+      }
+    }
+
+    return resultFromSlots(hospitalitySlots.filter((s) => s.pool.length > 0))
+  }
 
   // Distruggi Documenti → Carta + Cancelleria (alternate)
   if (group === 'distruggi-documenti') {

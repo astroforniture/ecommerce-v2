@@ -761,6 +761,10 @@ export function ProductDetailPage() {
       buste: crossSellPoolsQuery.data?.buste,
       cancelleria: crossSellPoolsQuery.data?.cancelleria,
       distruggi: crossSellPoolsQuery.data?.distruggi,
+      cartaTermica: crossSellPoolsQuery.data?.cartaTermica,
+      shopper: crossSellPoolsQuery.data?.shopper,
+      alberghi: crossSellPoolsQuery.data?.alberghi,
+      casse: crossSellPoolsQuery.data?.casse,
     })
   }, [product, crossSellPoolsQuery.data])
 
