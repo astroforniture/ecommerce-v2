@@ -17,7 +17,11 @@ import {
   timbroMatchesUrlKey,
 } from '../lib/timbroAziendeFarmacieProduct'
 import { resolveSyntheticOfficeProductByCatalogKey } from '../lib/syntheticOfficeCatalogProducts'
-import { casseDitronBrochureUrlForProduct } from '../data/casseDitronProducts'
+import {
+  buildCasseDitronOfficeProducts,
+  casseDitronBrochureUrlForProduct,
+  isCasseDitronOfficeProductId,
+} from '../data/casseDitronProducts'
 import { searchOfficeProductsClient, setOfficeSearchIndexFromProducts, shouldUseLocalSearchOnly } from '../lib/officeClientSearch'
 import { isGeneralOfficeShopCatalogProduct } from '../lib/isGeneralOfficeShopCatalogProduct'
 import { isExcludedFromOfficeSearchSuggestions } from '../lib/isOfficeProductAstroMedicalLine'
@@ -68,6 +72,7 @@ type OfficeProductsLegacyRow = {
  * Non includere `parent_sku` / `main_features` nel select catalogo finché non sono garantiti nello schema.
  */
 const PRODUCT_SHOP_SELECT_FALLBACKS: readonly string[] = [
+  'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants, ean',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants',
@@ -83,6 +88,7 @@ const PRODUCT_SHOP_SELECT_FALLBACKS: readonly string[] = [
 
 /** Fetch scheda prodotto: prova prima con `variants` (JSONB misure/colori). */
 const PRODUCT_DETAIL_SELECT_FALLBACKS: readonly string[] = [
+  'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants, ean',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants',
@@ -1194,6 +1200,7 @@ type OfficeProductRow = ShopProductRow & {
   format?: string | null
   ean?: string | null
   brochure_url?: string | null
+  subtitle?: string | null
   variants?: unknown
   main_features?: unknown
 }
@@ -1489,6 +1496,7 @@ function mapRowToOfficeProduct(row: OfficeProductRow): OfficeProduct {
         '',
     ).trim(),
     description: description || undefined,
+    subtitle: String((row as OfficeProductRow).subtitle ?? '').trim() || undefined,
     price: Number.isFinite(rawPrice) ? Number(rawPrice) : undefined,
     format: String((row as OfficeProductRow).format ?? '').trim() || undefined,
     ean: String((row as OfficeProductRow).ean ?? '').trim() || undefined,
@@ -3447,7 +3455,25 @@ export async function fetchOfficeProductByIdentifier(
   if (detectStarlineCartellinaModelKindFromNameAndBrand(product.name, product.brand)) {
     product = enrichOfficeProductImageFromVariants(product)
   }
-  // Brochure NEW iDEAL: se la colonna DB manca o il select fallback non la include
+  // Casse Ditron: allinea nome/sottotitolo/brochure dal catalogo statico
+  {
+    const sku = String(product.producerCode || product.id || '').trim()
+    if (isCasseDitronOfficeProductId(sku) || isCasseDitronOfficeProductId(String(product.id))) {
+      const catalog = buildCasseDitronOfficeProducts().find(
+        (p) => p.id === sku || p.producerCode === sku || p.id === product.id,
+      )
+      if (catalog) {
+        product = {
+          ...product,
+          name: catalog.name || product.name,
+          subtitle: catalog.subtitle || product.subtitle,
+          brochureUrl: catalog.brochureUrl || product.brochureUrl,
+          description: catalog.description || product.description,
+          subcategory: catalog.subcategory || product.subcategory,
+        }
+      }
+    }
+  }
   if (!product.brochureUrl) {
     const brochure = casseDitronBrochureUrlForProduct(product)
     if (brochure) product = { ...product, brochureUrl: brochure }

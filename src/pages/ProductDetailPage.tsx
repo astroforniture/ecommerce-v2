@@ -3183,6 +3183,11 @@ export function ProductDetailPage() {
             <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
               {displayProductName}
             </h1>
+            {(product.subtitle ?? '').trim() ? (
+              <p className="mt-2 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
+                {product.subtitle!.trim()}
+              </p>
+            ) : null}
 
             {isShopperSizeVariant && jsonVariants.length > 0 ? (
               <section className="mt-4" aria-label="Scegli la misura">

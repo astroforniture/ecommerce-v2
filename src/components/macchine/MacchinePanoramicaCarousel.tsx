@@ -39,9 +39,9 @@ function buildPanoramicaSlides(): PanoramicaSlide[] {
     },
     {
       catalogId: 'new-ideal',
-      title: 'NEW iDEAL | Registratore di Cassa',
+      title: 'Registratore Telematico Ditron NEW iDEAL',
       description:
-        'Interamente progettate in Italia e realizzate dai nostri ingegneri. La più ampia gamma di soluzioni per il punto cassa pensata per funzionare sempre e senza vincoli per te.',
+        'Registratore di cassa touch con Wi-Fi integrato, installazione, configurazione e assistenza dedicate per negozi, bar, ristoranti e attività commerciali.',
     },
   ]
 

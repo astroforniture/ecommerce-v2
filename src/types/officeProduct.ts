@@ -46,6 +46,8 @@ export interface OfficeProduct {
   /** Immagini aggiuntive in PDP (es. cataloghi statici): ordine dopo `imageUrl`. */
   imageGalleryUrls?: string[]
   description?: string
+  /** Sottotitolo / breve descrizione sotto il titolo in PDP. */
+  subtitle?: string
   price?: number
   /** Opzionale: colonna `format` su `public.products` (es. buste Mailpack Blasetti). */
   format?: string

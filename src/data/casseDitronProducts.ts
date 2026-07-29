@@ -23,6 +23,8 @@ export const CASSE_DITRON_NEW_IDEAL_SKU = `${CASSE_DITRON_OFFICE_ID_PREFIX}new-i
 export type CasseDitronCatalogItem = {
   id: string
   title: string
+  /** Sottotitolo breve sotto il titolo in PDP. */
+  subtitle?: string
   imageUrl: string
   /** Prezzo imponibile catalogo; 0 = su preventivo (non esposto al pubblico). */
   priceImponible: number
@@ -90,7 +92,9 @@ export const CASSE_DITRON_CATALOG: readonly CasseDitronCatalogItem[] = [
   },
   {
     id: 'new-ideal',
-    title: 'NEW iDEAL',
+    title: 'Registratore Telematico Ditron NEW iDEAL',
+    subtitle:
+      'Registratore di cassa touch con Wi-Fi integrato, installazione, configurazione e assistenza dedicate per negozi, bar, ristoranti e attività commerciali.',
     imageUrl: `${CASSE_DITRON_IMAGE_BASE}/image_18d0c9.jpg`,
     priceImponible: 0,
     brand: 'Ditronetwork',
@@ -141,6 +145,7 @@ export function buildCasseDitronOfficeProducts(): OfficeProduct[] {
     mainFeatures: row.mainFeatures,
     imageUrl: row.imageUrl,
     price: undefined,
+    subtitle: row.subtitle,
     description: casseDitronFullDescription(row),
     brochureUrl: row.brochureUrl,
   }))
