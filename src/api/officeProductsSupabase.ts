@@ -17,6 +17,7 @@ import {
   timbroMatchesUrlKey,
 } from '../lib/timbroAziendeFarmacieProduct'
 import { resolveSyntheticOfficeProductByCatalogKey } from '../lib/syntheticOfficeCatalogProducts'
+import { casseDitronBrochureUrlForProduct } from '../data/casseDitronProducts'
 import { searchOfficeProductsClient, setOfficeSearchIndexFromProducts, shouldUseLocalSearchOnly } from '../lib/officeClientSearch'
 import { isGeneralOfficeShopCatalogProduct } from '../lib/isGeneralOfficeShopCatalogProduct'
 import { isExcludedFromOfficeSearchSuggestions } from '../lib/isOfficeProductAstroMedicalLine'
@@ -3445,6 +3446,11 @@ export async function fetchOfficeProductByIdentifier(
   let product = mapRowToOfficeProduct(row)
   if (detectStarlineCartellinaModelKindFromNameAndBrand(product.name, product.brand)) {
     product = enrichOfficeProductImageFromVariants(product)
+  }
+  // Brochure NEW iDEAL: se la colonna DB manca o il select fallback non la include
+  if (!product.brochureUrl) {
+    const brochure = casseDitronBrochureUrlForProduct(product)
+    if (brochure) product = { ...product, brochureUrl: brochure }
   }
   const { tiersByProductId } = await fetchQuantityPriceTiersByProductId()
   return attachQuantityTiers(product, tiersByProductId)

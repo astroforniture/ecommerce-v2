@@ -1,4 +1,4 @@
-import { Briefcase, Leaf, Truck } from 'lucide-react'
+import { Briefcase, FileDown, Leaf, Truck } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { OfficeProduct } from '../../types/officeProduct'
 import { OfficeProductCard } from '../office/OfficeProductCard'
@@ -6,6 +6,8 @@ import { CATEGORY_PROMO_WHATSAPP_NUMBER } from '../../lib/categoryPromoProducts'
 
 type DescriptionProps = {
   description: string
+  /** Link brochure PDF opzionale (es. NEW iDEAL). */
+  brochureUrl?: string | null
 }
 
 type ProductValueBlock = {
@@ -40,16 +42,32 @@ const WHATSAPP_SUPPORT_HREF = `https://wa.me/${CATEGORY_PROMO_WHATSAPP_NUMBER}?t
 )}`
 
 /** Blocco PDP unificato: descrizione DB + valori commerciali Astro Forniture. */
-export function OfficeProductDetailDescriptionSection({ description }: DescriptionProps) {
+export function OfficeProductDetailDescriptionSection({
+  description,
+  brochureUrl,
+}: DescriptionProps) {
   const text = description.trim()
   const body = text
     ? text
     : 'Scheda prodotto in aggiornamento: per scheda tecnica dettagliata, compatibilità e disponibilità contatta il nostro ufficio commerciale.'
+  const brochure = brochureUrl?.trim() || ''
 
   return (
     <section className="mt-10 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <h2 className="text-base font-semibold tracking-wide text-slate-600">DESCRIZIONE PRODOTTO</h2>
       <p className="mt-3 whitespace-pre-wrap text-base leading-relaxed text-slate-700">{body}</p>
+
+      {brochure ? (
+        <a
+          href={brochure}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-5 inline-flex w-full items-center justify-center gap-2.5 rounded-xl border-2 border-brand-700 bg-brand-800 px-5 py-3.5 text-sm font-bold text-white shadow-md transition hover:bg-brand-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 sm:w-auto sm:text-base"
+        >
+          <FileDown className="size-5 shrink-0" aria-hidden />
+          Scarica Brochure PDF (Scheda Tecnica)
+        </a>
+      ) : null}
 
       <div className="mt-8 border-t border-slate-100 pt-8">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">

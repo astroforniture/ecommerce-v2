@@ -62,6 +62,8 @@ export function OfficeProductDetailPurchasePanel({
     )
   }
 
+  const brochure = brochureUrl?.trim() || ''
+
   return (
     <div className={root}>
       <div className="rounded-2xl border border-red-400/80 bg-gradient-to-b from-red-50/70 to-white p-4 shadow-sm ring-1 ring-red-200/60">
@@ -111,6 +113,16 @@ export function OfficeProductDetailPurchasePanel({
         <ShoppingCart className="size-4 text-white" aria-hidden />
         {justAdded ? 'Aggiunto al carrello' : 'Aggiungi al carrello'}
       </button>
+      {brochure ? (
+        <a
+          href={brochure}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg border-2 border-brand-700 bg-white px-5 py-3 text-sm font-bold text-brand-900 transition hover:bg-brand-50"
+        >
+          Scarica Brochure PDF (Scheda Tecnica)
+        </a>
+      ) : null}
       <ProductWhatsappQuoteButton productName={productName} />
       <OfficeProductDetailTrustStrip />
     </div>

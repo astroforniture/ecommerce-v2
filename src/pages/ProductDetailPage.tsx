@@ -4820,7 +4820,13 @@ export function ProductDetailPage() {
               justAdded={justAdded}
               productName={displayProductName}
               quoteOnly={isQuoteOnlyOfficeProduct(product)}
-              brochureUrl={casseDitronBrochureUrlForProduct(product) ?? product.brochureUrl}
+              brochureUrl={
+                casseDitronBrochureUrlForProduct(product) ??
+                product.brochureUrl ??
+                (displayProductName.toLowerCase().includes('new ideal')
+                  ? '/pdf/brochure-new-ideal.pdf'
+                  : undefined)
+              }
               priceUnitSuffix={isPackSizeVariant ? '/ confezione' : '/ pezzo'}
               rootClassName={isStaticSynthetic ? 'mt-6 sm:mt-8' : undefined}
               quantityDiscountTable={
@@ -4830,7 +4836,16 @@ export function ProductDetailPage() {
           </div>
         </div>
 
-        <OfficeProductDetailDescriptionSection description={displayProductDescription ?? ''} />
+        <OfficeProductDetailDescriptionSection
+          description={displayProductDescription ?? ''}
+          brochureUrl={
+            casseDitronBrochureUrlForProduct(product) ??
+            product.brochureUrl ??
+            (displayProductName.toLowerCase().includes('new ideal')
+              ? '/pdf/brochure-new-ideal.pdf'
+              : undefined)
+          }
+        />
 
         <OfficeProductDetailRelatedSection
           products={relatedProducts}

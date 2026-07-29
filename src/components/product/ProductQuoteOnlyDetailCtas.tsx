@@ -5,6 +5,7 @@ import {
   ASTRO_FORNITURE_LANDLINE_TEL,
   productQuoteRequestHref,
 } from '../../lib/productQuoteRequest'
+import { NEW_IDEAL_BROCHURE_PDF_URL } from '../../data/casseDitronProducts'
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -28,7 +29,10 @@ export function ProductQuoteOnlyDetailCtas({
   brochureUrl,
 }: ProductQuoteOnlyDetailCtasProps) {
   const whatsappHref = productQuoteRequestHref(productName)
-  const brochure = brochureUrl?.trim() || ''
+  const nameNorm = productName.trim().toLowerCase()
+  const brochure =
+    brochureUrl?.trim() ||
+    (nameNorm.includes('new ideal') ? NEW_IDEAL_BROCHURE_PDF_URL : '')
 
   return (
     <div className="rounded-2xl border border-emerald-200/90 bg-gradient-to-b from-emerald-50/90 via-white to-white p-5 shadow-md ring-1 ring-emerald-100/80 sm:p-6">
@@ -54,11 +58,10 @@ export function ProductQuoteOnlyDetailCtas({
             href={brochure}
             target="_blank"
             rel="noopener noreferrer"
-            download
-            className="inline-flex w-full items-center justify-center gap-2.5 rounded-xl border border-slate-300 bg-white px-5 py-3.5 text-sm font-bold text-slate-900 shadow-sm transition hover:border-brand-400 hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:ring-offset-2 sm:text-base"
+            className="inline-flex w-full items-center justify-center gap-2.5 rounded-xl border-2 border-brand-700 bg-brand-800 px-5 py-3.5 text-sm font-bold text-white shadow-md transition hover:bg-brand-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 sm:text-base"
           >
-            <FileDown className="size-5 shrink-0 text-brand-800" aria-hidden />
-            Scarica Brochure PDF
+            <FileDown className="size-5 shrink-0" aria-hidden />
+            Scarica Brochure PDF (Scheda Tecnica)
           </a>
         ) : null}
 

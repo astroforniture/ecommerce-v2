@@ -15,6 +15,11 @@ export function macchineUfficioCasseDitronListingPath(): string {
 
 export const CASSE_DITRON_OFFICE_ID_PREFIX = 'AF-DITRON-'
 
+/** Brochure PDF pubblica NEW iDEAL (path sotto /public). */
+export const NEW_IDEAL_BROCHURE_PDF_URL = '/pdf/brochure-new-ideal.pdf'
+
+export const CASSE_DITRON_NEW_IDEAL_SKU = `${CASSE_DITRON_OFFICE_ID_PREFIX}new-ideal`
+
 export type CasseDitronCatalogItem = {
   id: string
   title: string
@@ -89,7 +94,7 @@ export const CASSE_DITRON_CATALOG: readonly CasseDitronCatalogItem[] = [
     imageUrl: `${CASSE_DITRON_IMAGE_BASE}/image_18d0c9.jpg`,
     priceImponible: 0,
     brand: 'Ditronetwork',
-    brochureUrl: '/pdf/brochure-new-ideal.pdf',
+    brochureUrl: NEW_IDEAL_BROCHURE_PDF_URL,
     description:
       "Registratore Telematico conforme ai requisiti dell'Agenzia delle Entrate per l'invio dei corrispettivi fiscali. Dotato di display touch e un'interfaccia utente riprogettata per rendere ogni funzione a portata di tocco. Include un sistema antitampering per bloccare ogni manomissione e garantire la massima sicurezza dei dati.",
     mainFeatures: {
@@ -145,12 +150,39 @@ export function isCasseDitronOfficeProductId(id: string): boolean {
   return String(id ?? '').startsWith(CASSE_DITRON_OFFICE_ID_PREFIX)
 }
 
-/** Brochure PDF ufficiale NEW iDEAL (catalogo statico). */
+/** Prodotti venduti solo su preventivo: nessun prezzo pubblico né acquisto online. */
+export function isQuoteOnlyOfficeProduct(
+  product: Pick<OfficeProduct, 'id' | 'producerCode'> | null | undefined,
+): boolean {
+  const id = String(product?.id ?? '')
+  const sku = String(product?.producerCode ?? '')
+  if (isCasseDitronOfficeProductId(id) || isCasseDitronOfficeProductId(sku)) return true
+  return false
+}
+
+export function isDitronNewIdealProduct(
+  product: Pick<OfficeProduct, 'id' | 'producerCode' | 'name'> | null | undefined,
+): boolean {
+  if (!product) return false
+  const id = String(product.id ?? '').trim().toLowerCase()
+  const sku = String(product.producerCode ?? '').trim().toLowerCase()
+  const name = String(product.name ?? '').trim().toLowerCase()
+  if (id === CASSE_DITRON_NEW_IDEAL_SKU.toLowerCase()) return true
+  if (sku === CASSE_DITRON_NEW_IDEAL_SKU.toLowerCase()) return true
+  if (id.includes('new-ideal') || sku.includes('new-ideal')) return true
+  if (name.includes('new ideal')) return true
+  // Nome catalogo esatto / variante tipografica
+  if (name === 'new ideal' || name.startsWith('new ideal')) return true
+  return false
+}
+
+/** Brochure PDF ufficiale NEW iDEAL (catalogo statico + fallback per riga DB). */
 export function casseDitronBrochureUrlForProduct(
-  product: Pick<OfficeProduct, 'id' | 'producerCode' | 'brochureUrl'> | null | undefined,
+  product: Pick<OfficeProduct, 'id' | 'producerCode' | 'name' | 'brochureUrl'> | null | undefined,
 ): string | undefined {
   const fromProduct = product?.brochureUrl?.trim()
   if (fromProduct) return fromProduct
+  if (isDitronNewIdealProduct(product)) return NEW_IDEAL_BROCHURE_PDF_URL
   const id = String(product?.id ?? '')
   const sku = String(product?.producerCode ?? '')
   const key = isCasseDitronOfficeProductId(id)
