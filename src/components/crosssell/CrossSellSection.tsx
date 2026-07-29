@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Plus, ShoppingCart } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { productUnitIvato } from '../../lib/freeShippingUpsellProducts'
 import { detectOfficeCrossSellGroup, type CrossSellResult } from '../../data/crossSellCatalog'
+import { productDetailPath } from '../../lib/productRoutes'
 import { ProductThumb } from './ProductThumb'
 import type { OfficeProduct } from '../../types/officeProduct'
 
@@ -17,19 +19,29 @@ type CrossSellCardProps = {
 function CrossSellCard({ product, onAdd }: CrossSellCardProps) {
   const unitIvato = productUnitIvato(product, 1)
   const hasPrice = unitIvato > 0
+  const detailTo = productDetailPath(product)
 
   return (
     <li className="flex min-w-[min(220px,calc(100vw-3rem))] max-w-[220px] shrink-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md sm:min-w-[200px] sm:max-w-[200px]">
-      <ProductThumb
-        imageUrl={product.imageUrl}
-        alt={product.name}
-        className="flex h-28 items-center justify-center overflow-hidden bg-slate-50 p-2"
-        imgClassName="max-h-full max-w-full object-contain"
-      />
+      <Link
+        to={detailTo}
+        className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+        aria-label={`Vai alla scheda di ${product.name}`}
+      >
+        <ProductThumb
+          imageUrl={product.imageUrl}
+          alt={product.name}
+          className="flex h-28 items-center justify-center overflow-hidden bg-slate-50 p-2 transition hover:bg-slate-100/80"
+          imgClassName="max-h-full max-w-full object-contain"
+        />
+      </Link>
       <div className="flex flex-1 flex-col p-3">
-        <p className="line-clamp-2 text-xs font-semibold leading-snug text-slate-900">
+        <Link
+          to={detailTo}
+          className="line-clamp-2 text-xs font-semibold leading-snug text-slate-900 transition hover:text-brand-800 hover:underline"
+        >
           {product.name}
-        </p>
+        </Link>
         {product.subcategory ? (
           <p className="mt-1 text-[10px] font-medium text-slate-500">{product.subcategory}</p>
         ) : null}
@@ -44,7 +56,11 @@ function CrossSellCard({ product, onAdd }: CrossSellCardProps) {
           )}
           <button
             type="button"
-            onClick={() => onAdd(product)}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              onAdd(product)
+            }}
             disabled={!hasPrice}
             className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-brand-700 px-3 py-2 text-[11px] font-bold text-white transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-50"
           >

@@ -9,8 +9,6 @@ import { lineImponible } from '../../lib/quantityPricing'
 import { withOfficeImageCacheBust } from '../../lib/officeImageCacheBust'
 import { OFFICE_CATALOG_DATA_REVISION } from '../../api/officeProductsSupabase'
 import { FreeShippingProgressBar } from './FreeShippingProgressBar'
-import { CartDrawerFreeShippingUpsell } from './CartDrawerFreeShippingUpsell'
-import { CartCrossSellSection } from '../crosssell/CartCrossSellSection'
 import { CartEssentialsGrid } from '../crosssell/CartEssentialsGrid'
 import { OrderCostBreakdown } from './OrderCostBreakdown'
 
@@ -87,100 +85,88 @@ export function CartSlideOver() {
           {items.length === 0 ? (
             <p className="py-12 text-center text-sm text-slate-500">Il carrello è vuoto.</p>
           ) : (
-            <ul className="space-y-3">
-              {items.map((item) => {
-                const rowIvato = roundMoney2(
-                  lineImponible(item.price, item.quantityPriceTiers, item.quantity) * 1.22,
-                )
-                const imageUrl = withOfficeImageCacheBust(
-                  item.imageUrl,
-                  OFFICE_CATALOG_DATA_REVISION,
-                )
-                return (
-                  <li
-                    key={item.lineId}
-                    className="flex gap-3 rounded-xl border border-slate-200 bg-slate-50/50 p-3"
-                  >
-                    <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-white">
-                      {imageUrl ? (
-                        <img
-                          src={imageUrl}
-                          alt=""
-                          className="size-full object-cover"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      ) : (
-                        <div className="flex size-full items-center justify-center text-brand-200">
-                          <FileText className="size-6" strokeWidth={1.25} aria-hidden />
-                        </div>
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="line-clamp-2 text-sm font-semibold leading-snug text-slate-900">
-                        {item.name}
-                      </p>
-                      <p className="mt-1 text-sm font-bold tabular-nums text-brand-800">
-                        {eur.format(rowIvato)}{' '}
-                        <span className="text-xs font-medium text-slate-500">IVA incl.</span>
-                      </p>
-                      <div className="mt-2 flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => decreaseQuantity(item.lineId)}
-                          className="flex size-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-100"
-                          aria-label="Riduci quantità"
-                        >
-                          <Minus className="size-3.5" aria-hidden />
-                        </button>
-                        <span className="min-w-[1.5rem] text-center text-sm font-semibold tabular-nums">
-                          {item.quantity}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => increaseQuantity(item.lineId)}
-                          className="flex size-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-100"
-                          aria-label="Aumenta quantità"
-                        >
-                          <Plus className="size-3.5" aria-hidden />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => removeItem(item.lineId)}
-                          className="ml-auto flex size-8 items-center justify-center rounded-lg text-red-600 transition hover:bg-red-50"
-                          aria-label="Rimuovi"
-                        >
-                          <Trash2 className="size-4" aria-hidden />
-                        </button>
+            <>
+              <ul className="space-y-3">
+                {items.map((item) => {
+                  const rowIvato = roundMoney2(
+                    lineImponible(item.price, item.quantityPriceTiers, item.quantity) * 1.22,
+                  )
+                  const imageUrl = withOfficeImageCacheBust(
+                    item.imageUrl,
+                    OFFICE_CATALOG_DATA_REVISION,
+                  )
+                  return (
+                    <li
+                      key={item.lineId}
+                      className="flex gap-3 rounded-xl border border-slate-200 bg-slate-50/50 p-3"
+                    >
+                      <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-white">
+                        {imageUrl ? (
+                          <img
+                            src={imageUrl}
+                            alt=""
+                            className="size-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        ) : (
+                          <div className="flex size-full items-center justify-center text-brand-200">
+                            <FileText className="size-6" strokeWidth={1.25} aria-hidden />
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  </li>
-                )
-              })}
-            </ul>
+                      <div className="min-w-0 flex-1">
+                        <p className="line-clamp-2 text-sm font-semibold leading-snug text-slate-900">
+                          {item.name}
+                        </p>
+                        <p className="mt-1 text-sm font-bold tabular-nums text-brand-800">
+                          {eur.format(rowIvato)}{' '}
+                          <span className="text-xs font-medium text-slate-500">IVA incl.</span>
+                        </p>
+                        <div className="mt-2 flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => decreaseQuantity(item.lineId)}
+                            className="flex size-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-100"
+                            aria-label="Riduci quantità"
+                          >
+                            <Minus className="size-3.5" aria-hidden />
+                          </button>
+                          <span className="min-w-[1.5rem] text-center text-sm font-semibold tabular-nums">
+                            {item.quantity}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => increaseQuantity(item.lineId)}
+                            className="flex size-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-100"
+                            aria-label="Aumenta quantità"
+                          >
+                            <Plus className="size-3.5" aria-hidden />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeItem(item.lineId)}
+                            className="ml-auto flex size-8 items-center justify-center rounded-lg text-red-600 transition hover:bg-red-50"
+                            aria-label="Rimuovi"
+                          >
+                            <Trash2 className="size-4" aria-hidden />
+                          </button>
+                        </div>
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+
+              <CartEssentialsGrid
+                className="mt-4 border-t border-slate-100 pt-3"
+                limit={3}
+                title="Essenziali consigliati"
+                onNavigate={closeCartDrawer}
+              />
+            </>
           )}
         </div>
-
-        {items.length > 0 ? (
-          <CartEssentialsGrid
-            className="shrink-0 border-t border-slate-100 bg-white px-4 py-3"
-            limit={4}
-          />
-        ) : null}
-
-        {items.length > 0 ? (
-          <CartCrossSellSection
-            className="shrink-0 border-t border-slate-100 bg-white px-4 py-3"
-            limit={3}
-          />
-        ) : null}
-
-        {items.length > 0 ? (
-          <CartDrawerFreeShippingUpsell
-            merchandiseIvato={merchandiseIvato}
-            className="shrink-0 border-t border-slate-100 bg-white px-4 py-3"
-          />
-        ) : null}
 
         <div className="shrink-0 border-t border-slate-200 bg-white px-4 py-4">
           {items.length > 0 ? (

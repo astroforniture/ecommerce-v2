@@ -19,8 +19,6 @@ import {
   SHIPPING_FEE_IVATO,
 } from '../lib/cartShipping'
 import { TIMBRO_AZIENDE_FARMACIE_SKU } from '../lib/timbroAziendeFarmacieProduct'
-import { FreeShippingUpsellSection } from '../components/cart/FreeShippingUpsellSection'
-import { CartCrossSellSection } from '../components/crosssell/CartCrossSellSection'
 import { CartEssentialsGrid } from '../components/crosssell/CartEssentialsGrid'
 import { OrderCostBreakdown } from '../components/cart/OrderCostBreakdown'
 import { CheckoutAddressCards } from '../components/checkout/CheckoutAddressCards'
@@ -582,16 +580,12 @@ export function CartPage() {
                     })}
                     </div>
 
-                    {/* Solo Step 1: essenziali fissi, cross-sell dinamico, upsell spedizione */}
+                    {/* Solo Step 1: una sezione suggerimenti compatta */}
                     <CartEssentialsGrid
                       className="mt-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4"
                       limit={4}
+                      title="Essenziali consigliati"
                     />
-                    <CartCrossSellSection
-                      className="mt-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4"
-                      limit={4}
-                    />
-                    <FreeShippingUpsellSection merchandiseIvato={merchandiseIvato} />
                   </>
                 ) : (
                   <>
