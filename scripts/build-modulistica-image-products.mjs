@@ -56,16 +56,15 @@ export const MODULISTICA_IMAGE_BY_SKU = {
   'E 5359 A': '/images/ee4bb8de-1d14-4b04-b9fd-ff408aed5277.jpg',
   'E 5350': '/images/f8291f0e-e4a5-43e8-964b-583c72260f0a.jpg',
   'E 5351': '/images/E5351.jpg',
+  'E 5911': '/images/E5911.jpg',
+  'E 9117': '/images/E9117.jpg',
+  E2666: '/images/E2666.jpg',
+  'E 5196 C': '/images/E5196C.jpg',
+  'E 5567 C': '/images/E5567C.jpg',
 }
 
 /** SKU catalogo senza foto unica in public/images (usano cover hub generica). */
-export const MODULISTICA_SKUS_MISSING_UNIQUE_IMAGE = [
-  'E 5916',
-  'E 9117',
-  'E 5567 C',
-  'E2666',
-  'E 5196 C',
-]
+export const MODULISTICA_SKUS_MISSING_UNIQUE_IMAGE = []
 
 const SUB_LABEL = {
   MODULISTICA_SUB_ALBERGHI: 'Alberghi e Ristoranti',

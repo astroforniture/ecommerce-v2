@@ -92,12 +92,13 @@ export type ModulisticaCatalogItem = {
 export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
   // Alberghi e Ristoranti
   {
-    sku: 'E 5916',
+    sku: 'E 5911',
     name: 'Blocco comande - 25x3 fogli autoricalcanti - 17 x 9,9 cm - Edipro',
     subcategory: MODULISTICA_SUB_ALBERGHI,
-    ean: '8023328591601',
+    ean: '8023328591106',
     brand: 'Edipro',
     format: '17 x 9,9 cm',
+    imageUrl: '/images/E5911.jpg',
     description:
       'Blocco comande Edipro a 25×3 fogli autoricalcanti, formato 17 × 9,9 cm. Ideale per alberghi e ristoranti.',
   },
@@ -108,6 +109,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328911706',
     brand: 'Edipro',
     format: '22 x 10 cm',
+    imageUrl: '/images/E9117.jpg',
     description:
       'Blocco comande Edipro a 7 tagliandi, 25×2 fogli autoricalcanti, formato 22 × 10 cm.',
   },
@@ -294,6 +296,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328556716',
     brand: 'Edipro',
     format: '9,9 x 17 cm',
+    imageUrl: '/images/E5567C.jpg',
     description:
       'Blocco ricevuta di pagamento per attività sportive Edipro 50×2 autoricalcante, formato 9,9 × 17 cm.',
   },
@@ -334,6 +337,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     subcategory: MODULISTICA_SUB_CONTABILITA,
     brand: 'Edipro',
     format: '24 x 17 cm',
+    imageUrl: '/images/E2666.jpg',
     description: 'Registro due colonne Edipro, 96 pagine, formato 24 × 17 cm.',
   },
   {
@@ -433,6 +437,7 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     ean: '8023328519612',
     brand: 'Edipro',
     format: '9,9 x 17 cm',
+    imageUrl: '/images/E5196C.jpg',
     description:
       'Blocco buono di consegna Edipro 50×2 autoricalcante, formato 9,9 × 17 cm.',
   },
