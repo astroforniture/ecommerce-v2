@@ -18,6 +18,7 @@ import { OFFICE_GENERAL_SHOP_PATH } from '../../lib/isGeneralOfficeShopCatalogPr
 import {
   CARTA_SUBCATEGORY_A3,
   CARTA_SUBCATEGORY_A4,
+  CARTA_SUBCATEGORY_TERMICA,
   cartaCategoryHref,
   cartucceTonerCategoryHref,
 } from '../../lib/officeCategories'
@@ -71,6 +72,7 @@ const HEADER_NAV_ITEMS: HeaderNavItem[] = [
     items: [
       { label: CARTA_SUBCATEGORY_A4, href: cartaCategoryHref(CARTA_SUBCATEGORY_A4) },
       { label: CARTA_SUBCATEGORY_A3, href: cartaCategoryHref(CARTA_SUBCATEGORY_A3) },
+      { label: CARTA_SUBCATEGORY_TERMICA, href: cartaCategoryHref(CARTA_SUBCATEGORY_TERMICA) },
     ],
   },
   { type: 'link', label: 'Cartucce & Toner', href: cartucceTonerCategoryHref() },

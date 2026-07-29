@@ -54,8 +54,22 @@ export function cartucceTonerCategoryHref(): string {
 
 export const CARTA_SUBCATEGORY_A4 = 'Formato Carta A4' as const
 export const CARTA_SUBCATEGORY_A3 = 'Formato Carta A3' as const
+export const CARTA_SUBCATEGORY_TERMICA = 'Carta Termica' as const
 
-export const CARTA_SUBCATEGORIES = [CARTA_SUBCATEGORY_A4, CARTA_SUBCATEGORY_A3] as const
+export const CARTA_SUBCATEGORIES = [
+  CARTA_SUBCATEGORY_A4,
+  CARTA_SUBCATEGORY_A3,
+  CARTA_SUBCATEGORY_TERMICA,
+] as const
+
+export type CartaSubcategory = (typeof CARTA_SUBCATEGORIES)[number]
+
+/** Cover tile hub Carta (A4/A3 usano l’immagine categoria; Termica il primo rotolo). */
+export const CARTA_SUBCATEGORY_COVER_IMAGE: Record<CartaSubcategory, string> = {
+  [CARTA_SUBCATEGORY_A4]: '/carta-risme-evidenza.png',
+  [CARTA_SUBCATEGORY_A3]: '/carta-risme-evidenza.png',
+  [CARTA_SUBCATEGORY_TERMICA]: '/images/carta-termica-100072.jpg',
+}
 
 export function cartaCategoryHref(subcategory?: string): string {
   const params = new URLSearchParams()

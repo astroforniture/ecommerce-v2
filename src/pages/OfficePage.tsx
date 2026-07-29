@@ -24,6 +24,9 @@ import {
   CARTUCCE_TONER_CATEGORY_NORM,
   cartucceTonerCategoryHref,
   matchesCartaSubcategoryFilter,
+  CARTA_SUBCATEGORIES,
+  CARTA_SUBCATEGORY_COVER_IMAGE,
+  cartaCategoryHref,
 } from '../lib/officeCategories'
 import {
   ARCHIVIO_BUSTE_TRASPARENTI_SUBCATEGORY,
@@ -68,6 +71,7 @@ import {
   matchesModulisticaSubcategoryFilter,
   modulisticaCategoryHref,
 } from '../data/modulisticaCatalog'
+import { mergeCartaTermicaListingProducts } from '../data/cartaTermicaCatalog'
 import {
   isTimbroAziendeFarmacieProduct,
   TIMBRI_HUB_COVER_IMAGE_URL,
@@ -591,6 +595,9 @@ export function OfficePage() {
         selectedSubcategory || undefined,
       )
     }
+    if (selectedCategoryNorm === 'carta') {
+      return mergeCartaTermicaListingProducts(normalizedProducts)
+    }
     if (selectedCategoryNorm === LINEA_ASTRO_MEDICAL_CATEGORY_NORM) {
       return mergeLineaAstroMedicalCatalog(normalizedProducts)
     }
@@ -890,6 +897,8 @@ export function OfficePage() {
     selectedCategoryNorm === 'archivio' && !selectedSubcategory && !searchTrim
   const showModulisticaDashboard =
     selectedCategoryNorm === MODULISTICA_CATEGORY_NORM && !selectedSubcategory && !searchTrim
+  const showCartaDashboard =
+    selectedCategoryNorm === 'carta' && !selectedSubcategory && !searchTrim
   const showCancelleriaDashboard =
     selectedCategoryNorm === 'cancelleria' && !selectedCancelleriaView && !searchTrim
   const showShopperDashboard =
@@ -898,6 +907,7 @@ export function OfficePage() {
     !searchTrim
   const isArchivioCategory = selectedCategoryNorm === 'archivio'
   const isModulisticaCategory = selectedCategoryNorm === MODULISTICA_CATEGORY_NORM
+  const isCartaCategory = selectedCategoryNorm === 'carta'
   const isMacchineUfficioCategory = selectedCategoryNorm === 'macchine per ufficio'
   const isCancelleriaCategory = selectedCategoryNorm === 'cancelleria'
   const isCartucceTonerCategory = selectedCategoryNorm === CARTUCCE_TONER_CATEGORY_NORM
@@ -917,6 +927,7 @@ export function OfficePage() {
           'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8',
           isArchivioCategory ||
           isModulisticaCategory ||
+          isCartaCategory ||
           isCancelleriaCategory ||
           isCartucceTonerCategory ||
           isMacchineUfficioCategory ||
@@ -925,7 +936,7 @@ export function OfficePage() {
             : 'py-16 sm:py-20',
         ].join(' ')}
       >
-        {!showArchivioDashboard && !showModulisticaDashboard ? (
+        {!showArchivioDashboard && !showModulisticaDashboard && !showCartaDashboard ? (
           <Link
             to="/"
             className="inline-flex items-center gap-2 text-sm font-semibold text-brand-700 transition hover:text-brand-900"
@@ -989,7 +1000,34 @@ export function OfficePage() {
           </nav>
         ) : null}
 
-        {categoryFromUrl && !showArchivioDashboard && !showModulisticaDashboard ? (
+        {isCartaCategory && !showCartaDashboard ? (
+          <nav className="mt-6 text-sm text-slate-500" aria-label="Breadcrumb">
+            <ol className="flex flex-wrap items-center gap-2">
+              <li>
+                <Link to="/" className="transition hover:text-brand-800">
+                  Home
+                </Link>
+              </li>
+              <li aria-hidden>/</li>
+              <li>
+                <Link
+                  to={cartaCategoryHref()}
+                  className="font-medium text-slate-800 transition hover:text-brand-800"
+                >
+                  Carta
+                </Link>
+              </li>
+              {selectedSubcategory ? (
+                <>
+                  <li aria-hidden>/</li>
+                  <li className="font-medium text-slate-800">{selectedSubcategory}</li>
+                </>
+              ) : null}
+            </ol>
+          </nav>
+        ) : null}
+
+        {categoryFromUrl && !showArchivioDashboard && !showModulisticaDashboard && !showCartaDashboard ? (
           <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-brand-200 bg-white px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
               Risultati per:{' '}
@@ -1199,6 +1237,42 @@ export function OfficePage() {
           </section>
         ) : null}
 
+        {showCartaDashboard ? (
+          <section className="mt-3" aria-labelledby="carta-hub-heading">
+            <div className="mb-5 max-w-2xl">
+              <h2
+                id="carta-hub-heading"
+                className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl"
+              >
+                Carta
+              </h2>
+              <p className="mt-1.5 text-sm text-slate-600 sm:text-base">
+                Scegli la sottocategoria: Formato Carta A4, Formato Carta A3 o Carta Termica.
+              </p>
+            </div>
+            <div className={OFFICE_SUBCATEGORY_TILE_GRID_CLASS}>
+              {CARTA_SUBCATEGORIES.map((subcat) => (
+                <OfficeSubcategoryTile
+                  key={`carta-subcat-${subcat}`}
+                  title={subcat}
+                  onClick={() => setSubcategoryFilter(subcat)}
+                  media={
+                    <div className="aspect-square w-full bg-slate-50">
+                      <img
+                        src={CARTA_SUBCATEGORY_COVER_IMAGE[subcat]}
+                        alt={subcat}
+                        className="size-full object-contain p-4"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                  }
+                />
+              ))}
+            </div>
+          </section>
+        ) : null}
+
         {showCancelleriaDashboard ? (
           <section className="mt-3">
             <div className={OFFICE_SUBCATEGORY_TILE_GRID_CLASS}>
@@ -1264,6 +1338,7 @@ export function OfficePage() {
 
         {!showArchivioDashboard &&
         !showModulisticaDashboard &&
+        !showCartaDashboard &&
         !showCancelleriaDashboard &&
         !showShopperDashboard ? (
         <section className="py-12" aria-labelledby="office-catalog-heading">

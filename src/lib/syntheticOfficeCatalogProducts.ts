@@ -32,6 +32,10 @@ import {
   resolveModulisticaProductByCatalogKey,
 } from '../data/modulisticaCatalog'
 import {
+  cartaTermicaListingPath,
+  resolveCartaTermicaProductByCatalogKey,
+} from '../data/cartaTermicaCatalog'
+import {
   buildIHealthAstroMedicalOfficeProducts,
   iHealthCanonicalProductId,
   lineaAstroMedicalIHealthListingPath,
@@ -142,6 +146,8 @@ export function resolveSyntheticOfficeProductByCatalogKey(key: string): OfficePr
   }
   const modulistica = resolveModulisticaProductByCatalogKey(k)
   if (modulistica) return modulistica
+  const cartaTermica = resolveCartaTermicaProductByCatalogKey(k)
+  if (cartaTermica) return cartaTermica
   if (k.startsWith('AF-IHEALTH-')) {
     const canon = iHealthCanonicalProductId(k)
     return resolveLineaAstroMedicalSyntheticByGimaId(canon)
@@ -215,6 +221,9 @@ export function staticSyntheticOfficeListingPath(product: Pick<OfficeProduct, 'i
   }
   if (resolveModulisticaProductByCatalogKey(id)) {
     return modulisticaCategoryHref()
+  }
+  if (resolveCartaTermicaProductByCatalogKey(id)) {
+    return cartaTermicaListingPath()
   }
   if (
     id.startsWith('AF-IHEALTH-') ||
