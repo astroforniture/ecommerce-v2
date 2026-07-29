@@ -10,7 +10,7 @@ const whoWeAreLinks = [
 
 const customerServiceLinks = [
   { label: 'FAQ', to: '/faq' },
-  { label: 'Contattaci', to: '/contatti-toner' },
+  { label: 'Contattaci', to: '/contatti' },
   { label: 'Richiesta catalogo', to: '/home' },
   { label: 'Termini e condizioni', to: '/termini-condizioni-vendita' },
   { label: 'Privacy', to: '/privacy-policy' },

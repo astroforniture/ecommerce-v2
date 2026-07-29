@@ -92,7 +92,7 @@ export function PrinterRentalCard({ item }: PrinterRentalCardProps) {
         </div>
 
         <Link
-          to="/contatti-toner"
+          to="/contatti"
           className="mt-6 inline-flex w-full items-center justify-center rounded-xl border border-brand-200 bg-white py-3 text-sm font-semibold text-brand-800 transition hover:bg-brand-50"
         >
           Richiedi preventivo

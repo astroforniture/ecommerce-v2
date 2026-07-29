@@ -70,7 +70,7 @@ export function TonerServiceSection() {
                 </footer>
               </blockquote>
               <Link
-                to="/contatti-toner"
+                to="/contatti"
                 className="mt-8 inline-flex w-fit items-center justify-center rounded-xl bg-brand-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-800"
               >
                 Richiedi una consulenza toner

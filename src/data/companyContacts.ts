@@ -8,6 +8,11 @@ export const COMPANY_MOBILE_DISPLAY = '375 613 9937'
 export const COMPANY_MOBILE_TEL = 'tel:3756139937'
 export const COMPANY_WHATSAPP_E164 = '393756139937'
 
+/** Sede Porto Mantovano — secondo numero WhatsApp / cellulare. */
+export const COMPANY_PORTO_MOBILE_DISPLAY = '348 2430910'
+export const COMPANY_PORTO_MOBILE_TEL = 'tel:3482430910'
+export const COMPANY_PORTO_WHATSAPP_E164 = '393482430910'
+
 export const COMPANY_EMAIL = 'info@astro-forniture.it'
 export const COMPANY_MAILTO = `mailto:${COMPANY_EMAIL}`
 
@@ -19,6 +24,36 @@ export const COMPANY_PICKUP_MAPS_EMBED_URL =
   'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2816.632731872166!2d10.77915417670731!3d45.15748927107055!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4781d40542969b23%3A0xa501aea8bfb94f19!2sTuttUfficio%20-%20Astro%20Forniture%20-%20Buffetti!5e0!3m2!1sit!2sit!4v1710000000000!5m2!1sit!2sit'
 
 export const COMPANY_ADDRESS_SHORT = 'Strada Cisa 7, 46047 Porto Mantovano (MN)'
+export const COMPANY_ADDRESS_MANTOVA = 'Largo di Porta Pradella 2, 46100 Mantova (MN)'
+
+export type CompanySeat = {
+  id: 'mantova' | 'porto-mantovano'
+  title: string
+  address: string
+  phoneDisplay: string
+  telHref: string
+  whatsappHref: string
+}
+
+/** Due sedi mostrate in pagina Contatti. */
+export const COMPANY_SEATS: readonly CompanySeat[] = [
+  {
+    id: 'mantova',
+    title: 'Sede Mantova',
+    address: COMPANY_ADDRESS_MANTOVA,
+    phoneDisplay: COMPANY_MOBILE_DISPLAY,
+    telHref: COMPANY_MOBILE_TEL,
+    whatsappHref: `https://wa.me/${COMPANY_WHATSAPP_E164}`,
+  },
+  {
+    id: 'porto-mantovano',
+    title: 'Sede Porto Mantovano',
+    address: COMPANY_ADDRESS_SHORT,
+    phoneDisplay: COMPANY_PORTO_MOBILE_DISPLAY,
+    telHref: COMPANY_PORTO_MOBILE_TEL,
+    whatsappHref: `https://wa.me/${COMPANY_PORTO_WHATSAPP_E164}`,
+  },
+]
 
 export function companyWhatsappHref(prefillMessage: string): string {
   return `https://wa.me/${COMPANY_WHATSAPP_E164}?text=${encodeURIComponent(prefillMessage)}`

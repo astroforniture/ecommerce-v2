@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.tsx'
 import { CartProvider } from './context/CartContext.tsx'
+import { ScrollToTop } from './components/ScrollToTop.tsx'
 import { clearOfficeProductsMemoryCaches } from './api/officeProductsSupabase'
 import { clearSupabaseBrowserClientCache } from './lib/supabaseClient'
 
@@ -25,6 +26,7 @@ createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <CartProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <App />
         </BrowserRouter>
       </CartProvider>

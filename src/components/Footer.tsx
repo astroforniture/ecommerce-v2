@@ -121,12 +121,9 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <a
-                  className="text-slate-700 underline-offset-4 hover:underline"
-                  href={COMPANY_MAILTO}
-                >
+                <Link className="text-slate-700 underline-offset-4 hover:underline" to="/contatti">
                   Contattaci
-                </a>
+                </Link>
               </li>
               <li>
                 <Link

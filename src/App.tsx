@@ -32,6 +32,7 @@ import { ProductDetailPage } from './pages/ProductDetailPage'
 import { BindingServicePage } from './pages/BindingServicePage'
 import { ServizioDetailPage } from './pages/ServizioDetailPage'
 import { FaqPage } from './pages/FaqPage'
+import { ContattiPage } from './pages/ContattiPage'
 import { TermsSalesPage } from './pages/TermsSalesPage'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
@@ -96,7 +97,8 @@ export default function App() {
         <Route path="/home" element={<HomePage />} />
         <Route path="/catalogo" element={<PlaceholderPage />} />
         <Route path="/categoria/:slug" element={<LegacyCategoryRoute />} />
-        <Route path="/contatti-toner" element={<PlaceholderPage />} />
+        <Route path="/contatti" element={<ContattiPage />} />
+        <Route path="/contatti-toner" element={<Navigate to="/contatti" replace />} />
         <Route path={MACCHINE_UFFICIO_BASE_PATH} element={<MacchineUfficioLayout />}>
           <Route index element={<MacchineUfficioHubPage />} />
           <Route path="distruggi-documenti" element={<MacchineDistruggiDocumentiPage />} />

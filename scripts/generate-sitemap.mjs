@@ -39,6 +39,7 @@ async function generate() {
     '/',
     '/home',
     '/faq',
+    '/contatti',
     '/office-products',
     '/office-products?category=Cancelleria',
     '/office-products?category=Cancelleria&cancelleriaView=shopper',
