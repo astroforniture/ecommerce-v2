@@ -2804,6 +2804,7 @@ export async function fetchOfficeSearchCatalogIndex(): Promise<OfficeSearchCatal
 export async function fetchOfficeProductSearchSuggestions(
   rawQuery: string,
   limit = 5,
+  scope: 'all' | 'medical' | 'office' = 'all',
 ): Promise<OfficeSearchSuggestion[]> {
   const trimmed = rawQuery.trim()
   const terms = tokenizeSearchTerms(trimmed)
@@ -2812,10 +2813,10 @@ export async function fetchOfficeProductSearchSuggestions(
   }
 
   if (shouldUseLocalSearchOnly()) {
-    return searchOfficeProductsClient(trimmed, limit)
+    return searchOfficeProductsClient(trimmed, limit, scope)
   }
 
-  const clientHits = searchOfficeProductsClient(trimmed, limit)
+  const clientHits = searchOfficeProductsClient(trimmed, limit, scope)
   const supabase = getSupabaseBrowserClient()
   if (!supabase) return clientHits
 
@@ -2849,46 +2850,23 @@ export async function fetchOfficeProductSearchSuggestions(
     ...patternRows.flat(),
   ])
 
-  console.log('Prodotti trovati dalla ricerca:', {
-    query: trimmed,
-    pattern: pat,
-    righeSupabaseGrezzo: merged.length,
-    campioni: merged.slice(0, 8).map((row) => ({
-      name: row.name,
-      sku: row.sku,
-      category: row.category,
-      brand: row.brand,
-    })),
-  })
+  function passesScope(row: OfficeProductRow): boolean {
+    const medical = isExcludedSearchSuggestionRow(row)
+    if (scope === 'medical') return medical
+    if (scope === 'office') return !medical
+    return true
+  }
 
   const remoteHits = merged
     .filter((row) => rowMatchesAllTerms(row, terms, true))
     .filter((row) => !isSuppressedShopRow(row))
-    .filter((row) => !isExcludedSearchSuggestionRow(row))
+    .filter(passesScope)
     .sort((a, b) => rankSuggestionRow(b, terms, trimmed) - rankSuggestionRow(a, terms, trimmed))
     .map(mapRowToSuggestion)
 
-  console.log('Prodotti trovati dalla ricerca (dopo filtri):', {
-    query: trimmed,
-    remoteHits: remoteHits.length,
-    clientHits: clientHits.length,
-    risultati: remoteHits.slice(0, 8).map((s) => s.name),
-  })
-
   const byId = new Map<string, OfficeSearchSuggestion>()
   for (const hit of clientHits) {
-    if (
-      !isExcludedFromOfficeSearchSuggestions({
-        id: hit.id,
-        producerCode: hit.producerCode,
-        name: hit.name,
-        brand: hit.brand,
-        category: '',
-        mainFeatures: {},
-      })
-    ) {
-      byId.set(hit.id, hit)
-    }
+    byId.set(hit.id, hit)
   }
   for (const hit of remoteHits) {
     if (!byId.has(hit.id)) byId.set(hit.id, hit)

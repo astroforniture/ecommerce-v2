@@ -17,6 +17,7 @@ import {
   removeSearchHistoryItem,
 } from '../../lib/searchHistoryStorage'
 import { isExcludedFromOfficeSearchSuggestions } from '../../lib/isOfficeProductAstroMedicalLine'
+import type { OfficeSearchCatalogScope } from '../../lib/officeClientSearch'
 import { useCart } from '../../context/CartContext'
 import { officeSearchSuggestionToProduct } from '../../lib/officeSearchSuggestionToProduct'
 import {
@@ -28,6 +29,7 @@ import { SearchSuggestionRow } from './SearchSuggestionRow'
 import { CATALOG_CONNECTION_ERROR_MESSAGE } from '../../lib/catalogConnectionError'
 
 const PLACEHOLDER_ROTATE = ['Cerca tra migliaia di prodotti...'] as const
+const PLACEHOLDER_MEDICAL = ['Cerca nel catalogo GIMA / Astro Medical...'] as const
 
 const PLACEHOLDER_INTERVAL_MS = 3200
 const SUGGEST_DEBOUNCE_MS = 80
@@ -47,6 +49,15 @@ function applySearchToParams(prev: URLSearchParams, raw: string) {
   return next
 }
 
+function isAstroMedicalRoute(pathname: string): boolean {
+  const p = pathname.replace(/\/+$/, '').toLowerCase()
+  return (
+    p === '/astro-medical' ||
+    p === '/categoria/astro-medical' ||
+    p.endsWith('/astro-medical')
+  )
+}
+
 export function GlobalSiteSearch() {
   const location = useLocation()
   const navigate = useNavigate()
@@ -58,6 +69,9 @@ export function GlobalSiteSearch() {
 
   const isOfficeCatalog =
     location.pathname === '/office-products' || location.pathname === '/office'
+  const isMedicalCatalog = isAstroMedicalRoute(location.pathname)
+  const searchScope: OfficeSearchCatalogScope = isMedicalCatalog ? 'medical' : 'all'
+  const placeholderRotate = isMedicalCatalog ? PLACEHOLDER_MEDICAL : PLACEHOLDER_ROTATE
 
   const urlSearch = searchParams.get('search') ?? searchParams.get('q') ?? ''
   const [draft, setDraft] = useState(urlSearch)
@@ -105,10 +119,10 @@ export function GlobalSiteSearch() {
   useEffect(() => {
     if (draft.trim() !== '') return
     const id = window.setInterval(() => {
-      setPlaceholderIdx((i) => (i + 1) % PLACEHOLDER_ROTATE.length)
+      setPlaceholderIdx((i) => (i + 1) % placeholderRotate.length)
     }, PLACEHOLDER_INTERVAL_MS)
     return () => window.clearInterval(id)
-  }, [draft])
+  }, [draft, placeholderRotate])
 
   useEffect(() => {
     if (!mobileOpen) return
@@ -154,23 +168,27 @@ export function GlobalSiteSearch() {
       debouncedQuery: debouncedSuggest,
       minChars: MIN_CHARS_SUGGEST,
       limit: 8,
+      scope: searchScope,
     })
 
-  const suggestions = useMemo(
-    () =>
-      rawSuggestions.filter(
-        (item) =>
-          !isExcludedFromOfficeSearchSuggestions({
-            id: item.id,
-            producerCode: item.producerCode,
-            name: item.name,
-            brand: item.brand,
-            category: '',
-            mainFeatures: {},
-          }),
-      ),
-    [rawSuggestions],
-  )
+  const suggestions = useMemo(() => {
+    if (searchScope === 'medical') {
+      // Ambito sanitari: mostra solo GIMA / Astro Medical
+      return rawSuggestions.filter((item) =>
+        isExcludedFromOfficeSearchSuggestions({
+          id: item.id,
+          producerCode: item.producerCode,
+          name: item.name,
+          brand: item.brand,
+          category: item.category ?? '',
+          subcategory: item.subcategory,
+          mainFeatures: {},
+        }),
+      )
+    }
+    // Ambito globale: includi anche il catalogo sanitario
+    return rawSuggestions
+  }, [rawSuggestions, searchScope])
 
   const showHistoryPanel =
     isResultsOpen && draftTrim === '' && searchHistory.length > 0
@@ -235,6 +253,15 @@ export function GlobalSiteSearch() {
     if (v.length >= MIN_CHARS_SUGGEST) {
       recordSearchQuery(v)
     }
+    if (isMedicalCatalog) {
+      const params = new URLSearchParams(searchParams)
+      params.delete('q')
+      if (v) params.set('search', v)
+      else params.delete('search')
+      const qs = params.toString()
+      navigate(qs ? `/astro-medical?${qs}` : '/astro-medical')
+      return
+    }
     if (isOfficeCatalog) {
       setSearchParams((prev) => applySearchToParams(prev, raw), { replace: true })
     } else if (v) {
@@ -245,7 +272,7 @@ export function GlobalSiteSearch() {
   }
 
   function scheduleCommitCatalog(raw: string) {
-    if (!isOfficeCatalog) return
+    if (!isOfficeCatalog && !isMedicalCatalog) return
     if (catalogDebounceRef.current) clearTimeout(catalogDebounceRef.current)
     catalogDebounceRef.current = setTimeout(() => commitSearch(raw), CATALOG_URL_DEBOUNCE_MS)
   }
@@ -254,7 +281,7 @@ export function GlobalSiteSearch() {
     setDraft(value)
     const trimmed = value.trim()
     setIsResultsOpen(trimmed.length > 0)
-    if (isOfficeCatalog) {
+    if (isOfficeCatalog || isMedicalCatalog) {
       scheduleCommitCatalog(value)
     }
   }
@@ -317,7 +344,7 @@ export function GlobalSiteSearch() {
     setIsResultsOpen(false)
   }
 
-  const rotatingPlaceholder = PLACEHOLDER_ROTATE[placeholderIdx]
+  const rotatingPlaceholder = placeholderRotate[placeholderIdx % placeholderRotate.length]
 
   const historyList = useMemo(
     () => (

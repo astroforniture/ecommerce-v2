@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, HeartPulse, Loader2 } from 'lucide-react'
+import { ArrowLeft, Loader2 } from 'lucide-react'
 import { OfficeProductCard } from '../components/office/OfficeProductCard'
 import { AstroMedicalSubcategoryNav } from '../components/astroMedical/AstroMedicalSubcategoryNav'
 import { useOfficeCatalog } from '../hooks/useOfficeCatalog'
@@ -14,6 +14,7 @@ import {
   isAstroMedicalSubcategoryLabel,
   matchesAstroMedicalSubcategoryFilter,
 } from '../lib/astroMedicalSubcategories'
+import { tokenizeSearchQuery } from '../lib/officeSearchRelevance'
 
 export function AstroMedicalPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -21,6 +22,7 @@ export function AstroMedicalPage() {
   const selectedSubcategory = isAstroMedicalSubcategoryLabel(subcategoryFromUrl)
     ? subcategoryFromUrl
     : null
+  const searchQuery = (searchParams.get('search') ?? searchParams.get('q') ?? '').trim()
 
   const { products, isLoading } = useOfficeCatalog(LINEA_ASTRO_MEDICAL_CATEGORY, null)
   const catalog = useMemo(() => {
@@ -34,11 +36,24 @@ export function AstroMedicalPage() {
   const catalogLoading = isLoading && catalog.length === 0
 
   const filteredList = useMemo(() => {
-    if (!selectedSubcategory) return catalog
-    return catalog.filter((p) =>
-      matchesAstroMedicalSubcategoryFilter(p, selectedSubcategory),
-    )
-  }, [catalog, selectedSubcategory])
+    let list = catalog
+    if (selectedSubcategory) {
+      list = list.filter((p) => matchesAstroMedicalSubcategoryFilter(p, selectedSubcategory))
+    }
+    if (searchQuery) {
+      const terms = tokenizeSearchQuery(searchQuery)
+      if (terms.length > 0) {
+        list = list.filter((p) => {
+          const hay = `${p.name} ${p.brand ?? ''} ${p.producerCode ?? ''} ${p.id} ${p.subcategory ?? ''} ${p.description ?? ''}`
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/\p{M}/gu, '')
+          return terms.every((t) => hay.includes(t.toLowerCase()))
+        })
+      }
+    }
+    return list
+  }, [catalog, selectedSubcategory, searchQuery])
 
   function setMedicalSubcategory(value: string | null) {
     setSearchParams((prev) => {
@@ -61,12 +76,22 @@ export function AstroMedicalPage() {
         </Link>
 
         <header className="mt-8 flex flex-col gap-6 border-b border-medical-100 pb-10 sm:flex-row sm:items-start sm:gap-10">
-          <span
-            className="flex size-20 shrink-0 items-center justify-center rounded-2xl bg-medical-600 text-white shadow-lg shadow-medical-600/25"
-            aria-hidden
-          >
-            <HeartPulse className="size-10" strokeWidth={1.5} />
-          </span>
+          <div className="flex shrink-0 flex-col items-start gap-3">
+            <span className="flex h-20 w-auto max-w-[220px] items-center justify-center rounded-2xl bg-white p-3 shadow-lg shadow-medical-600/15 ring-1 ring-medical-100">
+              <img
+                src="/images/logo-gima-ita.jpg"
+                alt="Logo GIMA"
+                className="max-h-14 w-auto max-w-full object-contain"
+                width={200}
+                height={56}
+                loading="eager"
+                decoding="async"
+              />
+            </span>
+            <p className="max-w-[240px] text-xs font-semibold leading-snug text-medical-800">
+              Catalogo articoli GIMA - Distribuzione riservata ai rivenditori
+            </p>
+          </div>
           <div>
             <p className="text-sm font-semibold uppercase tracking-widest text-medical-600">
               Linea specializzata
@@ -98,7 +123,7 @@ export function AstroMedicalPage() {
             >
               Catalogo prodotti
             </h2>
-            <p className="inline-flex items-center gap-2 text-sm text-slate-600">
+            <p className="inline-flex flex-wrap items-center gap-2 text-sm text-slate-600">
               {catalogLoading ? (
                 <>
                   <Loader2 className="size-4 animate-spin text-medical-600" aria-hidden />
@@ -112,6 +137,9 @@ export function AstroMedicalPage() {
                       {' '}
                       · {selectedSubcategory}
                     </span>
+                  ) : null}
+                  {searchQuery ? (
+                    <span className="text-medical-700"> · ricerca “{searchQuery}”</span>
                   ) : null}
                 </>
               )}
@@ -136,14 +164,27 @@ export function AstroMedicalPage() {
           ) : filteredList.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-medical-200 bg-medical-50/50 px-6 py-12 text-center">
               <p className="text-base font-medium text-slate-800">
-                Nessun prodotto in questa sotto-categoria.
+                {searchQuery
+                  ? `Nessun prodotto trovato per “${searchQuery}”.`
+                  : 'Nessun prodotto in questa sotto-categoria.'}
               </p>
               <button
                 type="button"
-                onClick={() => setMedicalSubcategory(null)}
+                onClick={() => {
+                  if (searchQuery) {
+                    setSearchParams((prev) => {
+                      const next = new URLSearchParams(prev)
+                      next.delete('search')
+                      next.delete('q')
+                      return next
+                    })
+                  } else {
+                    setMedicalSubcategory(null)
+                  }
+                }}
                 className="mt-4 inline-flex rounded-full border border-medical-300 bg-white px-5 py-2.5 text-sm font-semibold text-medical-800 transition hover:bg-medical-50"
               >
-                Mostra tutti i prodotti
+                {searchQuery ? 'Cancella ricerca' : 'Mostra tutti i prodotti'}
               </button>
             </div>
           ) : (

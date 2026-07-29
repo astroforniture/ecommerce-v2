@@ -10,6 +10,7 @@ import {
   searchOfficeProductsClient,
   setOfficeSearchIndexFromProducts,
   shouldUseLocalSearchOnly,
+  type OfficeSearchCatalogScope,
 } from '../lib/officeClientSearch'
 import { isSupabaseConfigured } from '../lib/supabaseClient'
 import { isLikelyCatalogConnectionError } from '../lib/catalogConnectionError'
@@ -21,8 +22,8 @@ export function officeSearchIndexQueryKey() {
   return ['office-search-index', OFFICE_CATALOG_DATA_REVISION] as const
 }
 
-export function officeSearchSuggestionsQueryKey(query: string) {
-  return ['office-search-suggestions', OFFICE_CATALOG_DATA_REVISION, query] as const
+export function officeSearchSuggestionsQueryKey(query: string, scope: OfficeSearchCatalogScope = 'all') {
+  return ['office-search-suggestions', OFFICE_CATALOG_DATA_REVISION, scope, query] as const
 }
 
 export function prefetchOfficeSearchIndex(queryClient: QueryClient) {
@@ -40,6 +41,8 @@ type UseOfficeSearchSuggestionsOptions = {
   debouncedQuery: string
   minChars?: number
   limit?: number
+  /** `medical` = solo Astro Medical / GIMA; `office` = solo ufficio; `all` = entrambi. */
+  scope?: OfficeSearchCatalogScope
 }
 
 /**
@@ -50,6 +53,7 @@ export function useOfficeSearchSuggestions({
   debouncedQuery,
   minChars = 2,
   limit = 8,
+  scope = 'all',
 }: UseOfficeSearchSuggestionsOptions) {
   const trimmed = query.trim()
   const debouncedTrimmed = debouncedQuery.trim()
@@ -78,12 +82,12 @@ export function useOfficeSearchSuggestions({
 
   const localSuggestions = useMemo((): OfficeSearchSuggestion[] => {
     if (!enabled || !useLocalSearch) return []
-    return searchOfficeProductsClient(trimmed, limit)
-  }, [enabled, useLocalSearch, trimmed, limit])
+    return searchOfficeProductsClient(trimmed, limit, scope)
+  }, [enabled, useLocalSearch, trimmed, limit, scope])
 
   const remoteQuery = useQuery({
-    queryKey: officeSearchSuggestionsQueryKey(debouncedTrimmed),
-    queryFn: () => fetchOfficeProductSearchSuggestions(debouncedTrimmed, limit),
+    queryKey: officeSearchSuggestionsQueryKey(debouncedTrimmed, scope),
+    queryFn: () => fetchOfficeProductSearchSuggestions(debouncedTrimmed, limit, scope),
     enabled:
       debouncedTrimmed.length >= minChars &&
       isSupabaseConfigured() &&

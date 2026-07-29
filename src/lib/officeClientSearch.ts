@@ -2,8 +2,10 @@ import Fuse from 'fuse.js'
 import type { OfficeSearchSuggestion } from '../api/officeProductsSupabase'
 import type { OfficeProduct } from '../types/officeProduct'
 import { extractGimaNumericCodes } from './gimaProductCode'
-import { isExcludedFromOfficeSearchSuggestions } from './isOfficeProductAstroMedicalLine'
-import { isGeneralOfficeShopCatalogProduct } from './isGeneralOfficeShopCatalogProduct'
+import { isOfficeProductAstroMedicalLine } from './isOfficeProductAstroMedicalLine'
+import { getInjectedLocalCatalogProducts } from './timbroAziendeFarmacieProduct'
+import { getSearchableSyntheticOfficeProducts } from './debugShowcaseCatalog'
+import { buildLineaAstroMedicalAllOfficeProducts } from '../data/lineaAstroMedicalCombined'
 import {
   officeProductToSearchFields,
   scoreSearchableProduct,
@@ -11,11 +13,11 @@ import {
   tokenizeSearchQuery,
 } from './officeSearchRelevance'
 import { normalizeSearchText } from './fuzzySearch'
-import { getInjectedLocalCatalogProducts } from './timbroAziendeFarmacieProduct'
-import { getSearchableSyntheticOfficeProducts } from './debugShowcaseCatalog'
 
 /** Indice locale fuzzy: usato per autocomplete istantaneo indipendentemente dalla dimensione catalogo. */
 export const LOCAL_SEARCH_CATALOG_MAX = 100
+
+export type OfficeSearchCatalogScope = 'all' | 'medical' | 'office'
 
 type IndexedProduct = {
   suggestion: OfficeSearchSuggestion
@@ -27,6 +29,7 @@ type IndexedProduct = {
   subcategoryNorm: string
   skuNorm: string
   haystackNorm: string
+  isMedical: boolean
 }
 
 let searchIndex: IndexedProduct[] | null = null
@@ -55,37 +58,39 @@ function buildIndexedProducts(products: readonly OfficeProduct[]): IndexedProduc
   for (const p of getSearchableSyntheticOfficeProducts()) {
     if (!byId.has(String(p.id))) byId.set(String(p.id), p)
   }
-  return [...byId.values()]
-    .filter((p) => !isExcludedFromOfficeSearchSuggestions(p))
-    .filter((p) => isGeneralOfficeShopCatalogProduct(p))
-    .map((p) => {
-      const gimaCodes = extractGimaNumericCodes(p)
-      const fields = officeProductToSearchFields(p)
-      const haystackNorm = normalizeSearchText(
-        [
-          fields.name,
-          fields.description,
-          fields.brand,
-          fields.category,
-          fields.subcategory,
-          fields.colorName,
-          fields.sku,
-        ]
-          .filter(Boolean)
-          .join(' '),
-      )
-      return {
-        suggestion: productToSuggestion(p),
-        fields,
-        gimaCodes,
-        nameNorm: normalizeSearchText(fields.name),
-        brandNorm: normalizeSearchText(fields.brand ?? ''),
-        categoryNorm: normalizeSearchText(fields.category ?? ''),
-        subcategoryNorm: normalizeSearchText(fields.subcategory ?? ''),
-        skuNorm: normalizeSearchText(fields.sku ?? ''),
-        haystackNorm,
-      }
-    })
+  // Catalogo sanitario / GIMA / Astro Medical (sempre ricercabile)
+  for (const p of buildLineaAstroMedicalAllOfficeProducts()) {
+    if (!byId.has(String(p.id))) byId.set(String(p.id), p)
+  }
+  return [...byId.values()].map((p) => {
+    const gimaCodes = extractGimaNumericCodes(p)
+    const fields = officeProductToSearchFields(p)
+    const haystackNorm = normalizeSearchText(
+      [
+        fields.name,
+        fields.description,
+        fields.brand,
+        fields.category,
+        fields.subcategory,
+        fields.colorName,
+        fields.sku,
+      ]
+        .filter(Boolean)
+        .join(' '),
+    )
+    return {
+      suggestion: productToSuggestion(p),
+      fields,
+      gimaCodes,
+      nameNorm: normalizeSearchText(fields.name),
+      brandNorm: normalizeSearchText(fields.brand ?? ''),
+      categoryNorm: normalizeSearchText(fields.category ?? ''),
+      subcategoryNorm: normalizeSearchText(fields.subcategory ?? ''),
+      skuNorm: normalizeSearchText(fields.sku ?? ''),
+      haystackNorm,
+      isMedical: isOfficeProductAstroMedicalLine(p),
+    }
+  })
 }
 
 function rebuildFuseIndex(index: IndexedProduct[]): void {
@@ -158,7 +163,11 @@ function rankWithFuse(queryNorm: string, entries: IndexedProduct[]): IndexedProd
 }
 
 /** Ricerca istantanea sull'indice in memoria (fuzzy / sillabe / typo via Fuse + officeSearchRelevance). */
-export function searchOfficeProductsClient(rawQuery: string, limit = 8): OfficeSearchSuggestion[] {
+export function searchOfficeProductsClient(
+  rawQuery: string,
+  limit = 8,
+  scope: OfficeSearchCatalogScope = 'all',
+): OfficeSearchSuggestion[] {
   const trimmed = rawQuery.trim()
   const terms = tokenizeSearchQuery(trimmed)
   if (!terms.length || trimmed.length < 2) return []
@@ -166,13 +175,19 @@ export function searchOfficeProductsClient(rawQuery: string, limit = 8): OfficeS
   const index = getActiveSearchIndex()
   const queryNorm = normalizeSearchText(trimmed)
 
-  let candidates = index.filter((entry) => terms.every((term) => termMatchesEntry(entry, term)))
+  let candidates = index.filter((entry) => {
+    if (scope === 'medical' && !entry.isMedical) return false
+    if (scope === 'office' && entry.isMedical) return false
+    return terms.every((term) => termMatchesEntry(entry, term))
+  })
 
   if (candidates.length < limit && queryNorm.length >= 3 && fuseIndex) {
     const seen = new Set(candidates.map((entry) => entry.suggestion.id))
     for (const hit of fuseIndex.search(queryNorm, { limit: limit * 4 })) {
       const item = hit.item
       if (seen.has(item.suggestion.id)) continue
+      if (scope === 'medical' && !item.isMedical) continue
+      if (scope === 'office' && item.isMedical) continue
       if (hit.score != null && hit.score > 0.55) continue
       candidates.push(item)
       seen.add(item.suggestion.id)

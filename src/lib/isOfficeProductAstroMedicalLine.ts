@@ -45,7 +45,8 @@ type OfficeSearchExclusionFields = Pick<
 >
 
 /**
- * Esclude dalla ricerca globale (autocomplete header) articoli sanitari / linea Astro Medical / GIMA.
+ * Esclude dalla ricerca *solo ufficio* articoli sanitari / linea Astro Medical / GIMA.
+ * Usato anche come detector “è prodotto medicale” per lo scope `medical`.
  */
 export function isExcludedFromOfficeSearchSuggestions(
   product: OfficeSearchExclusionFields,
