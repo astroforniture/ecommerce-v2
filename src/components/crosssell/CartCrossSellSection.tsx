@@ -58,9 +58,7 @@ type CartCrossSellSectionProps = {
 }
 
 /**
- * Sezione cross-sell nel drawer/pagina carrello.
- * Legge i prodotti nel carrello e propone articoli complementari.
- * Non renderizza nulla se non ci sono suggerimenti pertinenti.
+ * Cross-sell dinamico nel drawer/pagina carrello (casse + anello ufficio).
  */
 export function CartCrossSellSection({ className = '', limit = 3 }: CartCrossSellSectionProps) {
   const { items, addOfficeProduct } = useCart()
@@ -71,15 +69,47 @@ export function CartCrossSellSection({ className = '', limit = 3 }: CartCrossSel
     () =>
       items.map((i) => ({
         id: i.id,
-        category: i.sku ?? '',
+        name: i.name,
+        category: i.sku?.includes('DITRON') || /cassa|ditron/i.test(i.name) ? 'Casse' : '',
         subcategory: undefined as string | undefined,
       })),
     [items],
   )
 
+  // Migliora detection: usa name per etichettatrici/toner/carta/archivio
+  const enriched = useMemo(
+    () =>
+      items.map((i) => {
+        const n = i.name.toLowerCase()
+        let category = ''
+        let subcategory: string | undefined
+        if (/ditron|registratore|cassa/i.test(n) || i.id.includes('DITRON')) category = 'Casse'
+        else if (/toner|cartucc/i.test(n)) category = 'Cartucce & Toner'
+        else if (/etichettatric/i.test(n)) {
+          category = 'Macchine per Ufficio'
+          subcategory = 'Etichettatrici'
+        } else if (/risma|carta\s*a4|carta\s*a3/i.test(n)) {
+          category = 'Carta'
+          subcategory = /a3/i.test(n) ? 'Formato Carta A3' : 'Formato Carta A4'
+        } else if (/bust/i.test(n)) {
+          category = 'Archivio'
+          subcategory = 'Buste Trasparenti'
+        } else if (/registratore|cartellin|archivio|classificator/i.test(n)) {
+          category = 'Archivio'
+        }
+        return {
+          id: i.id,
+          name: i.name,
+          category,
+          subcategory,
+        }
+      }),
+    [items],
+  )
+
   const suggestions = useMemo(
-    () => getCrossSellForCart(cartProductsForCrossSell, cartProductIdSet, limit),
-    [cartProductsForCrossSell, cartProductIdSet, limit],
+    () => getCrossSellForCart(enriched.length ? enriched : cartProductsForCrossSell, cartProductIdSet, limit),
+    [enriched, cartProductsForCrossSell, cartProductIdSet, limit],
   )
 
   if (items.length === 0 || suggestions.length === 0) return null

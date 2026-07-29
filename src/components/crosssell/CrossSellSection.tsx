@@ -1,10 +1,13 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Plus, ShoppingCart } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { productUnitIvato } from '../../lib/freeShippingUpsellProducts'
+import { detectOfficeCrossSellGroup, type CrossSellResult } from '../../data/crossSellCatalog'
 import { ProductThumb } from './ProductThumb'
 import type { OfficeProduct } from '../../types/officeProduct'
 
 const eur = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' })
+const AUTO_PLAY_MS = 3000
 
 type CrossSellCardProps = {
   product: OfficeProduct
@@ -55,27 +58,70 @@ function CrossSellCard({ product, onAdd }: CrossSellCardProps) {
 }
 
 type CrossSellSectionProps = {
-  products: OfficeProduct[]
-  /** Titolo sezione. Default: "Completa la tua postazione". */
+  crossSell: CrossSellResult
   heading?: string
-  /** Sottotitolo. Default: "Spesso acquistati insieme". */
   subheading?: string
   className?: string
 }
 
 /**
- * Sezione cross-sell in PDP: carosello orizzontale con "Aggiungi al carrello" rapido.
- * Non renderizza nulla se `products` è vuoto.
+ * Sezione cross-sell PDP con rotazione soft ogni 3s su Etichettatrici e Cartucce & Toner.
  */
 export function CrossSellSection({
-  products,
+  crossSell,
   heading = 'Completa la tua postazione',
   subheading = 'Spesso acquistati insieme',
   className = '',
 }: CrossSellSectionProps) {
   const { addOfficeProduct } = useCart()
+  const scrollerRef = useRef<HTMLUListElement>(null)
+  const [tick, setTick] = useState(0)
+  const [paused, setPaused] = useState(false)
 
-  if (products.length === 0) return null
+  const displayProducts = useMemo(() => {
+    const base = [...crossSell.products]
+    if (!crossSell.autoPlay) return base
+
+    const etchIdx =
+      crossSell.rotateEtichettatrici.length > 0
+        ? tick % crossSell.rotateEtichettatrici.length
+        : 0
+    const tonerIdx =
+      crossSell.rotateCartucceToner.length > 0
+        ? tick % crossSell.rotateCartucceToner.length
+        : 0
+
+    const etch = crossSell.rotateEtichettatrici[etchIdx]
+    const toner = crossSell.rotateCartucceToner[tonerIdx]
+
+    return base.map((p) => {
+      const g = detectOfficeCrossSellGroup(p)
+      if (g === 'etichettatrici' && etch) return etch
+      if (g === 'cartucce-toner' && toner) return toner
+      return p
+    })
+  }, [crossSell, tick])
+
+  useEffect(() => {
+    if (!crossSell.autoPlay || paused) return
+    const id = window.setInterval(() => {
+      setTick((t) => t + 1)
+      const el = scrollerRef.current
+      if (!el || el.scrollWidth <= el.clientWidth + 8) return
+      const cardWidth = el.querySelector('li')?.getBoundingClientRect().width ?? 220
+      const gap = 16
+      const step = cardWidth + gap
+      const nextLeft = el.scrollLeft + step
+      const maxLeft = el.scrollWidth - el.clientWidth
+      el.scrollTo({
+        left: nextLeft >= maxLeft - 4 ? 0 : nextLeft,
+        behavior: 'smooth',
+      })
+    }, AUTO_PLAY_MS)
+    return () => window.clearInterval(id)
+  }, [crossSell.autoPlay, paused])
+
+  if (displayProducts.length === 0) return null
 
   function handleAdd(product: OfficeProduct) {
     addOfficeProduct(product, 1)
@@ -85,6 +131,12 @@ export function CrossSellSection({
     <section
       className={['mt-12 border-t border-slate-200 pt-10', className].filter(Boolean).join(' ')}
       aria-labelledby="cross-sell-heading"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocusCapture={() => setPaused(true)}
+      onBlurCapture={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setPaused(false)
+      }}
     >
       <div className="flex items-center gap-3">
         <ShoppingCart className="size-5 text-brand-700" aria-hidden />
@@ -102,13 +154,24 @@ export function CrossSellSection({
       </div>
 
       <ul
-        className="mt-6 flex gap-4 overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch]"
+        ref={scrollerRef}
+        className="mt-6 flex gap-4 overflow-x-auto pb-2 scroll-smooth [-webkit-overflow-scrolling:touch]"
         aria-label={heading}
       >
-        {products.map((product) => (
-          <CrossSellCard key={product.id} product={product} onAdd={handleAdd} />
+        {displayProducts.map((product) => (
+          <CrossSellCard
+            key={`${product.id}-${detectOfficeCrossSellGroup(product) ?? 'x'}`}
+            product={product}
+            onAdd={handleAdd}
+          />
         ))}
       </ul>
+      {crossSell.autoPlay ? (
+        <p className="mt-2 text-[11px] text-slate-500">
+          Anteprime Etichettatrici e Cartucce &amp; Toner in rotazione automatica
+          {paused ? ' (in pausa)' : ''}.
+        </p>
+      ) : null}
     </section>
   )
 }

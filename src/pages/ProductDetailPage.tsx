@@ -4868,7 +4868,7 @@ export function ProductDetailPage() {
           }
         />
 
-        <CrossSellSection products={getCrossSellForProduct(product)} />
+        <CrossSellSection crossSell={getCrossSellForProduct(product)} />
 
         <OfficeProductDetailRelatedSection
           products={relatedProducts}
