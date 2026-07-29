@@ -4845,6 +4845,83 @@ export async function fetchRelatedOfficeProducts(
   return withTiers
 }
 
+export type CrossSellRotationPools = {
+  carta: OfficeProduct[]
+  buste: OfficeProduct[]
+}
+
+/**
+ * Pool reali per slot cross-sell PDP: Carta A4/A3 (no termica) e Buste Trasparenti.
+ */
+export async function fetchCrossSellRotationPools(
+  limitPerPool = 24,
+): Promise<CrossSellRotationPools> {
+  const supabase = getSupabaseBrowserClient()
+  if (!supabase) {
+    return { carta: [], buste: [] }
+  }
+
+  const [cartaRows, busteRows, quantityFetch] = await Promise.all([
+    fetchShopProductRowsCategoryIlike(supabase, 'Carta', 80),
+    (async () => {
+      // Preferisci filtro subcategory; fallback category Archivio
+      for (const cols of PRODUCT_SHOP_SELECT_FALLBACKS) {
+        const bySub = await supabase
+          .from(SHOP_PRODUCTS_TABLE)
+          .select(cols)
+          .ilike('subcategory', '%Buste Trasparenti%')
+          .order('name', { ascending: true })
+          .limit(80)
+        if (!bySub.error) return (bySub.data ?? []) as unknown as OfficeProductRow[]
+        if (!isMissingColumnPostgrestError(bySub.error)) break
+      }
+      return fetchShopProductRowsCategoryIlike(supabase, 'Archivio', 80)
+    })(),
+    fetchQuantityPriceTiersByProductId(),
+  ])
+
+  const { tiersByProductId } = quantityFetch
+
+  const carta = cartaRows
+    .map(mapRowToOfficeProduct)
+    .map((p) => attachQuantityTiers(p, tiersByProductId))
+    .filter((p) => {
+      const cat = (p.category ?? '').toLowerCase()
+      if (cat !== 'carta') return false
+      const sub = (p.subcategory ?? '').toLowerCase()
+      const name = (p.name ?? '').toLowerCase()
+      if (sub.includes('termica') || name.includes('termica') || name.includes('termic')) {
+        return false
+      }
+      return (
+        sub.includes('a4') ||
+        sub.includes('a3') ||
+        /formato carta a[34]/i.test(sub) ||
+        /\ba4\b/.test(name) ||
+        /\ba3\b/.test(name)
+      )
+    })
+    .filter((p) => Boolean((p.producerCode || p.id || '').trim()) && Boolean((p.imageUrl ?? '').trim()))
+    .slice(0, limitPerPool)
+
+  const buste = busteRows
+    .map(mapRowToOfficeProduct)
+    .map((p) => attachQuantityTiers(p, tiersByProductId))
+    .filter((p) => {
+      const sub = (p.subcategory ?? '').toLowerCase()
+      const name = (p.name ?? '').toLowerCase()
+      if (sub.includes('buste trasparent')) return true
+      return (
+        (p.category ?? '').toLowerCase() === 'archivio' &&
+        (name.includes('buste') || name.includes('busta') || name.includes('cartellina'))
+      )
+    })
+    .filter((p) => Boolean((p.producerCode || p.id || '').trim()) && Boolean((p.imageUrl ?? '').trim()))
+    .slice(0, limitPerPool)
+
+  return { carta, buste }
+}
+
 /** Stock per tabella admin; fallback silenzioso se colonna assente nello schema. */
 export async function fetchOfficeProductStocks(): Promise<Map<string, number>> {
   const supabase = getSupabaseBrowserClient()

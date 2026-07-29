@@ -257,6 +257,17 @@ const OFFICE_RING_CURATED: Record<
       price: 2.4,
     },
     {
+      id: 'STL7413',
+      name: 'Buste forate Medium - liscio - 22 x 30 cm - trasparente - Starline - conf. 50 pezzi',
+      brand: 'Starline',
+      producerCode: 'STL7413',
+      category: 'Archivio',
+      subcategory: BUSTE_TRASPARENTI_SUB,
+      mainFeatures: { Formato: '22 x 30 cm', Qualità: 'Medium', Confezione: '50 pz' },
+      imageUrl: 'https://odmultimedia.eu/immagini/HD/STL7413.jpg',
+      price: 2.6,
+    },
+    {
       id: 'STL7415',
       name: 'Buste forate Top - liscio - 22 x 30 cm - trasparente - Starline - conf. 50 pezzi',
       brand: 'Starline',
@@ -267,7 +278,34 @@ const OFFICE_RING_CURATED: Record<
       imageUrl: 'https://odmultimedia.eu/immagini/HD/STL7415.jpg',
       price: 3.2,
     },
+    {
+      id: 'STL7416',
+      name: 'Cartellina a L - buccia - trasparente - Starline',
+      brand: 'Starline',
+      producerCode: 'STL7416',
+      category: 'Archivio',
+      subcategory: BUSTE_TRASPARENTI_SUB,
+      mainFeatures: { Formato: 'A4', Finitura: 'Buccia' },
+      imageUrl: 'https://odmultimedia.eu/immagini/HD/STL7416.jpg',
+      price: 0.35,
+    },
+    {
+      id: 'STL7417',
+      name: 'Cartellina a L - liscio - trasparente - Starline',
+      brand: 'Starline',
+      producerCode: 'STL7417',
+      category: 'Archivio',
+      subcategory: BUSTE_TRASPARENTI_SUB,
+      mainFeatures: { Formato: 'A4', Finitura: 'Liscio' },
+      imageUrl: 'https://odmultimedia.eu/immagini/HD/STL7417.jpg',
+      price: 0.35,
+    },
   ],
+}
+
+export type CrossSellDbPools = {
+  carta?: readonly OfficeProduct[]
+  buste?: readonly OfficeProduct[]
 }
 
 function poolEtichettatrici(): OfficeProduct[] {
@@ -276,19 +314,6 @@ function poolEtichettatrici(): OfficeProduct[] {
 
 function poolCartucceToner(): OfficeProduct[] {
   return buildCartucceTonerOfficeProducts()
-}
-
-function poolForGroup(group: OfficeCrossSellGroup): OfficeProduct[] {
-  switch (group) {
-    case 'archivio':
-    case 'carta':
-    case 'buste-trasparenti':
-      return [...OFFICE_RING_CURATED[group]]
-    case 'etichettatrici':
-      return poolEtichettatrici()
-    case 'cartucce-toner':
-      return poolCartucceToner()
-  }
 }
 
 function isCartaA4orA3(product: Pick<OfficeProduct, 'category' | 'subcategory'>): boolean {
@@ -358,35 +383,52 @@ function isCassaProduct(product: Pick<OfficeProduct, 'id' | 'category' | 'subcat
 
 export type CrossSellResult = {
   products: OfficeProduct[]
-  /** Pool per rotazione automatica PDP (etichettatrici). */
+  /** Slot 1 — Carta A4/A3 (pool DB o curato). */
+  rotateCarta: OfficeProduct[]
+  /** Slot 2 — Buste Trasparenti (pool DB o curato). */
+  rotateBuste: OfficeProduct[]
+  /** Slot 3 — Etichettatrici. */
   rotateEtichettatrici: OfficeProduct[]
-  /** Pool per rotazione automatica PDP (cartucce & toner). */
+  /** Slot 4 — Cartucce & Toner. */
   rotateCartucceToner: OfficeProduct[]
-  /** Abilita auto-play carousel 3s. */
+  /** Quattro slot fissi (Carta / Buste / Etichettatrici / Toner). */
+  fourSlots: boolean
+  /** Abilita auto-play rotazione 3s. */
   autoPlay: boolean
 }
 
-function pickFromPool(
-  pool: readonly OfficeProduct[],
-  excludeId: string,
-  count: number,
-  offset = 0,
-): OfficeProduct[] {
-  const filtered = pool.filter((p) => p.id !== excludeId)
-  if (filtered.length === 0) return []
-  const out: OfficeProduct[] = []
-  for (let i = 0; i < count && i < filtered.length; i += 1) {
-    out.push(filtered[(offset + i) % filtered.length]!)
+function emptyCrossSell(): CrossSellResult {
+  return {
+    products: [],
+    rotateCarta: [],
+    rotateBuste: [],
+    rotateEtichettatrici: [],
+    rotateCartucceToner: [],
+    fourSlots: false,
+    autoPlay: false,
   }
-  return out
+}
+
+function mergePool(
+  dbPool: readonly OfficeProduct[] | undefined,
+  curated: readonly OfficeProduct[],
+  excludeId: string,
+): OfficeProduct[] {
+  const byId = new Map<string, OfficeProduct>()
+  for (const p of [...(dbPool ?? []), ...curated]) {
+    if (!p?.id || p.id === excludeId) continue
+    if (!byId.has(p.id)) byId.set(p.id, p)
+  }
+  return [...byId.values()]
 }
 
 /**
- * Cross-sell PDP: priorità relatedProductIds → casse → anello ufficio bidirezionale.
+ * Cross-sell PDP: priorità relatedProductIds → casse → 4 slot fissi (Carta/Buste/Etch/Toner).
  */
 export function getCrossSellForProduct(
   product: OfficeProduct,
   limit = 8,
+  dbPools?: CrossSellDbPools,
 ): CrossSellResult {
   const specificIds = product.relatedProductIds ?? []
   if (specificIds.length > 0) {
@@ -394,69 +436,51 @@ export function getCrossSellForProduct(
       .map((id) => CROSS_SELL_BY_ID.get(id))
       .filter((p): p is OfficeProduct => p !== undefined)
       .slice(0, limit)
-    return {
-      products,
-      rotateEtichettatrici: [],
-      rotateCartucceToner: [],
-      autoPlay: false,
-    }
+    return { ...emptyCrossSell(), products }
   }
 
   if (isCassaProduct(product)) {
     const products = CROSS_SELL_IDS_CASSE.map((id) => CROSS_SELL_BY_ID.get(id))
       .filter((p): p is OfficeProduct => p !== undefined)
       .slice(0, limit)
-    return {
-      products,
-      rotateEtichettatrici: [],
-      rotateCartucceToner: [],
-      autoPlay: false,
-    }
+    return { ...emptyCrossSell(), products }
   }
 
   const group = detectOfficeCrossSellGroup(product)
   if (!group) {
-    return {
-      products: [],
-      rotateEtichettatrici: [],
-      rotateCartucceToner: [],
-      autoPlay: false,
-    }
+    return emptyCrossSell()
   }
 
+  const rotateCarta = mergePool(dbPools?.carta, OFFICE_RING_CURATED.carta, product.id)
+  const rotateBuste = mergePool(
+    dbPools?.buste,
+    OFFICE_RING_CURATED['buste-trasparenti'],
+    product.id,
+  )
   const rotateEtichettatrici = poolEtichettatrici().filter((p) => p.id !== product.id)
   const rotateCartucceToner = poolCartucceToner().filter((p) => p.id !== product.id)
 
-  const seen = new Set<string>([product.id])
-  const products: OfficeProduct[] = []
+  const products = [
+    rotateCarta[0],
+    rotateBuste[0],
+    rotateEtichettatrici[0],
+    rotateCartucceToner[0],
+  ].filter((p): p is OfficeProduct => Boolean(p))
 
-  for (const other of OFFICE_CROSS_SELL_RING) {
-    if (other === group) continue
-    const take = other === 'etichettatrici' || other === 'cartucce-toner' ? 1 : 1
-    for (const p of pickFromPool(poolForGroup(other), product.id, take)) {
-      if (seen.has(p.id)) continue
-      seen.add(p.id)
-      products.push(p)
-      if (products.length >= limit) break
-    }
-    if (products.length >= limit) break
-  }
-
-  // Assicura almeno una etichettatrice e un toner nel set iniziale (se disponibili)
-  if (!products.some((p) => detectOfficeCrossSellGroup(p) === 'etichettatrici')) {
-    const extra = pickFromPool(rotateEtichettatrici, product.id, 1)[0]
-    if (extra) products.push(extra)
-  }
-  if (!products.some((p) => detectOfficeCrossSellGroup(p) === 'cartucce-toner')) {
-    const extra = pickFromPool(rotateCartucceToner, product.id, 1)[0]
-    if (extra) products.push(extra)
-  }
+  const autoPlay =
+    rotateCarta.length > 1 ||
+    rotateBuste.length > 1 ||
+    rotateEtichettatrici.length > 1 ||
+    rotateCartucceToner.length > 1
 
   return {
-    products: products.slice(0, limit),
+    products,
+    rotateCarta,
+    rotateBuste,
     rotateEtichettatrici,
     rotateCartucceToner,
-    autoPlay: rotateEtichettatrici.length > 1 || rotateCartucceToner.length > 1,
+    fourSlots: true,
+    autoPlay,
   }
 }
 

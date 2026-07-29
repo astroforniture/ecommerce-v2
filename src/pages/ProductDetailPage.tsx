@@ -78,6 +78,7 @@ import {
   STARLINE_ARCHIVE_BOX_SKU_BY_VARIANT,
   starlineArchiveBoxImageForVariant,
   starlineArchiveVariantKeyFromProducerCode,
+  fetchCrossSellRotationPools,
 } from '../api/officeProductsSupabase'
 import { useCart } from '../context/CartContext'
 import type { OfficeProduct, ProductVariantOption } from '../types/officeProduct'
@@ -746,6 +747,21 @@ export function ProductDetailPage() {
   })
 
   const product = query.data ?? undefined
+
+  const crossSellPoolsQuery = useQuery({
+    queryKey: ['cross-sell-rotation-pools'],
+    queryFn: () => fetchCrossSellRotationPools(24),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const crossSell = useMemo(() => {
+    if (!product) return null
+    return getCrossSellForProduct(product, 8, {
+      carta: crossSellPoolsQuery.data?.carta,
+      buste: crossSellPoolsQuery.data?.buste,
+    })
+  }, [product, crossSellPoolsQuery.data])
+
   const isStaticSynthetic = useMemo(
     () => Boolean(product && isStaticSyntheticOfficeProduct(product)),
     [product],
@@ -4868,7 +4884,7 @@ export function ProductDetailPage() {
           }
         />
 
-        <CrossSellSection crossSell={getCrossSellForProduct(product)} />
+        {crossSell ? <CrossSellSection crossSell={crossSell} /> : null}
 
         <OfficeProductDetailRelatedSection
           products={relatedProducts}

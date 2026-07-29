@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Plus, ShoppingCart } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { productUnitIvato } from '../../lib/freeShippingUpsellProducts'
-import { detectOfficeCrossSellGroup, type CrossSellResult } from '../../data/crossSellCatalog'
+import type { CrossSellResult } from '../../data/crossSellCatalog'
 import { productDetailPath } from '../../lib/productRoutes'
 import { ProductThumb } from './ProductThumb'
 import type { OfficeProduct } from '../../types/officeProduct'
@@ -11,12 +11,15 @@ import type { OfficeProduct } from '../../types/officeProduct'
 const eur = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' })
 const AUTO_PLAY_MS = 3000
 
+const SLOT_KEYS = ['carta', 'buste', 'etichettatrici', 'toner'] as const
+
 type CrossSellCardProps = {
   product: OfficeProduct
+  slotLabel?: string
   onAdd: (product: OfficeProduct) => void
 }
 
-function CrossSellCard({ product, onAdd }: CrossSellCardProps) {
+function CrossSellCard({ product, slotLabel, onAdd }: CrossSellCardProps) {
   const unitIvato = productUnitIvato(product, 1)
   const hasPrice = unitIvato > 0
   const detailTo = productDetailPath(product)
@@ -36,6 +39,11 @@ function CrossSellCard({ product, onAdd }: CrossSellCardProps) {
         />
       </Link>
       <div className="flex flex-1 flex-col p-3">
+        {slotLabel ? (
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-brand-700">
+            {slotLabel}
+          </p>
+        ) : null}
         <Link
           to={detailTo}
           className="line-clamp-2 text-xs font-semibold leading-snug text-slate-900 transition hover:text-brand-800 hover:underline"
@@ -73,6 +81,11 @@ function CrossSellCard({ product, onAdd }: CrossSellCardProps) {
   )
 }
 
+function pickRotating(pool: readonly OfficeProduct[], tick: number): OfficeProduct | null {
+  if (pool.length === 0) return null
+  return pool[tick % pool.length] ?? null
+}
+
 type CrossSellSectionProps = {
   crossSell: CrossSellResult
   heading?: string
@@ -81,7 +94,7 @@ type CrossSellSectionProps = {
 }
 
 /**
- * Sezione cross-sell PDP con rotazione soft ogni 3s su Etichettatrici e Cartucce & Toner.
+ * Sezione cross-sell PDP: 4 slot fissi (Carta / Buste / Etichettatrici / Toner) con rotazione 3s.
  */
 export function CrossSellSection({
   crossSell,
@@ -90,54 +103,50 @@ export function CrossSellSection({
   className = '',
 }: CrossSellSectionProps) {
   const { addOfficeProduct } = useCart()
-  const scrollerRef = useRef<HTMLUListElement>(null)
   const [tick, setTick] = useState(0)
   const [paused, setPaused] = useState(false)
 
-  const displayProducts = useMemo(() => {
-    const base = [...crossSell.products]
-    if (!crossSell.autoPlay) return base
+  const displaySlots = useMemo(() => {
+    if (crossSell.fourSlots) {
+      const slots: Array<{ key: (typeof SLOT_KEYS)[number]; label: string; product: OfficeProduct }> =
+        []
+      const carta = pickRotating(crossSell.rotateCarta, tick)
+      const buste = pickRotating(crossSell.rotateBuste, tick)
+      const etch = pickRotating(crossSell.rotateEtichettatrici, tick)
+      const toner = pickRotating(crossSell.rotateCartucceToner, tick)
+      if (carta) slots.push({ key: 'carta', label: 'Carta', product: carta })
+      if (buste) slots.push({ key: 'buste', label: 'Buste', product: buste })
+      if (etch) slots.push({ key: 'etichettatrici', label: 'Etichettatrici', product: etch })
+      if (toner) slots.push({ key: 'toner', label: 'Cartucce & Toner', product: toner })
+      return slots
+    }
 
-    const etchIdx =
-      crossSell.rotateEtichettatrici.length > 0
-        ? tick % crossSell.rotateEtichettatrici.length
-        : 0
-    const tonerIdx =
-      crossSell.rotateCartucceToner.length > 0
-        ? tick % crossSell.rotateCartucceToner.length
-        : 0
-
-    const etch = crossSell.rotateEtichettatrici[etchIdx]
-    const toner = crossSell.rotateCartucceToner[tonerIdx]
-
-    return base.map((p) => {
-      const g = detectOfficeCrossSellGroup(p)
-      if (g === 'etichettatrici' && etch) return etch
-      if (g === 'cartucce-toner' && toner) return toner
-      return p
-    })
+    return crossSell.products.map((product, i) => ({
+      key: SLOT_KEYS[i % SLOT_KEYS.length]!,
+      label: '',
+      product,
+    }))
   }, [crossSell, tick])
 
   useEffect(() => {
     if (!crossSell.autoPlay || paused) return
     const id = window.setInterval(() => {
       setTick((t) => t + 1)
-      const el = scrollerRef.current
-      if (!el || el.scrollWidth <= el.clientWidth + 8) return
-      const cardWidth = el.querySelector('li')?.getBoundingClientRect().width ?? 220
-      const gap = 16
-      const step = cardWidth + gap
-      const nextLeft = el.scrollLeft + step
-      const maxLeft = el.scrollWidth - el.clientWidth
-      el.scrollTo({
-        left: nextLeft >= maxLeft - 4 ? 0 : nextLeft,
-        behavior: 'smooth',
-      })
     }, AUTO_PLAY_MS)
     return () => window.clearInterval(id)
   }, [crossSell.autoPlay, paused])
 
-  if (displayProducts.length === 0) return null
+  useEffect(() => {
+    setTick(0)
+  }, [
+    crossSell.rotateCarta,
+    crossSell.rotateBuste,
+    crossSell.rotateEtichettatrici,
+    crossSell.rotateCartucceToner,
+    crossSell.products,
+  ])
+
+  if (displaySlots.length === 0) return null
 
   function handleAdd(product: OfficeProduct) {
     addOfficeProduct(product, 1)
@@ -170,21 +179,23 @@ export function CrossSellSection({
       </div>
 
       <ul
-        ref={scrollerRef}
         className="mt-6 flex gap-4 overflow-x-auto pb-2 scroll-smooth [-webkit-overflow-scrolling:touch]"
         aria-label={heading}
       >
-        {displayProducts.map((product) => (
+        {displaySlots.map((slot) => (
           <CrossSellCard
-            key={`${product.id}-${detectOfficeCrossSellGroup(product) ?? 'x'}`}
-            product={product}
+            key={`${slot.key}-${slot.product.id}`}
+            product={slot.product}
+            slotLabel={crossSell.fourSlots ? slot.label : undefined}
             onAdd={handleAdd}
           />
         ))}
       </ul>
       {crossSell.autoPlay ? (
         <p className="mt-2 text-[11px] text-slate-500">
-          Anteprime Etichettatrici e Cartucce &amp; Toner in rotazione automatica
+          {crossSell.fourSlots
+            ? 'Carta, Buste, Etichettatrici e Cartucce & Toner in rotazione automatica'
+            : 'Anteprime in rotazione automatica'}
           {paused ? ' (in pausa)' : ''}.
         </p>
       ) : null}
