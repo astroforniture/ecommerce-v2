@@ -746,7 +746,7 @@ export function getCrossSellForProduct(
     })
   }
 
-  // Carta → slot classici + Distruggi Documenti
+  // Carta → slot classici + Distruggi Documenti (bidirezionale)
   if (group === 'carta') {
     const slots: CrossSellSlot[] = [
       { key: 'carta', label: 'Carta', pool: rotateCarta },
@@ -763,20 +763,29 @@ export function getCrossSellForProduct(
     })
   }
 
-  // Anello ufficio restante (archivio / buste / etch / toner)
-  const slots: CrossSellSlot[] = [
-    { key: 'carta', label: 'Carta', pool: rotateCarta },
-    { key: 'buste', label: 'Buste', pool: rotateBuste },
-    { key: 'etichettatrici', label: 'Etichettatrici', pool: rotateEtichettatrici },
-    { key: 'toner', label: 'Cartucce & Toner', pool: rotateCartucceToner },
-  ].filter((s) => s.pool.length > 0)
+  // Archivio Ufficio / Buste / Etichettatrici / Toner:
+  // Slot 1 Carta, Slot 2 Buste (DB), Slot 3 Etichettatrici, Slot 4 Toner — rotazione 3s
+  if (
+    group === 'archivio' ||
+    group === 'buste-trasparenti' ||
+    group === 'etichettatrici' ||
+    group === 'cartucce-toner'
+  ) {
+    const slots: CrossSellSlot[] = [
+      { key: 'carta', label: 'Carta', pool: rotateCarta },
+      { key: 'buste', label: 'Buste', pool: rotateBuste },
+      { key: 'etichettatrici', label: 'Etichettatrici', pool: rotateEtichettatrici },
+      { key: 'toner', label: 'Cartucce & Toner', pool: rotateCartucceToner },
+    ].filter((s) => s.pool.length > 0)
+    return resultFromSlots(slots, {
+      rotateCarta,
+      rotateBuste,
+      rotateEtichettatrici,
+      rotateCartucceToner,
+    })
+  }
 
-  return resultFromSlots(slots, {
-    rotateCarta,
-    rotateBuste,
-    rotateEtichettatrici,
-    rotateCartucceToner,
-  })
+  return emptyCrossSell()
 }
 
 /**

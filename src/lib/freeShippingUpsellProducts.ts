@@ -2,7 +2,6 @@ import {
   fetchCheapOfficeProductsForUpsell,
   OFFICE_CATALOG_DATA_REVISION,
 } from '../api/officeProductsSupabase'
-import { FREE_SHIPPING_DRAWER_UPSELL_PRODUCTS } from '../data/freeShippingDrawerUpsellProducts'
 import type { OfficeProduct } from '../types/officeProduct'
 import { FREE_SHIPPING_THRESHOLD_IVATO, roundMoney2 } from './cartMerchandiseIvato'
 import { isOfficeProductAstroMedicalLine } from './isOfficeProductAstroMedicalLine'
@@ -58,10 +57,10 @@ function pickRandomUpsellCandidates(
   return shuffleInPlace([...eligible]).slice(0, limit)
 }
 
-/** Pool immediato: prodotti fissi drawer + catalogo locale (senza attesa rete). */
+/** Pool immediato: catalogo locale (senza attesa rete). */
 function getLocalUpsellPool(): OfficeProduct[] {
   const byId = new Map<string, OfficeProduct>()
-  for (const product of [...FREE_SHIPPING_DRAWER_UPSELL_PRODUCTS, ...getInjectedLocalCatalogProducts()]) {
+  for (const product of getInjectedLocalCatalogProducts()) {
     byId.set(String(product.id), product)
   }
   return [...byId.values()]
