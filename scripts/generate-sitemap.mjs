@@ -38,6 +38,7 @@ async function generate() {
   const staticUrls = [
     '/',
     '/home',
+    '/faq',
     '/office-products',
     '/office-products?category=Cancelleria',
     '/office-products?category=Cancelleria&cancelleriaView=shopper',

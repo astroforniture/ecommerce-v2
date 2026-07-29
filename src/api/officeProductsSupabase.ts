@@ -22,6 +22,7 @@ import {
   casseDitronBrochureUrlForProduct,
   isCasseDitronOfficeProductId,
 } from '../data/casseDitronProducts'
+import { parseProductFaq } from '../data/faqCatalog'
 import { searchOfficeProductsClient, setOfficeSearchIndexFromProducts, shouldUseLocalSearchOnly } from '../lib/officeClientSearch'
 import { isGeneralOfficeShopCatalogProduct } from '../lib/isGeneralOfficeShopCatalogProduct'
 import { isExcludedFromOfficeSearchSuggestions } from '../lib/isOfficeProductAstroMedicalLine'
@@ -72,6 +73,7 @@ type OfficeProductsLegacyRow = {
  * Non includere `parent_sku` / `main_features` nel select catalogo finché non sono garantiti nello schema.
  */
 const PRODUCT_SHOP_SELECT_FALLBACKS: readonly string[] = [
+  'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants, ean',
@@ -88,6 +90,7 @@ const PRODUCT_SHOP_SELECT_FALLBACKS: readonly string[] = [
 
 /** Fetch scheda prodotto: prova prima con `variants` (JSONB misure/colori). */
 const PRODUCT_DETAIL_SELECT_FALLBACKS: readonly string[] = [
+  'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants, ean',
@@ -1201,6 +1204,7 @@ type OfficeProductRow = ShopProductRow & {
   ean?: string | null
   brochure_url?: string | null
   subtitle?: string | null
+  faq?: unknown
   variants?: unknown
   main_features?: unknown
 }
@@ -1501,7 +1505,11 @@ function mapRowToOfficeProduct(row: OfficeProductRow): OfficeProduct {
     format: String((row as OfficeProductRow).format ?? '').trim() || undefined,
     ean: String((row as OfficeProductRow).ean ?? '').trim() || undefined,
     brochureUrl: String((row as OfficeProductRow).brochure_url ?? '').trim() || undefined,
+    faq: parseProductFaq((row as OfficeProductRow).faq),
     variants: parseVariantsJson(row.variants),
+  }
+  if (!mapped.faq?.length) {
+    delete mapped.faq
   }
   if (mapped.ean && !mapped.mainFeatures.EAN) {
     mapped.mainFeatures = { ...mapped.mainFeatures, EAN: mapped.ean }
@@ -3470,6 +3478,7 @@ export async function fetchOfficeProductByIdentifier(
           brochureUrl: catalog.brochureUrl || product.brochureUrl,
           description: catalog.description || product.description,
           subcategory: catalog.subcategory || product.subcategory,
+          faq: product.faq?.length ? product.faq : catalog.faq,
         }
       }
     }

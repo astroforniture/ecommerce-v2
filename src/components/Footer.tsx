@@ -71,8 +71,8 @@ const Footer = () => {
       </section>
 
       <div className="w-full border-t border-slate-200 px-4 py-8 text-slate-700 md:px-8">
-        <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-2">
-          <div className="space-y-1.5 text-sm leading-relaxed md:text-left">
+          <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-3">
+          <div className="space-y-1.5 text-sm leading-relaxed md:text-left md:col-span-1">
             <p className="font-semibold text-slate-900">{COMPANY_TRADE_NAME}</p>
             <p>Astro Forniture di Borella Mario</p>
             <p>Sede: Str Cisa 7 - 46047 Porto M.no (MN)</p>
@@ -108,6 +108,45 @@ const Footer = () => {
                 Apri mappa Google
               </a>
             </p>
+          </div>
+
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-slate-900">
+              Servizio Clienti
+            </p>
+            <ul className="mt-3 space-y-2 text-sm">
+              <li>
+                <Link className="text-slate-700 underline-offset-4 hover:underline" to="/faq">
+                  FAQ
+                </Link>
+              </li>
+              <li>
+                <a
+                  className="text-slate-700 underline-offset-4 hover:underline"
+                  href={COMPANY_MAILTO}
+                >
+                  Contattaci
+                </a>
+              </li>
+              <li>
+                <Link
+                  className="text-slate-700 underline-offset-4 hover:underline"
+                  to="/termini-condizioni-vendita"
+                >
+                  Termini e condizioni
+                </Link>
+              </li>
+              <li>
+                <Link className="text-slate-700 underline-offset-4 hover:underline" to="/privacy-policy">
+                  Privacy
+                </Link>
+              </li>
+              <li>
+                <Link className="text-slate-700 underline-offset-4 hover:underline" to="/cookie-policy">
+                  Cookie Policy
+                </Link>
+              </li>
+            </ul>
           </div>
 
           <div>

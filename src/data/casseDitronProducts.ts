@@ -1,5 +1,6 @@
 import type { OfficeProduct } from '../types/officeProduct'
 import { macchineUfficioSubcategoryPath } from '../lib/macchineUfficioRoutes'
+import { NEW_IDEAL_PRODUCT_FAQ, type FaqItem } from './faqCatalog'
 
 /** Sottocategoria Macchine per Ufficio — URL e etichetta UI */
 export const MACCHINE_SUB_CASSE_DITRON_SLUG = 'casse-ditron'
@@ -33,6 +34,8 @@ export type CasseDitronCatalogItem = {
   mainFeatures: Record<string, string>
   /** Brochure PDF pubblica (path sotto /public). */
   brochureUrl?: string
+  /** FAQ specifiche prodotto. */
+  faq?: readonly FaqItem[]
 }
 
 const SAFEMONEY_SPECS = `Display operatore: 10" grafico touchscreen con rotazione di 30°
@@ -99,6 +102,7 @@ export const CASSE_DITRON_CATALOG: readonly CasseDitronCatalogItem[] = [
     priceImponible: 0,
     brand: 'Ditronetwork',
     brochureUrl: NEW_IDEAL_BROCHURE_PDF_URL,
+    faq: NEW_IDEAL_PRODUCT_FAQ,
     description:
       "Registratore Telematico conforme ai requisiti dell'Agenzia delle Entrate per l'invio dei corrispettivi fiscali. Dotato di display touch e un'interfaccia utente riprogettata per rendere ogni funzione a portata di tocco. Include un sistema antitampering per bloccare ogni manomissione e garantire la massima sicurezza dei dati.",
     mainFeatures: {
@@ -148,6 +152,7 @@ export function buildCasseDitronOfficeProducts(): OfficeProduct[] {
     subtitle: row.subtitle,
     description: casseDitronFullDescription(row),
     brochureUrl: row.brochureUrl,
+    faq: row.faq ? [...row.faq] : undefined,
   }))
 }
 

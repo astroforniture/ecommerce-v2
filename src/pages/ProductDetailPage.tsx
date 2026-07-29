@@ -104,6 +104,7 @@ import { isPunchedEnvelopeProduct } from '../lib/punchedEnvelope'
 import { isTimbroAziendeFarmacieProduct } from '../lib/timbroAziendeFarmacieProduct'
 import { TimbroAziendeFarmacieDetail } from '../components/product/TimbroAziendeFarmacieDetail'
 import { OfficeProductDetailPurchasePanel } from '../components/product/OfficeProductDetailPurchasePanel'
+import { ProductFaqSection } from '../components/faq/ProductFaqSection'
 import {
   OfficeProductDetailDescriptionSection,
   OfficeProductDetailRelatedSection,
@@ -117,7 +118,9 @@ import {
   isCasseDitronOfficeProductId,
   isQuoteOnlyOfficeProduct,
   casseDitronBrochureUrlForProduct,
+  isDitronNewIdealProduct,
 } from '../data/casseDitronProducts'
+import { NEW_IDEAL_PRODUCT_FAQ } from '../data/faqCatalog'
 import {
   buildShopperCartaOfficeProducts,
   buildShopperPlasticaOfficeProducts,
@@ -4849,6 +4852,17 @@ export function ProductDetailPage() {
             (displayProductName.toLowerCase().includes('new ideal')
               ? '/pdf/brochure-new-ideal.pdf'
               : undefined)
+          }
+        />
+
+        <ProductFaqSection
+          productName={displayProductName}
+          items={
+            product.faq?.length
+              ? product.faq
+              : isDitronNewIdealProduct(product)
+                ? NEW_IDEAL_PRODUCT_FAQ
+                : []
           }
         />
 

@@ -1,3 +1,7 @@
+import type { FaqItem } from '../data/faqCatalog'
+
+export type { FaqItem }
+
 /** Soglia quantità → prezzo unitario (IVA esclusa) per listini sconto quantità. */
 export type QuantityPriceTier = {
   minQuantity: number
@@ -55,6 +59,8 @@ export interface OfficeProduct {
   ean?: string
   /** Opzionale: URL brochure PDF (es. Casse Ditron NEW iDEAL). */
   brochureUrl?: string
+  /** Opzionale: FAQ prodotto (array domande/risposte). */
+  faq?: FaqItem[]
   /** Opzionale: da tabella Supabase product_quantity_prices */
   quantityPriceTiers?: QuantityPriceTier[]
   /** Opzionale: colonna JSONB `variants` su public.products */

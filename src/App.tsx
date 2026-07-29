@@ -31,7 +31,7 @@ import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage'
 import { ProductDetailPage } from './pages/ProductDetailPage'
 import { BindingServicePage } from './pages/BindingServicePage'
 import { ServizioDetailPage } from './pages/ServizioDetailPage'
-import { TermsSalesPage } from './pages/TermsSalesPage'
+import { FaqPage } from './pages/FaqPage'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { AccountProfilePage } from './pages/AccountProfilePage'
@@ -136,6 +136,7 @@ export default function App() {
         <Route path="/account/profile" element={<AccountProfilePage />} />
         <Route path="/profile" element={<Navigate to="/account/profile" replace />} />
         <Route path="/termini-condizioni-vendita" element={<TermsSalesPage />} />
+        <Route path="/faq" element={<FaqPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/cookie-policy" element={<CookiePolicyPage />} />
       </Route>
