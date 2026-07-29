@@ -116,6 +116,7 @@ import {
   buildCasseDitronOfficeProducts,
   isCasseDitronOfficeProductId,
   isQuoteOnlyOfficeProduct,
+  casseDitronBrochureUrlForProduct,
 } from '../data/casseDitronProducts'
 import {
   buildShopperCartaOfficeProducts,
@@ -4819,6 +4820,7 @@ export function ProductDetailPage() {
               justAdded={justAdded}
               productName={displayProductName}
               quoteOnly={isQuoteOnlyOfficeProduct(product)}
+              brochureUrl={casseDitronBrochureUrlForProduct(product) ?? product.brochureUrl}
               priceUnitSuffix={isPackSizeVariant ? '/ confezione' : '/ pezzo'}
               rootClassName={isStaticSynthetic ? 'mt-6 sm:mt-8' : undefined}
               quantityDiscountTable={

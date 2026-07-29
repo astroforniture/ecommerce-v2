@@ -1,4 +1,4 @@
-import { Phone } from 'lucide-react'
+import { FileDown, Phone } from 'lucide-react'
 
 import {
   ASTRO_FORNITURE_LANDLINE_DISPLAY,
@@ -16,13 +16,19 @@ function WhatsAppIcon({ className }: { className?: string }) {
 
 type ProductQuoteOnlyDetailCtasProps = {
   productName: string
+  /** Path pubblico brochure PDF (es. `/pdf/brochure-new-ideal.pdf`). */
+  brochureUrl?: string | null
 }
 
 /**
  * CTA principali per prodotti solo preventivo (es. Casse Ditron): WhatsApp + telefono fisso.
  */
-export function ProductQuoteOnlyDetailCtas({ productName }: ProductQuoteOnlyDetailCtasProps) {
+export function ProductQuoteOnlyDetailCtas({
+  productName,
+  brochureUrl,
+}: ProductQuoteOnlyDetailCtasProps) {
   const whatsappHref = productQuoteRequestHref(productName)
+  const brochure = brochureUrl?.trim() || ''
 
   return (
     <div className="rounded-2xl border border-emerald-200/90 bg-gradient-to-b from-emerald-50/90 via-white to-white p-5 shadow-md ring-1 ring-emerald-100/80 sm:p-6">
@@ -42,6 +48,19 @@ export function ProductQuoteOnlyDetailCtas({ productName }: ProductQuoteOnlyDeta
           <WhatsAppIcon className="size-6 shrink-0" />
           Richiedi preventivo su WhatsApp
         </a>
+
+        {brochure ? (
+          <a
+            href={brochure}
+            target="_blank"
+            rel="noopener noreferrer"
+            download
+            className="inline-flex w-full items-center justify-center gap-2.5 rounded-xl border border-slate-300 bg-white px-5 py-3.5 text-sm font-bold text-slate-900 shadow-sm transition hover:border-brand-400 hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:ring-offset-2 sm:text-base"
+          >
+            <FileDown className="size-5 shrink-0 text-brand-800" aria-hidden />
+            Scarica Brochure PDF
+          </a>
+        ) : null}
 
         <div className="flex flex-col items-center gap-2 rounded-xl border border-slate-200/80 bg-slate-50/80 px-4 py-3 text-center sm:flex-row sm:justify-center sm:gap-2.5">
           <span className="text-sm text-slate-600">oppure contattaci direttamente al numero fisso</span>

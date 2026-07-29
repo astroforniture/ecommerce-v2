@@ -27,6 +27,8 @@ export type OfficeProductDetailPurchasePanelProps = {
   quantityDiscountTable?: ReactNode
   /** Solo preventivo: nasconde prezzo, quantità e carrello. */
   quoteOnly?: boolean
+  /** Brochure PDF (solo preventivo / schede tecniche). */
+  brochureUrl?: string | null
   /** Suffisso unità prezzo (default "/ pezzo"). Es. "/ confezione". */
   priceUnitSuffix?: string
 }
@@ -46,6 +48,7 @@ export function OfficeProductDetailPurchasePanel({
   rootClassName,
   quantityDiscountTable,
   quoteOnly = false,
+  brochureUrl,
   priceUnitSuffix = '/ pezzo',
 }: OfficeProductDetailPurchasePanelProps) {
   const root = ['mt-3 w-full space-y-3', rootClassName].filter(Boolean).join(' ')
@@ -53,7 +56,7 @@ export function OfficeProductDetailPurchasePanel({
   if (quoteOnly) {
     return (
       <div className={root}>
-        <ProductQuoteOnlyDetailCtas productName={productName} />
+        <ProductQuoteOnlyDetailCtas productName={productName} brochureUrl={brochureUrl} />
         <OfficeProductDetailTrustStrip />
       </div>
     )

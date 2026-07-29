@@ -67,6 +67,7 @@ type OfficeProductsLegacyRow = {
  * Non includere `parent_sku` / `main_features` nel select catalogo finché non sono garantiti nello schema.
  */
 const PRODUCT_SHOP_SELECT_FALLBACKS: readonly string[] = [
+  'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants, ean',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name',
@@ -81,6 +82,7 @@ const PRODUCT_SHOP_SELECT_FALLBACKS: readonly string[] = [
 
 /** Fetch scheda prodotto: prova prima con `variants` (JSONB misure/colori). */
 const PRODUCT_DETAIL_SELECT_FALLBACKS: readonly string[] = [
+  'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants, ean',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name, variants',
   'id, name, sku, brand, description, price, category, subcategory, image_url, format, color_name',
@@ -1190,6 +1192,7 @@ type OfficeProductRow = ShopProductRow & {
   description?: string | null
   format?: string | null
   ean?: string | null
+  brochure_url?: string | null
   variants?: unknown
   main_features?: unknown
 }
@@ -1488,6 +1491,7 @@ function mapRowToOfficeProduct(row: OfficeProductRow): OfficeProduct {
     price: Number.isFinite(rawPrice) ? Number(rawPrice) : undefined,
     format: String((row as OfficeProductRow).format ?? '').trim() || undefined,
     ean: String((row as OfficeProductRow).ean ?? '').trim() || undefined,
+    brochureUrl: String((row as OfficeProductRow).brochure_url ?? '').trim() || undefined,
     variants: parseVariantsJson(row.variants),
   }
   if (mapped.ean && !mapped.mainFeatures.EAN) {

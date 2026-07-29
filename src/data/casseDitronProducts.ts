@@ -24,6 +24,8 @@ export type CasseDitronCatalogItem = {
   brand: string
   description: string
   mainFeatures: Record<string, string>
+  /** Brochure PDF pubblica (path sotto /public). */
+  brochureUrl?: string
 }
 
 const SAFEMONEY_SPECS = `Display operatore: 10" grafico touchscreen con rotazione di 30°
@@ -87,6 +89,7 @@ export const CASSE_DITRON_CATALOG: readonly CasseDitronCatalogItem[] = [
     imageUrl: `${CASSE_DITRON_IMAGE_BASE}/image_18d0c9.jpg`,
     priceImponible: 0,
     brand: 'Ditronetwork',
+    brochureUrl: '/pdf/brochure-new-ideal.pdf',
     description:
       "Registratore Telematico conforme ai requisiti dell'Agenzia delle Entrate per l'invio dei corrispettivi fiscali. Dotato di display touch e un'interfaccia utente riprogettata per rendere ogni funzione a portata di tocco. Include un sistema antitampering per bloccare ogni manomissione e garantire la massima sicurezza dei dati.",
     mainFeatures: {
@@ -134,6 +137,7 @@ export function buildCasseDitronOfficeProducts(): OfficeProduct[] {
     imageUrl: row.imageUrl,
     price: undefined,
     description: casseDitronFullDescription(row),
+    brochureUrl: row.brochureUrl,
   }))
 }
 
@@ -141,12 +145,22 @@ export function isCasseDitronOfficeProductId(id: string): boolean {
   return String(id ?? '').startsWith(CASSE_DITRON_OFFICE_ID_PREFIX)
 }
 
-/** Prodotti venduti solo su preventivo: nessun prezzo pubblico né acquisto online. */
-export function isQuoteOnlyOfficeProduct(
-  product: Pick<OfficeProduct, 'id' | 'producerCode'> | null | undefined,
-): boolean {
+/** Brochure PDF ufficiale NEW iDEAL (catalogo statico). */
+export function casseDitronBrochureUrlForProduct(
+  product: Pick<OfficeProduct, 'id' | 'producerCode' | 'brochureUrl'> | null | undefined,
+): string | undefined {
+  const fromProduct = product?.brochureUrl?.trim()
+  if (fromProduct) return fromProduct
   const id = String(product?.id ?? '')
   const sku = String(product?.producerCode ?? '')
-  if (isCasseDitronOfficeProductId(id) || isCasseDitronOfficeProductId(sku)) return true
-  return false
+  const key = isCasseDitronOfficeProductId(id)
+    ? id
+    : isCasseDitronOfficeProductId(sku)
+      ? sku
+      : ''
+  if (!key) return undefined
+  return (
+    buildCasseDitronOfficeProducts().find((p) => p.id === key || p.producerCode === key)
+      ?.brochureUrl ?? undefined
+  )
 }

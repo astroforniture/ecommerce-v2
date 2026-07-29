@@ -51,6 +51,8 @@ export interface OfficeProduct {
   format?: string
   /** Opzionale: EAN-13 su `public.products` (es. Modulistica Edipro). */
   ean?: string
+  /** Opzionale: URL brochure PDF (es. Casse Ditron NEW iDEAL). */
+  brochureUrl?: string
   /** Opzionale: da tabella Supabase product_quantity_prices */
   quantityPriceTiers?: QuantityPriceTier[]
   /** Opzionale: colonna JSONB `variants` su public.products */
