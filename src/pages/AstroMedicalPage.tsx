@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { OfficeProductCard } from '../components/office/OfficeProductCard'
 import { AstroMedicalSubcategoryNav } from '../components/astroMedical/AstroMedicalSubcategoryNav'
+import { AstroMedicalSearchBar } from '../components/astroMedical/AstroMedicalSearchBar'
 import { useOfficeCatalog } from '../hooks/useOfficeCatalog'
 import { normalizeOfficeProductCategory } from '../lib/officeCategories'
 import { mergeLineaAstroMedicalCatalog } from '../data/lineaAstroMedicalCombined'
@@ -64,6 +65,17 @@ export function AstroMedicalPage() {
     })
   }
 
+  function setMedicalSearch(value: string) {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev)
+      next.delete('q')
+      const v = value.trim()
+      if (v) next.set('search', v)
+      else next.delete('search')
+      return next
+    }, { replace: true })
+  }
+
   return (
     <main className="min-h-[60vh] bg-gradient-to-b from-medical-50 to-white">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
@@ -89,7 +101,7 @@ export function AstroMedicalPage() {
               />
             </span>
             <p className="max-w-[240px] text-xs font-semibold leading-snug text-medical-800">
-              Catalogo articoli GIMA - Distribuzione riservata ai rivenditori
+              Prodotti originali GIMA - Distribuzione riservata ai rivenditori
             </p>
           </div>
           <div>
@@ -114,6 +126,13 @@ export function AstroMedicalPage() {
             </p>
           </div>
         </header>
+
+        <div className="mt-8">
+          <AstroMedicalSearchBar value={searchQuery} onChange={setMedicalSearch} />
+          <p className="mt-2 text-xs text-slate-500">
+            Ricerca esclusiva sul catalogo sanitario GIMA / Astro Medical (separata dallo shop generale).
+          </p>
+        </div>
 
         <section className="py-10" aria-labelledby="astro-medical-catalog-heading">
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

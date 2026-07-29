@@ -2804,7 +2804,7 @@ export async function fetchOfficeSearchCatalogIndex(): Promise<OfficeSearchCatal
 export async function fetchOfficeProductSearchSuggestions(
   rawQuery: string,
   limit = 5,
-  scope: 'all' | 'medical' | 'office' = 'all',
+  scope: 'all' | 'medical' | 'office' = 'office',
 ): Promise<OfficeSearchSuggestion[]> {
   const trimmed = rawQuery.trim()
   const terms = tokenizeSearchTerms(trimmed)

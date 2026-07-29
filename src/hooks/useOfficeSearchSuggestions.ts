@@ -41,7 +41,7 @@ type UseOfficeSearchSuggestionsOptions = {
   debouncedQuery: string
   minChars?: number
   limit?: number
-  /** `medical` = solo Astro Medical / GIMA; `office` = solo ufficio; `all` = entrambi. */
+  /** `medical` = solo Astro Medical / GIMA; `office` = solo ufficio (default header); `all` = entrambi. */
   scope?: OfficeSearchCatalogScope
 }
 
@@ -53,7 +53,7 @@ export function useOfficeSearchSuggestions({
   debouncedQuery,
   minChars = 2,
   limit = 8,
-  scope = 'all',
+  scope = 'office',
 }: UseOfficeSearchSuggestionsOptions) {
   const trimmed = query.trim()
   const debouncedTrimmed = debouncedQuery.trim()
