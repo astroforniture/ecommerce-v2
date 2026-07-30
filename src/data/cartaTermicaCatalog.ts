@@ -1,12 +1,43 @@
 import type { OfficeProduct, QuantityPriceTier } from '../types/officeProduct'
 import { CARTA_SUBCATEGORY_TERMICA, cartaCategoryHref } from '../lib/officeCategories'
 
-/** Prezzo listino SKU 93453 (imponibile / conf.). */
-const CARTA_TERMICA_93453_BASE_PRICE = 2.87
-const CARTA_TERMICA_93453_QUANTITY_TIERS: QuantityPriceTier[] = [
-  { minQuantity: 1, unitPrice: 2.87 },
-  { minQuantity: 6, unitPrice: 2.5 },
-]
+/** Listini quantità carta termica (imponibile / conf.) — chiave = SKU. */
+const CARTA_TERMICA_QUANTITY_PRICING_BY_SKU: Record<
+  string,
+  { basePrice: number; tiers: QuantityPriceTier[] }
+> = {
+  '93453': {
+    basePrice: 2.87,
+    tiers: [
+      { minQuantity: 1, unitPrice: 2.87 },
+      { minQuantity: 6, unitPrice: 2.5 },
+    ],
+  },
+  '93454': {
+    basePrice: 17.21,
+    tiers: [
+      { minQuantity: 1, unitPrice: 17.21 },
+      { minQuantity: 5, unitPrice: 16.38 },
+      { minQuantity: 10, unitPrice: 15.67 },
+    ],
+  },
+  '100072': {
+    basePrice: 5.77,
+    tiers: [
+      { minQuantity: 1, unitPrice: 5.77 },
+      { minQuantity: 5, unitPrice: 4.51 },
+      { minQuantity: 10, unitPrice: 4.09 },
+    ],
+  },
+  '100149': {
+    basePrice: 6.56,
+    tiers: [
+      { minQuantity: 1, unitPrice: 6.56 },
+      { minQuantity: 5, unitPrice: 5.74 },
+      { minQuantity: 10, unitPrice: 5.29 },
+    ],
+  },
+}
 
 export const CARTA_TERMICA_CATEGORY = 'Carta' as const
 
@@ -107,27 +138,36 @@ export const CARTA_TERMICA_CATALOG: readonly CartaTermicaCatalogItem[] = [
   },
 ] as const
 
-function toOfficeProduct(item: CartaTermicaCatalogItem): OfficeProduct {
-  const is93453 = item.sku === '93453'
+function applyCatalogQuantityPricing(product: OfficeProduct, sku: string): OfficeProduct {
+  const pricing = CARTA_TERMICA_QUANTITY_PRICING_BY_SKU[sku.toUpperCase()]
+  if (!pricing) return product
   return {
-    id: item.sku,
-    name: item.name,
-    brand: item.brand,
-    producerCode: item.sku,
-    category: CARTA_TERMICA_CATEGORY,
-    subcategory: CARTA_SUBCATEGORY_TERMICA,
-    mainFeatures: {
-      ...(item.format ? { Formato: item.format } : {}),
-      Tipo: 'Carta termica',
-    },
-    imageUrl: item.imageUrl,
-    format: item.format,
-    description: item.description,
-    price: is93453 ? CARTA_TERMICA_93453_BASE_PRICE : 0,
-    ...(is93453
-      ? { quantityPriceTiers: CARTA_TERMICA_93453_QUANTITY_TIERS.map((t) => ({ ...t })) }
-      : {}),
+    ...product,
+    price: pricing.basePrice,
+    quantityPriceTiers: pricing.tiers.map((t) => ({ ...t })),
   }
+}
+
+function toOfficeProduct(item: CartaTermicaCatalogItem): OfficeProduct {
+  return applyCatalogQuantityPricing(
+    {
+      id: item.sku,
+      name: item.name,
+      brand: item.brand,
+      producerCode: item.sku,
+      category: CARTA_TERMICA_CATEGORY,
+      subcategory: CARTA_SUBCATEGORY_TERMICA,
+      mainFeatures: {
+        ...(item.format ? { Formato: item.format } : {}),
+        Tipo: 'Carta termica',
+      },
+      imageUrl: item.imageUrl,
+      format: item.format,
+      description: item.description,
+      price: 0,
+    },
+    item.sku,
+  )
 }
 
 export function buildCartaTermicaOfficeProducts(): OfficeProduct[] {
@@ -148,21 +188,18 @@ export function mergeCartaTermicaListingProducts(
     const sku = String(p.producerCode || p.id || '').trim().toUpperCase()
     const catalogItem = CARTA_TERMICA_CATALOG.find((item) => item.sku.toUpperCase() === sku)
     if (!catalogItem) return p
-    const withMeta: OfficeProduct = {
-      ...p,
-      category: CARTA_TERMICA_CATEGORY,
-      subcategory: CARTA_SUBCATEGORY_TERMICA,
-      imageUrl: catalogItem.imageUrl || p.imageUrl,
-      format: p.format || catalogItem.format,
-      brand: p.brand || catalogItem.brand,
-      description: p.description || catalogItem.description,
-    }
-    if (sku !== '93453') return withMeta
-    return {
-      ...withMeta,
-      price: CARTA_TERMICA_93453_BASE_PRICE,
-      quantityPriceTiers: CARTA_TERMICA_93453_QUANTITY_TIERS.map((t) => ({ ...t })),
-    }
+    return applyCatalogQuantityPricing(
+      {
+        ...p,
+        category: CARTA_TERMICA_CATEGORY,
+        subcategory: CARTA_SUBCATEGORY_TERMICA,
+        imageUrl: catalogItem.imageUrl || p.imageUrl,
+        format: p.format || catalogItem.format,
+        brand: p.brand || catalogItem.brand,
+        description: p.description || catalogItem.description,
+      },
+      sku,
+    )
   })
   const dbSkus = new Set(
     patched.map((p) => String(p.producerCode || p.id || '').trim().toUpperCase()).filter(Boolean),

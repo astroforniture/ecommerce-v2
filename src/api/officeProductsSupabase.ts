@@ -130,12 +130,43 @@ const OXFORD_QUANTITY_TIERS: QuantityPriceTier[] = [
   { minQuantity: 6, unitPrice: 6.55 },
   { minQuantity: 13, unitPrice: 5.99 },
 ]
-/** Rotolo POS 57×7 m blister 3 pz (SKU 93453) — imponibile / conf. */
-const CARTA_TERMICA_93453_BASE_PRICE = 2.87
-const CARTA_TERMICA_93453_QUANTITY_TIERS: QuantityPriceTier[] = [
-  { minQuantity: 1, unitPrice: 2.87 },
-  { minQuantity: 6, unitPrice: 2.5 },
-]
+/** Listini quantità carta termica (imponibile / conf.) — chiave = SKU. */
+const CARTA_TERMICA_QUANTITY_PRICING_BY_SKU: Record<
+  string,
+  { basePrice: number; tiers: QuantityPriceTier[] }
+> = {
+  '93453': {
+    basePrice: 2.87,
+    tiers: [
+      { minQuantity: 1, unitPrice: 2.87 },
+      { minQuantity: 6, unitPrice: 2.5 },
+    ],
+  },
+  '93454': {
+    basePrice: 17.21,
+    tiers: [
+      { minQuantity: 1, unitPrice: 17.21 },
+      { minQuantity: 5, unitPrice: 16.38 },
+      { minQuantity: 10, unitPrice: 15.67 },
+    ],
+  },
+  '100072': {
+    basePrice: 5.77,
+    tiers: [
+      { minQuantity: 1, unitPrice: 5.77 },
+      { minQuantity: 5, unitPrice: 4.51 },
+      { minQuantity: 10, unitPrice: 4.09 },
+    ],
+  },
+  '100149': {
+    basePrice: 6.56,
+    tiers: [
+      { minQuantity: 1, unitPrice: 6.56 },
+      { minQuantity: 5, unitPrice: 5.74 },
+      { minQuantity: 10, unitPrice: 5.29 },
+    ],
+  },
+}
 const PUNCHED_ENVELOPE_TOP_BASE_PRICE = 5.6
 const PUNCHED_ENVELOPE_TOP_QUANTITY_TIERS: QuantityPriceTier[] = [{ minQuantity: 3, unitPrice: 5.09 }]
 const PUNCHED_ENVELOPE_MEDIUM_BASE_PRICE = 4.5
@@ -241,25 +272,19 @@ function relatedMemKey(category: string, excludeId: string) {
   return `${OFFICE_CATALOG_DATA_REVISION}::${category}::${excludeId}`
 }
 
-function isCartaTermica93453Product(product: OfficeProduct): boolean {
-  const sku = String(product.producerCode || product.id || '')
+function cartaTermicaSkuKey(product: OfficeProduct): string {
+  return String(product.producerCode || product.id || '')
     .trim()
     .toUpperCase()
-  if (sku === '93453') return true
-  const n = String(product.name ?? '').toLowerCase()
-  return (
-    n.includes('57 mm x 7 m') &&
-    n.includes('blister 3') &&
-    n.includes('rotolificio pugliese') &&
-    n.includes('carta termica')
-  )
 }
 
-function applyCartaTermica93453Pricing(product: OfficeProduct): OfficeProduct {
+function applyCartaTermicaQuantityPricing(product: OfficeProduct): OfficeProduct | null {
+  const pricing = CARTA_TERMICA_QUANTITY_PRICING_BY_SKU[cartaTermicaSkuKey(product)]
+  if (!pricing) return null
   return {
     ...product,
-    price: CARTA_TERMICA_93453_BASE_PRICE,
-    quantityPriceTiers: CARTA_TERMICA_93453_QUANTITY_TIERS.map((t) => ({ ...t })),
+    price: pricing.basePrice,
+    quantityPriceTiers: pricing.tiers.map((t) => ({ ...t })),
   }
 }
 
@@ -2949,9 +2974,8 @@ function attachQuantityTiers(
       quantityPriceTiers: STARBOX_QUANTITY_TIERS.map((t) => ({ ...t })),
     }
   }
-  if (isCartaTermica93453Product(product)) {
-    return applyCartaTermica93453Pricing(product)
-  }
+  const cartaTermicaPriced = applyCartaTermicaQuantityPricing(product)
+  if (cartaTermicaPriced) return cartaTermicaPriced
   const idKey = normalizeQuantityPriceProductKey(product.id)
   const skuKey = normalizeQuantityPriceProductKey(product.producerCode)
   const tiers =
