@@ -1,5 +1,12 @@
-import type { OfficeProduct } from '../types/officeProduct'
+import type { OfficeProduct, QuantityPriceTier } from '../types/officeProduct'
 import { CARTA_SUBCATEGORY_TERMICA, cartaCategoryHref } from '../lib/officeCategories'
+
+/** Prezzo listino SKU 93453 (imponibile / conf.). */
+const CARTA_TERMICA_93453_BASE_PRICE = 2.87
+const CARTA_TERMICA_93453_QUANTITY_TIERS: QuantityPriceTier[] = [
+  { minQuantity: 1, unitPrice: 2.87 },
+  { minQuantity: 6, unitPrice: 2.5 },
+]
 
 export const CARTA_TERMICA_CATEGORY = 'Carta' as const
 
@@ -101,6 +108,7 @@ export const CARTA_TERMICA_CATALOG: readonly CartaTermicaCatalogItem[] = [
 ] as const
 
 function toOfficeProduct(item: CartaTermicaCatalogItem): OfficeProduct {
+  const is93453 = item.sku === '93453'
   return {
     id: item.sku,
     name: item.name,
@@ -115,7 +123,10 @@ function toOfficeProduct(item: CartaTermicaCatalogItem): OfficeProduct {
     imageUrl: item.imageUrl,
     format: item.format,
     description: item.description,
-    price: 0,
+    price: is93453 ? CARTA_TERMICA_93453_BASE_PRICE : 0,
+    ...(is93453
+      ? { quantityPriceTiers: CARTA_TERMICA_93453_QUANTITY_TIERS.map((t) => ({ ...t })) }
+      : {}),
   }
 }
 
@@ -137,7 +148,7 @@ export function mergeCartaTermicaListingProducts(
     const sku = String(p.producerCode || p.id || '').trim().toUpperCase()
     const catalogItem = CARTA_TERMICA_CATALOG.find((item) => item.sku.toUpperCase() === sku)
     if (!catalogItem) return p
-    return {
+    const withMeta: OfficeProduct = {
       ...p,
       category: CARTA_TERMICA_CATEGORY,
       subcategory: CARTA_SUBCATEGORY_TERMICA,
@@ -145,6 +156,12 @@ export function mergeCartaTermicaListingProducts(
       format: p.format || catalogItem.format,
       brand: p.brand || catalogItem.brand,
       description: p.description || catalogItem.description,
+    }
+    if (sku !== '93453') return withMeta
+    return {
+      ...withMeta,
+      price: CARTA_TERMICA_93453_BASE_PRICE,
+      quantityPriceTiers: CARTA_TERMICA_93453_QUANTITY_TIERS.map((t) => ({ ...t })),
     }
   })
   const dbSkus = new Set(
