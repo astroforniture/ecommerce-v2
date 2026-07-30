@@ -1,4 +1,6 @@
 import { getSupabaseBrowserClient } from '../lib/supabaseClient'
+import { buildOrderReference } from '../lib/checkoutOrder'
+import { sendShippingEmailSafe } from './transactionalEmails'
 
 export type AdminOrder = {
   id: string
@@ -30,6 +32,7 @@ export type AdminOrder = {
   eInvoiceTaxCode?: string
   eInvoiceSdiOrPec?: string
   orderNotes?: string
+  trackingNumber?: string
   items: Array<{
     sku: string
     name: string
@@ -175,7 +178,7 @@ function fromRow(row: Record<string, unknown>): AdminOrder {
     billingZip: asString(row.billing_zip) || asString(row.billing_cap) || asString(row.address_zip),
     billingCity: asString(row.billing_city) || asString(row.address_city),
     billingProvince: asString(row.billing_province) || asString(row.address_province),
-    billingEmail: asString(row.billing_email) || asString(row.email),
+    billingEmail: asString(row.billing_email) || asString(row.customer_email) || asString(row.email),
     billingPhone: asString(row.billing_phone) || asString(row.phone),
     shippingStreet: shipping.street || undefined,
     shippingZip: shipping.zip || undefined,
@@ -187,6 +190,7 @@ function fromRow(row: Record<string, unknown>): AdminOrder {
     eInvoiceTaxCode: asString(row.e_invoice_tax_code),
     eInvoiceSdiOrPec: asString(row.e_invoice_sdi_or_pec),
     orderNotes: asString(row.order_notes),
+    trackingNumber: asString(row.tracking_number) || undefined,
     items: asItems(row.items_json),
   }
 }
@@ -201,17 +205,59 @@ export async function fetchOrdersForAdmin(): Promise<AdminOrder[]> {
   return rows.map(fromRow).filter((o) => o.id !== '')
 }
 
-export async function updateOrderStatus(orderId: string, status: string): Promise<void> {
+export type UpdateOrderStatusOptions = {
+  trackingNumber?: string
+}
+
+export async function updateOrderStatus(
+  orderId: string,
+  status: string,
+  options?: UpdateOrderStatusOptions,
+): Promise<void> {
   const supabase = getSupabaseBrowserClient()
   if (!supabase) throw new Error('Supabase non configurato')
 
+  const trackingNumber = options?.trackingNumber?.trim() || ''
   const payload: Record<string, unknown> = { status }
   if (status.toLowerCase().includes('ritiro')) {
     payload.pickup_notification_pending = true
   }
+  if (trackingNumber) {
+    payload.tracking_number = trackingNumber
+  }
 
   const res = await supabase.from('orders').update(payload).eq('id', orderId)
-  if (res.error) throw res.error
+  if (res.error) {
+    // Schema senza tracking_number: ritenta senza la colonna.
+    if (trackingNumber && /tracking_number/i.test(res.error.message)) {
+      const { tracking_number: _t, ...withoutTracking } = payload
+      const retry = await supabase.from('orders').update(withoutTracking).eq('id', orderId)
+      if (retry.error) throw retry.error
+    } else {
+      throw res.error
+    }
+  }
+
+  if (status.trim().toLowerCase() === 'spedito') {
+    const detail = await fetchOrderDetailForAdmin(orderId)
+    const email = detail?.billingEmail?.trim()
+    if (email && detail) {
+      const shippingAddress = [
+        detail.shippingStreet,
+        [detail.shippingZip, detail.shippingCity].filter(Boolean).join(' '),
+        detail.shippingProvince,
+      ]
+        .filter(Boolean)
+        .join(', ')
+      await sendShippingEmailSafe({
+        email,
+        customerName: detail.customer,
+        orderRef: buildOrderReference(detail.id),
+        trackingNumber: trackingNumber || detail.trackingNumber,
+        shippingAddress: shippingAddress || undefined,
+      })
+    }
+  }
 }
 
 export async function fetchOrderDetailForAdmin(orderId: string): Promise<AdminOrderDetail | null> {

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, CalendarDays } from 'lucide-react'
@@ -47,6 +47,7 @@ export function AdminOrderDetailPage() {
   const { id = '' } = useParams<{ id: string }>()
   const orderId = id.trim()
   const queryClient = useQueryClient()
+  const [trackingDraft, setTrackingDraft] = useState<string | null>(null)
 
   const orderQuery = useQuery({
     queryKey: ['admin-order-detail', orderId],
@@ -55,7 +56,16 @@ export function AdminOrderDetailPage() {
   })
 
   const updateMutation = useMutation({
-    mutationFn: (nextStatus: string) => updateOrderStatus(orderId, nextStatus),
+    mutationFn: ({
+      nextStatus,
+      tracking,
+    }: {
+      nextStatus: string
+      tracking?: string
+    }) =>
+      updateOrderStatus(orderId, nextStatus, {
+        trackingNumber: tracking || undefined,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-order-detail', orderId] })
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] })
@@ -64,6 +74,7 @@ export function AdminOrderDetailPage() {
   })
 
   const order = orderQuery.data
+  const trackingValue = trackingDraft ?? order?.trackingNumber ?? ''
   const productsTotal = useMemo(
     () => (order?.detailedItems ?? []).reduce((sum, item) => sum + item.unitImponibile * item.quantity, 0),
     [order?.detailedItems],
@@ -173,25 +184,49 @@ export function AdminOrderDetailPage() {
           <CardTitle>Stato ordine</CardTitle>
           <CardDescription>Modifica rapida stato e aggiornamento immediato su Supabase.</CardDescription>
         </CardHeader>
-        <CardContent>
-          <label className="text-sm font-medium text-slate-700" htmlFor="order-status">
-            Stato
-          </label>
-          <select
-            id="order-status"
-            value={order.status}
-            onChange={(e) => updateMutation.mutate(e.target.value)}
-            disabled={updateMutation.isPending}
-            className="mt-2 h-10 w-full max-w-xs rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
-          >
-            {STATUS_OPTIONS.map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </select>
+        <CardContent className="space-y-4">
+          <div>
+            <label className="text-sm font-medium text-slate-700" htmlFor="order-status">
+              Stato
+            </label>
+            <select
+              id="order-status"
+              value={order.status}
+              onChange={(e) =>
+                updateMutation.mutate({
+                  nextStatus: e.target.value,
+                  tracking: trackingValue,
+                })
+              }
+              disabled={updateMutation.isPending}
+              className="mt-2 h-10 w-full max-w-xs rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
+            >
+              {STATUS_OPTIONS.map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-slate-700" htmlFor="order-tracking">
+              Tracking spedizione
+            </label>
+            <input
+              id="order-tracking"
+              type="text"
+              value={trackingValue}
+              onChange={(e) => setTrackingDraft(e.target.value)}
+              placeholder="Es. 1Z999AA10123456784"
+              className="mt-2 h-10 w-full max-w-md rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-500/20"
+            />
+            <p className="mt-1.5 text-xs text-slate-500">
+              Compila il tracking prima di impostare lo stato su «Spedito»: verrà inviata l’email al
+              cliente.
+            </p>
+          </div>
           {updateMutation.isError ? (
-            <p className="mt-2 text-sm text-red-700">
+            <p className="text-sm text-red-700">
               {(updateMutation.error as Error)?.message ?? 'Errore aggiornamento stato'}
             </p>
           ) : null}

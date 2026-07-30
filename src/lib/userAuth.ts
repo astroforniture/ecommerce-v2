@@ -1,4 +1,5 @@
 import type { User } from '@supabase/supabase-js'
+import { sendWelcomeEmailSafe } from '../api/transactionalEmails'
 import { getSupabaseBrowserClient } from './supabaseClient'
 
 type AuthResult = { ok: true; user: User } | { ok: false; error: string }
@@ -328,6 +329,8 @@ export async function signUpWithEmailPassword(
       }
     }
   }
+
+  void sendWelcomeEmailSafe({ email, firstName })
 
   return { ok: true }
 }

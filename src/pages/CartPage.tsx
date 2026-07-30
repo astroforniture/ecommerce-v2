@@ -25,9 +25,10 @@ import { CheckoutAddressCards } from '../components/checkout/CheckoutAddressCard
 import { CheckoutStepIndicator } from '../components/checkout/CheckoutStepIndicator'
 import { PickupStoreConfirmBox } from '../components/checkout/PickupStoreConfirmBox'
 import { StripePaymentSection } from '../components/checkout/StripePaymentSection'
-import { persistCheckoutOrder, type CheckoutOrderInput, type CustomerType, isBusinessCustomerType } from '../lib/checkoutOrder'
+import { persistCheckoutOrder, type CheckoutOrderInput, type CustomerType, isBusinessCustomerType, resolveCheckoutBillingName } from '../lib/checkoutOrder'
 import { isStripeConfigured } from '../lib/stripe'
 import { resolveLoggedInUserFormData } from '../lib/userAuth'
+import { sendOrderConfirmationEmailSafe } from '../api/transactionalEmails'
 
 const eur = new Intl.NumberFormat('it-IT', {
   style: 'currency',
@@ -342,10 +343,8 @@ export function CartPage() {
       itemsCount: items.length,
     })
 
-    const result = await persistCheckoutOrder(
-      supabase,
-      buildCheckoutInput(customerEmail, stripePaymentIntentId),
-    )
+    const checkoutInput = buildCheckoutInput(customerEmail, stripePaymentIntentId)
+    const result = await persistCheckoutOrder(supabase, checkoutInput)
 
     if (!result.ok) {
       console.error('[Checkout] completeOrder fallito:', result)
@@ -354,6 +353,40 @@ export function CartPage() {
     }
 
     console.log('[Checkout] completeOrder ok:', result)
+
+    const shippingAddress = [
+      checkoutInput.shippingStreet || checkoutInput.addressStreet,
+      [
+        checkoutInput.shippingZip || checkoutInput.addressZip,
+        checkoutInput.shippingCity || checkoutInput.addressCity,
+      ]
+        .filter(Boolean)
+        .join(' '),
+      checkoutInput.shippingProvince || checkoutInput.addressProvince,
+    ]
+      .filter(Boolean)
+      .join(', ')
+
+    void sendOrderConfirmationEmailSafe({
+      email: customerEmail,
+      customerName: resolveCheckoutBillingName(checkoutInput),
+      orderRef: result.orderRef,
+      items: checkoutInput.items.map((item) => ({
+        name: item.name,
+        quantity: item.quantity,
+        unitImponibile: Number(
+          effectiveUnitPrice(item.price, item.quantityPriceTiers, item.quantity).toFixed(2),
+        ),
+        variant: item.variantLabel,
+      })),
+      taxableTotal: checkoutInput.taxableTotal,
+      vatAmount: checkoutInput.vatAmount,
+      shippingFee: checkoutInput.shippingFee,
+      totalWithVat: checkoutInput.totalWithVat,
+      deliveryMethod: checkoutInput.deliveryLabel,
+      shippingAddress: shippingAddress || undefined,
+    })
+
     clearCart()
     navigate('/checkout/success', { state: { orderRef: result.orderRef } })
     return true
