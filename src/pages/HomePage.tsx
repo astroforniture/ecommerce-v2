@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { FileText, X } from 'lucide-react'
 import { HeroSection } from '../components/home/HeroSection'
 import { FeaturedCategorySpotlight } from '../components/home/FeaturedCategorySpotlight'
+import { BrandMarquee } from '../components/home/BrandMarquee'
 import { WhyChooseUs } from '../components/home/WhyChooseUs'
 import { HomeFeaturedProductsSection } from '../components/home/HomeFeaturedProductsSection'
 import { AstroSalutePromoSection } from '../components/home/AstroSalutePromoSection'
@@ -196,6 +197,7 @@ export function HomePage() {
       <WelcomeModal />
       <HeroSection />
       <FeaturedCategorySpotlight />
+      <BrandMarquee />
       <WhyChooseUs />
       <HomeFeaturedProductsSection />
       <AstroSalutePromoSection />
