@@ -1,13 +1,28 @@
-const BRANDS = [
+import { Link } from 'react-router-dom'
+
+type BrandLogo = {
+  id: string
+  name: string
+  src: string
+  /** Parametro `brand` per /office-products (preferito). */
+  brandParam?: string
+  /** Fallback: ricerca testuale se il brand in DB non è univoco. */
+  searchParam?: string
+}
+
+const BRANDS: readonly BrandLogo[] = [
   {
     id: 'ditron',
     name: 'Ditron',
     src: 'https://www.ditronretailsystem.it/static/version1762514796/frontend/Meetweb/ditron/it_IT/images/logo.png',
+    brandParam: 'Ditron',
+    searchParam: 'Ditron',
   },
   {
     id: 'esselte',
     name: 'Esselte',
     src: 'https://www.esselte.com/assets/img-abc/esselte-logo.svg',
+    brandParam: 'Esselte',
   },
   {
     id: 'brand-3',
@@ -18,51 +33,62 @@ const BRANDS = [
     id: 'eurocart',
     name: 'Eurocart',
     src: 'https://www.euro-cart.it/ImgHome/Eurocart-logo.png',
+    brandParam: 'Eurocart',
   },
   {
     id: 'bruneau',
     name: 'Bruneau',
     src: 'https://prod.isg.bruneau.media/asset/aHR0cHM6Ly9vZG11bHRpbWVkaWEuZXUvaW1tYWdpbmkvTUQvUklCT0xCQk5SLmpwZw==/?dpi=1.25&format=avif&height=410&quality=60&trim=&width=860',
+    brandParam: 'Bruneau',
+    searchParam: 'BBNR',
   },
   {
     id: 'leitz',
     name: 'Leitz',
     src: 'https://www.leitz.com/assets/img-abc/leitz-logo.svg',
+    brandParam: 'Leitz',
   },
   {
     id: 'comet',
     name: 'Comet',
     src: 'https://odmultimedia.eu/immagini/logo/brand/comet.png',
+    brandParam: 'Comet',
   },
   {
     id: 'eurocel',
     name: 'Eurocel',
     src: 'https://odmultimedia.eu/immagini/logo/brand/eurocel.png',
+    brandParam: 'Eurocel',
   },
   {
     id: 'lebez',
     name: 'Lebez',
     src: 'https://www.lebez.com/wp-content/uploads/2026/01/Logo_Lebez_new.png',
+    brandParam: 'Lebez',
   },
   {
     id: 'tombow',
     name: 'Tombow',
     src: 'https://odmultimedia.eu/immagini/logo/brand/tombow.png',
+    brandParam: 'Tombow',
   },
   {
     id: 'pentel',
     name: 'Pentel',
     src: 'https://pentel.it/assets/img/brand/logo-pentel-rgb.png',
+    brandParam: 'Pentel',
   },
   {
     id: 'titanium',
     name: 'Titanium',
     src: 'https://odmultimedia.eu/immagini/logo/brand/titanium.png',
+    brandParam: 'Titanium',
   },
   {
     id: 'iternet',
     name: 'Iternet',
     src: 'https://odmultimedia.eu/immagini/logo/brand/iternet.png',
+    brandParam: 'Iternet',
   },
   {
     id: 'brand-14',
@@ -73,6 +99,7 @@ const BRANDS = [
     id: 'tratto',
     name: 'Tratto',
     src: 'https://www.marcatoriindelebili.com/wp-content/uploads/2021/11/logo_tratto_ok.png',
+    brandParam: 'Tratto',
   },
   {
     id: 'brand-16',
@@ -83,28 +110,43 @@ const BRANDS = [
     id: 'trodat',
     name: 'Trodat',
     src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Trodat_Logo.svg/960px-Trodat_Logo.svg.png?_=20160907174125',
+    brandParam: 'Trodat',
   },
   {
     id: 'colop',
     name: 'Colop',
     src: 'https://upload.wikimedia.org/wikipedia/commons/4/4d/Colop_logo.svg',
+    brandParam: 'Colop',
   },
-] as const
+]
+
+function brandCatalogHref(brand: BrandLogo): string | null {
+  const params = new URLSearchParams()
+  params.set('catalog', 'ufficio')
+  if (brand.brandParam?.trim()) {
+    params.set('brand', brand.brandParam.trim())
+    return `/office-products?${params.toString()}`
+  }
+  if (brand.searchParam?.trim()) {
+    params.set('search', brand.searchParam.trim())
+    return `/office-products?${params.toString()}`
+  }
+  return null
+}
 
 function BrandLogoRow({ trackId }: { trackId: string }) {
+  const isClone = trackId === 'b'
   return (
     <ul
       className="brand-marquee-track flex shrink-0 items-center gap-10 px-5 sm:gap-14 sm:px-8"
-      aria-hidden={trackId === 'b' ? true : undefined}
+      aria-hidden={isClone ? true : undefined}
     >
-      {BRANDS.map((brand) => (
-        <li
-          key={`${trackId}-${brand.id}`}
-          className="flex h-14 w-[7.5rem] shrink-0 items-center justify-center sm:w-36"
-        >
+      {BRANDS.map((brand) => {
+        const href = brandCatalogHref(brand)
+        const img = (
           <img
             src={brand.src}
-            alt={trackId === 'a' ? brand.name : ''}
+            alt={isClone ? '' : brand.name}
             title={brand.name}
             loading="lazy"
             decoding="async"
@@ -114,14 +156,34 @@ function BrandLogoRow({ trackId }: { trackId: string }) {
               e.currentTarget.style.visibility = 'hidden'
             }}
           />
-        </li>
-      ))}
+        )
+        return (
+          <li
+            key={`${trackId}-${brand.id}`}
+            className="flex h-14 w-[7.5rem] shrink-0 items-center justify-center sm:w-36"
+          >
+            {href ? (
+              <Link
+                to={href}
+                tabIndex={isClone ? -1 : undefined}
+                aria-label={isClone ? undefined : `Vedi prodotti ${brand.name}`}
+                className="brand-marquee-link inline-flex cursor-pointer items-center justify-center rounded-lg p-1 transition-transform duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+              >
+                {img}
+              </Link>
+            ) : (
+              <span className="inline-flex items-center justify-center p-1">{img}</span>
+            )}
+          </li>
+        )
+      })}
     </ul>
   )
 }
 
 /**
  * Brand Shop — marquee infinito «I Nostri Marchi» (CSS @keyframes, pausa su hover).
+ * Loghi noti collegano al catalogo filtrato per brand.
  */
 export function BrandMarquee() {
   return (
@@ -140,7 +202,7 @@ export function BrandMarquee() {
           I Nostri Marchi
         </h2>
         <p className="mx-auto mt-2 max-w-xl text-center text-sm text-slate-600">
-          I brand professionali che trovi nel nostro catalogo per ufficio, scuola e attività commerciali.
+          Clicca un logo per vedere i prodotti di quel marchio nel catalogo.
         </p>
       </div>
 

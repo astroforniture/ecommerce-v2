@@ -830,7 +830,19 @@ export function OfficePage() {
     const activeSubcategory = selectedSubcategory
 
     const filtered = productsForListingFilter.filter((p) => {
-      if (selectedBrandSet.size > 0 && !selectedBrandSet.has(p.brand)) return false
+      if (selectedBrandSet.size > 0) {
+        const productBrand = (p.brand ?? '').trim().toLowerCase()
+        const brandOk = [...selectedBrandSet].some((raw) => {
+          const wanted = String(raw ?? '').trim().toLowerCase()
+          if (!wanted || !productBrand) return false
+          return (
+            productBrand === wanted ||
+            productBrand.includes(wanted) ||
+            wanted.includes(productBrand)
+          )
+        })
+        if (!brandOk) return false
+      }
       if (selectedFormats.length > 0 && !matchesOfficeProductFormatFilter(p, selectedFormats)) {
         return false
       }

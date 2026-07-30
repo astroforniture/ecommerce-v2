@@ -81,6 +81,7 @@ body {
   filter: grayscale(1);
 }
 
+.brand-marquee-link:hover .brand-marquee-logo,
 .brand-marquee li:hover .brand-marquee-logo {
   opacity: 1;
   filter: grayscale(0);
