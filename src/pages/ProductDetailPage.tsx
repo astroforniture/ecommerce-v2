@@ -4868,6 +4868,8 @@ export function ProductDetailPage() {
           </div>
         </div>
 
+        {crossSell ? <CrossSellSection crossSell={crossSell} /> : null}
+
         <OfficeProductDetailDescriptionSection
           description={displayProductDescription ?? ''}
           brochureUrl={
@@ -4889,8 +4891,6 @@ export function ProductDetailPage() {
                 : []
           }
         />
-
-        {crossSell ? <CrossSellSection crossSell={crossSell} /> : null}
 
         <OfficeProductDetailRelatedSection
           products={relatedProducts}
