@@ -35,6 +35,7 @@ import { FaqPage } from './pages/FaqPage'
 import { ContattiPage } from './pages/ContattiPage'
 import { TermsSalesPage } from './pages/TermsSalesPage'
 import { LoginPage } from './pages/LoginPage'
+import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { AccountProfilePage } from './pages/AccountProfilePage'
 import { CategoryPromoWidget } from './components/promo/CategoryPromoWidget'
@@ -135,6 +136,7 @@ export default function App() {
         ))}
         <Route path="/servizi/:slug" element={<ServizioDetailPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/account/profile" element={<AccountProfilePage />} />
         <Route path="/profile" element={<Navigate to="/account/profile" replace />} />

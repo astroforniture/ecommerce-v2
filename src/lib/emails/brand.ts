@@ -5,7 +5,7 @@ export const EMAIL_LOGO_URL = `${EMAIL_SITE_ORIGIN}/logo-astro-forniture.png`
 export const EMAIL_SUPPORT = 'info@astro-forniture.it'
 export const EMAIL_CATALOG_URL = `${EMAIL_SITE_ORIGIN}/office-products`
 export const EMAIL_ACCOUNT_URL = `${EMAIL_SITE_ORIGIN}/account`
-export const EMAIL_FROM_DEFAULT = 'Astro Forniture <info@astro-forniture.it>'
+export const EMAIL_FROM_DEFAULT = 'Astro Forniture <info@asforniture.it>'
 
 export function formatEuroIt(amount: number): string {
   return new Intl.NumberFormat('it-IT', {

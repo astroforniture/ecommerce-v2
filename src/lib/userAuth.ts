@@ -33,6 +33,46 @@ export async function signInWithEmailPassword(email: string, password: string): 
   return { ok: true, user: data.user }
 }
 
+export type PasswordResetRequestResult = { ok: true } | { ok: false; error: string }
+
+/** Invia email di reset password (Supabase Auth → template / SMTP Resend se configurato). */
+export async function requestPasswordReset(email: string): Promise<PasswordResetRequestResult> {
+  const supabase = getSupabaseBrowserClient()
+  if (!supabase) return { ok: false, error: 'Supabase non configurato.' }
+
+  const trimmed = email.trim()
+  if (!trimmed || !trimmed.includes('@')) {
+    return { ok: false, error: 'Inserisci un indirizzo email valido.' }
+  }
+
+  const redirectTo =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/reset-password`
+      : 'https://www.asforniture.it/reset-password'
+
+  const { error } = await supabase.auth.resetPasswordForEmail(trimmed, { redirectTo })
+  if (error) return { ok: false, error: error.message }
+  return { ok: true }
+}
+
+export type UpdatePasswordResult = { ok: true } | { ok: false; error: string }
+
+/** Imposta la nuova password dopo il click sul link di recovery. */
+export async function updatePasswordAfterRecovery(
+  newPassword: string,
+): Promise<UpdatePasswordResult> {
+  const supabase = getSupabaseBrowserClient()
+  if (!supabase) return { ok: false, error: 'Supabase non configurato.' }
+
+  if (newPassword.length < 8) {
+    return { ok: false, error: 'La password deve avere almeno 8 caratteri.' }
+  }
+
+  const { error } = await supabase.auth.updateUser({ password: newPassword })
+  if (error) return { ok: false, error: error.message }
+  return { ok: true }
+}
+
 function firstNonEmpty(...values: Array<string | null | undefined>): string {
   for (const value of values) {
     const trimmed = String(value ?? '').trim()
