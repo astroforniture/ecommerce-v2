@@ -1,20 +1,23 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '../components/ui/dialog'
 import { Input } from '../components/ui/input'
+import {
+  OTP_EXPIRED_USER_MESSAGE,
+  parseAuthCallbackFromLocation,
+} from '../lib/authRecovery'
 import { getSupabaseBrowserClient } from '../lib/supabaseClient'
 import { updatePasswordAfterRecovery } from '../lib/userAuth'
 
 function urlLooksLikeRecovery(): boolean {
-  if (typeof window === 'undefined') return false
-  const blob = `${window.location.hash}${window.location.search}`
-  return (
-    blob.includes('type=recovery') ||
-    blob.includes('type%3Drecovery') ||
-    (blob.includes('access_token') && blob.includes('refresh_token')) ||
-    blob.includes('code=')
-  )
+  return parseAuthCallbackFromLocation().isRecovery
 }
 
 export function ResetPasswordPage() {
@@ -27,10 +30,32 @@ export function ResetPasswordPage() {
   const [loading, setLoading] = useState(false)
   const [ready, setReady] = useState(false)
   const [checking, setChecking] = useState(true)
+  const [expired, setExpired] = useState(false)
+  const [modalOpen, setModalOpen] = useState(true)
 
   useEffect(() => {
-    if (!supabase) {
+    const info = parseAuthCallbackFromLocation()
+    if (info.isOtpExpired || info.errorCode === 'otp_expired') {
+      setExpired(true)
       setChecking(false)
+      setReady(false)
+      setModalOpen(true)
+      return
+    }
+    if (info.errorCode) {
+      setError(
+        info.errorMessage ||
+          'Il link di reset non è valido. Richiedine uno nuovo dalla pagina di login.',
+      )
+      setChecking(false)
+      setReady(false)
+      setModalOpen(true)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!supabase || expired) {
+      if (!supabase) setChecking(false)
       return
     }
 
@@ -42,6 +67,7 @@ export function ResetPasswordPage() {
       settled = true
       setReady(ok)
       setChecking(false)
+      if (ok) setModalOpen(true)
     }
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
@@ -50,7 +76,6 @@ export function ResetPasswordPage() {
         finish(true)
         return
       }
-      // Dopo exchange del token nell’URL (hash/PKCE) arriva spesso SIGNED_IN / INITIAL_SESSION.
       if (
         session?.user &&
         (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') &&
@@ -60,15 +85,20 @@ export function ResetPasswordPage() {
       }
     })
 
-    // Attendi un attimo che detectSessionInUrl elabori hash/query, poi verifica la sessione.
     const timer = window.setTimeout(() => {
       void (async () => {
         if (cancelled || settled) return
+        const info = parseAuthCallbackFromLocation()
+        if (info.isOtpExpired) {
+          setExpired(true)
+          setChecking(false)
+          setReady(false)
+          setModalOpen(true)
+          return
+        }
         const { data } = await supabase.auth.getSession()
-        if (data.session?.user && (urlLooksLikeRecovery() || data.session)) {
-          // Se c’è sessione e siamo sulla pagina di reset, abilita il form
-          // (il link email porta qui solo in recovery).
-          finish(Boolean(data.session.user))
+        if (data.session?.user) {
+          finish(true)
           return
         }
         finish(false)
@@ -80,7 +110,7 @@ export function ResetPasswordPage() {
       window.clearTimeout(timer)
       authListener.subscription.unsubscribe()
     }
-  }, [supabase])
+  }, [expired, supabase])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -108,82 +138,107 @@ export function ResetPasswordPage() {
     }
   }
 
+  const formBody = (
+    <>
+      {checking ? (
+        <p className="text-sm text-slate-600">Verifica del link in corso…</p>
+      ) : expired ? (
+        <div className="space-y-4">
+          <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-3 text-sm font-medium text-amber-950">
+            {OTP_EXPIRED_USER_MESSAGE}
+          </p>
+          <Link
+            to="/login"
+            className="inline-flex text-sm font-semibold text-orange-600 hover:text-orange-700"
+          >
+            Richiedi un nuovo link dal login
+          </Link>
+        </div>
+      ) : !ready ? (
+        <div className="space-y-4">
+          <p className="text-sm font-medium text-red-700">
+            {error || 'Link non valido o scaduto. Richiedi un nuovo reset dalla pagina di login.'}
+          </p>
+          <Link
+            to="/login"
+            className="inline-flex text-sm font-semibold text-orange-600 hover:text-orange-700"
+          >
+            Torna al login
+          </Link>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1.5">
+            <label htmlFor="reset-password" className="text-sm font-medium text-slate-700">
+              Nuova password
+            </label>
+            <Input
+              id="reset-password"
+              type="password"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Almeno 8 caratteri"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="reset-password-confirm" className="text-sm font-medium text-slate-700">
+              Conferma password
+            </label>
+            <Input
+              id="reset-password-confirm"
+              type="password"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              placeholder="Ripeti la password"
+            />
+          </div>
+
+          {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
+          {success ? <p className="text-sm font-medium text-emerald-700">{success}</p> : null}
+
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-brand-700 text-white hover:bg-brand-800"
+          >
+            {loading ? 'Salvataggio…' : 'Salva nuova password'}
+          </Button>
+        </form>
+      )}
+    </>
+  )
+
   return (
     <main className="min-h-[60vh] bg-gradient-to-b from-brand-50/50 to-white">
       <div className="mx-auto flex max-w-md px-4 py-14 sm:px-6 lg:px-8">
-        <Card className="w-full border-brand-100">
-          <CardHeader>
-            <CardTitle className="text-slate-900">Nuova password</CardTitle>
-            <CardDescription>
-              Scegli una nuova password per il tuo account Astro Forniture.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {checking ? (
-              <p className="text-sm text-slate-600">Verifica del link in corso…</p>
-            ) : !ready ? (
-              <div className="space-y-4">
-                <p className="text-sm text-red-700">
-                  Link non valido o scaduto. Richiedi un nuovo reset dalla pagina di login.
-                </p>
-                <Link
-                  to="/login"
-                  className="inline-flex text-sm font-semibold text-orange-600 hover:text-orange-700"
-                >
-                  Torna al login
-                </Link>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label htmlFor="reset-password" className="text-sm font-medium text-slate-700">
-                    Nuova password
-                  </label>
-                  <Input
-                    id="reset-password"
-                    type="password"
-                    required
-                    minLength={8}
-                    autoComplete="new-password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Almeno 8 caratteri"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label
-                    htmlFor="reset-password-confirm"
-                    className="text-sm font-medium text-slate-700"
-                  >
-                    Conferma password
-                  </label>
-                  <Input
-                    id="reset-password-confirm"
-                    type="password"
-                    required
-                    minLength={8}
-                    autoComplete="new-password"
-                    value={confirm}
-                    onChange={(e) => setConfirm(e.target.value)}
-                    placeholder="Ripeti la password"
-                  />
-                </div>
-
-                {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
-                {success ? <p className="text-sm font-medium text-emerald-700">{success}</p> : null}
-
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-brand-700 text-white hover:bg-brand-800"
-                >
-                  {loading ? 'Salvataggio…' : 'Salva nuova password'}
-                </Button>
-              </form>
-            )}
-          </CardContent>
-        </Card>
+        <p className="w-full text-center text-sm text-slate-600">
+          {expired
+            ? 'Il link di reset non è più valido.'
+            : 'Stiamo aprendo il form per impostare la nuova password…'}
+        </p>
       </div>
+
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="max-w-md border-brand-100 sm:rounded-xl">
+          <DialogHeader>
+            <DialogTitle className="text-slate-900">
+              {expired ? 'Link scaduto' : 'Nuova password'}
+            </DialogTitle>
+            <DialogDescription>
+              {expired
+                ? 'Per motivi di sicurezza i link di reset scadono dopo un breve periodo.'
+                : 'Scegli una nuova password per il tuo account Astro Forniture.'}
+            </DialogDescription>
+          </DialogHeader>
+          {formBody}
+        </DialogContent>
+      </Dialog>
     </main>
   )
 }

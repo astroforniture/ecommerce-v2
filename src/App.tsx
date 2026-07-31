@@ -41,6 +41,7 @@ import { AccountProfilePage } from './pages/AccountProfilePage'
 import { CategoryPromoWidget } from './components/promo/CategoryPromoWidget'
 import { CookieConsentBanner } from './components/cookies/CookieConsentBanner'
 import { SiteSeoDefaults } from './components/seo/SiteSeoDefaults'
+import { PasswordRecoveryGate } from './components/auth/PasswordRecoveryGate'
 import { SERVIZI_PAGES, type ServizioSlug } from './data/serviziCatalog'
 
 function PlaceholderPage() {
@@ -164,6 +165,7 @@ export default function App() {
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    <PasswordRecoveryGate />
     <CookieConsentBanner />
     </>
   )
