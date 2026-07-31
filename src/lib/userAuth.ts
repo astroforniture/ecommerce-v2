@@ -1,12 +1,14 @@
 import type { User } from '@supabase/supabase-js'
 import { sendWelcomeEmailSafe } from '../api/transactionalEmails'
-import { SITE_ORIGIN } from './siteSeo'
 import { getSupabaseBrowserClient } from './supabaseClient'
 
 type AuthResult = { ok: true; user: User } | { ok: false; error: string }
 
-/** Destinazione dopo il click sul link di reset (rotta frontend ResetPasswordPage). */
-export const PASSWORD_RESET_REDIRECT_TO = `${SITE_ORIGIN}/reset-password`
+/**
+ * Destinazione dopo il click sul link di reset (form nuova password).
+ * Deve essere in Auth → Redirect URLs su Supabase (apex e/o www).
+ */
+export const PASSWORD_RESET_REDIRECT_TO = 'https://asforniture.it/reset-password'
 
 function adminEmails(): string[] {
   return String(import.meta.env.VITE_ADMIN_EMAILS ?? '')
@@ -76,8 +78,19 @@ export async function updatePasswordAfterRecovery(
     return { ok: false, error: 'La password deve avere almeno 8 caratteri.' }
   }
 
+  const { data: sessionData } = await supabase.auth.getSession()
+  if (!sessionData.session?.user) {
+    return {
+      ok: false,
+      error: 'Sessione di reset assente o scaduta. Richiedi un nuovo link dalla pagina di login.',
+    }
+  }
+
   const { error } = await supabase.auth.updateUser({ password: newPassword })
   if (error) return { ok: false, error: error.message }
+
+  // Chiude la sessione di recovery: l’utente accederà con la nuova password.
+  await supabase.auth.signOut()
   return { ok: true }
 }
 

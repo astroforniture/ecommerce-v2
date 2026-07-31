@@ -6,6 +6,17 @@ import { Input } from '../components/ui/input'
 import { getSupabaseBrowserClient } from '../lib/supabaseClient'
 import { updatePasswordAfterRecovery } from '../lib/userAuth'
 
+function urlLooksLikeRecovery(): boolean {
+  if (typeof window === 'undefined') return false
+  const blob = `${window.location.hash}${window.location.search}`
+  return (
+    blob.includes('type=recovery') ||
+    blob.includes('type%3Drecovery') ||
+    (blob.includes('access_token') && blob.includes('refresh_token')) ||
+    blob.includes('code=')
+  )
+}
+
 export function ResetPasswordPage() {
   const navigate = useNavigate()
   const supabase = getSupabaseBrowserClient()
@@ -24,22 +35,49 @@ export function ResetPasswordPage() {
     }
 
     let cancelled = false
+    let settled = false
 
-    void supabase.auth.getSession().then(({ data }) => {
-      if (cancelled) return
-      setReady(Boolean(data.session?.user))
+    const finish = (ok: boolean) => {
+      if (cancelled || settled) return
+      settled = true
+      setReady(ok)
       setChecking(false)
-    })
+    }
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY' || session?.user) {
-        setReady(true)
-        setChecking(false)
+      if (cancelled) return
+      if (event === 'PASSWORD_RECOVERY') {
+        finish(true)
+        return
+      }
+      // Dopo exchange del token nell’URL (hash/PKCE) arriva spesso SIGNED_IN / INITIAL_SESSION.
+      if (
+        session?.user &&
+        (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') &&
+        urlLooksLikeRecovery()
+      ) {
+        finish(true)
       }
     })
 
+    // Attendi un attimo che detectSessionInUrl elabori hash/query, poi verifica la sessione.
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        if (cancelled || settled) return
+        const { data } = await supabase.auth.getSession()
+        if (data.session?.user && (urlLooksLikeRecovery() || data.session)) {
+          // Se c’è sessione e siamo sulla pagina di reset, abilita il form
+          // (il link email porta qui solo in recovery).
+          finish(Boolean(data.session.user))
+          return
+        }
+        finish(false)
+      })()
+    }, 900)
+
     return () => {
       cancelled = true
+      window.clearTimeout(timer)
       authListener.subscription.unsubscribe()
     }
   }, [supabase])

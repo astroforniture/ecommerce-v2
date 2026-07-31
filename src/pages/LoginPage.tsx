@@ -28,7 +28,12 @@ export function LoginPage() {
     void supabase.auth.getSession().then(({ data }) => {
       const user = data.session?.user ?? null
       if (!user) return
-      // Durante recovery l'utente arriva su /reset-password, non qui.
+      // Non reindirizzare se l’URL è un flusso di recovery (gestito sotto /reset-password).
+      const hash = `${window.location.hash}${window.location.search}`
+      if (hash.includes('type=recovery') || hash.includes('type%3Drecovery')) {
+        navigate('/reset-password', { replace: true })
+        return
+      }
       if (isSupabaseAdminUser(user)) {
         setAdminAuthenticated()
         navigate('/admin', { replace: true })
