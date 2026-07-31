@@ -1,8 +1,12 @@
 import type { User } from '@supabase/supabase-js'
 import { sendWelcomeEmailSafe } from '../api/transactionalEmails'
+import { SITE_ORIGIN } from './siteSeo'
 import { getSupabaseBrowserClient } from './supabaseClient'
 
 type AuthResult = { ok: true; user: User } | { ok: false; error: string }
+
+/** Destinazione dopo il click sul link di reset (rotta frontend ResetPasswordPage). */
+export const PASSWORD_RESET_REDIRECT_TO = `${SITE_ORIGIN}/reset-password`
 
 function adminEmails(): string[] {
   return String(import.meta.env.VITE_ADMIN_EMAILS ?? '')
@@ -45,12 +49,16 @@ export async function requestPasswordReset(email: string): Promise<PasswordReset
     return { ok: false, error: 'Inserisci un indirizzo email valido.' }
   }
 
-  const redirectTo =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}/reset-password`
-      : 'https://www.asforniture.it/reset-password'
+  // In locale usa origin corrente; in produzione forza l’URL canonico del frontend.
+  const host = typeof window !== 'undefined' ? window.location.hostname : ''
+  const isLocal = host === 'localhost' || host === '127.0.0.1'
+  const redirectTo = isLocal
+    ? `${window.location.origin}/reset-password`
+    : PASSWORD_RESET_REDIRECT_TO
 
-  const { error } = await supabase.auth.resetPasswordForEmail(trimmed, { redirectTo })
+  const { error } = await supabase.auth.resetPasswordForEmail(trimmed, {
+    redirectTo,
+  })
   if (error) return { ok: false, error: error.message }
   return { ok: true }
 }
