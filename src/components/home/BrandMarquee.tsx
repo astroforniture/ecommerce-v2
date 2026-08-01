@@ -21,8 +21,32 @@ const BRANDS: readonly BrandLogo[] = [
   {
     id: 'esselte',
     name: 'Esselte',
-    src: 'https://www.esselte.com/assets/img-abc/esselte-logo.svg',
+    src: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQn-mycBVtxaH2Zjn3_TxTZzjHokUnU_FiBZhOUqY7l&s=10',
     brandParam: 'Esselte',
+  },
+  {
+    id: 'xerox',
+    name: 'Xerox',
+    src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Xerox_logo.svg/1280px-Xerox_logo.svg.png',
+    brandParam: 'Xerox',
+  },
+  {
+    id: 'leone',
+    name: 'Leone',
+    src: 'https://www.delleragiuseppe.com/media/2023/04/logo-Leone.png',
+    brandParam: 'Leone',
+  },
+  {
+    id: 'casio',
+    name: 'Casio',
+    src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Casio_logo.svg/960px-Casio_logo.svg.png',
+    brandParam: 'Casio',
+  },
+  {
+    id: 'canon',
+    name: 'Canon',
+    src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Canon_logo.svg/1280px-Canon_logo.svg.png',
+    brandParam: 'Canon',
   },
   {
     id: 'brand-3',
