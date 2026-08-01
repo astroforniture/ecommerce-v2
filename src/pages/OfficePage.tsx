@@ -331,13 +331,30 @@ function matchesCancelleriaHubProduct(product: OfficeProduct, hub: CancelleriaHu
   if (hub === 'nastri') return n.includes('nastro')
   if (hub === 'cucitrici') return n.includes('cucitrice')
   if (hub === 'evidenziatori') return n.includes('evidenziatore')
-  return (
-    n.includes('roller hi') ||
-    n.includes('penna a sfera bic cristal') ||
-    n.includes('marcatore') ||
-    n.includes('pennarello stabilo') ||
-    n.includes('matita in grafite noris')
-  )
+  // Hub «Penne, Pennarelli e Matite» (cancelleriaView=scrittura)
+  if (hub === 'scrittura') {
+    const sub = (product.subcategory ?? '').trim().toLowerCase()
+    if (
+      sub === 'scrittura' ||
+      sub.includes('penne') ||
+      sub.includes('pennarelli') ||
+      sub.includes('matite')
+    ) {
+      return true
+    }
+    return (
+      n.includes('roller hi') ||
+      n.includes('penna a sfera bic cristal') ||
+      n.includes('marcatore') ||
+      n.includes('pennarello stabilo') ||
+      n.includes('matita in grafite noris') ||
+      n.includes('matita') ||
+      n.includes('matite') ||
+      n.includes('pennarello') ||
+      /\bpenna\b/.test(n)
+    )
+  }
+  return false
 }
 
 function resolveVariantColor(product: OfficeProduct): string {
