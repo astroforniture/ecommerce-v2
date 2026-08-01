@@ -107,6 +107,7 @@ type CancelleriaHubId =
   | 'scrittura'
   | 'cucitrici'
   | 'evidenziatori'
+  | 'calcolatrici'
   | 'pile'
   | 'quaderni'
   | 'timbri'
@@ -168,6 +169,11 @@ const CANCELLERIA_HUB_CARDS: Array<{
     id: 'evidenziatori',
     title: 'Evidenziatori',
     imageUrl: 'https://m.media-amazon.com/images/I/61ht53VWetL.AC_SX679.jpg',
+  },
+  {
+    id: 'calcolatrici',
+    title: 'Calcolatrici',
+    imageUrl: 'https://odmultimedia.eu/immagini/HD/81499.jpg',
   },
   {
     id: 'pile',
@@ -292,6 +298,7 @@ function isCancelleriaHubId(raw: string): raw is CancelleriaHubId {
     raw === 'scrittura' ||
     raw === 'cucitrici' ||
     raw === 'evidenziatori' ||
+    raw === 'calcolatrici' ||
     raw === 'pile' ||
     raw === 'quaderni' ||
     raw === 'timbri' ||
@@ -331,6 +338,11 @@ function matchesCancelleriaHubProduct(product: OfficeProduct, hub: CancelleriaHu
   if (hub === 'nastri') return n.includes('nastro')
   if (hub === 'cucitrici') return n.includes('cucitrice')
   if (hub === 'evidenziatori') return n.includes('evidenziatore')
+  if (hub === 'calcolatrici') {
+    const sub = (product.subcategory ?? '').trim().toLowerCase()
+    if (sub.includes('calcolatrici') || sub === 'calcolatrice') return true
+    return n.includes('calcolatrice') || n.includes('calcolatrici')
+  }
   // Hub «Penne, Pennarelli e Matite» (cancelleriaView=scrittura)
   if (hub === 'scrittura') {
     const sub = (product.subcategory ?? '').trim().toLowerCase()
