@@ -363,6 +363,8 @@ function matchesCancelleriaHubProduct(product: OfficeProduct, hub: CancelleriaHu
       n.includes('matita') ||
       n.includes('matite') ||
       n.includes('pennarello') ||
+      n.includes('floatune') ||
+      n.includes('penna roller') ||
       /\bpenna\b/.test(n)
     )
   }
