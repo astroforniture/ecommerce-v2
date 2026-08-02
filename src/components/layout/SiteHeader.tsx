@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
-import { ChevronDown, ShoppingBag, User } from 'lucide-react'
+import { ShoppingBag, User } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { clearAdminAuthenticated } from '../../lib/adminAuth'
 import { getSupabaseBrowserClient } from '../../lib/supabaseClient'
@@ -14,77 +14,9 @@ import {
 } from '../ui/dropdown-menu'
 import { GlobalSiteSearch } from './GlobalSiteSearch'
 import { HeaderAnnouncementBar } from './HeaderAnnouncementBar'
+import { MegaMenuNav } from './MegaMenuNav'
 import { OFFICE_GENERAL_SHOP_PATH } from '../../lib/isGeneralOfficeShopCatalogProduct'
-import {
-  CARTA_SUBCATEGORY_A3,
-  CARTA_SUBCATEGORY_A4,
-  CARTA_SUBCATEGORY_TERMICA,
-  cartaCategoryHref,
-  cartucceTonerCategoryHref,
-} from '../../lib/officeCategories'
-import {
-  MACCHINE_SUB_CASSE_DITRON_LABEL,
-  macchineUfficioCasseDitronListingPath,
-} from '../../data/casseDitronProducts'
-import {
-  MACCHINE_SUB_DISTRUGGI_DOCUMENTI_LABEL,
-  macchineUfficioDistruggiDocumentiListingPath,
-} from '../../data/distruggidocumentiProducts'
-import {
-  MACCHINE_SUB_ETICHETTATRICI_LABEL,
-  macchineUfficioEtichettatriciListingPath,
-} from '../../data/macchineEtichettatrici'
-import { macchineUfficioHubPath } from '../../lib/macchineUfficioRoutes'
 import { useCartDrawer } from '../../context/CartDrawerContext'
-import { SERVIZI_NAV_ITEMS } from '../../data/serviziCatalog'
-
-type HeaderNavLink = {
-  type: 'link'
-  label: string
-  href: string
-}
-
-type HeaderNavDropdown = {
-  type: 'dropdown'
-  label: string
-  items: Array<{ label: string; href: string }>
-}
-
-type HeaderNavItem = HeaderNavLink | HeaderNavDropdown
-
-const HEADER_NAV_ITEMS: HeaderNavItem[] = [
-  { type: 'link', label: 'Archivio ufficio', href: '/office-products?category=Archivio' },
-  { type: 'link', label: 'Cancelleria', href: '/office-products?category=Cancelleria' },
-  { type: 'link', label: 'Modulistica', href: '/office-products?category=Modulistica' },
-  {
-    type: 'dropdown',
-    label: 'Macchine per Ufficio',
-    items: [
-      { label: 'Panoramica', href: macchineUfficioHubPath() },
-      { label: MACCHINE_SUB_DISTRUGGI_DOCUMENTI_LABEL, href: macchineUfficioDistruggiDocumentiListingPath() },
-      { label: MACCHINE_SUB_ETICHETTATRICI_LABEL, href: macchineUfficioEtichettatriciListingPath() },
-      { label: MACCHINE_SUB_CASSE_DITRON_LABEL, href: macchineUfficioCasseDitronListingPath() },
-    ],
-  },
-  {
-    type: 'dropdown',
-    label: 'Carta',
-    items: [
-      { label: CARTA_SUBCATEGORY_A4, href: cartaCategoryHref(CARTA_SUBCATEGORY_A4) },
-      { label: CARTA_SUBCATEGORY_A3, href: cartaCategoryHref(CARTA_SUBCATEGORY_A3) },
-      { label: CARTA_SUBCATEGORY_TERMICA, href: cartaCategoryHref(CARTA_SUBCATEGORY_TERMICA) },
-    ],
-  },
-  { type: 'link', label: 'Cartucce & Toner', href: cartucceTonerCategoryHref() },
-  {
-    type: 'dropdown',
-    label: 'Servizi',
-    items: SERVIZI_NAV_ITEMS.map((item) => ({ label: item.label, href: item.href })),
-  },
-]
-
-const HEADER_NAV_LINK_CLASS =
-  'text-slate-900 transition hover:opacity-75 hover:underline hover:underline-offset-4'
 
 export function SiteHeader() {
   const { totalItems } = useCart()
@@ -146,40 +78,7 @@ export function SiteHeader() {
         </div>
       </div>
 
-      <nav className="relative z-10 border-t border-slate-100 border-b border-slate-200">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex min-h-12 items-center justify-center gap-x-10 overflow-x-auto whitespace-nowrap py-3 text-sm font-semibold tracking-[0.03em] sm:gap-x-12 sm:text-[15px]">
-            {HEADER_NAV_ITEMS.map((item) =>
-              item.type === 'link' ? (
-                <Link key={item.label} to={item.href} className={HEADER_NAV_LINK_CLASS}>
-                  {item.label}
-                </Link>
-              ) : (
-                <DropdownMenu key={item.label}>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      type="button"
-                      className={`inline-flex items-center gap-1 ${HEADER_NAV_LINK_CLASS}`}
-                      aria-haspopup="menu"
-                      aria-label={`Menu ${item.label}`}
-                    >
-                      {item.label}
-                      <ChevronDown className="size-4 opacity-70" aria-hidden />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="center" className="min-w-[14rem]">
-                    {item.items.map((subItem) => (
-                      <DropdownMenuItem key={subItem.label} asChild className="cursor-pointer">
-                        <Link to={subItem.href}>{subItem.label}</Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ),
-            )}
-          </div>
-        </div>
-      </nav>
+      <MegaMenuNav />
     </header>
   )
 }
