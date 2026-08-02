@@ -58,25 +58,7 @@ body {
   min-height: 100svh;
 }
 
-/* Brand Shop — infinite marquee */
-@keyframes brand-marquee-slide {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(-50%, 0, 0);
-  }
-}
-
-.brand-marquee-rail {
-  animation: brand-marquee-slide 55s linear infinite;
-  will-change: transform;
-}
-
-.brand-marquee:hover .brand-marquee-rail {
-  animation-play-state: paused;
-}
-
+/* Brand Shop — interactive carousel */
 .brand-marquee-logo {
   filter: grayscale(1);
 }
@@ -87,9 +69,18 @@ body {
   filter: grayscale(0);
 }
 
+.brand-carousel-track.brand-carousel-dragging {
+  scroll-behavior: auto;
+  cursor: grabbing;
+}
+
+.brand-carousel-track.brand-carousel-dragging a {
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .brand-marquee-rail {
-    animation: none;
+  .brand-carousel-track {
+    scroll-behavior: auto;
   }
 }
 

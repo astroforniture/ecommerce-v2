@@ -1,4 +1,13 @@
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+  type MouseEvent as ReactMouseEvent,
+} from 'react'
 import { Link } from 'react-router-dom'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 type BrandLogo = {
   id: string
@@ -144,6 +153,9 @@ const BRANDS: readonly BrandLogo[] = [
   },
 ]
 
+const SCROLL_STEP_RATIO = 0.7
+const DRAG_CLICK_THRESHOLD_PX = 6
+
 function brandCatalogHref(brand: BrandLogo): string | null {
   const params = new URLSearchParams()
   params.set('catalog', 'ufficio')
@@ -158,58 +170,107 @@ function brandCatalogHref(brand: BrandLogo): string | null {
   return null
 }
 
-function BrandLogoRow({ trackId }: { trackId: string }) {
-  const isClone = trackId === 'b'
-  return (
-    <ul
-      className="brand-marquee-track flex shrink-0 items-center gap-10 px-5 sm:gap-14 sm:px-8"
-      aria-hidden={isClone ? true : undefined}
-    >
-      {BRANDS.map((brand) => {
-        const href = brandCatalogHref(brand)
-        const img = (
-          <img
-            src={brand.src}
-            alt={isClone ? '' : brand.name}
-            title={brand.name}
-            loading="lazy"
-            decoding="async"
-            referrerPolicy="no-referrer"
-            className="brand-marquee-logo max-h-10 w-auto max-w-full object-contain opacity-55 grayscale transition duration-300 sm:max-h-12"
-            onError={(e) => {
-              e.currentTarget.style.visibility = 'hidden'
-            }}
-          />
-        )
-        return (
-          <li
-            key={`${trackId}-${brand.id}`}
-            className="flex h-14 w-[7.5rem] shrink-0 items-center justify-center sm:w-36"
-          >
-            {href ? (
-              <Link
-                to={href}
-                tabIndex={isClone ? -1 : undefined}
-                aria-label={isClone ? undefined : `Vedi prodotti ${brand.name}`}
-                className="brand-marquee-link inline-flex cursor-pointer items-center justify-center rounded-lg p-1 transition-transform duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
-              >
-                {img}
-              </Link>
-            ) : (
-              <span className="inline-flex items-center justify-center p-1">{img}</span>
-            )}
-          </li>
-        )
-      })}
-    </ul>
-  )
-}
-
 /**
- * Brand Shop — marquee infinito «I Nostri Marchi» (CSS @keyframes, pausa su hover).
- * Loghi noti collegano al catalogo filtrato per brand.
+ * Brand Shop — carosello manuale «I Nostri Marchi»
+ * (frecce, drag mouse, swipe touch; loghi con link al catalogo filtrato).
  */
 export function BrandMarquee() {
+  const scrollerRef = useRef<HTMLDivElement>(null)
+  const dragRef = useRef<{
+    pointerId: number
+    startX: number
+    startScrollLeft: number
+    moved: boolean
+  } | null>(null)
+  const suppressClickRef = useRef(false)
+
+  const [canScrollPrev, setCanScrollPrev] = useState(false)
+  const [canScrollNext, setCanScrollNext] = useState(false)
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollerRef.current
+    if (!el) return
+    const max = el.scrollWidth - el.clientWidth
+    setCanScrollPrev(el.scrollLeft > 2)
+    setCanScrollNext(max > 2 && el.scrollLeft < max - 2)
+  }, [])
+
+  useEffect(() => {
+    const el = scrollerRef.current
+    if (!el) return
+    updateScrollState()
+    const onScroll = () => updateScrollState()
+    el.addEventListener('scroll', onScroll, { passive: true })
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateScrollState) : null
+    ro?.observe(el)
+    window.addEventListener('resize', updateScrollState)
+    return () => {
+      el.removeEventListener('scroll', onScroll)
+      ro?.disconnect()
+      window.removeEventListener('resize', updateScrollState)
+    }
+  }, [updateScrollState])
+
+  function scrollByPage(direction: -1 | 1) {
+    const el = scrollerRef.current
+    if (!el) return
+    const step = Math.max(160, Math.round(el.clientWidth * SCROLL_STEP_RATIO))
+    el.scrollBy({ left: direction * step, behavior: 'smooth' })
+  }
+
+  function onPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    // Drag custom solo col mouse; su touch resta lo swipe nativo (overflow-x).
+    if (event.pointerType !== 'mouse' || event.button !== 0) return
+    const el = scrollerRef.current
+    if (!el) return
+    dragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startScrollLeft: el.scrollLeft,
+      moved: false,
+    }
+    el.setPointerCapture(event.pointerId)
+  }
+
+  function onPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+    const drag = dragRef.current
+    const el = scrollerRef.current
+    if (!drag || !el || drag.pointerId !== event.pointerId) return
+    const delta = event.clientX - drag.startX
+    if (Math.abs(delta) > DRAG_CLICK_THRESHOLD_PX) {
+      drag.moved = true
+      el.classList.add('brand-carousel-dragging')
+    }
+    if (drag.moved) {
+      el.scrollLeft = drag.startScrollLeft - delta
+    }
+  }
+
+  function endDrag(event: ReactPointerEvent<HTMLDivElement>) {
+    const drag = dragRef.current
+    const el = scrollerRef.current
+    if (!drag || drag.pointerId !== event.pointerId) return
+    if (drag.moved) {
+      suppressClickRef.current = true
+      window.setTimeout(() => {
+        suppressClickRef.current = false
+      }, 0)
+    }
+    el?.classList.remove('brand-carousel-dragging')
+    if (el?.hasPointerCapture(event.pointerId)) {
+      el.releasePointerCapture(event.pointerId)
+    }
+    dragRef.current = null
+    updateScrollState()
+  }
+
+  function onTrackClickCapture(event: ReactMouseEvent) {
+    if (suppressClickRef.current) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
+  }
+
   return (
     <section
       className="brand-marquee border-y border-slate-200/80 bg-gradient-to-b from-slate-50 to-white"
@@ -226,22 +287,104 @@ export function BrandMarquee() {
           I Nostri Marchi
         </h2>
         <p className="mx-auto mt-2 max-w-xl text-center text-sm text-slate-600">
-          Clicca un logo per vedere i prodotti di quel marchio nel catalogo.
+          Scorri i marchi o clicca un logo per vedere i prodotti nel catalogo.
         </p>
       </div>
 
-      <div className="brand-marquee-viewport relative mt-8 overflow-hidden pb-10 sm:mt-10 sm:pb-12">
+      <div className="relative mx-auto mt-8 max-w-7xl px-2 pb-10 sm:mt-10 sm:px-4 sm:pb-12 lg:px-6">
+        <button
+          type="button"
+          aria-label="Scorri marchi indietro"
+          disabled={!canScrollPrev}
+          onClick={() => scrollByPage(-1)}
+          className={[
+            'absolute left-1 top-1/2 z-20 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-800 shadow-md transition sm:left-2 sm:size-11',
+            'hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40',
+            'disabled:pointer-events-none disabled:opacity-35',
+          ].join(' ')}
+        >
+          <ChevronLeft className="size-5 sm:size-6" aria-hidden />
+        </button>
+
+        <button
+          type="button"
+          aria-label="Scorri marchi avanti"
+          disabled={!canScrollNext}
+          onClick={() => scrollByPage(1)}
+          className={[
+            'absolute right-1 top-1/2 z-20 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-800 shadow-md transition sm:right-2 sm:size-11',
+            'hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40',
+            'disabled:pointer-events-none disabled:opacity-35',
+          ].join(' ')}
+        >
+          <ChevronRight className="size-5 sm:size-6" aria-hidden />
+        </button>
+
         <div
-          className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-slate-50 to-transparent sm:w-20"
+          className="pointer-events-none absolute inset-y-0 left-10 z-10 w-8 bg-gradient-to-r from-slate-50 to-transparent sm:left-14 sm:w-12"
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-white to-transparent sm:w-20"
+          className="pointer-events-none absolute inset-y-0 right-10 z-10 w-8 bg-gradient-to-l from-white to-transparent sm:right-14 sm:w-12"
           aria-hidden
         />
-        <div className="brand-marquee-rail flex w-max">
-          <BrandLogoRow trackId="a" />
-          <BrandLogoRow trackId="b" />
+
+        <div
+          ref={scrollerRef}
+          className={[
+            'brand-carousel-track flex touch-pan-x gap-10 overflow-x-auto scroll-smooth px-12 py-2 sm:gap-14 sm:px-16',
+            '[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+            'cursor-grab select-none active:cursor-grabbing',
+          ].join(' ')}
+          tabIndex={0}
+          role="region"
+          aria-roledescription="carousel"
+          aria-label="Marchi partner, scorri con frecce, drag o swipe"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+          onClickCapture={onTrackClickCapture}
+        >
+          <ul className="flex min-w-max items-center gap-10 sm:gap-14">
+            {BRANDS.map((brand) => {
+              const href = brandCatalogHref(brand)
+              const img = (
+                <img
+                  src={brand.src}
+                  alt={brand.name}
+                  title={brand.name}
+                  loading="lazy"
+                  decoding="async"
+                  draggable={false}
+                  referrerPolicy="no-referrer"
+                  className="brand-marquee-logo max-h-10 w-auto max-w-full object-contain opacity-55 grayscale transition duration-300 sm:max-h-12"
+                  onError={(e) => {
+                    e.currentTarget.style.visibility = 'hidden'
+                  }}
+                />
+              )
+              return (
+                <li
+                  key={brand.id}
+                  className="flex h-14 w-[7.5rem] shrink-0 items-center justify-center sm:w-36"
+                >
+                  {href ? (
+                    <Link
+                      to={href}
+                      aria-label={`Vedi prodotti ${brand.name}`}
+                      draggable={false}
+                      className="brand-marquee-link inline-flex cursor-pointer items-center justify-center rounded-lg p-1 transition-transform duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+                    >
+                      {img}
+                    </Link>
+                  ) : (
+                    <span className="inline-flex items-center justify-center p-1">{img}</span>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
         </div>
       </div>
     </section>
