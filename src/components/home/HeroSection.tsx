@@ -39,7 +39,7 @@ export function HeroSection() {
 
           <div className="mt-6 space-y-4">
             <Link to={lineaAstroMedicalCatalogPath()} className={LINE_CARD_CLASS}>
-              <h3 className="mb-2 text-xl font-bold">Astro Medical</h3>
+              <h3 className="mb-2 text-xl font-bold">Astro Medical Shop</h3>
               <p className="text-sm text-gray-200">
                 Linea dedicata ad articoli e apparecchi professionali per il settore medicale.
               </p>
