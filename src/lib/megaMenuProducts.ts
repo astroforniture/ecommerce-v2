@@ -32,9 +32,8 @@ import {
 } from '../lib/officeCategories'
 import { isTimbroAziendeFarmacieProduct } from '../lib/timbroAziendeFarmacieProduct'
 import { isSupabaseConfigured } from '../lib/supabaseClient'
+import type { QueryClient } from '@tanstack/react-query'
 import type { OfficeProduct } from '../types/officeProduct'
-
-const PREVIEW_LIMIT = 4
 
 function normNameLite(name: string): string {
   return String(name ?? '')
@@ -51,11 +50,11 @@ function hasDisplayableProduct(product: OfficeProduct): boolean {
   return Boolean((product.imageUrl ?? '').trim()) && typeof product.price === 'number'
 }
 
-function pickPreview(products: OfficeProduct[], limit = PREVIEW_LIMIT): OfficeProduct[] {
+/** Tutti i prodotti visualizzabili della sottocategoria (ordinati A–Z). */
+function listPreviewProducts(products: OfficeProduct[]): OfficeProduct[] {
   return products
     .filter(hasDisplayableProduct)
     .sort((a, b) => a.name.localeCompare(b.name, 'it', { sensitivity: 'base' }))
-    .slice(0, limit)
 }
 
 function categoryNormMatches(product: OfficeProduct, categoryNorm: string): boolean {
@@ -160,10 +159,10 @@ function filterByPreviewSource(
 }
 
 function syncMacchinePreview(catalog: 'distruggi' | 'etichettatrici' | 'casse' | 'hub'): OfficeProduct[] {
-  if (catalog === 'distruggi') return pickPreview(buildDistruggidocumentiOfficeProducts())
-  if (catalog === 'etichettatrici') return pickPreview(buildEtichettatriciOfficeProducts())
-  if (catalog === 'casse') return pickPreview(buildCasseDitronOfficeProducts())
-  return pickPreview([
+  if (catalog === 'distruggi') return listPreviewProducts(buildDistruggidocumentiOfficeProducts())
+  if (catalog === 'etichettatrici') return listPreviewProducts(buildEtichettatriciOfficeProducts())
+  if (catalog === 'casse') return listPreviewProducts(buildCasseDitronOfficeProducts())
+  return listPreviewProducts([
     ...buildDistruggidocumentiOfficeProducts(),
     ...buildEtichettatriciOfficeProducts(),
     ...buildCasseDitronOfficeProducts(),
@@ -171,19 +170,19 @@ function syncMacchinePreview(catalog: 'distruggi' | 'etichettatrici' | 'casse' |
 }
 
 function syncCancelleriaHubPreview(hub: string): OfficeProduct[] | null {
-  if (hub === 'pile') return pickPreview(buildPileOfficeProducts())
-  if (hub === 'quaderni') return pickPreview(buildQuaderniOfficeProducts())
+  if (hub === 'pile') return listPreviewProducts(buildPileOfficeProducts())
+  if (hub === 'quaderni') return listPreviewProducts(buildQuaderniOfficeProducts())
   if (hub === CANCELLERIA_VIEW_SHOPPER) {
-    return pickPreview([
+    return listPreviewProducts([
       ...buildShopperCartaOfficeProducts(),
       ...buildShopperPlasticaOfficeProducts(),
     ])
   }
   if (hub === CANCELLERIA_VIEW_SHOPPER_CARTA) {
-    return pickPreview(buildShopperCartaOfficeProducts())
+    return listPreviewProducts(buildShopperCartaOfficeProducts())
   }
   if (hub === CANCELLERIA_VIEW_SHOPPER_PLASTICA) {
-    return pickPreview(buildShopperPlasticaOfficeProducts())
+    return listPreviewProducts(buildShopperPlasticaOfficeProducts())
   }
   return null
 }
@@ -202,24 +201,37 @@ export async function fetchMegaMenuPreviewProducts(
     if (sync) return sync
     const products = await fetchCategoryProducts('Cancelleria')
     if (source.hub === CANCELLERIA_VIEW_BUSTE) {
-      return pickPreview(mergeBusteListingProducts(products))
+      return listPreviewProducts(mergeBusteListingProducts(products))
     }
-    return pickPreview(filterByPreviewSource(products, source))
+    return listPreviewProducts(filterByPreviewSource(products, source))
   }
 
   if (source.kind === 'category') {
     const products = await fetchCategoryProducts(source.category)
-    return pickPreview(filterByPreviewSource(products, source))
+    return listPreviewProducts(filterByPreviewSource(products, source))
   }
 
   if (source.kind === 'office-subcategory') {
     const products = await fetchCategoryProducts(source.category)
-    return pickPreview(filterByPreviewSource(products, source))
+    return listPreviewProducts(filterByPreviewSource(products, source))
   }
 
   return []
 }
 
 export function megaMenuPreviewQueryKey(source: MegaMenuPreviewSource) {
-  return ['mega-menu-preview', source] as const
+  return ['mega-menu-preview', 'full', source] as const
+}
+
+/** Prefetch anteprima completa al hover sottocategoria. */
+export function prefetchMegaMenuPreview(
+  queryClient: QueryClient,
+  source: MegaMenuPreviewSource,
+) {
+  if (source.kind === 'none') return Promise.resolve()
+  return queryClient.prefetchQuery({
+    queryKey: megaMenuPreviewQueryKey(source),
+    queryFn: () => fetchMegaMenuPreviewProducts(source),
+    staleTime: 60_000,
+  })
 }

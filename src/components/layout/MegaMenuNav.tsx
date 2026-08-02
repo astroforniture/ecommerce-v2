@@ -10,6 +10,7 @@ import {
 import {
   fetchMegaMenuPreviewProducts,
   megaMenuPreviewQueryKey,
+  prefetchMegaMenuPreview,
 } from '../../lib/megaMenuProducts'
 import { prefetchOfficeCatalogForHref } from '../../hooks/useOfficeCatalog'
 import { CompactOfficeProductCard } from '../office/CompactOfficeProductCard'
@@ -17,7 +18,7 @@ import type { OfficeProduct } from '../../types/officeProduct'
 
 const OPEN_DELAY_MS = 80
 const CLOSE_DELAY_MS = 240
-const SUB_HOVER_DELAY_MS = 60
+const SUB_HOVER_DELAY_MS = 40
 
 const HEADER_NAV_LINK_CLASS =
   'text-slate-900 transition hover:opacity-75 hover:underline hover:underline-offset-4'
@@ -57,8 +58,14 @@ export function MegaMenuNav() {
     if (openTimerRef.current) clearTimeout(openTimerRef.current)
     openTimerRef.current = setTimeout(() => {
       setOpenCategoryId(category.id)
-      setActiveSubId(category.subs[0]?.id ?? null)
+      const firstSub = category.subs[0]
+      setActiveSubId(firstSub?.id ?? null)
       void prefetchOfficeCatalogForHref(queryClient, category.href)
+      if (firstSub) void prefetchMegaMenuPreview(queryClient, firstSub.preview)
+      // Prefetch leggero delle altre sottocategorie per hover successivi fluidi.
+      for (const sub of category.subs.slice(1, 4)) {
+        void prefetchMegaMenuPreview(queryClient, sub.preview)
+      }
     }, OPEN_DELAY_MS)
   }
 
@@ -83,9 +90,11 @@ export function MegaMenuNav() {
 
   function scheduleSub(sub: MegaMenuSubItem) {
     if (subTimerRef.current) clearTimeout(subTimerRef.current)
+    // Prefetch immediato al primo passaggio; lo switch UI resta debounced.
+    void prefetchMegaMenuPreview(queryClient, sub.preview)
+    void prefetchOfficeCatalogForHref(queryClient, sub.href)
     subTimerRef.current = setTimeout(() => {
       setActiveSubId(sub.id)
-      void prefetchOfficeCatalogForHref(queryClient, sub.href)
     }, SUB_HOVER_DELAY_MS)
   }
 
@@ -165,8 +174,8 @@ export function MegaMenuNav() {
           role="region"
           aria-label={`Menu ${openCategory.label}`}
         >
-          <div className="mx-auto grid max-w-7xl grid-cols-[minmax(14rem,18rem)_1fr] gap-0 px-4 sm:px-6 lg:px-8">
-            <div className="max-h-[min(70vh,32rem)] overflow-y-auto border-r border-slate-100 py-4 pr-3">
+          <div className="mx-auto grid max-h-[min(75vh,36rem)] max-w-7xl grid-cols-[minmax(14rem,18rem)_1fr] gap-0 px-4 sm:px-6 lg:px-8">
+            <div className="max-h-[min(75vh,36rem)] overflow-y-auto overscroll-contain border-r border-slate-100 py-4 pr-3">
               <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
                 {openCategory.label}
               </p>
@@ -186,6 +195,7 @@ export function MegaMenuNav() {
                         onMouseEnter={() => scheduleSub(sub)}
                         onFocus={() => {
                           setActiveSubId(sub.id)
+                          void prefetchMegaMenuPreview(queryClient, sub.preview)
                           void prefetchOfficeCatalogForHref(queryClient, sub.href)
                         }}
                         onClick={() => {
@@ -338,16 +348,22 @@ function MegaMenuPreviewPane({
   }
 
   const products = query.data ?? []
+  const showInitialSpinner = query.isPending && products.length === 0
 
   return (
-    <div className="min-h-[14rem] px-4 py-5 sm:px-6">
-      <div className="mb-3 flex items-end justify-between gap-3">
+    <div className="flex min-h-0 max-h-[min(75vh,36rem)] flex-col px-4 py-5 sm:px-6">
+      <div className="mb-3 flex shrink-0 items-end justify-between gap-3">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-            Anteprima · {categoryLabel}
+            Catalogo · {categoryLabel}
           </p>
           <h3 id={headingId} className="text-base font-semibold text-slate-900">
             {sub.label}
+            {products.length > 0 ? (
+              <span className="ml-2 text-xs font-medium text-slate-500">
+                {products.length} articol{products.length === 1 ? 'o' : 'i'}
+              </span>
+            ) : null}
           </h3>
         </div>
         <Link
@@ -355,17 +371,17 @@ function MegaMenuPreviewPane({
           onClick={onNavigate}
           className="shrink-0 text-xs font-semibold text-slate-600 underline-offset-2 hover:text-slate-900 hover:underline"
         >
-          Vedi tutti
+          Apri pagina
         </Link>
       </div>
 
-      {query.isPending ? (
-        <div className="flex min-h-[10rem] items-center justify-center text-slate-400">
+      {showInitialSpinner ? (
+        <div className="flex min-h-[10rem] flex-1 items-center justify-center text-slate-400">
           <Loader2 className="size-6 animate-spin" aria-label="Caricamento prodotti" />
         </div>
       ) : products.length === 0 ? (
-        <div className="flex min-h-[10rem] flex-col items-center justify-center gap-2 text-center">
-          <p className="text-sm text-slate-500">Nessuna anteprima disponibile.</p>
+        <div className="flex min-h-[10rem] flex-1 flex-col items-center justify-center gap-2 text-center">
+          <p className="text-sm text-slate-500">Nessun prodotto disponibile.</p>
           <Link
             to={sub.href}
             onClick={onNavigate}
@@ -375,13 +391,18 @@ function MegaMenuPreviewPane({
           </Link>
         </div>
       ) : (
-        <ul className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-          {products.map((product: OfficeProduct) => (
-            <li key={product.id} className="min-w-0" onClick={onNavigate}>
-              <CompactOfficeProductCard product={product} />
-            </li>
-          ))}
-        </ul>
+        <div
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1"
+          onWheel={(event) => event.stopPropagation()}
+        >
+          <ul className="grid grid-cols-2 gap-3 pb-2 xl:grid-cols-3 2xl:grid-cols-4">
+            {products.map((product: OfficeProduct) => (
+              <li key={product.id} className="min-w-0" onClick={onNavigate}>
+                <CompactOfficeProductCard product={product} />
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   )
