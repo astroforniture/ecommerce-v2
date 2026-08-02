@@ -27,6 +27,8 @@ import {
   CARTA_SUBCATEGORIES,
   CARTA_SUBCATEGORY_COVER_IMAGE,
   cartaCategoryHref,
+  PRODOTTI_IGIENE_CATEGORY,
+  PRODOTTI_IGIENE_CATEGORY_NORM,
 } from '../lib/officeCategories'
 import {
   ARCHIVIO_BUSTE_TRASPARENTI_SUBCATEGORY,
@@ -87,7 +89,9 @@ import {
   isOfficeGeneralShopCatalogUrl,
   OFFICE_GENERAL_SHOP_PATH,
 } from '../lib/isGeneralOfficeShopCatalogProduct'
+import { matchesIgieneSubcategoryFilter } from '../lib/prodottiIgieneSubcategories'
 import { AstroMedicalSubcategoryNav } from '../components/astroMedical/AstroMedicalSubcategoryNav'
+import { IgieneSubcategoryNav } from '../components/office/IgieneSubcategoryNav'
 import { matchesAstroMedicalSubcategoryFilter } from '../lib/astroMedicalSubcategories'
 import {
   DropdownMenu,
@@ -662,6 +666,9 @@ export function OfficePage() {
       if (activeCategory === LINEA_ASTRO_MEDICAL_CATEGORY_NORM && selectedSubcategory) {
         if (!matchesAstroMedicalSubcategoryFilter(p, selectedSubcategory)) return false
       }
+      if (activeCategory === PRODOTTI_IGIENE_CATEGORY_NORM && selectedSubcategory) {
+        if (!matchesIgieneSubcategoryFilter(p, selectedSubcategory)) return false
+      }
       if (activeCategory === 'cancelleria' && selectedCancelleriaView) {
         if (!matchesCancelleriaHubProduct(p, selectedCancelleriaView)) return false
       }
@@ -889,6 +896,9 @@ export function OfficePage() {
       if (activeCategory === LINEA_ASTRO_MEDICAL_CATEGORY_NORM && activeSubcategory) {
         if (!matchesAstroMedicalSubcategoryFilter(p, activeSubcategory)) return false
       }
+      if (activeCategory === PRODOTTI_IGIENE_CATEGORY_NORM && activeSubcategory) {
+        if (!matchesIgieneSubcategoryFilter(p, activeSubcategory)) return false
+      }
       if (activeCategory === 'cancelleria' && selectedCancelleriaView) {
         if (!matchesCancelleriaHubProduct(p, selectedCancelleriaView)) return false
       }
@@ -955,13 +965,15 @@ export function OfficePage() {
   const isCancelleriaCategory = selectedCategoryNorm === 'cancelleria'
   const isCartucceTonerCategory = selectedCategoryNorm === CARTUCCE_TONER_CATEGORY_NORM
   const isLineaAstroMedicalCategory = selectedCategoryNorm === LINEA_ASTRO_MEDICAL_CATEGORY_NORM
+  const isProdottiIgieneCategory = selectedCategoryNorm === PRODOTTI_IGIENE_CATEGORY_NORM
 
   const activeFiltersCount =
     (searchTrim ? 1 : 0) +
     (sortBy !== 'price-asc' ? 1 : 0) +
     selectedBrands.length +
     selectedFormats.length +
-    (isLineaAstroMedicalCategory && selectedSubcategory ? 1 : 0)
+    (isLineaAstroMedicalCategory && selectedSubcategory ? 1 : 0) +
+    (isProdottiIgieneCategory && selectedSubcategory ? 1 : 0)
 
   return (
     <main className="min-h-[60vh] bg-gradient-to-b from-brand-50/50 to-white">
@@ -974,7 +986,8 @@ export function OfficePage() {
           isCancelleriaCategory ||
           isCartucceTonerCategory ||
           isMacchineUfficioCategory ||
-          isLineaAstroMedicalCategory
+          isLineaAstroMedicalCategory ||
+          isProdottiIgieneCategory
             ? 'py-6 sm:py-8'
             : 'py-16 sm:py-20',
         ].join(' ')}
@@ -1070,6 +1083,33 @@ export function OfficePage() {
           </nav>
         ) : null}
 
+        {isProdottiIgieneCategory ? (
+          <nav className="mt-6 text-sm text-slate-500" aria-label="Breadcrumb">
+            <ol className="flex flex-wrap items-center gap-2">
+              <li>
+                <Link to="/" className="transition hover:text-brand-800">
+                  Home
+                </Link>
+              </li>
+              <li aria-hidden>/</li>
+              <li>
+                <Link
+                  to="/office-products?category=Prodotti%20per%20igiene"
+                  className="font-medium text-slate-800 transition hover:text-brand-800"
+                >
+                  {PRODOTTI_IGIENE_CATEGORY}
+                </Link>
+              </li>
+              {selectedSubcategory ? (
+                <>
+                  <li aria-hidden>/</li>
+                  <li className="font-medium text-slate-800">{selectedSubcategory}</li>
+                </>
+              ) : null}
+            </ol>
+          </nav>
+        ) : null}
+
         {categoryFromUrl && !showArchivioDashboard && !showModulisticaDashboard && !showCartaDashboard ? (
           <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-brand-200 bg-white px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
@@ -1142,6 +1182,19 @@ export function OfficePage() {
             <p className="mt-3 max-w-2xl text-base text-slate-600 sm:text-lg">
               Elettromedicali iHealth: prezzi unitari imponibili IVA esclusa; scheda prodotto completa con
               acquisto, note e articoli correlati.
+            </p>
+          </header>
+        ) : isProdottiIgieneCategory ? (
+          <header className="mt-2">
+            <p className="text-sm font-semibold uppercase tracking-widest text-brand-700">
+              Pulizia professionale
+            </p>
+            <h1 className="mt-2 text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
+              {PRODOTTI_IGIENE_CATEGORY}
+            </h1>
+            <p className="mt-3 max-w-2xl text-base text-slate-600 sm:text-lg">
+              Detergenti, attrezzature, panni e macchine per la pulizia di uffici, negozi e ambienti di
+              lavoro. Filtra per sottocategoria o esplora tutto il catalogo.
             </p>
           </header>
         ) : (
@@ -1500,6 +1553,15 @@ export function OfficePage() {
 
           {isLineaAstroMedicalCategory && !isLoading ? (
             <AstroMedicalSubcategoryNav
+              className="mb-6"
+              products={productsForListingFilter}
+              selectedSubcategory={selectedSubcategory || null}
+              onSelect={(value) => setSubcategoryFilter(value ?? '')}
+            />
+          ) : null}
+
+          {isProdottiIgieneCategory && !isLoading ? (
+            <IgieneSubcategoryNav
               className="mb-6"
               products={productsForListingFilter}
               selectedSubcategory={selectedSubcategory || null}

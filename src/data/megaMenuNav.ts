@@ -8,6 +8,10 @@ import {
   prodottiIgieneCategoryHref,
 } from '../lib/officeCategories'
 import {
+  IGIENE_SUBCATEGORIES,
+  prodottiIgieneSubcategoryHref,
+} from '../lib/prodottiIgieneSubcategories'
+import {
   MODULISTICA_SUBCATEGORIES,
   modulisticaCategoryHref,
 } from './modulisticaCatalog'
@@ -266,6 +270,16 @@ export const MEGA_MENU_CATEGORIES: MegaMenuCategory[] = [
         href: prodottiIgieneCategoryHref(),
         preview: { kind: 'category', category: PRODOTTI_IGIENE_CATEGORY },
       },
+      ...IGIENE_SUBCATEGORIES.map((subcategory) => ({
+        id: `igiene-${subcategory}`,
+        label: subcategory,
+        href: prodottiIgieneSubcategoryHref(subcategory),
+        preview: {
+          kind: 'office-subcategory' as const,
+          category: PRODOTTI_IGIENE_CATEGORY,
+          subcategory,
+        },
+      })),
     ],
   },
   {

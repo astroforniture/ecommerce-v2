@@ -76,7 +76,7 @@ export const FEATURED_CATEGORY_SPOTLIGHTS: readonly FeaturedCategorySpotlight[] 
     id: 'prodotti-igiene',
     title: PRODOTTI_IGIENE_CATEGORY,
     description:
-      'Detergenti, disinfettanti, candeggina, mop, carrelli e accessori per la pulizia professionale di uffici, negozi e ambienti di lavoro.',
+      'Detergenti professionali, attrezzature e panni, macchine per la pulizia di uffici, negozi e ambienti di lavoro.',
     href: prodottiIgieneCategoryHref(),
     imageUrl: 'https://odmultimedia.eu/immagini/MD/103584.jpg',
     Icon: Sparkles,
