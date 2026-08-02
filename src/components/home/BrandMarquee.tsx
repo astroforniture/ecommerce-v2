@@ -1,8 +1,7 @@
 import {
-  useCallback,
   useEffect,
   useRef,
-  useState,
+  type RefObject,
   type PointerEvent as ReactPointerEvent,
   type MouseEvent as ReactMouseEvent,
 } from 'react'
@@ -56,6 +55,12 @@ const BRANDS: readonly BrandLogo[] = [
     name: 'Canon',
     src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Canon_logo.svg/1280px-Canon_logo.svg.png',
     brandParam: 'Canon',
+  },
+  {
+    id: 'brother',
+    name: 'Brother',
+    src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Brother_logo.svg/3840px-Brother_logo.svg.png',
+    brandParam: 'Brother',
   },
   {
     id: 'brand-3',
@@ -151,9 +156,30 @@ const BRANDS: readonly BrandLogo[] = [
     src: 'https://upload.wikimedia.org/wikipedia/commons/4/4d/Colop_logo.svg',
     brandParam: 'Colop',
   },
+  {
+    id: 'sanitec',
+    name: 'Sanitec',
+    src: 'https://odmultimedia.eu/immagini/logo/brand/sanitec.png',
+    brandParam: 'Sanitec',
+  },
+  {
+    id: 'chanteclair',
+    name: 'Chanteclair',
+    src: 'https://cdn.builder.io/api/v1/image/assets%2F5d27e3bf79a1424d964148b42831fd40%2Ff0f672979532467aae61572b6e8871e8',
+    brandParam: 'Chanteclair',
+  },
+  {
+    id: 'lavor',
+    name: 'Lavor',
+    src: 'https://www.immaginesrl.it/img/m/97.jpg',
+    brandParam: 'Lavor',
+  },
 ]
 
-const SCROLL_STEP_RATIO = 0.7
+/** Velocità autoplay continua (px/s). */
+const AUTOPLAY_PX_PER_SEC = 38
+const MANUAL_STEP_RATIO = 0.55
+const MANUAL_ANIM_MS = 420
 const DRAG_CLICK_THRESHOLD_PX = 6
 
 function brandCatalogHref(brand: BrandLogo): string | null {
@@ -170,85 +196,231 @@ function brandCatalogHref(brand: BrandLogo): string | null {
   return null
 }
 
+function BrandLogoRow({
+  trackId,
+  listRef,
+}: {
+  trackId: string
+  listRef?: RefObject<HTMLUListElement | null>
+}) {
+  const isClone = trackId === 'b'
+  return (
+    <ul
+      ref={listRef}
+      className="brand-marquee-track flex shrink-0 items-center gap-10 px-5 sm:gap-14 sm:px-8"
+      aria-hidden={isClone ? true : undefined}
+    >
+      {BRANDS.map((brand) => {
+        const href = brandCatalogHref(brand)
+        const img = (
+          <img
+            src={brand.src}
+            alt={isClone ? '' : brand.name}
+            title={brand.name}
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+            referrerPolicy="no-referrer"
+            className="brand-marquee-logo max-h-10 w-auto max-w-full object-contain opacity-55 grayscale transition duration-300 sm:max-h-12"
+            onError={(e) => {
+              e.currentTarget.style.visibility = 'hidden'
+            }}
+          />
+        )
+        return (
+          <li
+            key={`${trackId}-${brand.id}`}
+            className="flex h-14 w-[7.5rem] shrink-0 items-center justify-center sm:w-36"
+          >
+            {href ? (
+              <Link
+                to={href}
+                tabIndex={isClone ? -1 : undefined}
+                aria-label={isClone ? undefined : `Vedi prodotti ${brand.name}`}
+                draggable={false}
+                className="brand-marquee-link inline-flex cursor-pointer items-center justify-center rounded-lg p-1 transition-transform duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+              >
+                {img}
+              </Link>
+            ) : (
+              <span className="inline-flex items-center justify-center p-1">{img}</span>
+            )}
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
 /**
- * Brand Shop — carosello manuale «I Nostri Marchi»
- * (frecce, drag mouse, swipe touch; loghi con link al catalogo filtrato).
+ * Brand Shop — marquee infinito con autoplay + frecce manuali «I Nostri Marchi».
  */
 export function BrandMarquee() {
-  const scrollerRef = useRef<HTMLDivElement>(null)
+  const viewportRef = useRef<HTMLDivElement>(null)
+  const railRef = useRef<HTMLDivElement>(null)
+  const trackARef = useRef<HTMLUListElement>(null)
+
+  const offsetRef = useRef(0)
+  const halfWidthRef = useRef(0)
+  const pausedRef = useRef(false)
+  const reducedMotionRef = useRef(false)
+  const draggingRef = useRef(false)
+  const manualAnimRef = useRef<number | null>(null)
+  const suppressClickRef = useRef(false)
   const dragRef = useRef<{
     pointerId: number
     startX: number
-    startScrollLeft: number
+    startOffset: number
     moved: boolean
   } | null>(null)
-  const suppressClickRef = useRef(false)
-
-  const [canScrollPrev, setCanScrollPrev] = useState(false)
-  const [canScrollNext, setCanScrollNext] = useState(false)
-
-  const updateScrollState = useCallback(() => {
-    const el = scrollerRef.current
-    if (!el) return
-    const max = el.scrollWidth - el.clientWidth
-    setCanScrollPrev(el.scrollLeft > 2)
-    setCanScrollNext(max > 2 && el.scrollLeft < max - 2)
-  }, [])
 
   useEffect(() => {
-    const el = scrollerRef.current
-    if (!el) return
-    updateScrollState()
-    const onScroll = () => updateScrollState()
-    el.addEventListener('scroll', onScroll, { passive: true })
-    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateScrollState) : null
-    ro?.observe(el)
-    window.addEventListener('resize', updateScrollState)
-    return () => {
-      el.removeEventListener('scroll', onScroll)
-      ro?.disconnect()
-      window.removeEventListener('resize', updateScrollState)
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const syncMotion = () => {
+      reducedMotionRef.current = mq.matches
     }
-  }, [updateScrollState])
+    syncMotion()
+    mq.addEventListener('change', syncMotion)
+
+    const measure = () => {
+      halfWidthRef.current = trackARef.current?.offsetWidth ?? 0
+    }
+    measure()
+    const ro =
+      typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(measure)
+        : null
+    if (trackARef.current) ro?.observe(trackARef.current)
+    window.addEventListener('resize', measure)
+
+    let raf = 0
+    let last = performance.now()
+
+    const normalize = () => {
+      const half = halfWidthRef.current
+      if (half <= 0) return
+      offsetRef.current = ((offsetRef.current % half) + half) % half
+    }
+
+    const apply = () => {
+      const rail = railRef.current
+      if (rail) {
+        rail.style.transform = `translate3d(${-offsetRef.current}px, 0, 0)`
+      }
+    }
+
+    const tick = (now: number) => {
+      const dt = Math.min(0.05, (now - last) / 1000)
+      last = now
+      if (
+        !pausedRef.current &&
+        !draggingRef.current &&
+        !reducedMotionRef.current &&
+        manualAnimRef.current === null
+      ) {
+        offsetRef.current += AUTOPLAY_PX_PER_SEC * dt
+        normalize()
+        apply()
+      }
+      raf = window.requestAnimationFrame(tick)
+    }
+    raf = window.requestAnimationFrame(tick)
+
+    return () => {
+      window.cancelAnimationFrame(raf)
+      if (manualAnimRef.current !== null) {
+        window.cancelAnimationFrame(manualAnimRef.current)
+      }
+      mq.removeEventListener('change', syncMotion)
+      ro?.disconnect()
+      window.removeEventListener('resize', measure)
+    }
+  }, [])
+
+  function setPaused(value: boolean) {
+    pausedRef.current = value
+  }
+
+  function applyTransform() {
+    const rail = railRef.current
+    if (rail) {
+      rail.style.transform = `translate3d(${-offsetRef.current}px, 0, 0)`
+    }
+  }
+
+  function normalizeOffset() {
+    const half = halfWidthRef.current || trackARef.current?.offsetWidth || 0
+    halfWidthRef.current = half
+    if (half <= 0) return
+    offsetRef.current = ((offsetRef.current % half) + half) % half
+  }
 
   function scrollByPage(direction: -1 | 1) {
-    const el = scrollerRef.current
-    if (!el) return
-    const step = Math.max(160, Math.round(el.clientWidth * SCROLL_STEP_RATIO))
-    el.scrollBy({ left: direction * step, behavior: 'smooth' })
+    const viewport = viewportRef.current
+    if (!viewport) return
+    if (manualAnimRef.current !== null) {
+      window.cancelAnimationFrame(manualAnimRef.current)
+      manualAnimRef.current = null
+    }
+
+    const step = Math.max(180, Math.round(viewport.clientWidth * MANUAL_STEP_RATIO))
+    const from = offsetRef.current
+    const to = from + direction * step
+    const start = performance.now()
+
+    const easeOutCubic = (t: number) => 1 - (1 - t) ** 3
+
+    const animate = (now: number) => {
+      const t = Math.min(1, (now - start) / MANUAL_ANIM_MS)
+      offsetRef.current = from + (to - from) * easeOutCubic(t)
+      normalizeOffset()
+      applyTransform()
+      if (t < 1) {
+        manualAnimRef.current = window.requestAnimationFrame(animate)
+      } else {
+        manualAnimRef.current = null
+      }
+    }
+    manualAnimRef.current = window.requestAnimationFrame(animate)
   }
 
   function onPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
-    // Drag custom solo col mouse; su touch resta lo swipe nativo (overflow-x).
-    if (event.pointerType !== 'mouse' || event.button !== 0) return
-    const el = scrollerRef.current
-    if (!el) return
+    if (event.button !== 0) return
+    // Evita di catturare il drag partito dalle frecce.
+    if ((event.target as HTMLElement).closest('button')) return
+
+    if (manualAnimRef.current !== null) {
+      window.cancelAnimationFrame(manualAnimRef.current)
+      manualAnimRef.current = null
+    }
+
     dragRef.current = {
       pointerId: event.pointerId,
       startX: event.clientX,
-      startScrollLeft: el.scrollLeft,
+      startOffset: offsetRef.current,
       moved: false,
     }
-    el.setPointerCapture(event.pointerId)
+    draggingRef.current = true
+    event.currentTarget.setPointerCapture(event.pointerId)
   }
 
   function onPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
     const drag = dragRef.current
-    const el = scrollerRef.current
-    if (!drag || !el || drag.pointerId !== event.pointerId) return
+    if (!drag || drag.pointerId !== event.pointerId) return
     const delta = event.clientX - drag.startX
     if (Math.abs(delta) > DRAG_CLICK_THRESHOLD_PX) {
       drag.moved = true
-      el.classList.add('brand-carousel-dragging')
+      event.currentTarget.classList.add('brand-carousel-dragging')
     }
     if (drag.moved) {
-      el.scrollLeft = drag.startScrollLeft - delta
+      offsetRef.current = drag.startOffset - delta
+      normalizeOffset()
+      applyTransform()
     }
   }
 
   function endDrag(event: ReactPointerEvent<HTMLDivElement>) {
     const drag = dragRef.current
-    const el = scrollerRef.current
     if (!drag || drag.pointerId !== event.pointerId) return
     if (drag.moved) {
       suppressClickRef.current = true
@@ -256,12 +428,12 @@ export function BrandMarquee() {
         suppressClickRef.current = false
       }, 0)
     }
-    el?.classList.remove('brand-carousel-dragging')
-    if (el?.hasPointerCapture(event.pointerId)) {
-      el.releasePointerCapture(event.pointerId)
+    event.currentTarget.classList.remove('brand-carousel-dragging')
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
     }
     dragRef.current = null
-    updateScrollState()
+    draggingRef.current = false
   }
 
   function onTrackClickCapture(event: ReactMouseEvent) {
@@ -291,16 +463,18 @@ export function BrandMarquee() {
         </p>
       </div>
 
-      <div className="relative mx-auto mt-8 max-w-7xl px-2 pb-10 sm:mt-10 sm:px-4 sm:pb-12 lg:px-6">
+      <div
+        className="relative mx-auto mt-8 max-w-7xl px-2 pb-10 sm:mt-10 sm:px-4 sm:pb-12 lg:px-6"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+      >
         <button
           type="button"
           aria-label="Scorri marchi indietro"
-          disabled={!canScrollPrev}
           onClick={() => scrollByPage(-1)}
           className={[
             'absolute left-1 top-1/2 z-20 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-800 shadow-md transition sm:left-2 sm:size-11',
             'hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40',
-            'disabled:pointer-events-none disabled:opacity-35',
           ].join(' ')}
         >
           <ChevronLeft className="size-5 sm:size-6" aria-hidden />
@@ -309,12 +483,10 @@ export function BrandMarquee() {
         <button
           type="button"
           aria-label="Scorri marchi avanti"
-          disabled={!canScrollNext}
           onClick={() => scrollByPage(1)}
           className={[
             'absolute right-1 top-1/2 z-20 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-800 shadow-md transition sm:right-2 sm:size-11',
             'hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40',
-            'disabled:pointer-events-none disabled:opacity-35',
           ].join(' ')}
         >
           <ChevronRight className="size-5 sm:size-6" aria-hidden />
@@ -330,61 +502,25 @@ export function BrandMarquee() {
         />
 
         <div
-          ref={scrollerRef}
+          ref={viewportRef}
           className={[
-            'brand-carousel-track flex touch-pan-x gap-10 overflow-x-auto scroll-smooth px-12 py-2 sm:gap-14 sm:px-16',
-            '[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-            'cursor-grab select-none active:cursor-grabbing',
+            'brand-carousel-track relative overflow-hidden px-12 py-2 sm:px-16',
+            'cursor-grab select-none touch-pan-y active:cursor-grabbing',
           ].join(' ')}
           tabIndex={0}
           role="region"
           aria-roledescription="carousel"
-          aria-label="Marchi partner, scorri con frecce, drag o swipe"
+          aria-label="Marchi partner in scorrimento automatico; usa frecce, drag o swipe per navigare"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
           onClickCapture={onTrackClickCapture}
         >
-          <ul className="flex min-w-max items-center gap-10 sm:gap-14">
-            {BRANDS.map((brand) => {
-              const href = brandCatalogHref(brand)
-              const img = (
-                <img
-                  src={brand.src}
-                  alt={brand.name}
-                  title={brand.name}
-                  loading="lazy"
-                  decoding="async"
-                  draggable={false}
-                  referrerPolicy="no-referrer"
-                  className="brand-marquee-logo max-h-10 w-auto max-w-full object-contain opacity-55 grayscale transition duration-300 sm:max-h-12"
-                  onError={(e) => {
-                    e.currentTarget.style.visibility = 'hidden'
-                  }}
-                />
-              )
-              return (
-                <li
-                  key={brand.id}
-                  className="flex h-14 w-[7.5rem] shrink-0 items-center justify-center sm:w-36"
-                >
-                  {href ? (
-                    <Link
-                      to={href}
-                      aria-label={`Vedi prodotti ${brand.name}`}
-                      draggable={false}
-                      className="brand-marquee-link inline-flex cursor-pointer items-center justify-center rounded-lg p-1 transition-transform duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
-                    >
-                      {img}
-                    </Link>
-                  ) : (
-                    <span className="inline-flex items-center justify-center p-1">{img}</span>
-                  )}
-                </li>
-              )
-            })}
-          </ul>
+          <div ref={railRef} className="brand-marquee-rail flex w-max will-change-transform">
+            <BrandLogoRow trackId="a" listRef={trackARef} />
+            <BrandLogoRow trackId="b" />
+          </div>
         </div>
       </div>
     </section>

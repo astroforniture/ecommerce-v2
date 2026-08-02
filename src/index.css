@@ -58,7 +58,7 @@ body {
   min-height: 100svh;
 }
 
-/* Brand Shop — interactive carousel */
+/* Brand Shop — infinite autoplay + manual controls */
 .brand-marquee-logo {
   filter: grayscale(1);
 }
@@ -70,7 +70,6 @@ body {
 }
 
 .brand-carousel-track.brand-carousel-dragging {
-  scroll-behavior: auto;
   cursor: grabbing;
 }
 
@@ -79,8 +78,8 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .brand-carousel-track {
-    scroll-behavior: auto;
+  .brand-marquee-rail {
+    transition: none;
   }
 }
 
