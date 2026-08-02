@@ -4,6 +4,8 @@ import {
   CARTA_SUBCATEGORY_TERMICA,
   cartaCategoryHref,
   cartucceTonerCategoryHref,
+  PRODOTTI_IGIENE_CATEGORY,
+  prodottiIgieneCategoryHref,
 } from '../lib/officeCategories'
 import {
   MODULISTICA_SUBCATEGORIES,
@@ -256,6 +258,19 @@ export const MEGA_MENU_CATEGORIES: MegaMenuCategory[] = [
         label: 'Tutti i prodotti',
         href: cartucceTonerCategoryHref(),
         preview: { kind: 'category', category: 'Cartucce & Toner' },
+      },
+    ],
+  },
+  {
+    id: 'igiene',
+    label: PRODOTTI_IGIENE_CATEGORY,
+    href: prodottiIgieneCategoryHref(),
+    subs: [
+      {
+        id: 'igiene-all',
+        label: 'Tutti i prodotti',
+        href: prodottiIgieneCategoryHref(),
+        preview: { kind: 'category', category: PRODOTTI_IGIENE_CATEGORY },
       },
     ],
   },

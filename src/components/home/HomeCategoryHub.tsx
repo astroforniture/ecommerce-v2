@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { cartucceTonerCategoryHref } from '../../lib/officeCategories'
+import { cartucceTonerCategoryHref, prodottiIgieneCategoryHref } from '../../lib/officeCategories'
 
 type HomeCategoryLink = {
   id: string
@@ -14,16 +14,8 @@ const HOME_CATEGORY_LINKS: HomeCategoryLink[] = [
   { id: 'modulistica', label: 'Modulistica', href: '/office-products?category=Modulistica' },
   { id: 'carta', label: 'Carta', href: '/office-products?category=Carta' },
   { id: 'cartucce-toner', label: 'Cartucce & Toner', href: cartucceTonerCategoryHref() },
-  { id: 'informatica', label: 'Informatica', href: '/categoria/informatica' },
-  { id: 'macchine', label: 'Macchine ufficio', href: '/categoria/macchine-ufficio' },
-  { id: 'sicurezza', label: 'Sicurezza', href: '/categoria/sicurezza' },
-  { id: 'outlet', label: 'OUTLET', href: '/categoria/outlet', isHighlight: true },
-  {
-    id: 'regali',
-    label: 'REGALI PER TE',
-    href: '/categoria/regali-per-te',
-    isHighlight: true,
-  },
+  { id: 'igiene', label: 'Prodotti per igiene', href: prodottiIgieneCategoryHref() },
+  { id: 'macchine', label: 'Macchine ufficio', href: '/prodotti/macchine-per-ufficio' },
 ]
 
 export function HomeCategoryHub() {
@@ -31,7 +23,7 @@ export function HomeCategoryHub() {
     <section className="border-b border-slate-100 bg-white" aria-label="Categorie principali">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-          <nav className="flex min-w-max items-stretch justify-center gap-3 sm:gap-4 lg:grid lg:min-w-0 lg:grid-cols-9 lg:gap-3">
+          <nav className="flex min-w-max items-stretch justify-center gap-3 sm:gap-4 lg:grid lg:min-w-0 lg:grid-cols-7 lg:gap-3">
             {HOME_CATEGORY_LINKS.map((item) => (
               <Link
                 key={item.id}

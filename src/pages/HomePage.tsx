@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { FileText, X } from 'lucide-react'
 import { HeroSection } from '../components/home/HeroSection'
+import { HomeCategoryHub } from '../components/home/HomeCategoryHub'
 import { FeaturedCategorySpotlight } from '../components/home/FeaturedCategorySpotlight'
 import { BrandMarquee } from '../components/home/BrandMarquee'
 import { WhyChooseUs } from '../components/home/WhyChooseUs'
@@ -196,6 +197,7 @@ export function HomePage() {
     <main>
       <WelcomeModal />
       <HeroSection />
+      <HomeCategoryHub />
       <FeaturedCategorySpotlight />
       <BrandMarquee />
       <WhyChooseUs />

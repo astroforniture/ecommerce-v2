@@ -1,8 +1,13 @@
 import type { LucideIcon } from 'lucide-react'
-import { Briefcase, FileStack, FolderArchive, PenLine, Printer } from 'lucide-react'
+import { Briefcase, FileStack, FolderArchive, PenLine, Printer, Sparkles } from 'lucide-react'
 import { CARTUCCE_TONER_COVER_IMAGE_URL } from './cartucceTonerProducts'
 import { DISTRUGGIDOCUMENTI_COVER_IMAGE_URL } from './distruggidocumentiProducts'
-import { CARTUCCE_TONER_CATEGORY, cartucceTonerCategoryHref } from '../lib/officeCategories'
+import {
+  CARTUCCE_TONER_CATEGORY,
+  cartucceTonerCategoryHref,
+  PRODOTTI_IGIENE_CATEGORY,
+  prodottiIgieneCategoryHref,
+} from '../lib/officeCategories'
 import { macchineUfficioHubPath } from '../lib/macchineUfficioRoutes'
 
 export type FeaturedCategorySpotlight = {
@@ -66,5 +71,14 @@ export const FEATURED_CATEGORY_SPOTLIGHTS: readonly FeaturedCategorySpotlight[] 
     href: macchineUfficioHubPath(),
     imageUrl: DISTRUGGIDOCUMENTI_COVER_IMAGE_URL,
     Icon: Briefcase,
+  },
+  {
+    id: 'prodotti-igiene',
+    title: PRODOTTI_IGIENE_CATEGORY,
+    description:
+      'Detergenti, disinfettanti, candeggina, mop, carrelli e accessori per la pulizia professionale di uffici, negozi e ambienti di lavoro.',
+    href: prodottiIgieneCategoryHref(),
+    imageUrl: 'https://odmultimedia.eu/immagini/MD/103584.jpg',
+    Icon: Sparkles,
   },
 ] as const

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import { LINEA_ASTRO_MEDICAL_CATEGORY } from '../data/iHealthAstroMedicalProducts'
-import { CARTUCCE_TONER_CATEGORY } from './officeCategories'
+import { CARTUCCE_TONER_CATEGORY, PRODOTTI_IGIENE_CATEGORY } from './officeCategories'
 import { MACCHINE_UFFICIO_BASE_PATH } from './macchineUfficioRoutes'
 
 export type CategoryPageContext = {
@@ -18,6 +18,8 @@ const SLUG_CATEGORY_MAP: Record<string, string> = {
   toner: CARTUCCE_TONER_CATEGORY,
   'cartucce-toner': CARTUCCE_TONER_CATEGORY,
   'cartucce-e-toner': CARTUCCE_TONER_CATEGORY,
+  'prodotti-per-igiene': PRODOTTI_IGIENE_CATEGORY,
+  igiene: PRODOTTI_IGIENE_CATEGORY,
   'macchine-per-ufficio': 'Macchine per Ufficio',
   'macchine-ufficio': 'Macchine per Ufficio',
   distruggidocumenti: 'Macchine per Ufficio',
