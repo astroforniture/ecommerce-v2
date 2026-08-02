@@ -60,22 +60,16 @@ export type MegaMenuCategory = {
   subs: MegaMenuSubItem[]
 }
 
-const ARCHIVIO_SUBS = [
-  'Scatole Archivio',
-  'Raccoglitori',
-  'Scatole Progetto',
-  'Cartelle',
-  'Cartelle archivio con lacci',
-  'Cartelline in carta',
-  'Buste Trasparenti',
-  'Porta Documenti',
-  'Registri',
-  'Etichette',
-  'Classificatori',
-  'Divisori',
-  'Faldoni',
-  'Altro Archivio',
-] as const
+const ARCHIVIO_RACCOGLITORI_SUBCATEGORY = 'Raccoglitori Archivio' as const
+
+/** Sottocategorie Mega Menu Archivio (etichetta UI → sottocategoria filtro/URL). */
+const ARCHIVIO_MEGA_SUBS: ReadonlyArray<{ label: string; subcategory: string }> = [
+  { label: 'Scatole Archivio', subcategory: 'Scatole Archivio' },
+  { label: 'Raccoglitori', subcategory: ARCHIVIO_RACCOGLITORI_SUBCATEGORY },
+  { label: 'Cartelle archivio con lacci', subcategory: 'Cartelle archivio con lacci' },
+  { label: 'Cartelline in carta', subcategory: 'Cartelline in carta' },
+  { label: 'Buste Trasparenti', subcategory: 'Buste Trasparenti' },
+]
 
 function archivioHref(subcategory?: string): string {
   const params = new URLSearchParams()
@@ -156,11 +150,11 @@ export const MEGA_MENU_CATEGORIES: MegaMenuCategory[] = [
     id: 'archivio',
     label: 'Archivio ufficio',
     href: archivioHref(),
-    subs: ARCHIVIO_SUBS.map((label) => ({
-      id: `arch-${label}`,
+    subs: ARCHIVIO_MEGA_SUBS.map(({ label, subcategory }) => ({
+      id: `arch-${subcategory}`,
       label,
-      href: archivioHref(label),
-      preview: { kind: 'office-subcategory', category: 'Archivio', subcategory: label },
+      href: archivioHref(subcategory),
+      preview: { kind: 'office-subcategory', category: 'Archivio', subcategory },
     })),
   },
   {

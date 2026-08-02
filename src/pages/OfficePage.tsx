@@ -130,7 +130,7 @@ function parseSortByParam(raw: string | null | undefined): SortBy {
 
 const ARCHIVIO_SUBCATEGORY_ORDER = [
   'Scatole Archivio',
-  'Raccoglitori',
+  'Raccoglitori Archivio',
   'Scatole Progetto',
   'Cartelle',
   'Cartelle archivio con lacci',

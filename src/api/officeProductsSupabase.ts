@@ -1452,6 +1452,12 @@ export function normalizeArchivioSubcategoryLabel(
     return ARCHIVIO_CARTELLE_LACCI_SUBCATEGORY
   if (s.localeCompare('Cartelline', 'it', { sensitivity: 'base' }) === 0)
     return ARCHIVIO_BUSTE_TRASPARENTI_SUBCATEGORY
+  if (
+    s.localeCompare('Raccoglitori', 'it', { sensitivity: 'base' }) === 0 ||
+    s.localeCompare('Raccoglitori Archivio', 'it', { sensitivity: 'base' }) === 0
+  ) {
+    return 'Raccoglitori Archivio'
+  }
   return s
 }
 
