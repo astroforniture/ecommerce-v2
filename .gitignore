@@ -30,3 +30,4 @@ dist-ssr
 
 # SQL generato dallo sync catalogo produzione
 scripts/.generated/
+.env*
