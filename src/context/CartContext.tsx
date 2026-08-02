@@ -1,6 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { OfficeProduct, QuantityPriceTier } from '../types/officeProduct'
 import { lineImponible } from '../lib/quantityPricing'
+import {
+  nextPurchaseQuantity,
+  purchaseQuantityRuleForSku,
+  snapPurchaseQuantity,
+  type PurchaseQuantityRule,
+} from '../lib/purchaseQuantity'
 
 export type CartLineVariant = {
   label: string
@@ -23,6 +29,8 @@ export type CartItem = {
   quantity: number
   /** Snapshot listini al momento dell’aggiunta (per totali coerenti). */
   quantityPriceTiers?: QuantityPriceTier[]
+  minOrderQuantity?: number
+  orderQuantityStep?: number
 }
 
 /** Anteprima articolo appena aggiunto (popover header). */
@@ -39,6 +47,23 @@ function makeLineId(productId: string, variantLabel?: string) {
 
 function roundMoney2(n: number): number {
   return Math.round(n * 100) / 100
+}
+
+function ruleForCartItem(item: Pick<CartItem, 'sku' | 'minOrderQuantity' | 'orderQuantityStep'>): PurchaseQuantityRule | null {
+  const fromSku = purchaseQuantityRuleForSku(item.sku)
+  const min =
+    typeof item.minOrderQuantity === 'number' && item.minOrderQuantity > 1
+      ? Math.floor(item.minOrderQuantity)
+      : fromSku?.minOrderQuantity
+  const step =
+    typeof item.orderQuantityStep === 'number' && item.orderQuantityStep > 1
+      ? Math.floor(item.orderQuantityStep)
+      : fromSku?.orderQuantityStep
+  if ((!min || min <= 1) && (!step || step <= 1)) return fromSku
+  return {
+    minOrderQuantity: Math.max(1, min ?? 1),
+    orderQuantityStep: Math.max(1, step ?? 1),
+  }
 }
 
 type CartContextValue = {
@@ -93,6 +118,18 @@ function sanitizeCartItems(raw: unknown): CartItem[] {
       if (typeof row.imageUrl === 'string' && row.imageUrl.trim()) {
         next.imageUrl = row.imageUrl.trim()
       }
+      if (typeof row.minOrderQuantity === 'number' && Number.isFinite(row.minOrderQuantity)) {
+        next.minOrderQuantity = Math.floor(row.minOrderQuantity)
+      }
+      if (typeof row.orderQuantityStep === 'number' && Number.isFinite(row.orderQuantityStep)) {
+        next.orderQuantityStep = Math.floor(row.orderQuantityStep)
+      }
+      const rule = ruleForCartItem(next)
+      if (rule) {
+        next.minOrderQuantity = rule.minOrderQuantity
+        next.orderQuantityStep = rule.orderQuantityStep
+        next.quantity = snapPurchaseQuantity(next.quantity, rule)
+      }
       return next
     })
     .filter((item): item is CartItem => item != null)
@@ -136,19 +173,38 @@ export function CartProvider({ children }: { children: ReactNode }) {
       : variantLabel
         ? `${baseName} — ${variantLabel}`
         : baseName
-    const delta = Math.max(1, Math.floor(addQty))
+    const rule =
+      purchaseQuantityRuleForSku(sku) ??
+      (product.minOrderQuantity || product.orderQuantityStep
+        ? {
+            minOrderQuantity: Math.max(1, Math.floor(product.minOrderQuantity ?? 1)),
+            orderQuantityStep: Math.max(1, Math.floor(product.orderQuantityStep ?? 1)),
+          }
+        : null)
+    const delta = snapPurchaseQuantity(Math.max(1, Math.floor(addQty)), rule)
 
     let nextQtyForPreview = delta
     setItems((prev) => {
       const existing = prev.find((item) => item.lineId === lineId)
-      nextQtyForPreview = existing ? existing.quantity + delta : delta
       if (existing) {
+        const mergedRule = ruleForCartItem(existing) ?? rule
+        nextQtyForPreview = snapPurchaseQuantity(existing.quantity + delta, mergedRule)
         return prev.map((item) =>
           item.lineId === lineId
-            ? { ...item, quantity: item.quantity + delta }
+            ? {
+                ...item,
+                quantity: nextQtyForPreview,
+                ...(mergedRule
+                  ? {
+                      minOrderQuantity: mergedRule.minOrderQuantity,
+                      orderQuantityStep: mergedRule.orderQuantityStep,
+                    }
+                  : {}),
+              }
             : item,
         )
       }
+      nextQtyForPreview = delta
       return [
         ...prev,
         {
@@ -161,6 +217,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
           price: product.price,
           quantity: delta,
           quantityPriceTiers: product.quantityPriceTiers,
+          ...(rule
+            ? {
+                minOrderQuantity: rule.minOrderQuantity,
+                orderQuantityStep: rule.orderQuantityStep,
+              }
+            : {}),
         },
       ]
     })
@@ -183,14 +245,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   function increaseQuantity(lineId: string) {
     setItems((prev) =>
-      prev.map((item) => (item.lineId === lineId ? { ...item, quantity: item.quantity + 1 } : item)),
+      prev.map((item) => {
+        if (item.lineId !== lineId) return item
+        const rule = ruleForCartItem(item)
+        const next = nextPurchaseQuantity(item.quantity, 1, rule)
+        return { ...item, quantity: next > 0 ? next : item.quantity }
+      }),
     )
   }
 
   function decreaseQuantity(lineId: string) {
     setItems((prev) =>
       prev
-        .map((item) => (item.lineId === lineId ? { ...item, quantity: item.quantity - 1 } : item))
+        .map((item) => {
+          if (item.lineId !== lineId) return item
+          const rule = ruleForCartItem(item)
+          const next = nextPurchaseQuantity(item.quantity, -1, rule)
+          return { ...item, quantity: next }
+        })
         .filter((item) => item.quantity > 0),
     )
   }

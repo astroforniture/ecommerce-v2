@@ -90,6 +90,11 @@ import {
   quantityDiscountRowsDetailed,
 } from '../lib/quantityPricing'
 import {
+  nextPurchaseQuantity,
+  purchaseQuantityRuleForProduct,
+  snapPurchaseQuantity,
+} from '../lib/purchaseQuantity'
+import {
   decodeProductPathParam,
   productDetailPath,
   productDetailUrlSegment,
@@ -1639,7 +1644,8 @@ export function ProductDetailPage() {
     isStaticSynthetic
 
   useEffect(() => {
-    setQuantity(1)
+    const rule = purchaseQuantityRuleForProduct(product)
+    setQuantity(snapPurchaseQuantity(1, rule))
     setImgOk(true)
     setJustAdded(false)
     setSelectedJsonVariant(null)
@@ -1664,6 +1670,12 @@ export function ProductDetailPage() {
     setSyntheticGalleryIdx(0)
     window.scrollTo({ top: 0, behavior: 'auto' })
   }, [productKey])
+
+  useEffect(() => {
+    const rule = purchaseQuantityRuleForProduct(product)
+    if (!rule) return
+    setQuantity((q) => snapPurchaseQuantity(q < rule.minOrderQuantity ? rule.minOrderQuantity : q, rule))
+  }, [product?.id, product?.producerCode, product?.minOrderQuantity, product?.orderQuantityStep])
 
   useEffect(() => {
     if (!(isColorCopyA3 || isColorCopyA4) || !product?.name) return
@@ -2657,7 +2669,11 @@ export function ProductDetailPage() {
   ])
 
   function bumpQuantity(delta: number) {
-    setQuantity((q) => Math.max(1, q + delta))
+    const rule = purchaseQuantityRuleForProduct(product)
+    setQuantity((q) => {
+      const next = nextPurchaseQuantity(q, delta, rule)
+      return next > 0 ? next : snapPurchaseQuantity(q, rule)
+    })
   }
 
   function handleAddToCart() {
@@ -4860,6 +4876,14 @@ export function ProductDetailPage() {
                   : undefined)
               }
               priceUnitSuffix={isPackSizeVariant ? '/ confezione' : '/ pezzo'}
+              quantityRuleHint={(() => {
+                const rule = purchaseQuantityRuleForProduct(product)
+                if (!rule || (rule.minOrderQuantity <= 1 && rule.orderQuantityStep <= 1)) return undefined
+                if (rule.minOrderQuantity === rule.orderQuantityStep) {
+                  return `Acquisto minimo ${rule.minOrderQuantity} pezzi, solo multipli di ${rule.orderQuantityStep}.`
+                }
+                return `Acquisto minimo ${rule.minOrderQuantity} pezzi (incrementi di ${rule.orderQuantityStep}).`
+              })()}
               rootClassName={isStaticSynthetic ? 'mt-6 sm:mt-8' : undefined}
               quantityDiscountTable={
                 isQuoteOnlyOfficeProduct(product) ? undefined : quantityDiscountTableNode

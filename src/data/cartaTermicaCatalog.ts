@@ -1,7 +1,8 @@
 import type { OfficeProduct, QuantityPriceTier } from '../types/officeProduct'
 import { CARTA_SUBCATEGORY_TERMICA, cartaCategoryHref } from '../lib/officeCategories'
+import { purchaseQuantityRuleForSku } from '../lib/purchaseQuantity'
 
-/** Listini quantità carta termica (imponibile / conf.) — chiave = SKU. */
+/** Listini quantità / prezzi fissi carta termica (imponibile / conf.) — chiave = SKU. */
 const CARTA_TERMICA_QUANTITY_PRICING_BY_SKU: Record<
   string,
   { basePrice: number; tiers: QuantityPriceTier[] }
@@ -37,6 +38,11 @@ const CARTA_TERMICA_QUANTITY_PRICING_BY_SKU: Record<
       { minQuantity: 10, unitPrice: 5.29 },
     ],
   },
+  '100335': { basePrice: 18.5, tiers: [] },
+  '100332': { basePrice: 10.5, tiers: [] },
+  '100337': { basePrice: 21.0, tiers: [] },
+  '100195': { basePrice: 2.0, tiers: [] },
+  '104279': { basePrice: 15.0, tiers: [] },
 }
 
 export const CARTA_TERMICA_CATEGORY = 'Carta' as const
@@ -139,12 +145,24 @@ export const CARTA_TERMICA_CATALOG: readonly CartaTermicaCatalogItem[] = [
 ] as const
 
 function applyCatalogQuantityPricing(product: OfficeProduct, sku: string): OfficeProduct {
-  const pricing = CARTA_TERMICA_QUANTITY_PRICING_BY_SKU[sku.toUpperCase()]
-  if (!pricing) return product
+  const key = sku.toUpperCase()
+  const pricing = CARTA_TERMICA_QUANTITY_PRICING_BY_SKU[key]
+  const rule = purchaseQuantityRuleForSku(key)
+  if (!pricing && !rule) return product
   return {
     ...product,
-    price: pricing.basePrice,
-    quantityPriceTiers: pricing.tiers.map((t) => ({ ...t })),
+    ...(pricing
+      ? {
+          price: pricing.basePrice,
+          quantityPriceTiers: pricing.tiers.map((t) => ({ ...t })),
+        }
+      : {}),
+    ...(rule
+      ? {
+          minOrderQuantity: rule.minOrderQuantity,
+          orderQuantityStep: rule.orderQuantityStep,
+        }
+      : {}),
   }
 }
 

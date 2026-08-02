@@ -31,6 +31,8 @@ export type OfficeProductDetailPurchasePanelProps = {
   brochureUrl?: string | null
   /** Suffisso unità prezzo (default "/ pezzo"). Es. "/ confezione". */
   priceUnitSuffix?: string
+  /** Nota sotto il selettore quantità (es. minimo / multipli). */
+  quantityRuleHint?: string
 }
 
 /**
@@ -50,6 +52,7 @@ export function OfficeProductDetailPurchasePanel({
   quoteOnly = false,
   brochureUrl,
   priceUnitSuffix = '/ pezzo',
+  quantityRuleHint,
 }: OfficeProductDetailPurchasePanelProps) {
   const root = ['mt-3 w-full space-y-3', rootClassName].filter(Boolean).join(' ')
 
@@ -101,6 +104,9 @@ export function OfficeProductDetailPurchasePanel({
             </span>
           </p>
         </div>
+        {quantityRuleHint ? (
+          <p className="mt-2 text-xs font-medium text-slate-600">{quantityRuleHint}</p>
+        ) : null}
       </div>
 
       {quantityDiscountTable}

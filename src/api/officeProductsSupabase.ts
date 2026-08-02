@@ -33,6 +33,7 @@ import {
 } from '../lib/officeSearchRelevance'
 import { buildSupabaseIlikePatterns } from '../lib/supabaseSearchPatterns'
 import { debugLogVetrinaProdottiNomi } from '../lib/debugShowcaseCatalog'
+import { purchaseQuantityRuleForSku } from '../lib/purchaseQuantity'
 
 /**
  * Catalogo lista/vetrina: unisce `public.office_products` (solo colonne base presenti sul DB) e
@@ -44,7 +45,7 @@ import { debugLogVetrinaProdottiNomi } from '../lib/debugShowcaseCatalog'
  * Aumenta dopo pulizie massicce su `public.products` (es. titoli): nuove `queryKey` in React Query
  * così il client non riusa dati serializzati vecchi con titoli obsoleti.
  */
-export const OFFICE_CATALOG_DATA_REVISION = 233
+export const OFFICE_CATALOG_DATA_REVISION = 234
 
 const SUPPRESSED_PRODUCTS_BY_ID = new Set([
   '55acce14-88cd-4b12-807d-cd2753894639', // Starbox dorso 5 cm arancio (rimozione richiesta)
@@ -73,6 +74,7 @@ type OfficeProductsLegacyRow = {
  * Non includere `parent_sku` / `main_features` nel select catalogo finché non sono garantiti nello schema.
  */
 const PRODUCT_SHOP_SELECT_FALLBACKS: readonly string[] = [
+  'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq, related_product_ids, min_order_quantity, order_quantity_step',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq, related_product_ids',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url',
@@ -91,6 +93,7 @@ const PRODUCT_SHOP_SELECT_FALLBACKS: readonly string[] = [
 
 /** Fetch scheda prodotto: prova prima con `variants` (JSONB misure/colori). */
 const PRODUCT_DETAIL_SELECT_FALLBACKS: readonly string[] = [
+  'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq, related_product_ids, min_order_quantity, order_quantity_step',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq, related_product_ids',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url',
@@ -130,7 +133,7 @@ const OXFORD_QUANTITY_TIERS: QuantityPriceTier[] = [
   { minQuantity: 6, unitPrice: 6.55 },
   { minQuantity: 13, unitPrice: 5.99 },
 ]
-/** Listini quantità carta termica (imponibile / conf.) — chiave = SKU. */
+/** Listini quantità / prezzi fissi carta termica (imponibile / conf.) — chiave = SKU. */
 const CARTA_TERMICA_QUANTITY_PRICING_BY_SKU: Record<
   string,
   { basePrice: number; tiers: QuantityPriceTier[] }
@@ -166,6 +169,11 @@ const CARTA_TERMICA_QUANTITY_PRICING_BY_SKU: Record<
       { minQuantity: 10, unitPrice: 5.29 },
     ],
   },
+  '100335': { basePrice: 18.5, tiers: [] },
+  '100332': { basePrice: 10.5, tiers: [] },
+  '100337': { basePrice: 21.0, tiers: [] },
+  '100195': { basePrice: 2.0, tiers: [] },
+  '104279': { basePrice: 15.0, tiers: [] },
 }
 const PUNCHED_ENVELOPE_TOP_BASE_PRICE = 5.6
 const PUNCHED_ENVELOPE_TOP_QUANTITY_TIERS: QuantityPriceTier[] = [{ minQuantity: 3, unitPrice: 5.09 }]
@@ -279,12 +287,24 @@ function cartaTermicaSkuKey(product: OfficeProduct): string {
 }
 
 function applyCartaTermicaQuantityPricing(product: OfficeProduct): OfficeProduct | null {
-  const pricing = CARTA_TERMICA_QUANTITY_PRICING_BY_SKU[cartaTermicaSkuKey(product)]
-  if (!pricing) return null
+  const sku = cartaTermicaSkuKey(product)
+  const pricing = CARTA_TERMICA_QUANTITY_PRICING_BY_SKU[sku]
+  const rule = purchaseQuantityRuleForSku(sku)
+  if (!pricing && !rule) return null
   return {
     ...product,
-    price: pricing.basePrice,
-    quantityPriceTiers: pricing.tiers.map((t) => ({ ...t })),
+    ...(pricing
+      ? {
+          price: pricing.basePrice,
+          quantityPriceTiers: pricing.tiers.map((t) => ({ ...t })),
+        }
+      : {}),
+    ...(rule
+      ? {
+          minOrderQuantity: rule.minOrderQuantity,
+          orderQuantityStep: rule.orderQuantityStep,
+        }
+      : {}),
   }
 }
 
@@ -1263,6 +1283,8 @@ type OfficeProductRow = ShopProductRow & {
   variants?: unknown
   main_features?: unknown
   related_product_ids?: unknown
+  min_order_quantity?: number | string | null
+  order_quantity_step?: number | string | null
 }
 
 function jsonbToMainFeatures(raw: unknown): Record<string, string> {
@@ -1571,6 +1593,26 @@ function mapRowToOfficeProduct(row: OfficeProductRow): OfficeProduct {
     variants: parseVariantsJson(row.variants),
     relatedProductIds: parseRelatedProductIds((row as OfficeProductRow).related_product_ids),
   }
+  const minOrderRaw = (row as OfficeProductRow).min_order_quantity
+  const orderStepRaw = (row as OfficeProductRow).order_quantity_step
+  const minOrder =
+    typeof minOrderRaw === 'number'
+      ? minOrderRaw
+      : typeof minOrderRaw === 'string'
+        ? Number.parseInt(minOrderRaw, 10)
+        : NaN
+  const orderStep =
+    typeof orderStepRaw === 'number'
+      ? orderStepRaw
+      : typeof orderStepRaw === 'string'
+        ? Number.parseInt(orderStepRaw, 10)
+        : NaN
+  if (Number.isFinite(minOrder) && minOrder > 1) {
+    mapped.minOrderQuantity = Math.floor(minOrder)
+  }
+  if (Number.isFinite(orderStep) && orderStep > 1) {
+    mapped.orderQuantityStep = Math.floor(orderStep)
+  }
   if (!mapped.faq?.length) {
     delete mapped.faq
   }
@@ -1580,7 +1622,7 @@ function mapRowToOfficeProduct(row: OfficeProductRow): OfficeProduct {
   if (mapped.ean && !mapped.mainFeatures.EAN) {
     mapped.mainFeatures = { ...mapped.mainFeatures, EAN: mapped.ean }
   }
-  return applyEuroboxEsselteCatalog(
+  const withCatalogOverrides = applyEuroboxEsselteCatalog(
     applyBigSeiRotaCatalog(
       applySoftSeiRotaCatalog(
         applyAlteaT3042SeiRotaPricing(
@@ -1615,6 +1657,7 @@ function mapRowToOfficeProduct(row: OfficeProductRow): OfficeProduct {
       ),
     ),
   )
+  return applyCartaTermicaQuantityPricing(withCatalogOverrides) ?? withCatalogOverrides
 }
 
 /** Risultato compatto per autocomplete header (no listini quantità). */
