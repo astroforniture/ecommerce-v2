@@ -1,8 +1,12 @@
 import { SICUREZZA_CATEGORY } from './officeCategories'
 
 export const SICUREZZA_SUBCATEGORY_NASTRI = 'Nastri' as const
+export const SICUREZZA_SUBCATEGORY_ELMETTI = 'Elmetti' as const
 
-export const SICUREZZA_SUBCATEGORIES = [SICUREZZA_SUBCATEGORY_NASTRI] as const
+export const SICUREZZA_SUBCATEGORIES = [
+  SICUREZZA_SUBCATEGORY_NASTRI,
+  SICUREZZA_SUBCATEGORY_ELMETTI,
+] as const
 
 export type SicurezzaSubcategory = (typeof SICUREZZA_SUBCATEGORIES)[number]
 
