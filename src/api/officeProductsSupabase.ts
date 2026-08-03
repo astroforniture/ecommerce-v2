@@ -45,7 +45,7 @@ import { purchaseQuantityRuleForSku } from '../lib/purchaseQuantity'
  * Aumenta dopo pulizie massicce su `public.products` (es. titoli): nuove `queryKey` in React Query
  * così il client non riusa dati serializzati vecchi con titoli obsoleti.
  */
-export const OFFICE_CATALOG_DATA_REVISION = 239
+export const OFFICE_CATALOG_DATA_REVISION = 240
 
 const SUPPRESSED_PRODUCTS_BY_ID = new Set([
   '55acce14-88cd-4b12-807d-cd2753894639', // Starbox dorso 5 cm arancio (rimozione richiesta)
@@ -1361,6 +1361,17 @@ function parseVariantsJson(raw: unknown): ProductVariantOption[] | undefined {
   return undefined
 }
 
+/** Galleria aggiuntiva da `variants.gallery` (array URL), senza trattarla come varianti colore. */
+function parseImageGalleryFromVariants(raw: unknown): string[] | undefined {
+  if (raw == null || typeof raw !== 'object' || Array.isArray(raw)) return undefined
+  const gallery = (raw as Record<string, unknown>).gallery
+  if (!Array.isArray(gallery)) return undefined
+  const urls = gallery
+    .filter((v): v is string => typeof v === 'string' && v.trim().length > 0)
+    .map((v) => v.trim())
+  return urls.length ? urls : undefined
+}
+
 function parseRelatedProductIds(raw: unknown): string[] | undefined {
   if (!Array.isArray(raw)) return undefined
   const ids = raw.filter((v) => typeof v === 'string' && v.trim()).map((v) => (v as string).trim())
@@ -1597,6 +1608,7 @@ function mapRowToOfficeProduct(row: OfficeProductRow): OfficeProduct {
     brochureUrl: String((row as OfficeProductRow).brochure_url ?? '').trim() || undefined,
     faq: parseProductFaq((row as OfficeProductRow).faq),
     variants: parseVariantsJson(row.variants),
+    imageGalleryUrls: parseImageGalleryFromVariants(row.variants),
     relatedProductIds: parseRelatedProductIds((row as OfficeProductRow).related_product_ids),
   }
   const minOrderRaw = (row as OfficeProductRow).min_order_quantity
@@ -1624,6 +1636,9 @@ function mapRowToOfficeProduct(row: OfficeProductRow): OfficeProduct {
   }
   if (!mapped.relatedProductIds?.length) {
     delete mapped.relatedProductIds
+  }
+  if (!mapped.imageGalleryUrls?.length) {
+    delete mapped.imageGalleryUrls
   }
   if (mapped.ean && !mapped.mainFeatures.EAN) {
     mapped.mainFeatures = { ...mapped.mainFeatures, EAN: mapped.ean }

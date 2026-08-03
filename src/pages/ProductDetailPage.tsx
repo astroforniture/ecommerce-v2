@@ -778,7 +778,9 @@ export function ProductDetailPage() {
     [product],
   )
   const syntheticGalleryImageUrls = useMemo(() => {
-    if (!product || !isStaticSynthetic) return [] as string[]
+    if (!product) return [] as string[]
+    const hasExtra = (product.imageGalleryUrls?.length ?? 0) > 0
+    if (!isStaticSynthetic && !hasExtra) return [] as string[]
     const raw = [product.imageUrl, ...(product.imageGalleryUrls ?? [])]
     const seen = new Set<string>()
     const out: string[] = []
@@ -2405,14 +2407,14 @@ export function ProductDetailPage() {
 
   const heroImageUrl = useMemo(() => {
     const bust = (u: string) => withOfficeImageCacheBust(u, OFFICE_CATALOG_DATA_REVISION)
-    if (product && isStaticSyntheticOfficeProduct(product)) {
+    if (product && syntheticGalleryImageUrls.length > 0) {
       const raw = (
         syntheticGalleryImageUrls[syntheticGalleryIdx] ??
         product.imageUrl ??
         ''
       ).trim()
       if (raw) return bust(raw)
-      return ''
+      if (isStaticSyntheticOfficeProduct(product)) return ''
     }
     const p = surfaceProduct
     if (!p) return ''
@@ -3144,7 +3146,7 @@ export function ProductDetailPage() {
             )}
             </div>
 
-            {isStaticSynthetic && syntheticGalleryImageUrls.length > 1 ? (
+            {syntheticGalleryImageUrls.length > 1 ? (
               <div
                 className="mt-4 flex flex-wrap gap-2"
                 role="tablist"
@@ -3155,7 +3157,7 @@ export function ProductDetailPage() {
                   const active = idx === syntheticGalleryIdx
                   return (
                     <button
-                      key={`synthetic-gallery-${url}-${idx}`}
+                      key={`product-gallery-${url}-${idx}`}
                       type="button"
                       role="tab"
                       aria-selected={active}

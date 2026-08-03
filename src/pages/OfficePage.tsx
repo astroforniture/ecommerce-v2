@@ -29,6 +29,8 @@ import {
   cartaCategoryHref,
   PRODOTTI_IGIENE_CATEGORY,
   PRODOTTI_IGIENE_CATEGORY_NORM,
+  SICUREZZA_CATEGORY,
+  SICUREZZA_CATEGORY_NORM,
 } from '../lib/officeCategories'
 import {
   ARCHIVIO_BUSTE_TRASPARENTI_SUBCATEGORY,
@@ -90,8 +92,10 @@ import {
   OFFICE_GENERAL_SHOP_PATH,
 } from '../lib/isGeneralOfficeShopCatalogProduct'
 import { matchesIgieneSubcategoryFilter } from '../lib/prodottiIgieneSubcategories'
+import { matchesSicurezzaSubcategoryFilter } from '../lib/sicurezzaCatalog'
 import { AstroMedicalSubcategoryNav } from '../components/astroMedical/AstroMedicalSubcategoryNav'
 import { IgieneSubcategoryNav } from '../components/office/IgieneSubcategoryNav'
+import { SicurezzaSubcategoryNav } from '../components/office/SicurezzaSubcategoryNav'
 import { matchesAstroMedicalSubcategoryFilter } from '../lib/astroMedicalSubcategories'
 import {
   DropdownMenu,
@@ -669,6 +673,9 @@ export function OfficePage() {
       if (activeCategory === PRODOTTI_IGIENE_CATEGORY_NORM && selectedSubcategory) {
         if (!matchesIgieneSubcategoryFilter(p, selectedSubcategory)) return false
       }
+      if (activeCategory === SICUREZZA_CATEGORY_NORM && selectedSubcategory) {
+        if (!matchesSicurezzaSubcategoryFilter(p, selectedSubcategory)) return false
+      }
       if (activeCategory === 'cancelleria' && selectedCancelleriaView) {
         if (!matchesCancelleriaHubProduct(p, selectedCancelleriaView)) return false
       }
@@ -899,6 +906,9 @@ export function OfficePage() {
       if (activeCategory === PRODOTTI_IGIENE_CATEGORY_NORM && activeSubcategory) {
         if (!matchesIgieneSubcategoryFilter(p, activeSubcategory)) return false
       }
+      if (activeCategory === SICUREZZA_CATEGORY_NORM && activeSubcategory) {
+        if (!matchesSicurezzaSubcategoryFilter(p, activeSubcategory)) return false
+      }
       if (activeCategory === 'cancelleria' && selectedCancelleriaView) {
         if (!matchesCancelleriaHubProduct(p, selectedCancelleriaView)) return false
       }
@@ -966,6 +976,7 @@ export function OfficePage() {
   const isCartucceTonerCategory = selectedCategoryNorm === CARTUCCE_TONER_CATEGORY_NORM
   const isLineaAstroMedicalCategory = selectedCategoryNorm === LINEA_ASTRO_MEDICAL_CATEGORY_NORM
   const isProdottiIgieneCategory = selectedCategoryNorm === PRODOTTI_IGIENE_CATEGORY_NORM
+  const isSicurezzaCategory = selectedCategoryNorm === SICUREZZA_CATEGORY_NORM
 
   const activeFiltersCount =
     (searchTrim ? 1 : 0) +
@@ -973,7 +984,8 @@ export function OfficePage() {
     selectedBrands.length +
     selectedFormats.length +
     (isLineaAstroMedicalCategory && selectedSubcategory ? 1 : 0) +
-    (isProdottiIgieneCategory && selectedSubcategory ? 1 : 0)
+    (isProdottiIgieneCategory && selectedSubcategory ? 1 : 0) +
+    (isSicurezzaCategory && selectedSubcategory ? 1 : 0)
 
   return (
     <main className="min-h-[60vh] bg-gradient-to-b from-brand-50/50 to-white">
@@ -987,7 +999,8 @@ export function OfficePage() {
           isCartucceTonerCategory ||
           isMacchineUfficioCategory ||
           isLineaAstroMedicalCategory ||
-          isProdottiIgieneCategory
+          isProdottiIgieneCategory ||
+          isSicurezzaCategory
             ? 'py-6 sm:py-8'
             : 'py-16 sm:py-20',
         ].join(' ')}
@@ -1071,6 +1084,33 @@ export function OfficePage() {
                   className="font-medium text-slate-800 transition hover:text-brand-800"
                 >
                   Carta
+                </Link>
+              </li>
+              {selectedSubcategory ? (
+                <>
+                  <li aria-hidden>/</li>
+                  <li className="font-medium text-slate-800">{selectedSubcategory}</li>
+                </>
+              ) : null}
+            </ol>
+          </nav>
+        ) : null}
+
+        {isSicurezzaCategory ? (
+          <nav className="mt-6 text-sm text-slate-500" aria-label="Breadcrumb">
+            <ol className="flex flex-wrap items-center gap-2">
+              <li>
+                <Link to="/" className="transition hover:text-brand-800">
+                  Home
+                </Link>
+              </li>
+              <li aria-hidden>/</li>
+              <li>
+                <Link
+                  to="/office-products?category=Sicurezza"
+                  className="font-medium text-slate-800 transition hover:text-brand-800"
+                >
+                  {SICUREZZA_CATEGORY}
                 </Link>
               </li>
               {selectedSubcategory ? (
@@ -1195,6 +1235,19 @@ export function OfficePage() {
             <p className="mt-3 max-w-2xl text-base text-slate-600 sm:text-lg">
               Detergenti, attrezzature, panni e macchine per la pulizia di uffici, negozi e ambienti di
               lavoro. Filtra per sottocategoria o esplora tutto il catalogo.
+            </p>
+          </header>
+        ) : isSicurezzaCategory ? (
+          <header className="mt-2">
+            <p className="text-sm font-semibold uppercase tracking-widest text-brand-700">
+              Antinfortunistica
+            </p>
+            <h1 className="mt-2 text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
+              {SICUREZZA_CATEGORY}
+            </h1>
+            <p className="mt-3 max-w-2xl text-base text-slate-600 sm:text-lg">
+              Nastri segnaletici, antiscivolo, fotoluminescenti e mascheratura tecnica per ambienti di
+              lavoro e vie di fuga.
             </p>
           </header>
         ) : (
@@ -1562,6 +1615,15 @@ export function OfficePage() {
 
           {isProdottiIgieneCategory && !isLoading ? (
             <IgieneSubcategoryNav
+              className="mb-6"
+              products={productsForListingFilter}
+              selectedSubcategory={selectedSubcategory || null}
+              onSelect={(value) => setSubcategoryFilter(value ?? '')}
+            />
+          ) : null}
+
+          {isSicurezzaCategory && !isLoading ? (
+            <SicurezzaSubcategoryNav
               className="mb-6"
               products={productsForListingFilter}
               selectedSubcategory={selectedSubcategory || null}

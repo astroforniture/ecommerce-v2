@@ -22,6 +22,7 @@ export const OFFICE_CATALOG_CANONICAL_CATEGORIES = [
   'Cartucce & Toner',
   'Macchine per Ufficio',
   'Prodotti per igiene',
+  'Sicurezza',
   LINEA_ASTRO_MEDICAL_CATEGORY,
 ] as const
 
@@ -30,6 +31,9 @@ export const CARTUCCE_TONER_CATEGORY_NORM = 'cartucce & toner'
 
 export const PRODOTTI_IGIENE_CATEGORY = 'Prodotti per igiene' as const
 export const PRODOTTI_IGIENE_CATEGORY_NORM = 'prodotti per igiene'
+
+export const SICUREZZA_CATEGORY = 'Sicurezza' as const
+export const SICUREZZA_CATEGORY_NORM = 'sicurezza'
 
 export const OFFICE_CATEGORY_FALLBACK = 'Altro' as const
 
@@ -47,6 +51,7 @@ export const OFFICE_CATEGORY_FILTER_ORDER: readonly OfficeCatalogDisplayCategory
   CARTUCCE_TONER_CATEGORY,
   'Macchine per Ufficio',
   PRODOTTI_IGIENE_CATEGORY,
+  SICUREZZA_CATEGORY,
   LINEA_ASTRO_MEDICAL_CATEGORY,
   'Carta',
   'Archivio',
@@ -59,6 +64,10 @@ export function cartucceTonerCategoryHref(): string {
 
 export function prodottiIgieneCategoryHref(): string {
   return `/office-products?category=${encodeURIComponent(PRODOTTI_IGIENE_CATEGORY)}`
+}
+
+export function sicurezzaCategoryHref(): string {
+  return `/office-products?category=${encodeURIComponent(SICUREZZA_CATEGORY)}`
 }
 
 export const CARTA_SUBCATEGORY_A4 = 'Formato Carta A4' as const
@@ -140,6 +149,9 @@ export function officeCategoryFilterFromUrlParam(
     t.localeCompare('Igiene', 'it', { sensitivity: 'base' }) === 0
   ) {
     return PRODOTTI_IGIENE_CATEGORY_NORM
+  }
+  if (t.localeCompare(SICUREZZA_CATEGORY, 'it', { sensitivity: 'base' }) === 0) {
+    return SICUREZZA_CATEGORY_NORM
   }
   if (t.localeCompare('Archivio', 'it', { sensitivity: 'base' }) === 0) return 'archivio'
   if (t.localeCompare(OFFICE_CATEGORY_FALLBACK, 'it', { sensitivity: 'base' }) === 0)

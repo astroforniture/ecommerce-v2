@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { cartucceTonerCategoryHref, prodottiIgieneCategoryHref } from '../../lib/officeCategories'
+import { sicurezzaCategoryHref } from '../../lib/sicurezzaCatalog'
 
 type HomeCategoryLink = {
   id: string
@@ -15,6 +16,7 @@ const HOME_CATEGORY_LINKS: HomeCategoryLink[] = [
   { id: 'carta', label: 'Carta', href: '/office-products?category=Carta' },
   { id: 'cartucce-toner', label: 'Cartucce & Toner', href: cartucceTonerCategoryHref() },
   { id: 'igiene', label: 'Prodotti per igiene', href: prodottiIgieneCategoryHref() },
+  { id: 'sicurezza', label: 'Sicurezza', href: sicurezzaCategoryHref() },
   { id: 'macchine', label: 'Macchine ufficio', href: '/prodotti/macchine-per-ufficio' },
 ]
 
@@ -23,7 +25,7 @@ export function HomeCategoryHub() {
     <section className="border-b border-slate-100 bg-white" aria-label="Categorie principali">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-          <nav className="flex min-w-max items-stretch justify-center gap-3 sm:gap-4 lg:grid lg:min-w-0 lg:grid-cols-7 lg:gap-3">
+          <nav className="flex min-w-max items-stretch justify-center gap-3 sm:gap-4 lg:grid lg:min-w-0 lg:grid-cols-8 lg:gap-2">
             {HOME_CATEGORY_LINKS.map((item) => (
               <Link
                 key={item.id}

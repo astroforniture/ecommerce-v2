@@ -6,11 +6,16 @@ import {
   cartucceTonerCategoryHref,
   PRODOTTI_IGIENE_CATEGORY,
   prodottiIgieneCategoryHref,
+  SICUREZZA_CATEGORY,
 } from '../lib/officeCategories'
 import {
   IGIENE_SUBCATEGORIES,
   prodottiIgieneSubcategoryHref,
 } from '../lib/prodottiIgieneSubcategories'
+import {
+  SICUREZZA_SUBCATEGORIES,
+  sicurezzaCategoryHref,
+} from '../lib/sicurezzaCatalog'
 import {
   MODULISTICA_SUBCATEGORIES,
   modulisticaCategoryHref,
@@ -277,6 +282,29 @@ export const MEGA_MENU_CATEGORIES: MegaMenuCategory[] = [
         preview: {
           kind: 'office-subcategory' as const,
           category: PRODOTTI_IGIENE_CATEGORY,
+          subcategory,
+        },
+      })),
+    ],
+  },
+  {
+    id: 'sicurezza',
+    label: SICUREZZA_CATEGORY,
+    href: sicurezzaCategoryHref(),
+    subs: [
+      {
+        id: 'sicurezza-all',
+        label: 'Tutti i prodotti',
+        href: sicurezzaCategoryHref(),
+        preview: { kind: 'category', category: SICUREZZA_CATEGORY },
+      },
+      ...SICUREZZA_SUBCATEGORIES.map((subcategory) => ({
+        id: `sicurezza-${subcategory}`,
+        label: subcategory,
+        href: sicurezzaCategoryHref(subcategory),
+        preview: {
+          kind: 'office-subcategory' as const,
+          category: SICUREZZA_CATEGORY,
           subcategory,
         },
       })),
