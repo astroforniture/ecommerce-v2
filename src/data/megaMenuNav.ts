@@ -14,6 +14,7 @@ import {
 } from '../lib/prodottiIgieneSubcategories'
 import {
   SICUREZZA_SUBCATEGORIES,
+  SICUREZZA_SUBCATEGORY_COVER_IMAGE,
   sicurezzaCategoryHref,
 } from '../lib/sicurezzaCatalog'
 import {
@@ -32,6 +33,11 @@ import {
   MACCHINE_SUB_ETICHETTATRICI_LABEL,
   macchineUfficioEtichettatriciListingPath,
 } from './macchineEtichettatrici'
+import {
+  MACCHINE_SUB_VERIFICA_BANCONOTE_LABEL,
+  VERIFICA_BANCONOTE_COVER_IMAGE_URL,
+  macchineUfficioVerificaBanconoteListingPath,
+} from './verificaBanconoteProducts'
 import { macchineUfficioHubPath } from '../lib/macchineUfficioRoutes'
 import { SERVIZI_NAV_ITEMS } from './serviziCatalog'
 import {
@@ -51,7 +57,7 @@ import { cancelleriaTimbriListingPath } from '../lib/timbroAziendeFarmacieProduc
 export type MegaMenuPreviewSource =
   | { kind: 'office-subcategory'; category: string; subcategory: string }
   | { kind: 'cancelleria-hub'; hub: string }
-  | { kind: 'macchine'; catalog: 'distruggi' | 'etichettatrici' | 'casse' | 'hub' }
+  | { kind: 'macchine'; catalog: 'distruggi' | 'etichettatrici' | 'casse' | 'verifica-banconote' | 'hub' }
   | { kind: 'category'; category: string }
   | { kind: 'none' }
 
@@ -60,6 +66,8 @@ export type MegaMenuSubItem = {
   label: string
   href: string
   preview: MegaMenuPreviewSource
+  /** Miniatura opzionale in lista Mega Menu (es. hub Sicurezza). */
+  coverImageUrl?: string
 }
 
 export type MegaMenuCategory = {
@@ -212,6 +220,13 @@ export const MEGA_MENU_CATEGORIES: MegaMenuCategory[] = [
         href: macchineUfficioCasseDitronListingPath(),
         preview: { kind: 'macchine', catalog: 'casse' },
       },
+      {
+        id: 'mac-verifica-banconote',
+        label: MACCHINE_SUB_VERIFICA_BANCONOTE_LABEL,
+        href: macchineUfficioVerificaBanconoteListingPath(),
+        coverImageUrl: VERIFICA_BANCONOTE_COVER_IMAGE_URL,
+        preview: { kind: 'macchine', catalog: 'verifica-banconote' },
+      },
     ],
   },
   {
@@ -302,6 +317,7 @@ export const MEGA_MENU_CATEGORIES: MegaMenuCategory[] = [
         id: `sicurezza-${subcategory}`,
         label: subcategory,
         href: sicurezzaCategoryHref(subcategory),
+        coverImageUrl: SICUREZZA_SUBCATEGORY_COVER_IMAGE[subcategory],
         preview: {
           kind: 'office-subcategory' as const,
           category: SICUREZZA_CATEGORY,

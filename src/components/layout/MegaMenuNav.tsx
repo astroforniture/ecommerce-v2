@@ -187,7 +187,7 @@ export function MegaMenuNav() {
                       <Link
                         to={sub.href}
                         className={[
-                          'flex w-full items-center rounded-lg px-3 py-2 text-left text-sm transition',
+                          'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition',
                           selected
                             ? 'bg-slate-900 text-white'
                             : 'text-slate-700 hover:bg-slate-50 hover:text-slate-950',
@@ -203,7 +203,23 @@ export function MegaMenuNav() {
                           setActiveSubId(null)
                         }}
                       >
-                        {sub.label}
+                        {sub.coverImageUrl ? (
+                          <span
+                            className={[
+                              'size-8 shrink-0 overflow-hidden rounded-md border bg-white',
+                              selected ? 'border-white/30' : 'border-slate-200',
+                            ].join(' ')}
+                          >
+                            <img
+                              src={sub.coverImageUrl}
+                              alt=""
+                              className="size-full object-contain p-0.5"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          </span>
+                        ) : null}
+                        <span className="min-w-0 flex-1 leading-snug">{sub.label}</span>
                       </Link>
                     </li>
                   )
@@ -289,10 +305,21 @@ export function MegaMenuNav() {
                           <li key={sub.id}>
                             <Link
                               to={sub.href}
-                              className="block rounded-md px-2 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                              className="flex items-center gap-2.5 rounded-md px-2 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                               onClick={() => setMobileOpen(false)}
                             >
-                              {sub.label}
+                              {sub.coverImageUrl ? (
+                                <span className="size-8 shrink-0 overflow-hidden rounded-md border border-slate-200 bg-white">
+                                  <img
+                                    src={sub.coverImageUrl}
+                                    alt=""
+                                    className="size-full object-contain p-0.5"
+                                    loading="lazy"
+                                    decoding="async"
+                                  />
+                                </span>
+                              ) : null}
+                              <span className="min-w-0 flex-1 leading-snug">{sub.label}</span>
                             </Link>
                           </li>
                         ))}

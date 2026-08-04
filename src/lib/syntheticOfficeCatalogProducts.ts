@@ -15,6 +15,10 @@ import {
   macchineUfficioEtichettatriciListingPath,
 } from '../data/macchineEtichettatrici'
 import {
+  buildVerificaBanconoteOfficeProducts,
+  macchineUfficioVerificaBanconoteListingPath,
+} from '../data/verificaBanconoteProducts'
+import {
   buildPileOfficeProducts,
   cancelleriaPileListingPath,
 } from '../data/pileProducts'
@@ -99,6 +103,7 @@ export function isStaticSyntheticOfficeProduct(
     id.startsWith('AF-TONER-') ||
     id.startsWith('AF-ETCH-') ||
     id.startsWith('AF-DITRON-') ||
+    id.startsWith('AF-VB-') ||
     id.startsWith('AF-PILE-') ||
     id.startsWith('AF-QUAD-') ||
     id.startsWith('AF-IHEALTH-') ||
@@ -133,6 +138,11 @@ export function resolveSyntheticOfficeProductByCatalogKey(key: string): OfficePr
   }
   if (k.startsWith('AF-DITRON-')) {
     return buildCasseDitronOfficeProducts().find((p) => p.id === k || p.producerCode === k) ?? null
+  }
+  if (k.startsWith('AF-VB-')) {
+    return (
+      buildVerificaBanconoteOfficeProducts().find((p) => p.id === k || p.producerCode === k) ?? null
+    )
   }
   if (k.startsWith('AF-XS-')) {
     return resolveCrossSellCatalogProductById(k)
@@ -208,6 +218,9 @@ export function staticSyntheticOfficeListingPath(product: Pick<OfficeProduct, 'i
   }
   if (id.startsWith('AF-DITRON-')) {
     return macchineUfficioCasseDitronListingPath()
+  }
+  if (id.startsWith('AF-VB-')) {
+    return macchineUfficioVerificaBanconoteListingPath()
   }
   if (id.startsWith('AF-XS-')) {
     return macchineUfficioCasseDitronListingPath()

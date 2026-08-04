@@ -22,6 +22,13 @@ import {
   buildEtichettatriciOfficeProducts,
   macchineUfficioEtichettatriciListingPath,
 } from '../data/macchineEtichettatrici'
+import {
+  VERIFICA_BANCONOTE_COVER_IMAGE_URL,
+  MACCHINE_SUB_VERIFICA_BANCONOTE_LABEL,
+  MACCHINE_SUB_VERIFICA_BANCONOTE_SLUG,
+  buildVerificaBanconoteOfficeProducts,
+  macchineUfficioVerificaBanconoteListingPath,
+} from '../data/verificaBanconoteProducts'
 import { macchineUfficioHubPath } from '../lib/macchineUfficioRoutes'
 import { OfficeProductCard } from '../components/office/OfficeProductCard'
 import {
@@ -33,12 +40,14 @@ import { MacchinePanoramicaCarousel } from '../components/macchine/MacchinePanor
 const distruggiListingPath = macchineUfficioDistruggiDocumentiListingPath()
 const etichettatriciListingPath = macchineUfficioEtichettatriciListingPath()
 const casseDitronListingPath = macchineUfficioCasseDitronListingPath()
+const verificaBanconoteListingPath = macchineUfficioVerificaBanconoteListingPath()
 const macchineHubPath = macchineUfficioHubPath()
 
 const MACCHINE_SUB_LABEL_BY_SLUG: Record<string, string> = {
   [MACCHINE_SUB_DISTRUGGI_DOCUMENTI_SLUG]: MACCHINE_SUB_DISTRUGGI_DOCUMENTI_LABEL,
   [MACCHINE_SUB_ETICHETTATRICI_SLUG]: MACCHINE_SUB_ETICHETTATRICI_LABEL,
   [MACCHINE_SUB_CASSE_DITRON_SLUG]: MACCHINE_SUB_CASSE_DITRON_LABEL,
+  [MACCHINE_SUB_VERIFICA_BANCONOTE_SLUG]: MACCHINE_SUB_VERIFICA_BANCONOTE_LABEL,
 }
 
 function MacchineBreadcrumb() {
@@ -106,6 +115,12 @@ function MacchineSidebar() {
           className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
         >
           {MACCHINE_SUB_CASSE_DITRON_LABEL}
+        </NavLink>
+        <NavLink
+          to={verificaBanconoteListingPath}
+          className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
+        >
+          {MACCHINE_SUB_VERIFICA_BANCONOTE_LABEL}
         </NavLink>
       </nav>
     </aside>
@@ -225,6 +240,22 @@ export function MacchineUfficioHubPage() {
                   className="size-full object-contain p-4"
                   loading="lazy"
                   decoding="async"
+                />
+              </div>
+            }
+          />
+          <OfficeSubcategoryTile
+            title={MACCHINE_SUB_VERIFICA_BANCONOTE_LABEL}
+            onClick={() => void navigate(verificaBanconoteListingPath)}
+            media={
+              <div className="aspect-square w-full bg-slate-50">
+                <img
+                  src={VERIFICA_BANCONOTE_COVER_IMAGE_URL}
+                  alt=""
+                  className="size-full object-contain p-4"
+                  loading="lazy"
+                  decoding="async"
+                  referrerPolicy="no-referrer-when-downgrade"
                 />
               </div>
             }
@@ -371,6 +402,42 @@ export function MacchineCasseDitronPage() {
             </div>
           </>
         )}
+      </section>
+    </>
+  )
+}
+
+/** Elenco conta/verifica banconote. */
+export function MacchineVerificaBanconotePage() {
+  const products = useMemo(() => buildVerificaBanconoteOfficeProducts(), [])
+
+  return (
+    <>
+      <header className="border-b border-slate-200 pb-8">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+          {MACCHINE_SUB_VERIFICA_BANCONOTE_LABEL}
+        </h1>
+        <p className="mt-2 max-w-xl text-sm text-slate-600">
+          Conta e verifica banconote con controlli UV/MG/IR — prezzi imponibili + IVA.
+        </p>
+      </header>
+
+      <section className="pt-10" aria-labelledby="macchine-verifica-banconote-catalogo">
+        <h2 id="macchine-verifica-banconote-catalogo" className="sr-only">
+          Catalogo {MACCHINE_SUB_VERIFICA_BANCONOTE_LABEL}
+        </h2>
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {products.map((p) => (
+            <li key={p.id}>
+              <OfficeProductCard
+                product={p}
+                hideCategoryBadge
+                compactGrid
+                suppressQuantityTierHint
+              />
+            </li>
+          ))}
+        </ul>
       </section>
     </>
   )

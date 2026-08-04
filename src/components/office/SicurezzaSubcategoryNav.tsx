@@ -1,6 +1,7 @@
 import {
   matchesSicurezzaSubcategoryFilter,
   SICUREZZA_SUBCATEGORIES,
+  SICUREZZA_SUBCATEGORY_COVER_IMAGE,
   type SicurezzaSubcategory,
 } from '../../lib/sicurezzaCatalog'
 import type { OfficeProduct } from '../../types/officeProduct'
@@ -43,6 +44,7 @@ export function SicurezzaSubcategoryNav({
           label={label}
           count={counts[label]}
           active={active === label}
+          coverImageUrl={SICUREZZA_SUBCATEGORY_COVER_IMAGE[label]}
           onClick={() => onSelect(label)}
         />
       ))}
@@ -54,11 +56,13 @@ function SubcategoryPill({
   label,
   count,
   active,
+  coverImageUrl,
   onClick,
 }: {
   label: string
   count: number
   active: boolean
+  coverImageUrl?: string
   onClick: () => void
 }) {
   return (
@@ -67,12 +71,28 @@ function SubcategoryPill({
       onClick={onClick}
       aria-pressed={active}
       className={[
-        'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition',
+        'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition',
         active
           ? 'border-brand-700 bg-brand-700 text-white shadow-sm shadow-brand-700/20'
           : 'border-slate-200 bg-white text-slate-800 hover:border-brand-300 hover:bg-brand-50',
       ].join(' ')}
     >
+      {coverImageUrl ? (
+        <span
+          className={[
+            'size-7 shrink-0 overflow-hidden rounded-full border bg-white',
+            active ? 'border-white/40' : 'border-slate-200',
+          ].join(' ')}
+        >
+          <img
+            src={coverImageUrl}
+            alt=""
+            className="size-full object-contain p-0.5"
+            loading="lazy"
+            decoding="async"
+          />
+        </span>
+      ) : null}
       <span>{label}</span>
       <span
         className={[

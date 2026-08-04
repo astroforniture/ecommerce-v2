@@ -146,6 +146,10 @@ import {
   buildDistruggidocumentiOfficeProducts,
   isDistruggidocumentiOfficeProductId,
 } from '../data/distruggidocumentiProducts'
+import {
+  buildVerificaBanconoteOfficeProducts,
+  isVerificaBanconoteOfficeProductId,
+} from '../data/verificaBanconoteProducts'
 import { buildCartucceTonerOfficeProducts, isCartucceTonerOfficeProductId } from '../data/cartucceTonerProducts'
 import {
   buildEtichettatriciOfficeProducts,
@@ -1820,6 +1824,11 @@ export function ProductDetailPage() {
       }
       if (isCasseDitronOfficeProductId(product.id)) {
         return buildCasseDitronOfficeProducts().filter((p) => p.id !== product.id)
+      }
+      if (isVerificaBanconoteOfficeProductId(product.id)) {
+        return buildVerificaBanconoteOfficeProducts()
+          .filter((p) => p.id !== product.id)
+          .slice(0, 12)
       }
       if (matchesShopperCartaProduct(product) || matchesShopperPlasticaProduct(product)) {
         const siblings = [

@@ -5,6 +5,7 @@ import {
 import { buildCasseDitronOfficeProducts } from '../data/casseDitronProducts'
 import { buildDistruggidocumentiOfficeProducts } from '../data/distruggidocumentiProducts'
 import { buildEtichettatriciOfficeProducts } from '../data/macchineEtichettatrici'
+import { buildVerificaBanconoteOfficeProducts } from '../data/verificaBanconoteProducts'
 import type { MegaMenuPreviewSource } from '../data/megaMenuNav'
 import { buildPileOfficeProducts } from '../data/pileProducts'
 import { buildQuaderniOfficeProducts } from '../data/quaderniProducts'
@@ -158,14 +159,20 @@ function filterByPreviewSource(
   return []
 }
 
-function syncMacchinePreview(catalog: 'distruggi' | 'etichettatrici' | 'casse' | 'hub'): OfficeProduct[] {
+function syncMacchinePreview(
+  catalog: 'distruggi' | 'etichettatrici' | 'casse' | 'verifica-banconote' | 'hub',
+): OfficeProduct[] {
   if (catalog === 'distruggi') return listPreviewProducts(buildDistruggidocumentiOfficeProducts())
   if (catalog === 'etichettatrici') return listPreviewProducts(buildEtichettatriciOfficeProducts())
   if (catalog === 'casse') return listPreviewProducts(buildCasseDitronOfficeProducts())
+  if (catalog === 'verifica-banconote') {
+    return listPreviewProducts(buildVerificaBanconoteOfficeProducts())
+  }
   return listPreviewProducts([
     ...buildDistruggidocumentiOfficeProducts(),
     ...buildEtichettatriciOfficeProducts(),
     ...buildCasseDitronOfficeProducts(),
+    ...buildVerificaBanconoteOfficeProducts(),
   ])
 }
 

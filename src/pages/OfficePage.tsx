@@ -92,10 +92,16 @@ import {
   OFFICE_GENERAL_SHOP_PATH,
 } from '../lib/isGeneralOfficeShopCatalogProduct'
 import { matchesIgieneSubcategoryFilter } from '../lib/prodottiIgieneSubcategories'
-import { matchesSicurezzaSubcategoryFilter } from '../lib/sicurezzaCatalog'
+import {
+  matchesSicurezzaSubcategoryFilter,
+  SICUREZZA_SUBCATEGORIES,
+  SICUREZZA_SUBCATEGORY_COVER_IMAGE,
+} from '../lib/sicurezzaCatalog'
 import { AstroMedicalSubcategoryNav } from '../components/astroMedical/AstroMedicalSubcategoryNav'
 import { IgieneSubcategoryNav } from '../components/office/IgieneSubcategoryNav'
 import { SicurezzaSubcategoryNav } from '../components/office/SicurezzaSubcategoryNav'
+import { SicurezzaCategoryHero } from '../components/office/SicurezzaCategoryHero'
+import { SicurezzaSeoSection } from '../components/office/SicurezzaSeoSection'
 import { matchesAstroMedicalSubcategoryFilter } from '../lib/astroMedicalSubcategories'
 import {
   DropdownMenu,
@@ -962,6 +968,8 @@ export function OfficePage() {
     selectedCategoryNorm === MODULISTICA_CATEGORY_NORM && !selectedSubcategory && !searchTrim
   const showCartaDashboard =
     selectedCategoryNorm === 'carta' && !selectedSubcategory && !searchTrim
+  const showSicurezzaDashboard =
+    selectedCategoryNorm === SICUREZZA_CATEGORY_NORM && !selectedSubcategory && !searchTrim
   const showCancelleriaDashboard =
     selectedCategoryNorm === 'cancelleria' && !selectedCancelleriaView && !searchTrim
   const showShopperDashboard =
@@ -1005,7 +1013,10 @@ export function OfficePage() {
             : 'py-16 sm:py-20',
         ].join(' ')}
       >
-        {!showArchivioDashboard && !showModulisticaDashboard && !showCartaDashboard ? (
+        {!showArchivioDashboard &&
+        !showModulisticaDashboard &&
+        !showCartaDashboard &&
+        !showSicurezzaDashboard ? (
           <Link
             to="/"
             className="inline-flex items-center gap-2 text-sm font-semibold text-brand-700 transition hover:text-brand-900"
@@ -1096,7 +1107,7 @@ export function OfficePage() {
           </nav>
         ) : null}
 
-        {isSicurezzaCategory ? (
+        {isSicurezzaCategory && !showSicurezzaDashboard ? (
           <nav className="mt-6 text-sm text-slate-500" aria-label="Breadcrumb">
             <ol className="flex flex-wrap items-center gap-2">
               <li>
@@ -1150,7 +1161,11 @@ export function OfficePage() {
           </nav>
         ) : null}
 
-        {categoryFromUrl && !showArchivioDashboard && !showModulisticaDashboard && !showCartaDashboard ? (
+        {categoryFromUrl &&
+        !showArchivioDashboard &&
+        !showModulisticaDashboard &&
+        !showCartaDashboard &&
+        !showSicurezzaDashboard ? (
           <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-brand-200 bg-white px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
               Risultati per:{' '}
@@ -1237,20 +1252,19 @@ export function OfficePage() {
               lavoro. Filtra per sottocategoria o esplora tutto il catalogo.
             </p>
           </header>
-        ) : isSicurezzaCategory ? (
+        ) : isSicurezzaCategory && selectedSubcategory ? (
           <header className="mt-2">
             <p className="text-sm font-semibold uppercase tracking-widest text-brand-700">
               Antinfortunistica
             </p>
-            <h1 className="mt-2 text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
-              {SICUREZZA_CATEGORY}
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+              {selectedSubcategory}
             </h1>
-            <p className="mt-3 max-w-2xl text-base text-slate-600 sm:text-lg">
-              Nastri segnaletici, antiscivolo, fotoluminescenti e mascheratura tecnica per ambienti di
-              lavoro e vie di fuga.
+            <p className="mt-2 max-w-2xl text-base text-slate-600">
+              Prodotti {SICUREZZA_CATEGORY.toLowerCase()} · {selectedSubcategory}
             </p>
           </header>
-        ) : (
+        ) : isSicurezzaCategory ? null : (
           <header
             className={`flex flex-col gap-4 border-b border-brand-100 pb-6 sm:flex-row sm:items-start sm:gap-6 ${categoryFromUrl ? 'mt-6' : 'mt-8'}`}
           >
@@ -1422,6 +1436,46 @@ export function OfficePage() {
           </section>
         ) : null}
 
+        {isSicurezzaCategory && !selectedSubcategory ? <SicurezzaCategoryHero /> : null}
+
+        {showSicurezzaDashboard ? (
+          <section className="mt-6" aria-labelledby="sicurezza-hub-heading">
+            <div className="mb-5 max-w-2xl">
+              <h2
+                id="sicurezza-hub-heading"
+                className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl"
+              >
+                Scegli la sottocategoria
+              </h2>
+              <p className="mt-1.5 text-sm text-slate-600 sm:text-base">
+                Nastri, elmetti, guanti, occhiali, abbigliamento e protezione udito.
+              </p>
+            </div>
+            <div className={OFFICE_SUBCATEGORY_TILE_GRID_CLASS}>
+              {SICUREZZA_SUBCATEGORIES.map((subcat) => (
+                <OfficeSubcategoryTile
+                  key={`sicurezza-subcat-${subcat}`}
+                  title={subcat}
+                  onClick={() => setSubcategoryFilter(subcat)}
+                  media={
+                    <div className="aspect-square w-full bg-slate-50">
+                      <img
+                        src={SICUREZZA_SUBCATEGORY_COVER_IMAGE[subcat]}
+                        alt={subcat}
+                        className="size-full object-contain p-4"
+                        loading="lazy"
+                        decoding="async"
+                        referrerPolicy="no-referrer-when-downgrade"
+                      />
+                    </div>
+                  }
+                />
+              ))}
+            </div>
+            <SicurezzaSeoSection />
+          </section>
+        ) : null}
+
         {showCancelleriaDashboard ? (
           <section className="mt-3">
             <div className={OFFICE_SUBCATEGORY_TILE_GRID_CLASS}>
@@ -1488,6 +1542,7 @@ export function OfficePage() {
         {!showArchivioDashboard &&
         !showModulisticaDashboard &&
         !showCartaDashboard &&
+        !showSicurezzaDashboard &&
         !showCancelleriaDashboard &&
         !showShopperDashboard ? (
         <section className="py-12" aria-labelledby="office-catalog-heading">
@@ -1743,6 +1798,7 @@ export function OfficePage() {
                 </ul>
               )}
           </div>
+          {isSicurezzaCategory ? <SicurezzaSeoSection /> : null}
         </section>
         ) : null}
       </div>

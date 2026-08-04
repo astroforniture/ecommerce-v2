@@ -22,6 +22,7 @@ import {
   MacchineEtichettatriciPage,
   MacchineUfficioHubPage,
   MacchineUfficioLayout,
+  MacchineVerificaBanconotePage,
 } from './pages/MacchineUfficioPage'
 import { MACCHINE_UFFICIO_BASE_PATH } from './lib/macchineUfficioRoutes'
 import { CartPage } from './pages/CartPage'
@@ -106,6 +107,7 @@ export default function App() {
           <Route path="distruggi-documenti" element={<MacchineDistruggiDocumentiPage />} />
           <Route path="etichettatrici" element={<MacchineEtichettatriciPage />} />
           <Route path="casse-ditron" element={<MacchineCasseDitronPage />} />
+          <Route path="verifica-banconote" element={<MacchineVerificaBanconotePage />} />
         </Route>
         <Route path="/macchine-ufficio/*" element={<MacchineUfficioLegacyRedirect />} />
         <Route path="/distruggidocumenti" element={<DistruggidocumentiPage />} />
