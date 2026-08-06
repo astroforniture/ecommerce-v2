@@ -108,8 +108,10 @@ import {
 } from '../lib/officeProductModelMeta'
 import { isPunchedEnvelopeProduct } from '../lib/punchedEnvelope'
 import { isTimbroAziendeFarmacieProduct } from '../lib/timbroAziendeFarmacieProduct'
+import { isOfficeProductAstroMedicalLine } from '../lib/isOfficeProductAstroMedicalLine'
 import { TimbroAziendeFarmacieDetail } from '../components/product/TimbroAziendeFarmacieDetail'
 import { OfficeProductDetailPurchasePanel } from '../components/product/OfficeProductDetailPurchasePanel'
+import { AstroMedicalHealthcareDisclaimer } from '../components/astroMedical/AstroMedicalHealthcareDisclaimer'
 import { ProductFaqSection } from '../components/faq/ProductFaqSection'
 import { CrossSellSection } from '../components/crosssell/CrossSellSection'
 import { getCrossSellForProduct } from '../data/crossSellCatalog'
@@ -779,6 +781,10 @@ export function ProductDetailPage() {
 
   const isStaticSynthetic = useMemo(
     () => Boolean(product && isStaticSyntheticOfficeProduct(product)),
+    [product],
+  )
+  const isAstroMedicalLeadTimes = useMemo(
+    () => Boolean(product && isOfficeProductAstroMedicalLine(product)),
     [product],
   )
   const syntheticGalleryImageUrls = useMemo(() => {
@@ -4899,6 +4905,7 @@ export function ProductDetailPage() {
               quantityDiscountTable={
                 isQuoteOnlyOfficeProduct(product) ? undefined : quantityDiscountTableNode
               }
+              astroMedicalLeadTimes={isAstroMedicalLeadTimes}
             />
           </div>
         </div>
@@ -4914,6 +4921,7 @@ export function ProductDetailPage() {
               ? '/pdf/brochure-new-ideal.pdf'
               : undefined)
           }
+          astroMedicalLeadTimes={isAstroMedicalLeadTimes}
         />
 
         <ProductFaqSection
@@ -4933,6 +4941,10 @@ export function ProductDetailPage() {
           relatedCardHideCategory={isStaticSynthetic}
           relatedCompactGrid={isStaticSynthetic}
         />
+
+        {isAstroMedicalLeadTimes ? (
+          <AstroMedicalHealthcareDisclaimer className="mt-10 mb-2" />
+        ) : null}
       </div>
     </main>
   )

@@ -98,6 +98,8 @@ import {
   SICUREZZA_SUBCATEGORY_COVER_IMAGE,
 } from '../lib/sicurezzaCatalog'
 import { AstroMedicalSubcategoryNav } from '../components/astroMedical/AstroMedicalSubcategoryNav'
+import { AstroMedicalShopInfoPanel } from '../components/astroMedical/AstroMedicalShopInfoPanel'
+import { AstroMedicalHealthcareDisclaimer } from '../components/astroMedical/AstroMedicalHealthcareDisclaimer'
 import { IgieneSubcategoryNav } from '../components/office/IgieneSubcategoryNav'
 import { SicurezzaSubcategoryNav } from '../components/office/SicurezzaSubcategoryNav'
 import { SicurezzaCategoryHero } from '../components/office/SicurezzaCategoryHero'
@@ -1227,18 +1229,21 @@ export function OfficePage() {
             </p>
           </header>
         ) : isLineaAstroMedicalCategory ? (
-          <header className="mt-2">
-            <p className="text-sm font-semibold uppercase tracking-widest text-brand-700">
-              Linea specializzata
-            </p>
-            <h1 className="mt-2 text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
-              {LINEA_ASTRO_MEDICAL_CATEGORY}
-            </h1>
-            <p className="mt-3 max-w-2xl text-base text-slate-600 sm:text-lg">
-              Elettromedicali iHealth: prezzi unitari imponibili IVA esclusa; scheda prodotto completa con
-              acquisto, note e articoli correlati.
-            </p>
-          </header>
+          <>
+            <header className="mt-2">
+              <p className="text-sm font-semibold uppercase tracking-widest text-brand-700">
+                Linea specializzata
+              </p>
+              <h1 className="mt-2 text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
+                {LINEA_ASTRO_MEDICAL_CATEGORY}
+              </h1>
+              <p className="mt-3 max-w-2xl text-base text-slate-600 sm:text-lg">
+                Elettromedicali iHealth: prezzi unitari imponibili IVA esclusa; scheda prodotto completa con
+                acquisto, note e articoli correlati.
+              </p>
+            </header>
+            <AstroMedicalShopInfoPanel className="mt-6" />
+          </>
         ) : isProdottiIgieneCategory ? (
           <header className="mt-2">
             <p className="text-sm font-semibold uppercase tracking-widest text-brand-700">
@@ -1800,6 +1805,9 @@ export function OfficePage() {
           </div>
           {isSicurezzaCategory ? <SicurezzaSeoSection /> : null}
         </section>
+        ) : null}
+        {isLineaAstroMedicalCategory ? (
+          <AstroMedicalHealthcareDisclaimer className="mt-10 mb-2" />
         ) : null}
       </div>
     </main>

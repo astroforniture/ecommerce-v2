@@ -11,6 +11,7 @@ import {
   COMPANY_PICKUP_MAPS_URL,
   COMPANY_TRADE_NAME,
 } from '../data/companyContacts'
+import { LEGAL_GOVERNANCE_FOOTER_LINKS } from '../data/legalGovernanceNav'
 import { SERVIZI_NAV_ITEMS } from '../data/serviziCatalog'
 
 const FOOTER_VALUES: ReadonlyArray<{
@@ -71,8 +72,8 @@ const Footer = () => {
       </section>
 
       <div className="w-full border-t border-slate-200 px-4 py-8 text-slate-700 md:px-8">
-          <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-3">
-          <div className="space-y-1.5 text-sm leading-relaxed md:text-left md:col-span-1">
+        <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="space-y-1.5 text-sm leading-relaxed md:text-left">
             <p className="font-semibold text-slate-900">{COMPANY_TRADE_NAME}</p>
             <p>Astro Forniture di Borella Mario</p>
             <p>Sede: Str Cisa 7 - 46047 Porto M.no (MN)</p>
@@ -143,6 +144,21 @@ const Footer = () => {
                   Cookie Policy
                 </Link>
               </li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-slate-900">
+              Note Legali – Governance
+            </p>
+            <ul className="mt-3 space-y-2 text-sm">
+              {LEGAL_GOVERNANCE_FOOTER_LINKS.map((link) => (
+                <li key={link.label}>
+                  <Link className="text-slate-700 underline-offset-4 hover:underline" to={link.to}>
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 

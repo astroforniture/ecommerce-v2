@@ -4,6 +4,7 @@ import { Minus, Plus, ShoppingCart } from 'lucide-react'
 import { OfficeProductDetailTrustStrip } from './OfficeProductDetailTrustStrip'
 import { ProductQuoteOnlyDetailCtas } from './ProductQuoteOnlyDetailCtas'
 import { ProductWhatsappQuoteButton } from './ProductWhatsappQuoteButton'
+import { AstroMedicalDeliveryBadge } from '../astroMedical/AstroMedicalDeliveryBadge'
 
 const eur = new Intl.NumberFormat('it-IT', {
   style: 'currency',
@@ -33,6 +34,8 @@ export type OfficeProductDetailPurchasePanelProps = {
   priceUnitSuffix?: string
   /** Nota sotto il selettore quantità (es. minimo / multipli). */
   quantityRuleHint?: string
+  /** Astro Medical Shop: badge e trust strip con tempi 5 gg lavorativi. */
+  astroMedicalLeadTimes?: boolean
 }
 
 /**
@@ -53,14 +56,16 @@ export function OfficeProductDetailPurchasePanel({
   brochureUrl,
   priceUnitSuffix = '/ pezzo',
   quantityRuleHint,
+  astroMedicalLeadTimes = false,
 }: OfficeProductDetailPurchasePanelProps) {
   const root = ['mt-3 w-full space-y-3', rootClassName].filter(Boolean).join(' ')
 
   if (quoteOnly) {
     return (
       <div className={root}>
+        {astroMedicalLeadTimes ? <AstroMedicalDeliveryBadge variant="banner" /> : null}
         <ProductQuoteOnlyDetailCtas productName={productName} brochureUrl={brochureUrl} />
-        <OfficeProductDetailTrustStrip />
+        <OfficeProductDetailTrustStrip astroMedicalLeadTimes={astroMedicalLeadTimes} />
       </div>
     )
   }
@@ -69,6 +74,7 @@ export function OfficeProductDetailPurchasePanel({
 
   return (
     <div className={root}>
+      {astroMedicalLeadTimes ? <AstroMedicalDeliveryBadge variant="banner" /> : null}
       <div className="rounded-2xl border border-red-400/80 bg-gradient-to-b from-red-50/70 to-white p-4 shadow-sm ring-1 ring-red-200/60">
         <p className="text-sm font-medium text-slate-500">{priceLineLabel}</p>
         <p className="mt-1 text-lg font-semibold tabular-nums text-brand-600">
@@ -130,7 +136,7 @@ export function OfficeProductDetailPurchasePanel({
         </a>
       ) : null}
       <ProductWhatsappQuoteButton productName={productName} />
-      <OfficeProductDetailTrustStrip />
+      <OfficeProductDetailTrustStrip astroMedicalLeadTimes={astroMedicalLeadTimes} />
     </div>
   )
 }

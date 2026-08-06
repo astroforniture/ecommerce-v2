@@ -35,6 +35,10 @@ import { ServizioDetailPage } from './pages/ServizioDetailPage'
 import { FaqPage } from './pages/FaqPage'
 import { ContattiPage } from './pages/ContattiPage'
 import { TermsSalesPage } from './pages/TermsSalesPage'
+import {
+  LegalGovernanceDocPage,
+  LegalGovernanceHubPage,
+} from './pages/LegalGovernancePage'
 import { LoginPage } from './pages/LoginPage'
 import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { RegisterPage } from './pages/RegisterPage'
@@ -144,6 +148,8 @@ export default function App() {
         <Route path="/account/profile" element={<AccountProfilePage />} />
         <Route path="/profile" element={<Navigate to="/account/profile" replace />} />
         <Route path="/termini-condizioni-vendita" element={<TermsSalesPage />} />
+        <Route path="/note-legali-governance" element={<LegalGovernanceHubPage />} />
+        <Route path="/note-legali-governance/:slug" element={<LegalGovernanceDocPage />} />
         <Route path="/faq" element={<FaqPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/cookie-policy" element={<CookiePolicyPage />} />

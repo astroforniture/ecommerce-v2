@@ -3,11 +3,18 @@ import type { LucideIcon } from 'lucide-react'
 import type { OfficeProduct } from '../../types/officeProduct'
 import { OfficeProductCard } from '../office/OfficeProductCard'
 import { CATEGORY_PROMO_WHATSAPP_NUMBER } from '../../lib/categoryPromoProducts'
+import {
+  ASTRO_MEDICAL_SHIPPING_LEAD_LABEL,
+  ASTRO_MEDICAL_SHIPPING_LEAD_TEXT,
+} from '../../lib/astroMedicalShopCopy'
+import { COMPANY_LANDLINE_DISPLAY, COMPANY_LANDLINE_TEL } from '../../data/companyContacts'
 
 type DescriptionProps = {
   description: string
   /** Link brochure PDF opzionale (es. NEW iDEAL). */
   brochureUrl?: string | null
+  /** Astro Medical: testi spedizione su ordinazione (5 gg). */
+  astroMedicalLeadTimes?: boolean
 }
 
 type ProductValueBlock = {
@@ -45,12 +52,25 @@ const WHATSAPP_SUPPORT_HREF = `https://wa.me/${CATEGORY_PROMO_WHATSAPP_NUMBER}?t
 export function OfficeProductDetailDescriptionSection({
   description,
   brochureUrl,
+  astroMedicalLeadTimes = false,
 }: DescriptionProps) {
   const text = description.trim()
   const body = text
     ? text
     : 'Scheda prodotto in aggiornamento: per scheda tecnica dettagliata, compatibilità e disponibilità contatta il nostro ufficio commerciale.'
   const brochure = brochureUrl?.trim() || ''
+
+  const valueBlocks: ProductValueBlock[] = astroMedicalLeadTimes
+    ? [
+        PRODUCT_VALUE_BLOCKS[0],
+        PRODUCT_VALUE_BLOCKS[1],
+        {
+          icon: Truck,
+          title: `🚚 ${ASTRO_MEDICAL_SHIPPING_LEAD_LABEL}`,
+          body: `${ASTRO_MEDICAL_SHIPPING_LEAD_TEXT} Per articoli fuori listino o preventivi dedicati chiama lo ${COMPANY_LANDLINE_DISPLAY}.`,
+        },
+      ]
+    : PRODUCT_VALUE_BLOCKS
 
   return (
     <section className="mt-10 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
@@ -74,8 +94,9 @@ export function OfficeProductDetailDescriptionSection({
           Perché sceglierlo
         </p>
         <ul className="mt-4 space-y-4" aria-label="Vantaggi Astro Forniture">
-          {PRODUCT_VALUE_BLOCKS.map((block) => {
+          {valueBlocks.map((block) => {
             const Icon = block.icon
+            const isMedicalShipping = astroMedicalLeadTimes && block.title.includes(ASTRO_MEDICAL_SHIPPING_LEAD_LABEL)
             return (
               <li
                 key={block.title}
@@ -90,7 +111,19 @@ export function OfficeProductDetailDescriptionSection({
                 <div className="min-w-0">
                   <p className="text-base font-bold text-slate-900">{block.title}</p>
                   <p className="mt-1.5 text-sm leading-relaxed text-slate-600 sm:text-[0.95rem]">
-                    {block.title.includes('Consegna Rapida') ? (
+                    {isMedicalShipping ? (
+                      <>
+                        {ASTRO_MEDICAL_SHIPPING_LEAD_TEXT} Per articoli fuori listino o preventivi dedicati
+                        chiama lo{' '}
+                        <a
+                          href={COMPANY_LANDLINE_TEL}
+                          className="font-semibold text-brand-800 underline decoration-brand-300 underline-offset-2 hover:text-brand-950"
+                        >
+                          {COMPANY_LANDLINE_DISPLAY}
+                        </a>
+                        .
+                      </>
+                    ) : block.title.includes('Consegna Rapida') ? (
                       <>
                         Spedizione tracciata e imballaggio sicuro. Il nostro team è sempre a disposizione su{' '}
                         <a

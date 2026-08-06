@@ -16,6 +16,8 @@ import {
   isTimbroAziendeFarmacieProduct,
 } from '../../lib/timbroAziendeFarmacieProduct'
 import { isQuoteOnlyOfficeProduct } from '../../data/casseDitronProducts'
+import { isOfficeProductAstroMedicalLine } from '../../lib/isOfficeProductAstroMedicalLine'
+import { AstroMedicalDeliveryBadge } from '../astroMedical/AstroMedicalDeliveryBadge'
 import { ProductQuoteRequestButton } from '../product/ProductQuoteRequestButton'
 
 const eur = new Intl.NumberFormat('it-IT', {
@@ -58,6 +60,7 @@ export function OfficeProductCard({
   }
 
   const isQuoteOnly = isQuoteOnlyOfficeProduct(product)
+  const isAstroMedical = isOfficeProductAstroMedicalLine(product)
   const unitImponible = effectiveUnitPrice(
     product.price,
     product.quantityPriceTiers,
@@ -127,6 +130,11 @@ export function OfficeProductCard({
             {displayTitle}
           </Link>
         </h3>
+        {isAstroMedical ? (
+          <div className={compactGrid ? 'mt-1.5' : 'mt-2'}>
+            <AstroMedicalDeliveryBadge />
+          </div>
+        ) : null}
         {!hideCategoryBadge ? (
           <p className="mt-2 text-sm font-medium text-slate-600">{categoryBadge}</p>
         ) : null}

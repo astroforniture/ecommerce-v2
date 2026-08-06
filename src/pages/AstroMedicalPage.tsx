@@ -4,6 +4,9 @@ import { ArrowLeft, Loader2 } from 'lucide-react'
 import { OfficeProductCard } from '../components/office/OfficeProductCard'
 import { AstroMedicalSubcategoryNav } from '../components/astroMedical/AstroMedicalSubcategoryNav'
 import { AstroMedicalSearchBar } from '../components/astroMedical/AstroMedicalSearchBar'
+import { AstroMedicalShopInfoPanel } from '../components/astroMedical/AstroMedicalShopInfoPanel'
+import { AstroMedicalHealthcareDisclaimer } from '../components/astroMedical/AstroMedicalHealthcareDisclaimer'
+import { AstroMedicalPromoVideoBanner } from '../components/astroMedical/AstroMedicalPromoVideoBanner'
 import { useOfficeCatalog } from '../hooks/useOfficeCatalog'
 import { normalizeOfficeProductCategory } from '../lib/officeCategories'
 import { mergeLineaAstroMedicalCatalog } from '../data/lineaAstroMedicalCombined'
@@ -87,7 +90,9 @@ export function AstroMedicalPage() {
           Torna alla home
         </Link>
 
-        <header className="mt-8 flex flex-col gap-6 border-b border-medical-100 pb-10 sm:flex-row sm:items-start sm:gap-10">
+        <AstroMedicalPromoVideoBanner className="mt-8" />
+
+        <header className="flex flex-col gap-6 border-b border-medical-100 pb-10 sm:flex-row sm:items-start sm:gap-10">
           <div className="flex shrink-0 flex-col items-start gap-3">
             <span className="flex h-20 w-auto max-w-[220px] items-center justify-center rounded-2xl bg-white p-3 shadow-lg shadow-medical-600/15 ring-1 ring-medical-100">
               <img
@@ -126,6 +131,8 @@ export function AstroMedicalPage() {
             </p>
           </div>
         </header>
+
+        <AstroMedicalShopInfoPanel />
 
         <div className="mt-8">
           <AstroMedicalSearchBar value={searchQuery} onChange={setMedicalSearch} />
@@ -221,6 +228,8 @@ export function AstroMedicalPage() {
             </ul>
           )}
         </section>
+
+        <AstroMedicalHealthcareDisclaimer className="mt-4 mb-2" />
       </div>
     </main>
   )

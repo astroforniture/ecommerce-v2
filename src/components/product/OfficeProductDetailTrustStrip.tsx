@@ -1,6 +1,11 @@
 import { ShieldCheck, Truck, Undo2 } from 'lucide-react'
 
-const items = [
+import {
+  ASTRO_MEDICAL_SHIPPING_LEAD_LABEL,
+  ASTRO_MEDICAL_SHIPPING_LEAD_TEXT,
+} from '../../lib/astroMedicalShopCopy'
+
+const defaultItems = [
   {
     Icon: Truck,
     title: 'Spedizione Veloce',
@@ -18,8 +23,33 @@ const items = [
   },
 ] as const
 
+const medicalItems = [
+  {
+    Icon: Truck,
+    title: ASTRO_MEDICAL_SHIPPING_LEAD_LABEL,
+    subtitle: ASTRO_MEDICAL_SHIPPING_LEAD_TEXT,
+  },
+  {
+    Icon: ShieldCheck,
+    title: 'Pagamenti Sicuri',
+    subtitle: 'Transazioni protette',
+  },
+  {
+    Icon: Undo2,
+    title: 'Reso Facile',
+    subtitle: 'Assistenza dedicata',
+  },
+] as const
+
+type Props = {
+  /** Linea Astro Medical: avviso consegna 5 gg lavorativi su ordinazione. */
+  astroMedicalLeadTimes?: boolean
+}
+
 /** Riga icone di fiducia sotto il CTA acquisto (PDP standard unificata). */
-export function OfficeProductDetailTrustStrip() {
+export function OfficeProductDetailTrustStrip({ astroMedicalLeadTimes = false }: Props) {
+  const items = astroMedicalLeadTimes ? medicalItems : defaultItems
+
   return (
     <div
       className="mt-4 grid gap-3 border-t border-slate-200/90 pt-4 sm:grid-cols-3"
@@ -30,7 +60,14 @@ export function OfficeProductDetailTrustStrip() {
           key={title}
           className="flex items-start gap-2.5 rounded-xl border border-slate-100 bg-white/80 px-3 py-2.5 sm:flex-col sm:items-center sm:text-center"
         >
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-700 sm:size-10">
+          <span
+            className={[
+              'flex size-9 shrink-0 items-center justify-center rounded-lg sm:size-10',
+              astroMedicalLeadTimes && title === ASTRO_MEDICAL_SHIPPING_LEAD_LABEL
+                ? 'bg-medical-50 text-medical-800'
+                : 'bg-brand-50 text-brand-700',
+            ].join(' ')}
+          >
             <Icon className="size-[1.05rem] sm:size-5" strokeWidth={1.75} aria-hidden />
           </span>
           <div className="min-w-0">

@@ -9,6 +9,7 @@ import { BrandMarquee } from '../components/home/BrandMarquee'
 import { WhyChooseUs } from '../components/home/WhyChooseUs'
 import { HomeFeaturedProductsSection } from '../components/home/HomeFeaturedProductsSection'
 import { AstroSalutePromoSection } from '../components/home/AstroSalutePromoSection'
+import { AstroMedicalShopInfoPanel } from '../components/astroMedical/AstroMedicalShopInfoPanel'
 import { fetchOfficeProductsFromSupabase, OFFICE_CATALOG_DATA_REVISION } from '../api/officeProductsSupabase'
 import { isTimbroAziendeFarmacieProduct } from '../lib/timbroAziendeFarmacieProduct'
 import { withOfficeImageCacheBust } from '../lib/officeImageCacheBust'
@@ -197,6 +198,14 @@ export function HomePage() {
     <main>
       <WelcomeModal />
       <HeroSection />
+      <section
+        className="bg-gradient-to-b from-medical-50/80 to-white"
+        aria-label="Catalogo GIMA Astro Medical Shop"
+      >
+        <div className="mx-auto max-w-7xl px-4 pb-4 pt-2 sm:px-6 lg:px-8">
+          <AstroMedicalShopInfoPanel className="mt-4" />
+        </div>
+      </section>
       <HomeCategoryHub />
       <FeaturedCategorySpotlight />
       <BrandMarquee />
