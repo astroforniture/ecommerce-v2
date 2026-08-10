@@ -17,6 +17,7 @@ import {
   timbroMatchesUrlKey,
 } from '../lib/timbroAziendeFarmacieProduct'
 import { resolveSyntheticOfficeProductByCatalogKey } from '../lib/syntheticOfficeCatalogProducts'
+import { mergeGpsrFields, parseGpsrFieldsFromRow } from '../lib/productGpsr'
 import {
   buildCasseDitronOfficeProducts,
   casseDitronBrochureUrlForProduct,
@@ -30,6 +31,12 @@ import {
   buildPortwestTexpelSplashEcoOfficeProduct,
   buildSocciaSoftshellOfficeProduct,
   buildSpaceLadySoftshellOfficeProduct,
+  buildMoonlight2SoftshellOfficeProduct,
+  buildMoonlight2ArancioSoftshellOfficeProduct,
+  buildMikySoftshellOfficeProduct,
+  buildMikyArancioSoftshellOfficeProduct,
+  buildRenoHvGialloOfficeProduct,
+  buildRenoHvArancioOfficeProduct,
 } from '../data/sicurezzaApparelCatalog'
 import { parseProductFaq } from '../data/faqCatalog'
 import { searchOfficeProductsClient, setOfficeSearchIndexFromProducts, shouldUseLocalSearchOnly } from '../lib/officeClientSearch'
@@ -54,7 +61,7 @@ import { purchaseQuantityRuleForSku } from '../lib/purchaseQuantity'
  * Aumenta dopo pulizie massicce su `public.products` (es. titoli): nuove `queryKey` in React Query
  * così il client non riusa dati serializzati vecchi con titoli obsoleti.
  */
-export const OFFICE_CATALOG_DATA_REVISION = 258
+export const OFFICE_CATALOG_DATA_REVISION = 279
 
 const SUPPRESSED_PRODUCTS_BY_ID = new Set([
   '55acce14-88cd-4b12-807d-cd2753894639', // Starbox dorso 5 cm arancio (rimozione richiesta)
@@ -102,6 +109,7 @@ const PRODUCT_SHOP_SELECT_FALLBACKS: readonly string[] = [
 
 /** Fetch scheda prodotto: prova prima con `variants` (JSONB misure/colori). */
 const PRODUCT_DETAIL_SELECT_FALLBACKS: readonly string[] = [
+  'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, catalog_page_pdf, datasheet_pdf, pdf_url, faq, related_product_ids, min_order_quantity, order_quantity_step, manufacturer_name, manufacturer_address, importer_name, importer_address, eu_responsible_name, eu_responsible_address, safety_warnings, gpsr',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, catalog_page_pdf, datasheet_pdf, pdf_url, faq, related_product_ids, min_order_quantity, order_quantity_step',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq, related_product_ids, min_order_quantity, order_quantity_step',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq, related_product_ids',
@@ -994,20 +1002,52 @@ export function isEuroboxEsselteCatalogProduct(
   return n.includes('eurobox') && (b.includes('esselte') || b.includes('eurobox'))
 }
 
+/** Prezzo unitario base Eurobox Esselte per dorso (imponibile). */
+export function euroboxEsselteBasePriceForThicknessCm(
+  thicknessCm: number | null,
+): number | undefined {
+  if (thicknessCm == null || !Number.isFinite(thicknessCm)) return undefined
+  if (thicknessCm >= 4 && thicknessCm <= 10) return 6.2
+  if (thicknessCm >= 12 && thicknessCm <= 15) return 6.7
+  return undefined
+}
+
+/**
+ * Scaglioni quantità Eurobox (stesso schema Starbox/Oxford: 6+ e 13+).
+ * Fascia 4–10 cm base 6,20 → 5,90 / 5,60; fascia 12–15 cm base 6,70 → 6,40 / 6,05.
+ */
+export function euroboxEsselteQuantityTiersForThicknessCm(
+  thicknessCm: number | null,
+): QuantityPriceTier[] {
+  const base = euroboxEsselteBasePriceForThicknessCm(thicknessCm)
+  if (base === 6.2) {
+    return [
+      { minQuantity: 6, unitPrice: 5.9 },
+      { minQuantity: 13, unitPrice: 5.6 },
+    ]
+  }
+  if (base === 6.7) {
+    return [
+      { minQuantity: 6, unitPrice: 6.4 },
+      { minQuantity: 13, unitPrice: 6.05 },
+    ]
+  }
+  return []
+}
+
 function applyEuroboxEsselteCatalog(product: OfficeProduct): OfficeProduct {
   if (!isEuroboxEsselteCatalogProduct(product)) return product
   const thicknessCm = detectStarboxThicknessCm(product.name)
-  const currentPrice = typeof product.price === 'number' ? product.price : null
-  let normalizedPrice = currentPrice
   // Guardrail post-reset: evita residui prezzo vecchio (es. 3,90) sulle Eurobox.
-  if (thicknessCm != null && Number.isFinite(thicknessCm)) {
-    if (thicknessCm >= 4 && thicknessCm <= 10) normalizedPrice = 6.2
-    else if (thicknessCm >= 12 && thicknessCm <= 15) normalizedPrice = 6.7
-  }
+  const normalizedPrice =
+    euroboxEsselteBasePriceForThicknessCm(thicknessCm) ??
+    (typeof product.price === 'number' ? product.price : undefined)
+  const tiers = euroboxEsselteQuantityTiersForThicknessCm(thicknessCm)
   return {
     ...product,
     category: normalizeOfficeProductCategory('Archivio'),
     price: normalizedPrice ?? product.price,
+    quantityPriceTiers: tiers.length ? tiers.map((t) => ({ ...t })) : product.quantityPriceTiers,
   }
 }
 
@@ -1299,6 +1339,14 @@ type OfficeProductRow = ShopProductRow & {
   related_product_ids?: unknown
   min_order_quantity?: number | string | null
   order_quantity_step?: number | string | null
+  manufacturer_name?: string | null
+  manufacturer_address?: string | null
+  importer_name?: string | null
+  importer_address?: string | null
+  eu_responsible_name?: string | null
+  eu_responsible_address?: string | null
+  safety_warnings?: string | null
+  gpsr?: unknown
 }
 
 function jsonbToMainFeatures(raw: unknown): Record<string, string> {
@@ -1689,6 +1737,7 @@ function mapRowToOfficeProduct(row: OfficeProductRow): OfficeProduct {
   const category = normalizeOfficeProductCategory(row.category ?? '')
 
   const docs = parseProductDocumentUrls(row)
+  const gpsrFields = parseGpsrFieldsFromRow(row)
   const mapped: OfficeProduct = {
     id: typeof row.id === 'string' ? row.id : String(row.id),
     name,
@@ -1717,6 +1766,7 @@ function mapRowToOfficeProduct(row: OfficeProductRow): OfficeProduct {
     variants: parseVariantsJson(row.variants),
     imageGalleryUrls: parseImageGalleryFromVariants(row.variants),
     relatedProductIds: parseRelatedProductIds((row as OfficeProductRow).related_product_ids),
+    ...gpsrFields,
   }
   const minOrderRaw = (row as OfficeProductRow).min_order_quantity
   const orderStepRaw = (row as OfficeProductRow).order_quantity_step
@@ -3149,6 +3199,9 @@ function attachQuantityTiers(
       quantityPriceTiers: STARBOX_QUANTITY_TIERS.map((t) => ({ ...t })),
     }
   }
+  if (isEuroboxEsselteCatalogProduct(product)) {
+    return applyEuroboxEsselteCatalog(product)
+  }
   const cartaTermicaPriced = applyCartaTermicaQuantityPricing(product)
   if (cartaTermicaPriced) return cartaTermicaPriced
   const idKey = normalizeQuantityPriceProductKey(product.id)
@@ -3684,6 +3737,24 @@ export async function fetchOfficeProductByIdentifier(
   if (!row && key === '97983') {
     return buildSpaceLadySoftshellOfficeProduct()
   }
+  if (!row && key === '86492') {
+    return buildMoonlight2SoftshellOfficeProduct()
+  }
+  if (!row && key === '86494') {
+    return buildMoonlight2ArancioSoftshellOfficeProduct()
+  }
+  if (!row && key === '89950') {
+    return buildMikySoftshellOfficeProduct()
+  }
+  if (!row && key === '89955') {
+    return buildMikyArancioSoftshellOfficeProduct()
+  }
+  if (!row && key === '73755') {
+    return buildRenoHvGialloOfficeProduct()
+  }
+  if (!row && key === '73757') {
+    return buildRenoHvArancioOfficeProduct()
+  }
 
   // Alcuni SKU medicali in URL sono `gima-XXXXX` mentre in DB possono essere solo numerici (o viceversa).
   if (!row && /^gima-\d+/i.test(key)) {
@@ -3700,7 +3771,13 @@ export async function fetchOfficeProductByIdentifier(
     key !== '104546' &&
     key !== '86181' &&
     key !== '104541' &&
-    key !== '97983'
+    key !== '97983' &&
+    key !== '86492' &&
+    key !== '86494' &&
+    key !== '89950' &&
+    key !== '89955' &&
+    key !== '73755' &&
+    key !== '73757'
   ) {
     row = await fetchProductRowBySkuWithSelectFallbacks(
       supabase,
@@ -3733,6 +3810,8 @@ export async function fetchOfficeProductByIdentifier(
   let product = mapRowToOfficeProduct(row)
   // Se il catalogo statico ha campi utili mancanti in DB, integra senza sovrascrivere galleria/PDF DB.
   if (syntheticFallback) {
+    const dbFeatures = product.mainFeatures ?? {}
+    const synthFeatures = syntheticFallback.mainFeatures ?? {}
     product = {
       ...syntheticFallback,
       ...product,
@@ -3745,7 +3824,15 @@ export async function fetchOfficeProductByIdentifier(
       description: product.description || syntheticFallback.description,
       subtitle: product.subtitle || syntheticFallback.subtitle,
       faq: product.faq?.length ? product.faq : syntheticFallback.faq,
+      // Se il DB non ha specifiche, mantieni quelle del catalogo FE (es. plastificatrici).
+      mainFeatures:
+        Object.keys(dbFeatures).length > 0
+          ? { ...synthFeatures, ...dbFeatures }
+          : synthFeatures,
+      format: product.format || syntheticFallback.format,
+      subcategory: product.subcategory || syntheticFallback.subcategory,
     }
+    product = mergeGpsrFields(product, syntheticFallback)
   }
   if (detectStarlineCartellinaModelKindFromNameAndBrand(product.name, product.brand)) {
     product = enrichOfficeProductImageFromVariants(product)

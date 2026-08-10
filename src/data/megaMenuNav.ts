@@ -4,10 +4,16 @@ import {
   CARTA_SUBCATEGORY_TERMICA,
   cartaCategoryHref,
   cartucceTonerCategoryHref,
+  AGENDE_CATEGORY,
   PRODOTTI_IGIENE_CATEGORY,
   prodottiIgieneCategoryHref,
   SICUREZZA_CATEGORY,
 } from '../lib/officeCategories'
+import {
+  AGENDE_SUBCATEGORIES,
+  AGENDE_SUBCATEGORY_COVER_IMAGE,
+  agendeCategoryHref,
+} from '../lib/agendeCatalog'
 import {
   IGIENE_SUBCATEGORIES,
   prodottiIgieneSubcategoryHref,
@@ -38,7 +44,20 @@ import {
   VERIFICA_BANCONOTE_COVER_IMAGE_URL,
   macchineUfficioVerificaBanconoteListingPath,
 } from './verificaBanconoteProducts'
+import {
+  MACCHINE_SUB_PLASTIFICATRICI_LABEL,
+  PLASTIFICATRICI_COVER_IMAGE_URL,
+  macchineUfficioPlastificatriciListingPath,
+} from './plastificatriciProducts'
 import { macchineUfficioHubPath } from '../lib/macchineUfficioRoutes'
+import {
+  LINEA_ASTRO_MEDICAL_CATEGORY,
+  lineaAstroMedicalCatalogPath,
+} from './iHealthAstroMedicalProducts'
+import {
+  ASTRO_MEDICAL_MACROS,
+  lineaAstroMedicalMacroHref,
+} from '../lib/astroMedicalSubcategories'
 import { SERVIZI_NAV_ITEMS } from './serviziCatalog'
 import {
   CANCELLERIA_SUB_BUSTE,
@@ -57,7 +76,7 @@ import { cancelleriaTimbriListingPath } from '../lib/timbroAziendeFarmacieProduc
 export type MegaMenuPreviewSource =
   | { kind: 'office-subcategory'; category: string; subcategory: string }
   | { kind: 'cancelleria-hub'; hub: string }
-  | { kind: 'macchine'; catalog: 'distruggi' | 'etichettatrici' | 'casse' | 'verifica-banconote' | 'hub' }
+  | { kind: 'macchine'; catalog: 'distruggi' | 'etichettatrici' | 'casse' | 'verifica-banconote' | 'plastificatrici' | 'hub' }
   | { kind: 'category'; category: string }
   | { kind: 'none' }
 
@@ -181,6 +200,30 @@ export const MEGA_MENU_CATEGORIES: MegaMenuCategory[] = [
     subs: CANCELLERIA_SUBS,
   },
   {
+    id: 'agende',
+    label: AGENDE_CATEGORY,
+    href: agendeCategoryHref(),
+    subs: [
+      {
+        id: 'agende-all',
+        label: 'Tutte le agende',
+        href: agendeCategoryHref(),
+        preview: { kind: 'category', category: AGENDE_CATEGORY },
+      },
+      ...AGENDE_SUBCATEGORIES.map((subcategory) => ({
+        id: `agende-${subcategory}`,
+        label: subcategory,
+        href: agendeCategoryHref(subcategory),
+        coverImageUrl: AGENDE_SUBCATEGORY_COVER_IMAGE[subcategory],
+        preview: {
+          kind: 'office-subcategory' as const,
+          category: AGENDE_CATEGORY,
+          subcategory,
+        },
+      })),
+    ],
+  },
+  {
     id: 'modulistica',
     label: 'Modulistica',
     href: modulisticaCategoryHref(),
@@ -227,6 +270,36 @@ export const MEGA_MENU_CATEGORIES: MegaMenuCategory[] = [
         coverImageUrl: VERIFICA_BANCONOTE_COVER_IMAGE_URL,
         preview: { kind: 'macchine', catalog: 'verifica-banconote' },
       },
+      {
+        id: 'mac-plastificatrici',
+        label: MACCHINE_SUB_PLASTIFICATRICI_LABEL,
+        href: macchineUfficioPlastificatriciListingPath(),
+        coverImageUrl: PLASTIFICATRICI_COVER_IMAGE_URL,
+        preview: { kind: 'macchine', catalog: 'plastificatrici' },
+      },
+    ],
+  },
+  {
+    id: 'astro-medical',
+    label: 'Astro Medical Shop',
+    href: lineaAstroMedicalCatalogPath(),
+    subs: [
+      {
+        id: 'astro-medical-all',
+        label: 'Tutti i prodotti',
+        href: lineaAstroMedicalCatalogPath(),
+        preview: { kind: 'category', category: LINEA_ASTRO_MEDICAL_CATEGORY },
+      },
+      ...ASTRO_MEDICAL_MACROS.map((macro) => ({
+        id: `astro-medical-${macro.id}`,
+        label: macro.label,
+        href: lineaAstroMedicalMacroHref(macro.label),
+        preview: {
+          kind: 'office-subcategory' as const,
+          category: LINEA_ASTRO_MEDICAL_CATEGORY,
+          subcategory: macro.label,
+        },
+      })),
     ],
   },
   {

@@ -18,6 +18,7 @@ export const OFFICE_CATALOG_CANONICAL_CATEGORIES = [
   'Carta',
   'Archivio',
   'Cancelleria',
+  'Agende',
   MODULISTICA_CATEGORY,
   'Cartucce & Toner',
   'Macchine per Ufficio',
@@ -35,6 +36,9 @@ export const PRODOTTI_IGIENE_CATEGORY_NORM = 'prodotti per igiene'
 export const SICUREZZA_CATEGORY = 'Sicurezza' as const
 export const SICUREZZA_CATEGORY_NORM = 'sicurezza'
 
+export const AGENDE_CATEGORY = 'Agende' as const
+export const AGENDE_CATEGORY_NORM = 'agende'
+
 export const OFFICE_CATEGORY_FALLBACK = 'Altro' as const
 
 export type OfficeCatalogCanonicalCategory =
@@ -47,6 +51,7 @@ export type OfficeCatalogDisplayCategory =
 /** Ordine voci filtro sidebar / coerenza UI */
 export const OFFICE_CATEGORY_FILTER_ORDER: readonly OfficeCatalogDisplayCategory[] = [
   'Cancelleria',
+  AGENDE_CATEGORY,
   MODULISTICA_CATEGORY,
   CARTUCCE_TONER_CATEGORY,
   'Macchine per Ufficio',
@@ -68,6 +73,10 @@ export function prodottiIgieneCategoryHref(): string {
 
 export function sicurezzaCategoryHref(): string {
   return `/office-products?category=${encodeURIComponent(SICUREZZA_CATEGORY)}`
+}
+
+export function agendeCategoryListingHref(): string {
+  return `/office-products?category=${encodeURIComponent(AGENDE_CATEGORY)}`
 }
 
 export const CARTA_SUBCATEGORY_A4 = 'Formato Carta A4' as const
@@ -152,6 +161,9 @@ export function officeCategoryFilterFromUrlParam(
   }
   if (t.localeCompare(SICUREZZA_CATEGORY, 'it', { sensitivity: 'base' }) === 0) {
     return SICUREZZA_CATEGORY_NORM
+  }
+  if (t.localeCompare(AGENDE_CATEGORY, 'it', { sensitivity: 'base' }) === 0) {
+    return AGENDE_CATEGORY_NORM
   }
   if (t.localeCompare('Archivio', 'it', { sensitivity: 'base' }) === 0) return 'archivio'
   if (t.localeCompare(OFFICE_CATEGORY_FALLBACK, 'it', { sensitivity: 'base' }) === 0)

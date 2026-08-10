@@ -31,7 +31,17 @@ import {
   PRODOTTI_IGIENE_CATEGORY_NORM,
   SICUREZZA_CATEGORY,
   SICUREZZA_CATEGORY_NORM,
+  AGENDE_CATEGORY,
+  AGENDE_CATEGORY_NORM,
 } from '../lib/officeCategories'
+import { catalogBackNavFromOfficePage } from '../lib/catalogBackNavigation'
+import {
+  AGENDE_CATEGORY_DESCRIPTION,
+  AGENDE_SUBCATEGORIES,
+  AGENDE_SUBCATEGORY_COVER_IMAGE,
+  matchesAgendeSubcategoryFilter,
+} from '../lib/agendeCatalog'
+import { AgendeCategoryHero } from '../components/office/AgendeCategoryHero'
 import {
   ARCHIVIO_BUSTE_TRASPARENTI_SUBCATEGORY,
   isArchivioBusteTrasparentiHubExtraProduct,
@@ -104,7 +114,7 @@ import { IgieneSubcategoryNav } from '../components/office/IgieneSubcategoryNav'
 import { SicurezzaSubcategoryNav } from '../components/office/SicurezzaSubcategoryNav'
 import { SicurezzaCategoryHero } from '../components/office/SicurezzaCategoryHero'
 import { SicurezzaSeoSection } from '../components/office/SicurezzaSeoSection'
-import { matchesAstroMedicalSubcategoryFilter } from '../lib/astroMedicalSubcategories'
+import { matchesAstroMedicalSubcategoryFilter, normalizeAstroMedicalNavFilter } from '../lib/astroMedicalSubcategories'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -556,8 +566,13 @@ export function OfficePage() {
   const selectedCategoryNorm = officeCategoryFilterFromUrlParam(categoryFromUrl)
   const selectedSubcategory = useMemo(() => {
     const raw = (subcategoryFromUrl ?? '').trim()
-    if (selectedCategoryNorm !== 'archivio') return raw
-    return normalizeArchivioSubcategoryLabel('Archivio', raw) ?? raw
+    if (selectedCategoryNorm === 'archivio') {
+      return normalizeArchivioSubcategoryLabel('Archivio', raw) ?? raw
+    }
+    if (selectedCategoryNorm === LINEA_ASTRO_MEDICAL_CATEGORY_NORM) {
+      return normalizeAstroMedicalNavFilter(raw) ?? ''
+    }
+    return raw
   }, [subcategoryFromUrl, selectedCategoryNorm])
   const selectedCancelleriaView: CancelleriaHubId | null = isCancelleriaHubId(cancelleriaViewFromUrl)
     ? cancelleriaViewFromUrl
@@ -683,6 +698,9 @@ export function OfficePage() {
       }
       if (activeCategory === SICUREZZA_CATEGORY_NORM && selectedSubcategory) {
         if (!matchesSicurezzaSubcategoryFilter(p, selectedSubcategory)) return false
+      }
+      if (activeCategory === AGENDE_CATEGORY_NORM && selectedSubcategory) {
+        if (!matchesAgendeSubcategoryFilter(p, selectedSubcategory)) return false
       }
       if (activeCategory === 'cancelleria' && selectedCancelleriaView) {
         if (!matchesCancelleriaHubProduct(p, selectedCancelleriaView)) return false
@@ -917,6 +935,9 @@ export function OfficePage() {
       if (activeCategory === SICUREZZA_CATEGORY_NORM && activeSubcategory) {
         if (!matchesSicurezzaSubcategoryFilter(p, activeSubcategory)) return false
       }
+      if (activeCategory === AGENDE_CATEGORY_NORM && activeSubcategory) {
+        if (!matchesAgendeSubcategoryFilter(p, activeSubcategory)) return false
+      }
       if (activeCategory === 'cancelleria' && selectedCancelleriaView) {
         if (!matchesCancelleriaHubProduct(p, selectedCancelleriaView)) return false
       }
@@ -972,6 +993,8 @@ export function OfficePage() {
     selectedCategoryNorm === 'carta' && !selectedSubcategory && !searchTrim
   const showSicurezzaDashboard =
     selectedCategoryNorm === SICUREZZA_CATEGORY_NORM && !selectedSubcategory && !searchTrim
+  const showAgendeDashboard =
+    selectedCategoryNorm === AGENDE_CATEGORY_NORM && !selectedSubcategory && !searchTrim
   const showCancelleriaDashboard =
     selectedCategoryNorm === 'cancelleria' && !selectedCancelleriaView && !searchTrim
   const showShopperDashboard =
@@ -987,6 +1010,23 @@ export function OfficePage() {
   const isLineaAstroMedicalCategory = selectedCategoryNorm === LINEA_ASTRO_MEDICAL_CATEGORY_NORM
   const isProdottiIgieneCategory = selectedCategoryNorm === PRODOTTI_IGIENE_CATEGORY_NORM
   const isSicurezzaCategory = selectedCategoryNorm === SICUREZZA_CATEGORY_NORM
+  const isAgendeCategory = selectedCategoryNorm === AGENDE_CATEGORY_NORM
+
+  const catalogBackNav = useMemo(
+    () =>
+      catalogBackNavFromOfficePage({
+        categoryFromUrl,
+        selectedSubcategory,
+        selectedCancelleriaView,
+        isGeneralShopCatalog,
+      }),
+    [
+      categoryFromUrl,
+      selectedSubcategory,
+      selectedCancelleriaView,
+      isGeneralShopCatalog,
+    ],
+  )
 
   const activeFiltersCount =
     (searchTrim ? 1 : 0) +
@@ -995,7 +1035,8 @@ export function OfficePage() {
     selectedFormats.length +
     (isLineaAstroMedicalCategory && selectedSubcategory ? 1 : 0) +
     (isProdottiIgieneCategory && selectedSubcategory ? 1 : 0) +
-    (isSicurezzaCategory && selectedSubcategory ? 1 : 0)
+    (isSicurezzaCategory && selectedSubcategory ? 1 : 0) +
+    (isAgendeCategory && selectedSubcategory ? 1 : 0)
 
   return (
     <main className="min-h-[60vh] bg-gradient-to-b from-brand-50/50 to-white">
@@ -1010,23 +1051,19 @@ export function OfficePage() {
           isMacchineUfficioCategory ||
           isLineaAstroMedicalCategory ||
           isProdottiIgieneCategory ||
-          isSicurezzaCategory
+          isSicurezzaCategory ||
+          isAgendeCategory
             ? 'py-6 sm:py-8'
             : 'py-16 sm:py-20',
         ].join(' ')}
       >
-        {!showArchivioDashboard &&
-        !showModulisticaDashboard &&
-        !showCartaDashboard &&
-        !showSicurezzaDashboard ? (
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-brand-700 transition hover:text-brand-900"
-          >
-            <ArrowLeft className="size-4" aria-hidden />
-            Torna alla home
-          </Link>
-        ) : null}
+        <Link
+          to={catalogBackNav.href}
+          className="inline-flex items-center gap-2 text-sm font-semibold text-brand-700 transition hover:text-brand-900"
+        >
+          <ArrowLeft className="size-4" aria-hidden />
+          {catalogBackNav.label}
+        </Link>
 
         {isArchivioCategory && !showArchivioDashboard ? (
           <nav className="mt-6 text-sm text-slate-500" aria-label="Breadcrumb">
@@ -1124,6 +1161,33 @@ export function OfficePage() {
                   className="font-medium text-slate-800 transition hover:text-brand-800"
                 >
                   {SICUREZZA_CATEGORY}
+                </Link>
+              </li>
+              {selectedSubcategory ? (
+                <>
+                  <li aria-hidden>/</li>
+                  <li className="font-medium text-slate-800">{selectedSubcategory}</li>
+                </>
+              ) : null}
+            </ol>
+          </nav>
+        ) : null}
+
+        {isAgendeCategory && !showAgendeDashboard ? (
+          <nav className="mt-6 text-sm text-slate-500" aria-label="Breadcrumb">
+            <ol className="flex flex-wrap items-center gap-2">
+              <li>
+                <Link to="/" className="transition hover:text-brand-800">
+                  Home
+                </Link>
+              </li>
+              <li aria-hidden>/</li>
+              <li>
+                <Link
+                  to="/agende"
+                  className="font-medium text-slate-800 transition hover:text-brand-800"
+                >
+                  {AGENDE_CATEGORY}
                 </Link>
               </li>
               {selectedSubcategory ? (
@@ -1269,7 +1333,19 @@ export function OfficePage() {
               Prodotti {SICUREZZA_CATEGORY.toLowerCase()} · {selectedSubcategory}
             </p>
           </header>
-        ) : isSicurezzaCategory ? null : (
+        ) : isSicurezzaCategory ? null : isAgendeCategory && selectedSubcategory ? (
+          <header className="mt-2">
+            <p className="text-sm font-semibold uppercase tracking-widest text-brand-700">
+              Pianificazione
+            </p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+              {selectedSubcategory}
+            </h1>
+            <p className="mt-2 max-w-2xl text-base text-slate-600">
+              {AGENDE_CATEGORY} · {selectedSubcategory}
+            </p>
+          </header>
+        ) : isAgendeCategory ? null : (
           <header
             className={`flex flex-col gap-4 border-b border-brand-100 pb-6 sm:flex-row sm:items-start sm:gap-6 ${categoryFromUrl ? 'mt-6' : 'mt-8'}`}
           >
@@ -1442,6 +1518,7 @@ export function OfficePage() {
         ) : null}
 
         {isSicurezzaCategory && !selectedSubcategory ? <SicurezzaCategoryHero /> : null}
+        {isAgendeCategory && !selectedSubcategory ? <AgendeCategoryHero /> : null}
 
         {showSicurezzaDashboard ? (
           <section className="mt-6" aria-labelledby="sicurezza-hub-heading">
@@ -1478,6 +1555,43 @@ export function OfficePage() {
               ))}
             </div>
             <SicurezzaSeoSection />
+          </section>
+        ) : null}
+
+        {showAgendeDashboard ? (
+          <section className="mt-6" aria-labelledby="agende-hub-heading">
+            <div className="mb-5 max-w-2xl">
+              <h2
+                id="agende-hub-heading"
+                className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl"
+              >
+                Scegli il tipo di agenda
+              </h2>
+              <p className="mt-1.5 text-sm text-slate-600 sm:text-base">
+                {AGENDE_CATEGORY_DESCRIPTION}
+              </p>
+            </div>
+            <div className={OFFICE_SUBCATEGORY_TILE_GRID_CLASS}>
+              {AGENDE_SUBCATEGORIES.map((subcat) => (
+                <OfficeSubcategoryTile
+                  key={`agende-subcat-${subcat}`}
+                  title={subcat}
+                  onClick={() => setSubcategoryFilter(subcat)}
+                  media={
+                    <div className="aspect-square w-full bg-slate-50">
+                      <img
+                        src={AGENDE_SUBCATEGORY_COVER_IMAGE[subcat]}
+                        alt={subcat}
+                        className="size-full object-contain p-4"
+                        loading="lazy"
+                        decoding="async"
+                        referrerPolicy="no-referrer-when-downgrade"
+                      />
+                    </div>
+                  }
+                />
+              ))}
+            </div>
           </section>
         ) : null}
 
@@ -1548,6 +1662,7 @@ export function OfficePage() {
         !showModulisticaDashboard &&
         !showCartaDashboard &&
         !showSicurezzaDashboard &&
+        !showAgendeDashboard &&
         !showCancelleriaDashboard &&
         !showShopperDashboard ? (
         <section className="py-12" aria-labelledby="office-catalog-heading">

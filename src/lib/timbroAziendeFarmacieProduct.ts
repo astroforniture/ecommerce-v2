@@ -2,6 +2,13 @@ import type { OfficeProduct } from '../types/officeProduct'
 import { buildCartucceTonerOfficeProducts } from '../data/cartucceTonerProducts'
 import { buildPileOfficeProducts } from '../data/pileProducts'
 import { buildQuaderniOfficeProducts } from '../data/quaderniProducts'
+import { buildAgendaAlfaGiornaliereOfficeProducts } from '../data/agendeAlfaGiornaliereProducts'
+import { buildAgendaAlfaSettimanaliOfficeProducts } from '../data/agendeAlfaSettimanaliProducts'
+import { buildAgendaDeltaGiornaliereOfficeProducts } from '../data/agendeDeltaGiornaliereProducts'
+import { buildAgendaDeltaSettimanaliOfficeProducts } from '../data/agendeDeltaSettimanaliProducts'
+import { buildAgendaTextGiornaliereOfficeProducts } from '../data/agendeTextGiornaliereProducts'
+import { buildAgendaWpSettimanaliOfficeProducts } from '../data/agendeWeeklyPatternSettimanaliProducts'
+import { buildAgendaPlanningOfficeProducts } from '../data/agendePlanningProducts'
 import { buildCasseDitronOfficeProducts } from '../data/casseDitronProducts'
 import { buildDistruggidocumentiOfficeProducts } from '../data/distruggidocumentiProducts'
 import { buildEtichettatriciOfficeProducts } from '../data/macchineEtichettatrici'
@@ -174,6 +181,13 @@ export function getInjectedLocalCatalogProducts(): OfficeProduct[] {
     ...buildCartucceTonerOfficeProducts(),
     ...buildPileOfficeProducts(),
     ...buildQuaderniOfficeProducts(),
+    ...buildAgendaAlfaGiornaliereOfficeProducts(),
+    ...buildAgendaAlfaSettimanaliOfficeProducts(),
+    ...buildAgendaDeltaGiornaliereOfficeProducts(),
+    ...buildAgendaDeltaSettimanaliOfficeProducts(),
+    ...buildAgendaTextGiornaliereOfficeProducts(),
+    ...buildAgendaWpSettimanaliOfficeProducts(),
+    ...buildAgendaPlanningOfficeProducts(),
     ...buildIHealthAstroMedicalOfficeProducts(),
     ...buildLegacyAstroMedicalOfficeProducts(),
     ...buildProfessionalDiagnosticAstroMedicalOfficeProducts(),

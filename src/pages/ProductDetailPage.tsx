@@ -42,6 +42,8 @@ import {
   isStabiloOhpenCatalogProduct,
   isBigSeiRotaCatalogProduct,
   isEuroboxEsselteCatalogProduct,
+  euroboxEsselteBasePriceForThicknessCm,
+  euroboxEsselteQuantityTiersForThicknessCm,
   isSoftSeiRotaCatalogProduct,
   isBlasettiMailpackCatalogProduct,
   isPentelMarkerCatalogProduct,
@@ -109,7 +111,7 @@ import {
 import { isPunchedEnvelopeProduct } from '../lib/punchedEnvelope'
 import { isTimbroAziendeFarmacieProduct } from '../lib/timbroAziendeFarmacieProduct'
 import { isOfficeProductAstroMedicalLine } from '../lib/isOfficeProductAstroMedicalLine'
-import { lineaAstroMedicalCatalogPath } from '../data/iHealthAstroMedicalProducts'
+import { catalogBackNavFromProduct } from '../lib/catalogBackNavigation'
 import { TimbroAziendeFarmacieDetail } from '../components/product/TimbroAziendeFarmacieDetail'
 import { OfficeProductDetailPurchasePanel } from '../components/product/OfficeProductDetailPurchasePanel'
 import { AstroMedicalHealthcareDisclaimer } from '../components/astroMedical/AstroMedicalHealthcareDisclaimer'
@@ -120,6 +122,7 @@ import {
   OfficeProductDetailDescriptionSection,
   OfficeProductDetailRelatedSection,
 } from '../components/product/OfficeProductDetailMetaSections'
+import { OfficeProductGpsrSection } from '../components/product/OfficeProductGpsrSection'
 import { SicurezzaTechnicalDocumentsSection } from '../components/product/SicurezzaTechnicalDocumentsSection'
 import {
   areSicurezzaApparelSizeVariants,
@@ -127,7 +130,6 @@ import {
 } from '../data/sicurezzaApparelCatalog'
 import {
   isStaticSyntheticOfficeProduct,
-  staticSyntheticOfficeListingPath,
 } from '../lib/syntheticOfficeCatalogProducts'
 import {
   buildCasseDitronOfficeProducts,
@@ -158,6 +160,10 @@ import {
   buildVerificaBanconoteOfficeProducts,
   isVerificaBanconoteOfficeProductId,
 } from '../data/verificaBanconoteProducts'
+import {
+  buildPlastificatriciOfficeProducts,
+  isPlastificatriciOfficeProductId,
+} from '../data/plastificatriciProducts'
 import { buildCartucceTonerOfficeProducts, isCartucceTonerOfficeProductId } from '../data/cartucceTonerProducts'
 import {
   buildEtichettatriciOfficeProducts,
@@ -165,6 +171,98 @@ import {
 } from '../data/macchineEtichettatrici'
 import { buildPileOfficeProducts, isPileOfficeProductId } from '../data/pileProducts'
 import { buildQuaderniOfficeProducts, isQuaderniOfficeProductId } from '../data/quaderniProducts'
+import {
+  AGENDA_ALFA_COLORS,
+  AGENDA_ALFA_SIZES,
+  agendaAlfaColorFromProduct,
+  agendaAlfaDisplayName,
+  agendaAlfaImageUrlForSku,
+  agendaAlfaSizeFromProduct,
+  agendaAlfaVariantSku,
+  buildAgendaAlfaGiornaliereOfficeProducts,
+  buildAgendaAlfaOfficeProduct,
+  isAgendaAlfaGiornalieraProduct,
+  isAgendaAlfaOfficeProductId,
+  type AgendaAlfaColor,
+} from '../data/agendeAlfaGiornaliereProducts'
+import {
+  AGENDA_ALFA_SETT_IMAGE_URL,
+  AGENDA_ALFA_SETT_SIZES,
+  agendaAlfaSettColorFromProduct,
+  agendaAlfaSettDisplayName,
+  agendaAlfaSettSizeFromProduct,
+  agendaAlfaSettVariantSku,
+  buildAgendaAlfaSettOfficeProduct,
+  buildAgendaAlfaSettimanaliOfficeProducts,
+  isAgendaAlfaSettOfficeProductId,
+  isAgendaAlfaSettimanaleProduct,
+} from '../data/agendeAlfaSettimanaliProducts'
+import {
+  AGENDA_DELTA_COLORS,
+  AGENDA_DELTA_SIZES,
+  agendaDeltaColorFromProduct,
+  agendaDeltaDisplayName,
+  agendaDeltaImageUrlForSku,
+  agendaDeltaSizeFromProduct,
+  agendaDeltaVariantSku,
+  buildAgendaDeltaGiornaliereOfficeProducts,
+  buildAgendaDeltaOfficeProduct,
+  isAgendaDeltaGiornalieraProduct,
+  isAgendaDeltaOfficeProductId,
+  type AgendaDeltaColor,
+} from '../data/agendeDeltaGiornaliereProducts'
+import {
+  AGENDA_DELTA_SETT_SIZES,
+  agendaDeltaSettColorFromProduct,
+  agendaDeltaSettDisplayName,
+  agendaDeltaSettImageUrlForSku,
+  agendaDeltaSettSizeFromProduct,
+  agendaDeltaSettVariantSku,
+  buildAgendaDeltaSettOfficeProduct,
+  buildAgendaDeltaSettimanaliOfficeProducts,
+  isAgendaDeltaSettOfficeProductId,
+  isAgendaDeltaSettimanaleProduct,
+} from '../data/agendeDeltaSettimanaliProducts'
+import {
+  AGENDA_TEXT_COLORS,
+  AGENDA_TEXT_SIZES,
+  agendaTextColorFromProduct,
+  agendaTextDisplayName,
+  agendaTextImageUrlForSku,
+  agendaTextSizeFromProduct,
+  agendaTextVariantSku,
+  buildAgendaTextGiornaliereOfficeProducts,
+  buildAgendaTextOfficeProduct,
+  isAgendaTextGiornalieraProduct,
+  isAgendaTextOfficeProductId,
+  type AgendaTextColor,
+} from '../data/agendeTextGiornaliereProducts'
+import {
+  AGENDA_WP_SETT_COLORS,
+  AGENDA_WP_SETT_IMAGE_URL,
+  AGENDA_WP_SETT_SIZES,
+  agendaWpSettColorFromProduct,
+  agendaWpSettDisplayName,
+  agendaWpSettSizeFromProduct,
+  agendaWpSettVariantSku,
+  buildAgendaWpSettOfficeProduct,
+  buildAgendaWpSettimanaliOfficeProducts,
+  isAgendaWpSettOfficeProductId,
+  isAgendaWpSettimanaleProduct,
+  type AgendaWpSettColor,
+} from '../data/agendeWeeklyPatternSettimanaliProducts'
+import {
+  agendaPlanColorFromProduct,
+  agendaPlanColorsForLine,
+  agendaPlanDatatoLines,
+  agendaPlanDisplayName,
+  agendaPlanLineFromProduct,
+  agendaPlanVariantSku,
+  buildAgendaPlanningOfficeProduct,
+  buildAgendaPlanningOfficeProducts,
+  isAgendaPlanningOfficeProductId,
+  isAgendaPlanningProduct,
+} from '../data/agendePlanningProducts'
 import {
   buildIHealthAstroMedicalOfficeProducts,
   iHealthAstroMedicalRelatedIdsForProductId,
@@ -398,10 +496,18 @@ function imballoProTapeBorderClasses(variantLabel: string): string {
 
 function euroboxColorToneClasses(colorName?: string): string {
   const c = (colorName ?? '').toLowerCase()
+  if (c.includes('rosso') && c.includes('bordeaux')) return 'border-rose-800'
+  if (c.includes('bordeaux')) return 'border-rose-800'
   if (c.includes('rosso')) return 'border-red-500'
+  if (c.includes('turchese')) return 'border-teal-400'
+  if (c.includes('beige')) return 'border-amber-200'
+  if (c.includes('arancio') || c.includes('arancione')) return 'border-orange-500'
+  if (c.includes('azzurro')) return 'border-sky-400'
   if (c.includes('blu')) return 'border-sky-500'
+  if (c.includes('verde') && c.includes('lime')) return 'border-lime-500'
   if (c.includes('verde')) return 'border-emerald-500'
   if (c.includes('giallo')) return 'border-[#f59e0b]'
+  if (c.includes('nero')) return 'border-slate-800'
   return 'border-slate-300'
 }
 
@@ -448,10 +554,18 @@ function pentelMarkerSwatchFill(colorName: string): string {
 
 function euroboxSelectedGlowClasses(colorName?: string): string {
   const c = (colorName ?? '').toLowerCase()
+  if (c.includes('rosso') && c.includes('bordeaux')) return 'shadow-rose-700/70'
+  if (c.includes('bordeaux')) return 'shadow-rose-700/70'
   if (c.includes('rosso')) return 'shadow-red-400/70'
+  if (c.includes('turchese')) return 'shadow-teal-300/70'
+  if (c.includes('beige')) return 'shadow-amber-200/70'
+  if (c.includes('arancio') || c.includes('arancione')) return 'shadow-orange-400/70'
+  if (c.includes('azzurro')) return 'shadow-sky-300/70'
   if (c.includes('blu')) return 'shadow-sky-400/70'
+  if (c.includes('verde') && c.includes('lime')) return 'shadow-lime-400/70'
   if (c.includes('verde')) return 'shadow-emerald-400/70'
   if (c.includes('giallo')) return 'shadow-amber-400/70'
+  if (c.includes('nero')) return 'shadow-slate-500/70'
   return 'shadow-slate-300/70'
 }
 
@@ -753,6 +867,19 @@ export function ProductDetailPage() {
   const [selectedPentelColor, setSelectedPentelColor] = useState<string | null>(null)
   const [selectedPentelProduct, setSelectedPentelProduct] = useState<OfficeProduct | null>(null)
   const [selectedColorCopyA3Grammage, setSelectedColorCopyA3Grammage] = useState<string>('160g')
+  const [selectedAgendaAlfaColor, setSelectedAgendaAlfaColor] = useState<AgendaAlfaColor>(
+    AGENDA_ALFA_COLORS[0],
+  )
+  const [selectedAgendaDeltaColor, setSelectedAgendaDeltaColor] = useState<AgendaDeltaColor>(
+    AGENDA_DELTA_COLORS[0],
+  )
+  const [selectedAgendaTextColor, setSelectedAgendaTextColor] = useState<AgendaTextColor>(
+    AGENDA_TEXT_COLORS[0],
+  )
+  const [selectedAgendaWpSettColor, setSelectedAgendaWpSettColor] = useState<AgendaWpSettColor>(
+    AGENDA_WP_SETT_COLORS[0],
+  )
+  const [selectedAgendaPlanColor, setSelectedAgendaPlanColor] = useState<string>('Blu')
 
   const query = useQuery({
     queryKey: ['office-product', OFFICE_CATALOG_DATA_REVISION, productKey],
@@ -793,12 +920,7 @@ export function ProductDetailPage() {
     () => Boolean(product && isOfficeProductAstroMedicalLine(product)),
     [product],
   )
-  const catalogBackHref = useMemo(() => {
-    if (!product) return '/office-products'
-    if (isOfficeProductAstroMedicalLine(product)) return lineaAstroMedicalCatalogPath()
-    if (isStaticSyntheticOfficeProduct(product)) return staticSyntheticOfficeListingPath(product)
-    return '/office-products'
-  }, [product])
+  const catalogBackNav = useMemo(() => catalogBackNavFromProduct(product), [product])
   const syntheticGalleryImageUrls = useMemo(() => {
     if (!product) return [] as string[]
     const hasExtra = (product.imageGalleryUrls?.length ?? 0) > 0
@@ -932,6 +1054,91 @@ export function ProductDetailPage() {
     if (!product) return false
     return isEuroboxEsselteCatalogProduct(product)
   }, [product])
+  const isAgendaAlfa = useMemo(() => isAgendaAlfaGiornalieraProduct(product), [product])
+  const isAgendaAlfaSett = useMemo(() => isAgendaAlfaSettimanaleProduct(product), [product])
+  const isAgendaAlfaLine = isAgendaAlfa || isAgendaAlfaSett
+  const agendaAlfaSize = useMemo(() => {
+    if (isAgendaAlfaSett) return agendaAlfaSettSizeFromProduct(product)
+    if (isAgendaAlfa) return agendaAlfaSizeFromProduct(product)
+    return null
+  }, [isAgendaAlfa, isAgendaAlfaSett, product])
+  const agendaAlfaVariantCode = useMemo(() => {
+    if (!agendaAlfaSize) return null
+    if (isAgendaAlfaSett) return agendaAlfaSettVariantSku(agendaAlfaSize.sku, selectedAgendaAlfaColor)
+    if (isAgendaAlfa) return agendaAlfaVariantSku(agendaAlfaSize.sku, selectedAgendaAlfaColor)
+    return null
+  }, [isAgendaAlfa, isAgendaAlfaSett, agendaAlfaSize, selectedAgendaAlfaColor])
+  const agendaAlfaSizeOptions = isAgendaAlfaSett ? AGENDA_ALFA_SETT_SIZES : AGENDA_ALFA_SIZES
+  const buildAgendaAlfaLineProduct = isAgendaAlfaSett
+    ? buildAgendaAlfaSettOfficeProduct
+    : buildAgendaAlfaOfficeProduct
+  const agendaAlfaLineImageUrl = (sku: string | null | undefined) =>
+    isAgendaAlfaSett ? AGENDA_ALFA_SETT_IMAGE_URL : agendaAlfaImageUrlForSku(sku ?? '')
+  const agendaAlfaLineDisplayName = (size: NonNullable<typeof agendaAlfaSize>, color: string) =>
+    isAgendaAlfaSett ? agendaAlfaSettDisplayName(size, color) : agendaAlfaDisplayName(size, color)
+  const isAgendaDelta = useMemo(() => isAgendaDeltaGiornalieraProduct(product), [product])
+  const isAgendaDeltaSett = useMemo(() => isAgendaDeltaSettimanaleProduct(product), [product])
+  const isAgendaDeltaLine = isAgendaDelta || isAgendaDeltaSett
+  const agendaDeltaSize = useMemo(() => {
+    if (isAgendaDeltaSett) return agendaDeltaSettSizeFromProduct(product)
+    if (isAgendaDelta) return agendaDeltaSizeFromProduct(product)
+    return null
+  }, [isAgendaDelta, isAgendaDeltaSett, product])
+  const agendaDeltaVariantCode = useMemo(() => {
+    if (!agendaDeltaSize) return null
+    if (isAgendaDeltaSett) {
+      return agendaDeltaSettVariantSku(agendaDeltaSize.sku, selectedAgendaDeltaColor)
+    }
+    if (isAgendaDelta) return agendaDeltaVariantSku(agendaDeltaSize.sku, selectedAgendaDeltaColor)
+    return null
+  }, [isAgendaDelta, isAgendaDeltaSett, agendaDeltaSize, selectedAgendaDeltaColor])
+  const agendaDeltaSizeOptions = isAgendaDeltaSett ? AGENDA_DELTA_SETT_SIZES : AGENDA_DELTA_SIZES
+  const buildAgendaDeltaLineProduct = isAgendaDeltaSett
+    ? buildAgendaDeltaSettOfficeProduct
+    : buildAgendaDeltaOfficeProduct
+  const agendaDeltaLineImageUrl = (sku: string | null | undefined) =>
+    isAgendaDeltaSett
+      ? agendaDeltaSettImageUrlForSku(sku ?? '')
+      : agendaDeltaImageUrlForSku(sku ?? '')
+  const agendaDeltaLineDisplayName = (
+    size: NonNullable<typeof agendaDeltaSize>,
+    color: string,
+  ) =>
+    isAgendaDeltaSett
+      ? agendaDeltaSettDisplayName(size, color)
+      : agendaDeltaDisplayName(size, color)
+  const isAgendaText = useMemo(() => isAgendaTextGiornalieraProduct(product), [product])
+  const agendaTextSize = useMemo(
+    () => (isAgendaText ? agendaTextSizeFromProduct(product) : null),
+    [isAgendaText, product],
+  )
+  const agendaTextVariantCode = useMemo(() => {
+    if (!isAgendaText || !agendaTextSize) return null
+    return agendaTextVariantSku(agendaTextSize.sku, selectedAgendaTextColor)
+  }, [isAgendaText, agendaTextSize, selectedAgendaTextColor])
+  const isAgendaWpSett = useMemo(() => isAgendaWpSettimanaleProduct(product), [product])
+  const agendaWpSettSize = useMemo(
+    () => (isAgendaWpSett ? agendaWpSettSizeFromProduct(product) : null),
+    [isAgendaWpSett, product],
+  )
+  const agendaWpSettVariantCode = useMemo(() => {
+    if (!isAgendaWpSett || !agendaWpSettSize) return null
+    return agendaWpSettVariantSku(agendaWpSettSize.sku, selectedAgendaWpSettColor)
+  }, [isAgendaWpSett, agendaWpSettSize, selectedAgendaWpSettColor])
+  const isAgendaPlan = useMemo(() => isAgendaPlanningProduct(product), [product])
+  const agendaPlanLine = useMemo(
+    () => (isAgendaPlan ? agendaPlanLineFromProduct(product) : null),
+    [isAgendaPlan, product],
+  )
+  const agendaPlanHasColors = Boolean(agendaPlanLine?.colors?.length)
+  const agendaPlanIsDatato = agendaPlanLine?.family === 'datato'
+  const agendaPlanVariantCode = useMemo(() => {
+    if (!isAgendaPlan || !agendaPlanLine) return null
+    return agendaPlanVariantSku(
+      agendaPlanLine.sku,
+      agendaPlanHasColors ? selectedAgendaPlanColor : null,
+    )
+  }, [isAgendaPlan, agendaPlanLine, agendaPlanHasColors, selectedAgendaPlanColor])
   const isBigSeiRota = useMemo(() => {
     if (!product) return false
     const n = (product.name ?? '').toLowerCase()
@@ -1535,6 +1742,24 @@ export function ProductDetailPage() {
         selectedStarboxThickness ?? currentStarboxThickness ?? BIG_SEI_ROTA_DORSO_CM[0] ?? 12
       return `Scatola Progetto Big Sei Rota - ${thicknessCm} cm - ${effectiveBigSeiColor}`
     }
+    if (isAgendaAlfaLine && agendaAlfaSize) {
+      return agendaAlfaLineDisplayName(agendaAlfaSize, selectedAgendaAlfaColor)
+    }
+    if (isAgendaDeltaLine && agendaDeltaSize) {
+      return agendaDeltaLineDisplayName(agendaDeltaSize, selectedAgendaDeltaColor)
+    }
+    if (isAgendaText && agendaTextSize) {
+      return agendaTextDisplayName(agendaTextSize, selectedAgendaTextColor)
+    }
+    if (isAgendaWpSett && agendaWpSettSize) {
+      return agendaWpSettDisplayName(agendaWpSettSize, selectedAgendaWpSettColor)
+    }
+    if (isAgendaPlan && agendaPlanLine) {
+      return agendaPlanDisplayName(
+        agendaPlanLine,
+        agendaPlanHasColors ? selectedAgendaPlanColor : null,
+      )
+    }
     if (isStarlineArchiveBox) {
       const cm = detectThicknessCmFromName(p.name)
       const color =
@@ -1579,6 +1804,24 @@ export function ProductDetailPage() {
     isEuroCartLacci,
     selectedEuroCartLacciProduct?.name,
     isBigSeiRota,
+    isAgendaAlfaLine,
+    agendaAlfaSize,
+    selectedAgendaAlfaColor,
+    isAgendaAlfaSett,
+    isAgendaDeltaLine,
+    isAgendaDeltaSett,
+    agendaDeltaSize,
+    selectedAgendaDeltaColor,
+    isAgendaText,
+    agendaTextSize,
+    selectedAgendaTextColor,
+    isAgendaWpSett,
+    agendaWpSettSize,
+    selectedAgendaWpSettColor,
+    isAgendaPlan,
+    agendaPlanLine,
+    agendaPlanHasColors,
+    selectedAgendaPlanColor,
     isStarlineArchiveBox,
     isColorCopyA3,
     isColorCopyA4,
@@ -1695,6 +1938,54 @@ export function ProductDetailPage() {
     setSyntheticGalleryIdx(0)
     window.scrollTo({ top: 0, behavior: 'auto' })
   }, [productKey])
+
+  useEffect(() => {
+    if (!isAgendaAlfaLine || !product) return
+    const fromProduct = isAgendaAlfaSett
+      ? agendaAlfaSettColorFromProduct(product)
+      : agendaAlfaColorFromProduct(product)
+    if (fromProduct) setSelectedAgendaAlfaColor(fromProduct)
+  }, [
+    isAgendaAlfaLine,
+    isAgendaAlfaSett,
+    product?.id,
+    product?.colorName,
+    product?.producerCode,
+    product?.name,
+  ])
+
+  useEffect(() => {
+    if (!isAgendaDeltaLine || !product) return
+    const fromProduct = isAgendaDeltaSett
+      ? agendaDeltaSettColorFromProduct(product)
+      : agendaDeltaColorFromProduct(product)
+    if (fromProduct) setSelectedAgendaDeltaColor(fromProduct)
+  }, [
+    isAgendaDeltaLine,
+    isAgendaDeltaSett,
+    product?.id,
+    product?.colorName,
+    product?.producerCode,
+    product?.name,
+  ])
+
+  useEffect(() => {
+    if (!isAgendaText || !product) return
+    const fromProduct = agendaTextColorFromProduct(product)
+    if (fromProduct) setSelectedAgendaTextColor(fromProduct)
+  }, [isAgendaText, product?.id, product?.colorName, product?.producerCode, product?.name])
+
+  useEffect(() => {
+    if (!isAgendaWpSett || !product) return
+    const fromProduct = agendaWpSettColorFromProduct(product)
+    if (fromProduct) setSelectedAgendaWpSettColor(fromProduct)
+  }, [isAgendaWpSett, product?.id, product?.colorName, product?.producerCode, product?.name])
+
+  useEffect(() => {
+    if (!isAgendaPlan || !product) return
+    const fromProduct = agendaPlanColorFromProduct(product)
+    if (fromProduct) setSelectedAgendaPlanColor(fromProduct)
+  }, [isAgendaPlan, product?.id, product?.colorName, product?.producerCode, product?.name])
 
   useEffect(() => {
     const rule = purchaseQuantityRuleForProduct(product)
@@ -1857,6 +2148,11 @@ export function ProductDetailPage() {
           .filter((p) => p.id !== product.id)
           .slice(0, 12)
       }
+      if (isPlastificatriciOfficeProductId(product.id)) {
+        return buildPlastificatriciOfficeProducts()
+          .filter((p) => p.id !== product.id)
+          .slice(0, 12)
+      }
       if (matchesShopperCartaProduct(product) || matchesShopperPlasticaProduct(product)) {
         const siblings = [
           ...buildShopperCartaOfficeProducts(),
@@ -1878,6 +2174,41 @@ export function ProductDetailPage() {
         return buildQuaderniOfficeProducts()
           .filter((p) => p.id !== product.id)
           .slice(0, 12)
+      }
+      if (isAgendaAlfaSettOfficeProductId(product.id)) {
+        return buildAgendaAlfaSettimanaliOfficeProducts()
+          .filter((p) => p.id !== product.id)
+          .slice(0, 24)
+      }
+      if (isAgendaDeltaSettOfficeProductId(product.id)) {
+        return buildAgendaDeltaSettimanaliOfficeProducts()
+          .filter((p) => p.id !== product.id)
+          .slice(0, 24)
+      }
+      if (isAgendaTextOfficeProductId(product.id)) {
+        return buildAgendaTextGiornaliereOfficeProducts()
+          .filter((p) => p.id !== product.id)
+          .slice(0, 24)
+      }
+      if (isAgendaWpSettOfficeProductId(product.id)) {
+        return buildAgendaWpSettimanaliOfficeProducts()
+          .filter((p) => p.id !== product.id)
+          .slice(0, 24)
+      }
+      if (isAgendaPlanningOfficeProductId(product.id)) {
+        return buildAgendaPlanningOfficeProducts()
+          .filter((p) => p.id !== product.id)
+          .slice(0, 24)
+      }
+      if (isAgendaDeltaOfficeProductId(product.id)) {
+        return buildAgendaDeltaGiornaliereOfficeProducts()
+          .filter((p) => p.id !== product.id)
+          .slice(0, 24)
+      }
+      if (isAgendaAlfaOfficeProductId(product.id)) {
+        return buildAgendaAlfaGiornaliereOfficeProducts()
+          .filter((p) => p.id !== product.id)
+          .slice(0, 24)
       }
       if (isIHealthOfficeProductId(product.id)) {
         const byId = new Map(buildIHealthAstroMedicalOfficeProducts().map((p) => [p.id, p]))
@@ -2243,6 +2574,13 @@ export function ProductDetailPage() {
     if (isStarboxRaccoglitore) {
       return STARBOX_QUANTITY_TIERS.map((t) => ({ ...t }))
     }
+    if (isEuroboxEsselte) {
+      const cm =
+        selectedStarboxThickness ??
+        detectThicknessCmFromName(product?.name ?? '') ??
+        null
+      return euroboxEsselteQuantityTiersForThicknessCm(cm).map((t) => ({ ...t }))
+    }
     if (isBusteForate && punchedEnvelopeThickness === 'pesante') {
       return PUNCHED_ENVELOPE_TOP_TIERS.map((t) => ({ ...t }))
     }
@@ -2275,6 +2613,9 @@ export function ProductDetailPage() {
     isImpulse75A4,
     isBigSeiRota,
     isStarboxRaccoglitore,
+    isEuroboxEsselte,
+    selectedStarboxThickness,
+    product?.name,
     isBusteForate,
     punchedEnvelopeThickness,
     isEuroCartLacci,
@@ -2290,6 +2631,28 @@ export function ProductDetailPage() {
   const effectiveBasePrice = useMemo(() => {
     if (isImpulse75A4) return IMPULSE_75_A4_BASE_PRICE
     if (isStarboxRaccoglitore) return STARBOX_BASE_PRICE
+    if (isAgendaAlfaLine) {
+      return agendaAlfaSize?.price ?? product?.price
+    }
+    if (isAgendaDeltaLine) {
+      return agendaDeltaSize?.price ?? product?.price
+    }
+    if (isAgendaText) {
+      return agendaTextSize?.price ?? product?.price
+    }
+    if (isAgendaWpSett) {
+      return agendaWpSettSize?.price ?? product?.price
+    }
+    if (isAgendaPlan) {
+      return agendaPlanLine?.price ?? product?.price
+    }
+    if (isEuroboxEsselte) {
+      const cm =
+        selectedStarboxThickness ??
+        detectThicknessCmFromName(product?.name ?? '') ??
+        null
+      return euroboxEsselteBasePriceForThicknessCm(cm) ?? product?.price
+    }
     if (isBusteForate && punchedEnvelopeThickness === 'pesante') return PUNCHED_ENVELOPE_TOP_BASE_PRICE
     if (isBusteForate && punchedEnvelopeThickness === 'medio') return PUNCHED_ENVELOPE_MEDIUM_BASE_PRICE
     if (isPentelMarker) return 1.8
@@ -2324,6 +2687,18 @@ export function ProductDetailPage() {
   }, [
     isImpulse75A4,
     isStarboxRaccoglitore,
+    isAgendaAlfaLine,
+    agendaAlfaSize?.price,
+    isAgendaDeltaLine,
+    agendaDeltaSize?.price,
+    isAgendaText,
+    agendaTextSize?.price,
+    isAgendaWpSett,
+    agendaWpSettSize?.price,
+    isAgendaPlan,
+    agendaPlanLine?.price,
+    isEuroboxEsselte,
+    selectedStarboxThickness,
     isBusteForate,
     punchedEnvelopeThickness,
     isPentelMarker,
@@ -2488,6 +2863,24 @@ export function ProductDetailPage() {
       const mapped = BIG_SEI_ROTA_HD_IMAGE_BY_COLOR[effectiveBigSeiColor]
       if (mapped) return bust(mapped)
     }
+    if (product && isAgendaAlfaLine) {
+      const mapped = agendaAlfaLineImageUrl(agendaAlfaSize?.sku ?? product.producerCode)
+      if (mapped) return bust(mapped)
+    }
+    if (product && isAgendaDeltaLine) {
+      const mapped = agendaDeltaLineImageUrl(agendaDeltaSize?.sku ?? product.producerCode ?? '')
+      if (mapped) return bust(mapped)
+    }
+    if (product && isAgendaText) {
+      const mapped = agendaTextImageUrlForSku(agendaTextSize?.sku ?? product.producerCode ?? '')
+      if (mapped) return bust(mapped)
+    }
+    if (product && isAgendaWpSett) {
+      return bust(AGENDA_WP_SETT_IMAGE_URL)
+    }
+    if (product && isAgendaPlan && agendaPlanLine) {
+      return bust(agendaPlanLine.imageUrl)
+    }
     if (product && isStarlineArchiveBox) {
       const cm: 16 | 20 =
         effectiveArchiveDorso === 16 || effectiveArchiveDorso === 20
@@ -2520,6 +2913,17 @@ export function ProductDetailPage() {
     effectiveEuroCartLacciProduct?.imageUrl,
     isBigSeiRota,
     effectiveBigSeiColor,
+    isAgendaAlfaLine,
+    isAgendaAlfaSett,
+    agendaAlfaSize?.sku,
+    isAgendaDeltaLine,
+    isAgendaDeltaSett,
+    agendaDeltaSize?.sku,
+    isAgendaText,
+    agendaTextSize?.sku,
+    isAgendaWpSett,
+    isAgendaPlan,
+    agendaPlanLine?.imageUrl,
     isStarlineArchiveBox,
     effectiveArchiveDorso,
     effectiveArchiveColor,
@@ -2547,9 +2951,19 @@ export function ProductDetailPage() {
     const skuForMeta =
       isSacbollSizeVariant && selectedJsonVariant?.sku
         ? selectedJsonVariant.sku
-        : isStarlineCartellina && effectiveCartellinaProduct?.producerCode
-          ? effectiveCartellinaProduct.producerCode
-          : product.producerCode
+        : isAgendaAlfaLine && agendaAlfaVariantCode
+          ? agendaAlfaVariantCode
+          : isAgendaDeltaLine && agendaDeltaVariantCode
+            ? agendaDeltaVariantCode
+            : isAgendaText && agendaTextVariantCode
+              ? agendaTextVariantCode
+              : isAgendaWpSett && agendaWpSettVariantCode
+                ? agendaWpSettVariantCode
+                : isAgendaPlan && agendaPlanVariantCode
+                  ? agendaPlanVariantCode
+          : isStarlineCartellina && effectiveCartellinaProduct?.producerCode
+            ? effectiveCartellinaProduct.producerCode
+            : product.producerCode
     const metaDescription = quoteOnly
       ? `Scopri ${displayProductName} (${skuForMeta}) di ${product.brand} su Astro Forniture. Configurazione e listino su preventivo.`
       : `Scopri ${displayProductName} (${skuForMeta}) di ${product.brand} su Astro Forniture. Prezzo imponibile e acquisto rapido online.`
@@ -2780,6 +3194,56 @@ export function ProductDetailPage() {
             price: EUROCART_LACCI_BASE_PRICE,
             quantityPriceTiers: EUROCART_LACCI_QUANTITY_TIERS.map((t) => ({ ...t })),
           }
+      : isAgendaAlfaLine
+        ? {
+            ...cartBaseProduct,
+            name: displayProductName,
+            colorName: selectedAgendaAlfaColor,
+            producerCode: agendaAlfaVariantCode ?? cartBaseProduct.producerCode,
+            price:
+              typeof effectiveBasePrice === 'number' ? effectiveBasePrice : cartBaseProduct.price,
+            quantityPriceTiers: [],
+          }
+      : isAgendaDeltaLine
+        ? {
+            ...cartBaseProduct,
+            name: displayProductName,
+            colorName: selectedAgendaDeltaColor,
+            producerCode: agendaDeltaVariantCode ?? cartBaseProduct.producerCode,
+            price:
+              typeof effectiveBasePrice === 'number' ? effectiveBasePrice : cartBaseProduct.price,
+            quantityPriceTiers: [],
+          }
+      : isAgendaText
+        ? {
+            ...cartBaseProduct,
+            name: displayProductName,
+            colorName: selectedAgendaTextColor,
+            producerCode: agendaTextVariantCode ?? cartBaseProduct.producerCode,
+            price:
+              typeof effectiveBasePrice === 'number' ? effectiveBasePrice : cartBaseProduct.price,
+            quantityPriceTiers: [],
+          }
+      : isAgendaWpSett
+        ? {
+            ...cartBaseProduct,
+            name: displayProductName,
+            colorName: selectedAgendaWpSettColor,
+            producerCode: agendaWpSettVariantCode ?? cartBaseProduct.producerCode,
+            price:
+              typeof effectiveBasePrice === 'number' ? effectiveBasePrice : cartBaseProduct.price,
+            quantityPriceTiers: [],
+          }
+      : isAgendaPlan
+        ? {
+            ...cartBaseProduct,
+            name: displayProductName,
+            colorName: agendaPlanHasColors ? selectedAgendaPlanColor : cartBaseProduct.colorName,
+            producerCode: agendaPlanVariantCode ?? cartBaseProduct.producerCode,
+            price:
+              typeof effectiveBasePrice === 'number' ? effectiveBasePrice : cartBaseProduct.price,
+            quantityPriceTiers: [],
+          }
       : effectiveQuantityTiers && effectiveQuantityTiers.length > 0
         ? { ...cartBaseProduct, price: effectiveBasePrice, quantityPriceTiers: effectiveQuantityTiers }
         : cartBaseProduct
@@ -2809,6 +3273,45 @@ export function ProductDetailPage() {
         ? {
             label: `${isColorCopyA4 ? 'A4' : 'A3'} ${selectedColorCopyA3Option.grammage} gr`,
             sku: `${(productForCart.producerCode ?? productForCart.id).trim()}-${selectedColorCopyA3Option.key}`,
+          }
+        : undefined
+    const agendaAlfaVariantForCart =
+      isAgendaAlfaLine && agendaAlfaSize && agendaAlfaVariantCode
+        ? {
+            label: `${agendaAlfaSize.fullLabel} · ${selectedAgendaAlfaColor}`,
+            sku: agendaAlfaVariantCode,
+          }
+        : undefined
+    const agendaDeltaVariantForCart =
+      isAgendaDeltaLine && agendaDeltaSize && agendaDeltaVariantCode
+        ? {
+            label: isAgendaDeltaSett
+              ? `${agendaDeltaSize.fullLabel} · ${selectedAgendaDeltaColor}`
+              : `${agendaDeltaSize.fullLabel} · Sabato/Domenica Separati · ${selectedAgendaDeltaColor}`,
+            sku: agendaDeltaVariantCode,
+          }
+        : undefined
+    const agendaTextVariantForCart =
+      isAgendaText && agendaTextSize && agendaTextVariantCode
+        ? {
+            label: `${agendaTextSize.fullLabel} · Sabato/Domenica Separati · ${selectedAgendaTextColor}`,
+            sku: agendaTextVariantCode,
+          }
+        : undefined
+    const agendaWpSettVariantForCart =
+      isAgendaWpSett && agendaWpSettSize && agendaWpSettVariantCode
+        ? {
+            label: `${agendaWpSettSize.fullLabel} · ${selectedAgendaWpSettColor}`,
+            sku: agendaWpSettVariantCode,
+          }
+        : undefined
+    const agendaPlanVariantForCart =
+      isAgendaPlan && agendaPlanLine && agendaPlanVariantCode
+        ? {
+            label: agendaPlanHasColors
+              ? `${agendaPlanLine.fullLabel} · ${selectedAgendaPlanColor}`
+              : agendaPlanLine.fullLabel,
+            sku: agendaPlanVariantCode,
           }
         : undefined
     const cartPayloadProduct =
@@ -2856,6 +3359,68 @@ export function ProductDetailPage() {
                     : productForCart.price,
                 imageUrl: selectedJsonVariant?.image_url?.trim() || productForCart.imageUrl,
               }
+          : isAgendaAlfaLine
+            ? {
+                ...productForCart,
+                name: displayProductName,
+                description: displayProductDescription || productForCart.description,
+                colorName: selectedAgendaAlfaColor,
+                producerCode: agendaAlfaVariantCode ?? productForCart.producerCode,
+                price:
+                  typeof effectiveBasePrice === 'number'
+                    ? effectiveBasePrice
+                    : productForCart.price,
+              }
+          : isAgendaDeltaLine
+            ? {
+                ...productForCart,
+                name: displayProductName,
+                description: displayProductDescription || productForCart.description,
+                colorName: selectedAgendaDeltaColor,
+                producerCode: agendaDeltaVariantCode ?? productForCart.producerCode,
+                price:
+                  typeof effectiveBasePrice === 'number'
+                    ? effectiveBasePrice
+                    : productForCart.price,
+              }
+          : isAgendaText
+            ? {
+                ...productForCart,
+                name: displayProductName,
+                description: displayProductDescription || productForCart.description,
+                colorName: selectedAgendaTextColor,
+                producerCode: agendaTextVariantCode ?? productForCart.producerCode,
+                price:
+                  typeof effectiveBasePrice === 'number'
+                    ? effectiveBasePrice
+                    : productForCart.price,
+              }
+          : isAgendaWpSett
+            ? {
+                ...productForCart,
+                name: displayProductName,
+                description: displayProductDescription || productForCart.description,
+                colorName: selectedAgendaWpSettColor,
+                producerCode: agendaWpSettVariantCode ?? productForCart.producerCode,
+                price:
+                  typeof effectiveBasePrice === 'number'
+                    ? effectiveBasePrice
+                    : productForCart.price,
+              }
+          : isAgendaPlan
+            ? {
+                ...productForCart,
+                name: displayProductName,
+                description: displayProductDescription || productForCart.description,
+                colorName: agendaPlanHasColors
+                  ? selectedAgendaPlanColor
+                  : productForCart.colorName,
+                producerCode: agendaPlanVariantCode ?? productForCart.producerCode,
+                price:
+                  typeof effectiveBasePrice === 'number'
+                    ? effectiveBasePrice
+                    : productForCart.price,
+              }
           : productForCart
     addOfficeProduct(
       cartPayloadProduct,
@@ -2865,7 +3430,12 @@ export function ProductDetailPage() {
         : euroCartVariantForCart ??
             blasettiVariantForCart ??
             pentelVariantForCart ??
-            colorCopyVariantForCart,
+            colorCopyVariantForCart ??
+            agendaAlfaVariantForCart ??
+            agendaDeltaVariantForCart ??
+            agendaTextVariantForCart ??
+            agendaWpSettVariantForCart ??
+            agendaPlanVariantForCart,
     )
     setJustAdded(true)
     window.setTimeout(() => setJustAdded(false), 1200)
@@ -3092,7 +3662,7 @@ export function ProductDetailPage() {
     return (
       <main className="mx-auto max-w-4xl px-4 py-16">
         <p className="text-slate-700">Parametro prodotto mancante.</p>
-        <Link to="/office-products" className="mt-4 inline-block text-brand-700">
+        <Link to="/office-products?catalog=ufficio" className="mt-4 inline-block text-brand-700">
           Torna al catalogo
         </Link>
       </main>
@@ -3125,7 +3695,7 @@ export function ProductDetailPage() {
             : `Nessun articolo in catalogo con codice «${productKey}» (tabella public.products, colonne sku / id).`}
         </p>
         <Link
-          to="/office-products"
+          to="/office-products?catalog=ufficio"
           className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-brand-700"
         >
           <ArrowLeft className="size-4" aria-hidden />
@@ -3143,11 +3713,11 @@ export function ProductDetailPage() {
     <main className="min-h-[60vh] bg-gradient-to-b from-brand-50/50 to-white" data-seo-page="product">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <Link
-          to={catalogBackHref}
+          to={catalogBackNav.href}
           className="inline-flex items-center gap-2 text-sm font-semibold text-brand-700 hover:text-brand-900"
         >
           <ArrowLeft className="size-4" aria-hidden />
-          Torna al catalogo
+          {catalogBackNav.label}
         </Link>
 
         <div className="mt-5 grid gap-6 lg:grid-cols-2 lg:items-start lg:gap-8">
@@ -3406,6 +3976,516 @@ export function ProductDetailPage() {
                     </dd>
                   </div>
                 </dl>
+              </section>
+            ) : null}
+
+            {isAgendaAlfaLine ? (
+              <section className="mt-4" aria-label="Seleziona misura e colore Agenda ALFA">
+                <h2 className="text-sm font-semibold text-slate-900">Scegli Misura</h2>
+                <div
+                  className="mt-2.5 flex flex-row flex-wrap items-center gap-1.5"
+                  aria-label="Seleziona misura agenda"
+                >
+                  <span className="mr-0.5 text-xs font-semibold text-slate-800">Misura:</span>
+                  {agendaAlfaSizeOptions.map((size) => {
+                    const active = agendaAlfaSize?.key === size.key
+                    const target = buildAgendaAlfaLineProduct(size, selectedAgendaAlfaColor)
+                    return (
+                      <Link
+                        key={`agenda-alfa-size-${size.key}`}
+                        to={productDetailPath(target)}
+                        className={[
+                          'inline-flex shrink-0 items-center justify-center rounded-md border px-2 py-1 text-xs font-semibold leading-tight transition',
+                          active
+                            ? 'border-brand-600 bg-brand-600 text-white shadow-sm'
+                            : 'border-slate-300 bg-white text-slate-800 hover:border-brand-400 hover:bg-brand-50/80',
+                        ].join(' ')}
+                        title={`${size.fullLabel} — ${size.sku} — ${eur.format(size.price)} + IVA`}
+                      >
+                        {size.measureLabel}
+                      </Link>
+                    )
+                  })}
+                </div>
+                {agendaAlfaSize ? (
+                  <p className="mt-2 text-xs text-slate-600">
+                    Codice:{' '}
+                    <span className="font-semibold tabular-nums text-slate-900">
+                      {agendaAlfaVariantCode ?? agendaAlfaSize.sku}
+                    </span>
+                    {!isAgendaAlfaSett && agendaAlfaSize.key === '21x30' ? (
+                      <span className="mt-1 block text-slate-500">
+                        Sabato/Domenica separati
+                      </span>
+                    ) : null}
+                  </p>
+                ) : null}
+
+                <h3 className="mt-4 text-sm font-semibold text-slate-900">Scegli Colore</h3>
+                <ul className={binderColorRowClass} aria-label="Seleziona colore copertina">
+                  {AGENDA_ALFA_COLORS.map((color) => {
+                    const selected = selectedAgendaAlfaColor === color
+                    const target =
+                      agendaAlfaSize != null
+                        ? buildAgendaAlfaLineProduct(agendaAlfaSize, color)
+                        : null
+                    const thumbUrl = withOfficeImageCacheBust(
+                      agendaAlfaLineImageUrl(agendaAlfaSize?.sku ?? product.producerCode),
+                      OFFICE_CATALOG_DATA_REVISION,
+                    )
+                    if (!target) return null
+                    return (
+                      <li key={`agenda-alfa-color-${color}`} className="shrink-0">
+                        <Link
+                          to={productDetailPath(target)}
+                          title={`${color} — ${target.producerCode}`}
+                          aria-label={`Colore ${color}`}
+                          aria-current={selected ? 'page' : undefined}
+                          onClick={() => setSelectedAgendaAlfaColor(color)}
+                          onMouseEnter={() => prefetchVariantImage(thumbUrl)}
+                          className={binderColorTileClass}
+                        >
+                          <span
+                            className={[
+                              binderColorThumbBaseClass,
+                              selected
+                                ? `${euroboxColorToneClasses(color)} border-4 shadow-md ${euroboxSelectedGlowClasses(color)}`
+                                : `${euroboxColorToneClasses(color)} border-2 hover:brightness-105`,
+                            ].join(' ')}
+                          >
+                            {thumbUrl ? (
+                              <img
+                                src={thumbUrl}
+                                alt=""
+                                className="size-full object-contain"
+                                loading="lazy"
+                                decoding="async"
+                              />
+                            ) : (
+                              <FileText
+                                className="size-5 text-slate-300"
+                                strokeWidth={1.25}
+                                aria-hidden
+                              />
+                            )}
+                          </span>
+                        </Link>
+                      </li>
+                    )
+                  })}
+                </ul>
+                <p className="mt-3 text-sm text-slate-600">
+                  Colore selezionato:{' '}
+                  <span className="font-semibold text-slate-900">{selectedAgendaAlfaColor}</span>
+                </p>
+              </section>
+            ) : null}
+
+            {isAgendaDeltaLine ? (
+              <section className="mt-4" aria-label="Seleziona misura e colore Agenda DELTA">
+                <h2 className="text-sm font-semibold text-slate-900">Scegli Misura</h2>
+                <div
+                  className="mt-2.5 flex flex-row flex-wrap items-center gap-1.5"
+                  aria-label="Seleziona misura agenda DELTA"
+                >
+                  <span className="mr-0.5 text-xs font-semibold text-slate-800">Misura:</span>
+                  {agendaDeltaSizeOptions.map((size) => {
+                    const active = agendaDeltaSize?.key === size.key
+                    const target = buildAgendaDeltaLineProduct(size, selectedAgendaDeltaColor)
+                    return (
+                      <Link
+                        key={`agenda-delta-size-${size.key}`}
+                        to={productDetailPath(target)}
+                        className={[
+                          'inline-flex shrink-0 items-center justify-center rounded-md border px-2 py-1 text-xs font-semibold leading-tight transition',
+                          active
+                            ? 'border-brand-600 bg-brand-600 text-white shadow-sm'
+                            : 'border-slate-300 bg-white text-slate-800 hover:border-brand-400 hover:bg-brand-50/80',
+                        ].join(' ')}
+                        title={`${size.fullLabel} — ${size.sku} — ${eur.format(size.price)} + IVA`}
+                      >
+                        {size.measureLabel}
+                      </Link>
+                    )
+                  })}
+                </div>
+                {agendaDeltaSize ? (
+                  <p className="mt-2 text-xs text-slate-600">
+                    Codice:{' '}
+                    <span className="font-semibold tabular-nums text-slate-900">
+                      {agendaDeltaVariantCode ?? agendaDeltaSize.sku}
+                    </span>
+                    {!isAgendaDeltaSett ? (
+                      <span className="mt-1 block text-slate-500">
+                        Sabato/Domenica separati
+                      </span>
+                    ) : null}
+                  </p>
+                ) : null}
+
+                <h3 className="mt-4 text-sm font-semibold text-slate-900">Scegli Colore</h3>
+                <ul className={binderColorRowClass} aria-label="Seleziona colore copertina DELTA">
+                  {AGENDA_DELTA_COLORS.map((color) => {
+                    const selected = selectedAgendaDeltaColor === color
+                    const target =
+                      agendaDeltaSize != null
+                        ? buildAgendaDeltaLineProduct(agendaDeltaSize, color)
+                        : null
+                    const thumbUrl = withOfficeImageCacheBust(
+                      agendaDeltaLineImageUrl(agendaDeltaSize?.sku ?? product.producerCode ?? ''),
+                      OFFICE_CATALOG_DATA_REVISION,
+                    )
+                    if (!target) return null
+                    return (
+                      <li key={`agenda-delta-color-${color}`} className="shrink-0">
+                        <Link
+                          to={productDetailPath(target)}
+                          title={`${color} — ${target.producerCode}`}
+                          aria-label={`Colore ${color}`}
+                          aria-current={selected ? 'page' : undefined}
+                          onClick={() => setSelectedAgendaDeltaColor(color)}
+                          onMouseEnter={() => prefetchVariantImage(thumbUrl)}
+                          className={binderColorTileClass}
+                        >
+                          <span
+                            className={[
+                              binderColorThumbBaseClass,
+                              selected
+                                ? `${euroboxColorToneClasses(color)} border-4 shadow-md ${euroboxSelectedGlowClasses(color)}`
+                                : `${euroboxColorToneClasses(color)} border-2 hover:brightness-105`,
+                            ].join(' ')}
+                          >
+                            {thumbUrl ? (
+                              <img
+                                src={thumbUrl}
+                                alt=""
+                                className="size-full object-contain"
+                                loading="lazy"
+                                decoding="async"
+                              />
+                            ) : (
+                              <FileText
+                                className="size-5 text-slate-300"
+                                strokeWidth={1.25}
+                                aria-hidden
+                              />
+                            )}
+                          </span>
+                        </Link>
+                      </li>
+                    )
+                  })}
+                </ul>
+                <p className="mt-3 text-sm text-slate-600">
+                  Colore selezionato:{' '}
+                  <span className="font-semibold text-slate-900">{selectedAgendaDeltaColor}</span>
+                </p>
+              </section>
+            ) : null}
+
+            {isAgendaText ? (
+              <section className="mt-4" aria-label="Seleziona misura e colore Agenda TEXT">
+                <h2 className="text-sm font-semibold text-slate-900">Scegli Misura</h2>
+                <div
+                  className="mt-2.5 flex flex-row flex-wrap items-center gap-1.5"
+                  aria-label="Seleziona misura agenda TEXT"
+                >
+                  <span className="mr-0.5 text-xs font-semibold text-slate-800">Misura:</span>
+                  {AGENDA_TEXT_SIZES.map((size) => {
+                    const active = agendaTextSize?.key === size.key
+                    const target = buildAgendaTextOfficeProduct(size, selectedAgendaTextColor)
+                    return (
+                      <Link
+                        key={`agenda-text-size-${size.key}`}
+                        to={productDetailPath(target)}
+                        className={[
+                          'inline-flex shrink-0 items-center justify-center rounded-md border px-2 py-1 text-xs font-semibold leading-tight transition',
+                          active
+                            ? 'border-brand-600 bg-brand-600 text-white shadow-sm'
+                            : 'border-slate-300 bg-white text-slate-800 hover:border-brand-400 hover:bg-brand-50/80',
+                        ].join(' ')}
+                        title={`${size.fullLabel} — ${size.sku} — ${eur.format(size.price)} + IVA`}
+                      >
+                        {size.measureLabel}
+                      </Link>
+                    )
+                  })}
+                </div>
+                {agendaTextSize ? (
+                  <p className="mt-2 text-xs text-slate-600">
+                    Codice:{' '}
+                    <span className="font-semibold tabular-nums text-slate-900">
+                      {agendaTextVariantCode ?? agendaTextSize.sku}
+                    </span>
+                    <span className="mt-1 block text-slate-500">
+                      Sabato/Domenica separati
+                    </span>
+                  </p>
+                ) : null}
+
+                <h3 className="mt-4 text-sm font-semibold text-slate-900">Scegli Colore</h3>
+                <ul className={binderColorRowClass} aria-label="Seleziona colore copertina TEXT">
+                  {AGENDA_TEXT_COLORS.map((color) => {
+                    const selected = selectedAgendaTextColor === color
+                    const target =
+                      agendaTextSize != null
+                        ? buildAgendaTextOfficeProduct(agendaTextSize, color)
+                        : null
+                    const thumbUrl = withOfficeImageCacheBust(
+                      agendaTextImageUrlForSku(agendaTextSize?.sku ?? product.producerCode ?? ''),
+                      OFFICE_CATALOG_DATA_REVISION,
+                    )
+                    if (!target) return null
+                    return (
+                      <li key={`agenda-text-color-${color}`} className="shrink-0">
+                        <Link
+                          to={productDetailPath(target)}
+                          title={`${color} — ${target.producerCode}`}
+                          aria-label={`Colore ${color}`}
+                          aria-current={selected ? 'page' : undefined}
+                          onClick={() => setSelectedAgendaTextColor(color)}
+                          onMouseEnter={() => prefetchVariantImage(thumbUrl)}
+                          className={binderColorTileClass}
+                        >
+                          <span
+                            className={[
+                              binderColorThumbBaseClass,
+                              selected
+                                ? `${euroboxColorToneClasses(color)} border-4 shadow-md ${euroboxSelectedGlowClasses(color)}`
+                                : `${euroboxColorToneClasses(color)} border-2 hover:brightness-105`,
+                            ].join(' ')}
+                          >
+                            {thumbUrl ? (
+                              <img
+                                src={thumbUrl}
+                                alt=""
+                                className="size-full object-contain"
+                                loading="lazy"
+                                decoding="async"
+                              />
+                            ) : (
+                              <FileText
+                                className="size-5 text-slate-300"
+                                strokeWidth={1.25}
+                                aria-hidden
+                              />
+                            )}
+                          </span>
+                        </Link>
+                      </li>
+                    )
+                  })}
+                </ul>
+                <p className="mt-3 text-sm text-slate-600">
+                  Colore selezionato:{' '}
+                  <span className="font-semibold text-slate-900">{selectedAgendaTextColor}</span>
+                </p>
+              </section>
+            ) : null}
+
+            {isAgendaWpSett ? (
+              <section className="mt-4" aria-label="Seleziona misura e colore Agenda WEEKLY PATTERN">
+                <h2 className="text-sm font-semibold text-slate-900">Scegli Misura</h2>
+                <div
+                  className="mt-2.5 flex flex-row flex-wrap items-center gap-1.5"
+                  aria-label="Seleziona misura agenda WEEKLY PATTERN"
+                >
+                  <span className="mr-0.5 text-xs font-semibold text-slate-800">Misura:</span>
+                  {AGENDA_WP_SETT_SIZES.map((size) => {
+                    const active = agendaWpSettSize?.key === size.key
+                    const target = buildAgendaWpSettOfficeProduct(size, selectedAgendaWpSettColor)
+                    return (
+                      <Link
+                        key={`agenda-wp-sett-size-${size.key}`}
+                        to={productDetailPath(target)}
+                        className={[
+                          'inline-flex shrink-0 items-center justify-center rounded-md border px-2 py-1 text-xs font-semibold leading-tight transition',
+                          active
+                            ? 'border-brand-600 bg-brand-600 text-white shadow-sm'
+                            : 'border-slate-300 bg-white text-slate-800 hover:border-brand-400 hover:bg-brand-50/80',
+                        ].join(' ')}
+                        title={`${size.fullLabel} — ${size.sku} — ${eur.format(size.price)} + IVA`}
+                      >
+                        {size.measureLabel}
+                      </Link>
+                    )
+                  })}
+                </div>
+                {agendaWpSettSize ? (
+                  <p className="mt-2 text-xs text-slate-600">
+                    Codice:{' '}
+                    <span className="font-semibold tabular-nums text-slate-900">
+                      {agendaWpSettVariantCode ?? agendaWpSettSize.sku}
+                    </span>
+                  </p>
+                ) : null}
+
+                <h3 className="mt-4 text-sm font-semibold text-slate-900">Scegli Colore</h3>
+                <ul className={binderColorRowClass} aria-label="Seleziona colore copertina WEEKLY PATTERN">
+                  {AGENDA_WP_SETT_COLORS.map((color) => {
+                    const selected = selectedAgendaWpSettColor === color
+                    const target =
+                      agendaWpSettSize != null
+                        ? buildAgendaWpSettOfficeProduct(agendaWpSettSize, color)
+                        : null
+                    const thumbUrl = withOfficeImageCacheBust(
+                      AGENDA_WP_SETT_IMAGE_URL,
+                      OFFICE_CATALOG_DATA_REVISION,
+                    )
+                    if (!target) return null
+                    return (
+                      <li key={`agenda-wp-sett-color-${color}`} className="shrink-0">
+                        <Link
+                          to={productDetailPath(target)}
+                          title={`${color} — ${target.producerCode}`}
+                          aria-label={`Colore ${color}`}
+                          aria-current={selected ? 'page' : undefined}
+                          onClick={() => setSelectedAgendaWpSettColor(color)}
+                          onMouseEnter={() => prefetchVariantImage(thumbUrl)}
+                          className={binderColorTileClass}
+                        >
+                          <span
+                            className={[
+                              binderColorThumbBaseClass,
+                              selected
+                                ? `${euroboxColorToneClasses(color)} border-4 shadow-md ${euroboxSelectedGlowClasses(color)}`
+                                : `${euroboxColorToneClasses(color)} border-2 hover:brightness-105`,
+                            ].join(' ')}
+                          >
+                            {thumbUrl ? (
+                              <img
+                                src={thumbUrl}
+                                alt=""
+                                className="size-full object-contain"
+                                loading="lazy"
+                                decoding="async"
+                              />
+                            ) : (
+                              <FileText
+                                className="size-5 text-slate-300"
+                                strokeWidth={1.25}
+                                aria-hidden
+                              />
+                            )}
+                          </span>
+                        </Link>
+                      </li>
+                    )
+                  })}
+                </ul>
+                <p className="mt-3 text-sm text-slate-600">
+                  Colore selezionato:{' '}
+                  <span className="font-semibold text-slate-900">{selectedAgendaWpSettColor}</span>
+                </p>
+              </section>
+            ) : null}
+
+            {isAgendaPlan && agendaPlanLine ? (
+              <section className="mt-4" aria-label="Seleziona misura e colore Planning">
+                {agendaPlanIsDatato ? (
+                  <>
+                    <h2 className="text-sm font-semibold text-slate-900">Scegli Misura</h2>
+                    <div
+                      className="mt-2.5 flex flex-row flex-wrap items-center gap-1.5"
+                      aria-label="Seleziona misura planning datato"
+                    >
+                      <span className="mr-0.5 text-xs font-semibold text-slate-800">Misura:</span>
+                      {agendaPlanDatatoLines().map((line) => {
+                        const active = agendaPlanLine.key === line.key
+                        const target = buildAgendaPlanningOfficeProduct(line)
+                        return (
+                          <Link
+                            key={`agenda-plan-size-${line.key}`}
+                            to={productDetailPath(target)}
+                            className={[
+                              'inline-flex shrink-0 items-center justify-center rounded-md border px-2 py-1 text-xs font-semibold leading-tight transition',
+                              active
+                                ? 'border-brand-600 bg-brand-600 text-white shadow-sm'
+                                : 'border-slate-300 bg-white text-slate-800 hover:border-brand-400 hover:bg-brand-50/80',
+                            ].join(' ')}
+                            title={`${line.fullLabel} — ${line.sku} — ${eur.format(line.price)} + IVA`}
+                          >
+                            {line.measureLabel}
+                          </Link>
+                        )
+                      })}
+                    </div>
+                    <p className="mt-2 text-xs text-slate-600">
+                      Codice:{' '}
+                      <span className="font-semibold tabular-nums text-slate-900">
+                        {agendaPlanVariantCode ?? agendaPlanLine.sku}
+                      </span>
+                    </p>
+                  </>
+                ) : null}
+
+                {!agendaPlanIsDatato ? (
+                  <p className="text-xs text-slate-600">
+                    Codice:{' '}
+                    <span className="font-semibold tabular-nums text-slate-900">
+                      {agendaPlanVariantCode ?? agendaPlanLine.sku}
+                    </span>
+                    <span className="mt-1 block text-slate-500">{agendaPlanLine.fullLabel}</span>
+                  </p>
+                ) : null}
+
+                {agendaPlanHasColors ? (
+                  <>
+                    <h3 className="mt-4 text-sm font-semibold text-slate-900">Scegli Colore</h3>
+                    <ul className={binderColorRowClass} aria-label="Seleziona colore planning">
+                      {agendaPlanColorsForLine(agendaPlanLine).map((color) => {
+                        const selected = selectedAgendaPlanColor === color
+                        const target = buildAgendaPlanningOfficeProduct(agendaPlanLine, color)
+                        const thumbUrl = withOfficeImageCacheBust(
+                          agendaPlanLine.imageUrl,
+                          OFFICE_CATALOG_DATA_REVISION,
+                        )
+                        return (
+                          <li key={`agenda-plan-color-${color}`} className="shrink-0">
+                            <Link
+                              to={productDetailPath(target)}
+                              title={`${color} — ${target.producerCode}`}
+                              aria-label={`Colore ${color}`}
+                              aria-current={selected ? 'page' : undefined}
+                              onClick={() => setSelectedAgendaPlanColor(color)}
+                              onMouseEnter={() => prefetchVariantImage(thumbUrl)}
+                              className={binderColorTileClass}
+                            >
+                              <span
+                                className={[
+                                  binderColorThumbBaseClass,
+                                  selected
+                                    ? `${euroboxColorToneClasses(color)} border-4 shadow-md ${euroboxSelectedGlowClasses(color)}`
+                                    : `${euroboxColorToneClasses(color)} border-2 hover:brightness-105`,
+                                ].join(' ')}
+                              >
+                                {thumbUrl ? (
+                                  <img
+                                    src={thumbUrl}
+                                    alt=""
+                                    className="size-full object-contain"
+                                    loading="lazy"
+                                    decoding="async"
+                                  />
+                                ) : (
+                                  <FileText
+                                    className="size-5 text-slate-300"
+                                    strokeWidth={1.25}
+                                    aria-hidden
+                                  />
+                                )}
+                              </span>
+                            </Link>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                    <p className="mt-3 text-sm text-slate-600">
+                      Colore selezionato:{' '}
+                      <span className="font-semibold text-slate-900">{selectedAgendaPlanColor}</span>
+                    </p>
+                  </>
+                ) : null}
               </section>
             ) : null}
 
@@ -5035,7 +6115,10 @@ export function ProductDetailPage() {
             product.technicalDocuments?.length ? undefined : product.catalogPagePdfUrl
           }
           astroMedicalLeadTimes={isAstroMedicalLeadTimes}
+          mainFeatures={product.mainFeatures}
         />
+
+        <OfficeProductGpsrSection product={product} showEmptyPlaceholder />
 
         {product.technicalDocuments?.length ? (
           <SicurezzaTechnicalDocumentsSection documents={product.technicalDocuments} />

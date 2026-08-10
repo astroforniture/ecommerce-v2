@@ -20,11 +20,16 @@ import {
   MacchineCasseDitronPage,
   MacchineDistruggiDocumentiPage,
   MacchineEtichettatriciPage,
+  MacchinePlastificatriciPage,
   MacchineUfficioHubPage,
   MacchineUfficioLayout,
   MacchineVerificaBanconotePage,
 } from './pages/MacchineUfficioPage'
 import { MACCHINE_UFFICIO_BASE_PATH } from './lib/macchineUfficioRoutes'
+import {
+  agendeOfficeProductsHref,
+  agendeSubcategoryFromSlug,
+} from './lib/agendeCatalog'
 import { CartPage } from './pages/CartPage'
 import { HomePage } from './pages/HomePage'
 import { OfficePage } from './pages/OfficePage'
@@ -69,9 +74,21 @@ function LegacyCategoryRoute() {
   if (s === 'cancelleria') return <Navigate to="/office-products?category=Cancelleria" replace />
   if (s === 'carta') return <Navigate to="/office-products?category=Carta" replace />
   if (s === 'archivio') return <Navigate to="/office-products?category=Archivio" replace />
+  if (s === 'agende') return <Navigate to={agendeOfficeProductsHref()} replace />
   if (s === 'macchine-ufficio' || s === 'macchine-per-ufficio')
     return <Navigate to={MACCHINE_UFFICIO_BASE_PATH} replace />
   return <PlaceholderPage />
+}
+
+function AgendeHubRedirect() {
+  return <Navigate to={agendeOfficeProductsHref()} replace />
+}
+
+function AgendeSubcategoryRedirect() {
+  const { subSlug = '' } = useParams<{ subSlug: string }>()
+  const subcategory = agendeSubcategoryFromSlug(subSlug)
+  if (!subcategory) return <Navigate to={agendeOfficeProductsHref()} replace />
+  return <Navigate to={agendeOfficeProductsHref(subcategory)} replace />
 }
 
 function MacchineUfficioLegacyRedirect() {
@@ -112,6 +129,7 @@ export default function App() {
           <Route path="etichettatrici" element={<MacchineEtichettatriciPage />} />
           <Route path="casse-ditron" element={<MacchineCasseDitronPage />} />
           <Route path="verifica-banconote" element={<MacchineVerificaBanconotePage />} />
+          <Route path="plastificatrici-e-materiale" element={<MacchinePlastificatriciPage />} />
         </Route>
         <Route path="/macchine-ufficio/*" element={<MacchineUfficioLegacyRedirect />} />
         <Route path="/distruggidocumenti" element={<DistruggidocumentiPage />} />
@@ -126,6 +144,8 @@ export default function App() {
           path="/cancelleria"
           element={<Navigate to="/office-products?category=Cancelleria" replace />}
         />
+        <Route path="/agende" element={<AgendeHubRedirect />} />
+        <Route path="/agende/:subSlug" element={<AgendeSubcategoryRedirect />} />
         <Route path="/prodotti/:slug" element={<ProductDetailPage />} />
         <Route
           path="/product/:productId"
