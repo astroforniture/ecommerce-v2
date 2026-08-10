@@ -1,44 +1,37 @@
--- Agende: banner Berni, rimuove Perpetue/Tascabili, rinomina Organizer → Planning.
+-- Agende production sync (mirato): banner, sottocategorie, Planning.
 
 -- Banner / cover categoria madre Agende
 update public.office_catalog_categories
 set
-  cover_image_url = 'https://www.bernispa.com/storage/media/51569/alfa.jpg',
-  updated_at = now()
+  cover_image_url = 'https://www.bernispa.com/storage/media/51569/alfa.jpg'
 where slug = 'agende'
    or (parent_id is null and name ilike 'Agende');
 
 -- Cover sottocategorie attive
 update public.office_catalog_categories
 set
-  cover_image_url = 'https://www.bocchiosrl.it/ftp/bocchio/immagini/thumb/A7136AF-1024-1024-0.jpg',
-  updated_at = now()
+  cover_image_url = 'https://www.bocchiosrl.it/ftp/bocchio/immagini/thumb/A7136AF-1024-1024-0.jpg'
 where slug in ('agende-giornaliere', 'giornaliere')
    or name ilike 'Agende Giornaliere';
 
 update public.office_catalog_categories
 set
-  cover_image_url = 'https://www.bocchiosrl.it/ftp/bocchio/immagini/thumb/A7157AF-1024-1024-0.jpg',
-  updated_at = now()
+  cover_image_url = 'https://www.bocchiosrl.it/ftp/bocchio/immagini/thumb/A7157AF-1024-1024-0.jpg'
 where slug in ('agende-settimanali', 'settimanali')
    or name ilike 'Agende Settimanali';
 
 -- Prodotti Organizer → Planning
 update public.products
-set
-  subcategory = 'Agende Planning',
-  updated_at = now()
+set subcategory = 'Agende Planning'
 where category ilike 'Agende'
   and (
     subcategory ilike 'Agende Organizer / Ad Anelli'
     or subcategory ilike 'Agende Organizer'
   );
 
--- Prodotti Perpetue → Planning (sottocategoria eliminata)
+-- Prodotti Perpetue → Planning
 update public.products
-set
-  subcategory = 'Agende Planning',
-  updated_at = now()
+set subcategory = 'Agende Planning'
 where category ilike 'Agende'
   and (
     subcategory ilike 'Agende Perpetue / Undated'
@@ -46,20 +39,24 @@ where category ilike 'Agende'
     or subcategory ilike '%Undated%'
   );
 
--- Rinomina / aggiorna voce catalogo Organizer → Planning
+-- Prodotti Tascabili → Settimanali
+update public.products
+set subcategory = 'Agende Settimanali'
+where category ilike 'Agende'
+  and subcategory ilike 'Agende Tascabili';
+
+-- Rinomina Organizer → Planning
 update public.office_catalog_categories
 set
   name = 'Agende Planning',
   slug = 'agende-planning',
   listing_path = '/agende/planning',
   cover_image_url = 'https://www.bocchiosrl.it/ftp/bocchio/immagini/thumb/A7755AF-1024-1024-0.jpg',
-  is_active = true,
-  updated_at = now()
+  is_active = true
 where slug in ('agende-organizer', 'organizer', 'agende-planning')
    or name ilike 'Agende Organizer%'
    or name ilike 'Agende Planning';
 
--- Se manca la riga Planning, inseriscila
 insert into public.office_catalog_categories (name, slug, listing_path, cover_image_url, parent_id, sort_order, is_active)
 select
   'Agende Planning',
@@ -75,22 +72,17 @@ on conflict (slug) do update set
   name = excluded.name,
   listing_path = excluded.listing_path,
   cover_image_url = excluded.cover_image_url,
-  is_active = true,
-  updated_at = now();
+  is_active = true;
 
--- Disattiva Perpetue (idempotente)
+-- Disattiva Perpetue
 update public.office_catalog_categories
-set
-  is_active = false,
-  updated_at = now()
+set is_active = false
 where slug in ('agende-perpetue', 'perpetue')
    or name ilike 'Agende Perpetue%'
    or name ilike '%Undated%';
 
--- Disattiva Tascabili (idempotente, allineato a 080)
+-- Disattiva Tascabili
 update public.office_catalog_categories
-set
-  is_active = false,
-  updated_at = now()
+set is_active = false
 where slug in ('agende-tascabili', 'tascabili')
    or name ilike 'Agende Tascabili';
