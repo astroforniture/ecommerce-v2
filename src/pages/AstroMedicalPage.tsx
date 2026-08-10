@@ -7,6 +7,7 @@ import { AstroMedicalSearchBar } from '../components/astroMedical/AstroMedicalSe
 import { AstroMedicalShopInfoPanel } from '../components/astroMedical/AstroMedicalShopInfoPanel'
 import { AstroMedicalHealthcareDisclaimer } from '../components/astroMedical/AstroMedicalHealthcareDisclaimer'
 import { AstroMedicalPromoVideoBanner } from '../components/astroMedical/AstroMedicalPromoVideoBanner'
+import { HoverImagePreviewTrigger } from '../components/astroMedical/HoverImagePreviewTrigger'
 import { useOfficeCatalog } from '../hooks/useOfficeCatalog'
 import { normalizeOfficeProductCategory } from '../lib/officeCategories'
 import { mergeLineaAstroMedicalCatalog } from '../data/lineaAstroMedicalCombined'
@@ -122,12 +123,16 @@ export function AstroMedicalPage() {
               correlati).
             </p>
             <p className="mt-4 text-sm text-slate-600">
-              <Link
+              <HoverImagePreviewTrigger
+                as="link"
                 to={lineaAstroMedicalIHealthListingPath()}
-                className="font-semibold text-medical-800 underline decoration-medical-300 underline-offset-2 transition hover:text-medical-950"
+                className="inline-flex"
+                triggerClassName="font-semibold text-medical-800 underline decoration-medical-300 underline-offset-2 transition hover:text-medical-950"
+                placement="top"
+                previewCaption="Catalogo Astro Medical"
               >
                 Vedi nel catalogo Prodotti Ufficio
-              </Link>
+              </HoverImagePreviewTrigger>
             </p>
           </div>
         </header>

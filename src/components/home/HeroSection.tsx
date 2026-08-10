@@ -1,9 +1,14 @@
-import { Link } from 'react-router-dom'
 import { lineaAstroMedicalCatalogPath } from '../../data/iHealthAstroMedicalProducts'
+import { HoverImagePreviewTrigger } from '../astroMedical/HoverImagePreviewTrigger'
 
 const HERO_DECORATIVE_IMAGE_URL = '/Articoli_Cancelleria_Ufficio.jpg'
 
 const ASTRO_LEGATORIA_URL = 'https://astrolegatoria.it/'
+
+/** Anteprime hover (desktop) — Astro Legatoria */
+const RILEGATURE_NOTARILI_PREVIEW_URL =
+  'https://astrolegatoria.it/images/lavorazione-cucitura.jpg'
+const TESI_PREVIEW_URL = 'https://astrolegatoria.it/images/hero-tesi-blu.jpg'
 
 const LINE_CARD_CLASS =
   'block cursor-pointer rounded-2xl bg-[#0A362D] p-6 text-white shadow-sm transition-all duration-200 hover:bg-[#0f4d40] hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2'
@@ -38,36 +43,53 @@ export function HeroSection() {
           </p>
 
           <div className="mt-6 space-y-4">
-            <Link to={lineaAstroMedicalCatalogPath()} className={LINE_CARD_CLASS}>
+            <HoverImagePreviewTrigger
+              as="link"
+              to={lineaAstroMedicalCatalogPath()}
+              className="block w-full"
+              triggerClassName={LINE_CARD_CLASS}
+              placement="right"
+              previewCaption="Visita Astro Medical Shop"
+            >
               <h3 className="mb-2 text-xl font-bold">Astro Medical Shop</h3>
               <p className="text-sm text-gray-200">
                 Linea dedicata ad articoli e apparecchi professionali per il settore medicale.
               </p>
-            </Link>
+            </HoverImagePreviewTrigger>
 
-            <a
+            <HoverImagePreviewTrigger
               href={ASTRO_LEGATORIA_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className={LINE_CARD_CLASS}
+              className="block w-full"
+              triggerClassName={LINE_CARD_CLASS}
+              placement="right"
+              previewImageUrl={RILEGATURE_NOTARILI_PREVIEW_URL}
+              previewAlt="Lavorazione cucitura rilegature notarili"
+              previewCaption="Rilegature Notarili"
             >
               <h3 className="mb-2 text-xl font-bold">Rilegature Notarili</h3>
               <p className="text-sm text-gray-200">
                 Servizi di rilegatura notarile con lavorazioni curate e consegna rapida.
               </p>
-            </a>
+            </HoverImagePreviewTrigger>
 
-            <a
+            <HoverImagePreviewTrigger
               href={ASTRO_LEGATORIA_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className={LINE_CARD_CLASS}
+              className="block w-full"
+              triggerClassName={LINE_CARD_CLASS}
+              placement="right"
+              previewImageUrl={TESI_PREVIEW_URL}
+              previewAlt="Rilegatura tesi con copertina blu"
+              previewCaption="Rilegatura Tesi"
             >
               <h3 className="mb-2 text-xl font-bold">Tesi</h3>
               <p className="text-sm text-gray-200">
                 Stampa e rilegatura tesi con copertine professionali e finiture personalizzate.
               </p>
-            </a>
+            </HoverImagePreviewTrigger>
           </div>
         </div>
       </div>

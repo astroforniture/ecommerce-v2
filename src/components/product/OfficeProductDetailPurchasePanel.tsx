@@ -5,6 +5,7 @@ import { OfficeProductDetailTrustStrip } from './OfficeProductDetailTrustStrip'
 import { ProductQuoteOnlyDetailCtas } from './ProductQuoteOnlyDetailCtas'
 import { ProductWhatsappQuoteButton } from './ProductWhatsappQuoteButton'
 import { AstroMedicalDeliveryBadge } from '../astroMedical/AstroMedicalDeliveryBadge'
+import { DiscountPercentBadge } from '../promo/DiscountPercentBadge'
 
 const eur = new Intl.NumberFormat('it-IT', {
   style: 'currency',
@@ -28,14 +29,20 @@ export type OfficeProductDetailPurchasePanelProps = {
   quantityDiscountTable?: ReactNode
   /** Solo preventivo: nasconde prezzo, quantità e carrello. */
   quoteOnly?: boolean
-  /** Brochure PDF (solo preventivo / schede tecniche). */
+  /** Brochure / descrizione prodotto PDF. */
   brochureUrl?: string | null
+  /** Pagina di catalogo PDF (allegato distinto). */
+  catalogPagePdfUrl?: string | null
   /** Suffisso unità prezzo (default "/ pezzo"). Es. "/ confezione". */
   priceUnitSuffix?: string
   /** Nota sotto il selettore quantità (es. minimo / multipli). */
   quantityRuleHint?: string
   /** Astro Medical Shop: badge e trust strip con tempi 5 gg lavorativi. */
   astroMedicalLeadTimes?: boolean
+  /** Prezzo listino (imponibile) da mostrare barrato se in promo. */
+  compareAtUnitPrice?: number | null
+  /** Percentuale sconto promo (es. 20). */
+  discountPercent?: number | null
 }
 
 /**
@@ -54,30 +61,57 @@ export function OfficeProductDetailPurchasePanel({
   quantityDiscountTable,
   quoteOnly = false,
   brochureUrl,
+  catalogPagePdfUrl,
   priceUnitSuffix = '/ pezzo',
   quantityRuleHint,
   astroMedicalLeadTimes = false,
+  compareAtUnitPrice = null,
+  discountPercent = null,
 }: OfficeProductDetailPurchasePanelProps) {
   const root = ['mt-3 w-full space-y-3', rootClassName].filter(Boolean).join(' ')
+  const showCompare =
+    typeof compareAtUnitPrice === 'number' &&
+    Number.isFinite(compareAtUnitPrice) &&
+    compareAtUnitPrice > unitForQty
+  const showDiscountBadge =
+    typeof discountPercent === 'number' && discountPercent > 0
 
   if (quoteOnly) {
     return (
       <div className={root}>
         {astroMedicalLeadTimes ? <AstroMedicalDeliveryBadge variant="banner" /> : null}
-        <ProductQuoteOnlyDetailCtas productName={productName} brochureUrl={brochureUrl} />
+        <ProductQuoteOnlyDetailCtas
+          productName={productName}
+          brochureUrl={brochureUrl}
+          catalogPagePdfUrl={catalogPagePdfUrl}
+        />
         <OfficeProductDetailTrustStrip astroMedicalLeadTimes={astroMedicalLeadTimes} />
       </div>
     )
   }
 
   const brochure = brochureUrl?.trim() || ''
+  const catalogPdf = catalogPagePdfUrl?.trim() || ''
 
   return (
     <div className={root}>
       {astroMedicalLeadTimes ? <AstroMedicalDeliveryBadge variant="banner" /> : null}
       <div className="rounded-2xl border border-red-400/80 bg-gradient-to-b from-red-50/70 to-white p-4 shadow-sm ring-1 ring-red-200/60">
-        <p className="text-sm font-medium text-slate-500">{priceLineLabel}</p>
-        <p className="mt-1 text-lg font-semibold tabular-nums text-brand-600">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="text-sm font-medium text-slate-500">{priceLineLabel}</p>
+          {showDiscountBadge ? <DiscountPercentBadge percent={discountPercent} /> : null}
+        </div>
+        {showCompare ? (
+          <p className="mt-1 text-sm font-medium tabular-nums text-slate-400 line-through">
+            {eur.format(compareAtUnitPrice)} + IVA
+          </p>
+        ) : null}
+        <p
+          className={[
+            'mt-1 text-lg font-semibold tabular-nums',
+            showCompare ? 'text-red-600' : 'text-brand-600',
+          ].join(' ')}
+        >
           {eur.format(unitForQty)} + IVA{' '}
           <span className="text-base font-normal text-slate-600">{priceUnitSuffix}</span>
         </p>
@@ -125,15 +159,32 @@ export function OfficeProductDetailPurchasePanel({
         <ShoppingCart className="size-4 text-white" aria-hidden />
         {justAdded ? 'Aggiunto al carrello' : 'Aggiungi al carrello'}
       </button>
-      {brochure ? (
-        <a
-          href={brochure}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex w-full items-center justify-center gap-2 rounded-lg border-2 border-brand-700 bg-white px-5 py-3 text-sm font-bold text-brand-900 transition hover:bg-brand-50"
-        >
-          Scarica Brochure PDF (Scheda Tecnica)
-        </a>
+      {brochure || catalogPdf ? (
+        <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">
+            Documenti e Schede Tecniche
+          </p>
+          {brochure ? (
+            <a
+              href={brochure}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border-2 border-brand-700 bg-white px-5 py-3 text-sm font-bold text-brand-900 transition hover:bg-brand-50"
+            >
+              Descrizione prodotto (PDF)
+            </a>
+          ) : null}
+          {catalogPdf ? (
+            <a
+              href={catalogPdf}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-brand-900 transition hover:bg-brand-50"
+            >
+              Pagina di catalogo (PDF)
+            </a>
+          ) : null}
+        </div>
       ) : null}
       <ProductWhatsappQuoteButton productName={productName} />
       <OfficeProductDetailTrustStrip astroMedicalLeadTimes={astroMedicalLeadTimes} />

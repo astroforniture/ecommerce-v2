@@ -724,7 +724,7 @@ export function CartPage() {
                               Ritiro gratuito in negozio
                             </span>
                             <span className="text-slate-600">
-                              Pronto al ritiro presso il punto vendita di Porto Mantovano.
+                              Pronto al ritiro presso il punto vendita di Mantova.
                             </span>
                           </span>
                         </label>

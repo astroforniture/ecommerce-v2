@@ -33,7 +33,7 @@ export function PrivacyPolicyPage() {
         <section id="titolare" className="mt-8 rounded-2xl border border-slate-200 bg-white p-5">
           <h3 className="text-lg font-semibold text-slate-900">1. Titolare del trattamento</h3>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            Il Titolare del trattamento e Astro Forniture s.r.l., con sede in Largo di Porta Pradella 2, Mantova.
+            Il Titolare del trattamento e Astro Forniture s.r.l., con sede in Largo di Porta Pradella, 2, 46100 Mantova MN.
           </p>
         </section>
 

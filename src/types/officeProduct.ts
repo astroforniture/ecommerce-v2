@@ -53,12 +53,28 @@ export interface OfficeProduct {
   /** Sottotitolo / breve descrizione sotto il titolo in PDP. */
   subtitle?: string
   price?: number
+  /** Prezzo di listino (imponibile) prima dello sconto promo; usato per prezzo barrato. */
+  compareAtPrice?: number
+  /** Percentuale sconto promo visibile a FE (es. 20 → badge "-20%"). */
+  discountPercent?: number
   /** Opzionale: colonna `format` su `public.products` (es. buste Mailpack Blasetti). */
   format?: string
   /** Opzionale: EAN-13 su `public.products` (es. Modulistica Edipro). */
   ean?: string
-  /** Opzionale: URL brochure PDF (es. Casse Ditron NEW iDEAL). */
+  /** Opzionale: URL brochure / scheda tecnica PDF (es. Casse Ditron NEW iDEAL, GIMA PrintDataSheet). */
   brochureUrl?: string
+  /** Opzionale: URL pagina di catalogo PDF (allegato distinto dalla scheda tecnica). */
+  catalogPagePdfUrl?: string
+  /**
+   * Documenti tecnici / certificazioni (es. abbigliamento Sicurezza):
+   * scheda fornitore, dichiarazione CE, scheda produttore.
+   */
+  technicalDocuments?: Array<{
+    id: string
+    title: string
+    href: string
+    hint?: string
+  }>
   /** Opzionale: FAQ prodotto (array domande/risposte). */
   faq?: FaqItem[]
   /** Opzionale: ID prodotti correlati specifici (cross-selling). Fallback: regola per categoria. */

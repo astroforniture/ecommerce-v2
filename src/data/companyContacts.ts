@@ -16,15 +16,18 @@ export const COMPANY_PORTO_WHATSAPP_E164 = '393482430910'
 export const COMPANY_EMAIL = 'info@astro-forniture.it'
 export const COMPANY_MAILTO = `mailto:${COMPANY_EMAIL}`
 
+/** Sede ufficiale / punto di ritiro: Mantova. */
+export const COMPANY_ADDRESS_MANTOVA = 'Largo di Porta Pradella, 2, 46100 Mantova MN'
+/** Alias usato in checkout, footer servizi e ritiro. */
+export const COMPANY_ADDRESS_SHORT = COMPANY_ADDRESS_MANTOVA
+export const COMPANY_ADDRESS_PORTO = 'Strada Cisa 7, 46047 Porto Mantovano (MN)'
+
 export const COMPANY_PICKUP_MAPS_URL =
-  'https://www.google.com/maps/place/TuttUfficio+-+Astro+Forniture+-+Buffetti/@45.1577559,10.780641,798m/data=!3m1!1e3!4m6!3m5!1s0x4781d40542969b23:0xa501aea8bfb94f19!8m2!3d45.1574893!4d10.7817291!16s%2Fg%2F1tdc8nkn?entry=ttu'
+  'https://www.google.com/maps/search/?api=1&query=Largo+di+Porta+Pradella,+2,+46100+Mantova+MN'
 
-/** Embed ufficiale Google Maps (TuttUfficio / Astro Forniture / Buffetti). */
+/** Embed Google Maps — sede di ritiro Mantova. */
 export const COMPANY_PICKUP_MAPS_EMBED_URL =
-  'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2816.632731872166!2d10.77915417670731!3d45.15748927107055!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4781d40542969b23%3A0xa501aea8bfb94f19!2sTuttUfficio%20-%20Astro%20Forniture%20-%20Buffetti!5e0!3m2!1sit!2sit!4v1710000000000!5m2!1sit!2sit'
-
-export const COMPANY_ADDRESS_SHORT = 'Strada Cisa 7, 46047 Porto Mantovano (MN)'
-export const COMPANY_ADDRESS_MANTOVA = 'Largo di Porta Pradella 2, 46100 Mantova (MN)'
+  'https://www.google.com/maps?q=Largo+di+Porta+Pradella,+2,+46100+Mantova+MN&output=embed'
 
 export type CompanySeat = {
   id: 'mantova' | 'porto-mantovano'
@@ -48,7 +51,7 @@ export const COMPANY_SEATS: readonly CompanySeat[] = [
   {
     id: 'porto-mantovano',
     title: 'Sede Porto Mantovano',
-    address: COMPANY_ADDRESS_SHORT,
+    address: COMPANY_ADDRESS_PORTO,
     phoneDisplay: COMPANY_PORTO_MOBILE_DISPLAY,
     telHref: COMPANY_PORTO_MOBILE_TEL,
     whatsappHref: `https://wa.me/${COMPANY_PORTO_WHATSAPP_E164}`,

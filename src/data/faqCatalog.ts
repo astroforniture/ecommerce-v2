@@ -23,12 +23,12 @@ export const GLOBAL_FAQ_CATEGORIES: readonly FaqCategory[] = [
       {
         question: 'Quali sono i tempi di consegna?',
         answer:
-          'Per la merce disponibile in pronta consegna spediamo in genere entro 24–48 ore lavorative. I tempi di arrivo dipendono dalla destinazione e dal corriere. Per urgenze o ritiro in sede a Porto Mantovano (MN) chiamaci: organizziamo la soluzione più rapida.',
+          'Per la merce disponibile in pronta consegna spediamo in genere entro 24–48 ore lavorative. I tempi di arrivo dipendono dalla destinazione e dal corriere. Per urgenze o ritiro in sede a Mantova (Largo di Porta Pradella, 2) chiamaci: organizziamo la soluzione più rapida.',
       },
       {
         question: 'Posso ritirare l’ordine in negozio?',
         answer:
-          'Sì. Il ritiro è disponibile presso la nostra sede in Strada Cisa 7, 46047 Porto Mantovano (MN). Ti consigliamo di avvisarci in anticipo così prepariamo la merce e ti confermiamo l’orario.',
+          'Sì. Il ritiro è disponibile presso la nostra sede in Largo di Porta Pradella, 2, 46100 Mantova MN. Ti consigliamo di avvisarci in anticipo così prepariamo la merce e ti confermiamo l’orario.',
       },
       {
         question: 'Come traccio la spedizione?',

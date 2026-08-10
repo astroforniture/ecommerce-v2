@@ -1,9 +1,21 @@
 import { useState } from 'react'
 
+import { HoverImagePreviewTrigger } from '../astroMedical/HoverImagePreviewTrigger'
+
 const ASTRO_LEGATORIA_URL = 'https://www.astrolegatoria.it/'
 
 const BINDING_IMAGE_URL =
   'https://static.wixstatic.com/media/617993_fc197a9f5548452685669861fa2865fc~mv2.jpg/v1/fill/w_320,h_320,q_90,enc_avif,quality_auto/617993_fc197a9f5548452685669861fa2865fc~mv2.jpg'
+
+const RILEGATURE_NOTARILI_PREVIEW_URL =
+  'https://astrolegatoria.it/images/lavorazione-cucitura.jpg'
+const TESI_PREVIEW_URL = 'https://astrolegatoria.it/images/hero-tesi-blu.jpg'
+
+const OPTION_BTN_PRIMARY =
+  'inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-brand-700 px-5 py-4 text-center text-sm font-semibold leading-snug text-white shadow-sm transition hover:bg-brand-800 active:scale-[0.99] sm:py-5 sm:text-base'
+
+const OPTION_BTN_SECONDARY =
+  'inline-flex min-h-[48px] w-full items-center justify-center rounded-xl border-2 border-slate-800 bg-slate-900 px-5 py-4 text-center text-sm font-semibold leading-snug text-white shadow-sm transition hover:border-slate-700 hover:bg-slate-800 active:scale-[0.99] sm:py-5 sm:text-base'
 
 export function BindingServiceBanner() {
   const [showOptions, setShowOptions] = useState(false)
@@ -40,22 +52,32 @@ export function BindingServiceBanner() {
                     Scegli il percorso più adatto a te.
                   </p>
                   <div className="mt-6 flex w-full max-w-xl flex-col gap-3 sm:gap-4">
-                    <a
+                    <HoverImagePreviewTrigger
                       href={ASTRO_LEGATORIA_URL}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-brand-700 px-5 py-4 text-center text-sm font-semibold leading-snug text-white shadow-sm transition hover:bg-brand-800 active:scale-[0.99] sm:py-5 sm:text-base"
+                      className="block w-full"
+                      triggerClassName={OPTION_BTN_PRIMARY}
+                      placement="right"
+                      previewImageUrl={TESI_PREVIEW_URL}
+                      previewAlt="Rilegatura tesi con copertina blu"
+                      previewCaption="Rilegatura Tesi"
                     >
                       Sei uno studente? creiamo la tua tesi!
-                    </a>
-                    <a
+                    </HoverImagePreviewTrigger>
+                    <HoverImagePreviewTrigger
                       href={ASTRO_LEGATORIA_URL}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl border-2 border-slate-800 bg-slate-900 px-5 py-4 text-center text-sm font-semibold leading-snug text-white shadow-sm transition hover:border-slate-700 hover:bg-slate-800 active:scale-[0.99] sm:py-5 sm:text-base"
+                      className="block w-full"
+                      triggerClassName={OPTION_BTN_SECONDARY}
+                      placement="right"
+                      previewImageUrl={RILEGATURE_NOTARILI_PREVIEW_URL}
+                      previewAlt="Lavorazione cucitura rilegature notarili"
+                      previewCaption="Rilegature Notarili"
                     >
                       Preventivi personalizzati per Notai
-                    </a>
+                    </HoverImagePreviewTrigger>
                   </div>
                 </>
               ) : (

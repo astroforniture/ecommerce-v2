@@ -22,6 +22,15 @@ import {
   casseDitronBrochureUrlForProduct,
   isCasseDitronOfficeProductId,
 } from '../data/casseDitronProducts'
+import {
+  applySicurezzaApparelCatalog,
+  buildHorten2LightOfficeProduct,
+  buildLulea2SoftshellOfficeProduct,
+  buildMySen2SoftshellOfficeProduct,
+  buildPortwestTexpelSplashEcoOfficeProduct,
+  buildSocciaSoftshellOfficeProduct,
+  buildSpaceLadySoftshellOfficeProduct,
+} from '../data/sicurezzaApparelCatalog'
 import { parseProductFaq } from '../data/faqCatalog'
 import { searchOfficeProductsClient, setOfficeSearchIndexFromProducts, shouldUseLocalSearchOnly } from '../lib/officeClientSearch'
 import { isGeneralOfficeShopCatalogProduct } from '../lib/isGeneralOfficeShopCatalogProduct'
@@ -45,7 +54,7 @@ import { purchaseQuantityRuleForSku } from '../lib/purchaseQuantity'
  * Aumenta dopo pulizie massicce su `public.products` (es. titoli): nuove `queryKey` in React Query
  * così il client non riusa dati serializzati vecchi con titoli obsoleti.
  */
-export const OFFICE_CATALOG_DATA_REVISION = 250
+export const OFFICE_CATALOG_DATA_REVISION = 258
 
 const SUPPRESSED_PRODUCTS_BY_ID = new Set([
   '55acce14-88cd-4b12-807d-cd2753894639', // Starbox dorso 5 cm arancio (rimozione richiesta)
@@ -93,6 +102,7 @@ const PRODUCT_SHOP_SELECT_FALLBACKS: readonly string[] = [
 
 /** Fetch scheda prodotto: prova prima con `variants` (JSONB misure/colori). */
 const PRODUCT_DETAIL_SELECT_FALLBACKS: readonly string[] = [
+  'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, catalog_page_pdf, datasheet_pdf, pdf_url, faq, related_product_ids, min_order_quantity, order_quantity_step',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq, related_product_ids, min_order_quantity, order_quantity_step',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq, related_product_ids',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq',
@@ -1278,6 +1288,10 @@ type OfficeProductRow = ShopProductRow & {
   format?: string | null
   ean?: string | null
   brochure_url?: string | null
+  catalog_page_pdf?: string | null
+  catalog_page_url?: string | null
+  datasheet_pdf?: string | null
+  pdf_url?: string | null
   subtitle?: string | null
   faq?: unknown
   variants?: unknown
@@ -1361,15 +1375,106 @@ function parseVariantsJson(raw: unknown): ProductVariantOption[] | undefined {
   return undefined
 }
 
-/** Galleria aggiuntiva da `variants.gallery` (array URL), senza trattarla come varianti colore. */
+/** Galleria aggiuntiva da `variants` (gallery / images / gallery_urls / …). */
 function parseImageGalleryFromVariants(raw: unknown): string[] | undefined {
-  if (raw == null || typeof raw !== 'object' || Array.isArray(raw)) return undefined
-  const gallery = (raw as Record<string, unknown>).gallery
-  if (!Array.isArray(gallery)) return undefined
-  const urls = gallery
-    .filter((v): v is string => typeof v === 'string' && v.trim().length > 0)
-    .map((v) => v.trim())
-  return urls.length ? urls : undefined
+  if (raw == null) return undefined
+
+  const collect = (value: unknown): string[] => {
+    if (!Array.isArray(value)) return []
+    return value
+      .map((entry) => {
+        if (typeof entry === 'string') return entry.trim()
+        if (entry && typeof entry === 'object') {
+          const o = entry as Record<string, unknown>
+          const candidate = o.url ?? o.src ?? o.image_url ?? o.imageUrl ?? o.href
+          return typeof candidate === 'string' ? candidate.trim() : ''
+        }
+        return ''
+      })
+      .filter((url) => url.length > 0)
+  }
+
+  if (Array.isArray(raw)) {
+    // Se l'array è già una lista di URL (non opzioni colore), usala come galleria.
+    const asUrls = collect(raw)
+    const looksLikeUrls = asUrls.length > 0 && asUrls.every((u) => /^https?:\/\//i.test(u) || u.startsWith('/'))
+    return looksLikeUrls ? asUrls : undefined
+  }
+
+  if (typeof raw !== 'object') return undefined
+  const obj = raw as Record<string, unknown>
+  const candidates = [
+    obj.gallery,
+    obj.images,
+    obj.gallery_urls,
+    obj.galleryUrls,
+    obj.additional_images,
+    obj.additionalImages,
+    obj.image_urls,
+    obj.imageUrls,
+    obj.image_gallery,
+    obj.imageGallery,
+  ]
+  for (const candidate of candidates) {
+    const urls = collect(candidate)
+    if (urls.length) return urls
+  }
+  return undefined
+}
+
+/** Documenti PDF da colonne dedicate o da allegati in `variants`. */
+function parseProductDocumentUrls(
+  row: OfficeProductRow,
+): { brochureUrl?: string; catalogPagePdfUrl?: string } {
+  const fromRowBrochure = String(row.brochure_url ?? row.pdf_url ?? '').trim()
+  const fromRowCatalog = String(row.catalog_page_pdf ?? row.catalog_page_url ?? '').trim()
+  const fromRowDatasheet = String(row.datasheet_pdf ?? '').trim()
+
+  let brochureFromJson = ''
+  let catalogFromJson = ''
+  const raw = row.variants
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    const obj = raw as Record<string, unknown>
+    const attachments =
+      obj.attachments && typeof obj.attachments === 'object' && !Array.isArray(obj.attachments)
+        ? (obj.attachments as Record<string, unknown>)
+        : null
+    const pick = (...keys: string[]): string => {
+      for (const key of keys) {
+        const direct = obj[key]
+        if (typeof direct === 'string' && direct.trim()) return direct.trim()
+        const nested = attachments?.[key]
+        if (typeof nested === 'string' && nested.trim()) return nested.trim()
+      }
+      return ''
+    }
+    brochureFromJson = pick(
+      'brochure_url',
+      'brochureUrl',
+      'datasheet_pdf',
+      'datasheetPdf',
+      'description_pdf',
+      'descriptionPdf',
+      'pdf_url',
+      'pdfUrl',
+      'scheda_tecnica_pdf',
+      'schedaTecnicaPdf',
+    )
+    catalogFromJson = pick(
+      'catalog_page_pdf',
+      'catalogPagePdf',
+      'catalog_page_url',
+      'catalogPageUrl',
+      'catalog_pdf',
+      'catalogPdf',
+      'pagina_catalogo_pdf',
+      'paginaCatalogoPdf',
+    )
+  }
+
+  const brochureUrl = fromRowBrochure || fromRowDatasheet || brochureFromJson || undefined
+  const catalogPagePdfUrl = fromRowCatalog || catalogFromJson || undefined
+  return { brochureUrl, catalogPagePdfUrl }
 }
 
 function parseRelatedProductIds(raw: unknown): string[] | undefined {
@@ -1583,6 +1688,7 @@ function mapRowToOfficeProduct(row: OfficeProductRow): OfficeProduct {
   const name = normalizeStarlineThreeFlapsName(row.name != null ? String(row.name) : '')
   const category = normalizeOfficeProductCategory(row.category ?? '')
 
+  const docs = parseProductDocumentUrls(row)
   const mapped: OfficeProduct = {
     id: typeof row.id === 'string' ? row.id : String(row.id),
     name,
@@ -1605,7 +1711,8 @@ function mapRowToOfficeProduct(row: OfficeProductRow): OfficeProduct {
     price: Number.isFinite(rawPrice) ? Number(rawPrice) : undefined,
     format: String((row as OfficeProductRow).format ?? '').trim() || undefined,
     ean: String((row as OfficeProductRow).ean ?? '').trim() || undefined,
-    brochureUrl: String((row as OfficeProductRow).brochure_url ?? '').trim() || undefined,
+    brochureUrl: docs.brochureUrl,
+    catalogPagePdfUrl: docs.catalogPagePdfUrl,
     faq: parseProductFaq((row as OfficeProductRow).faq),
     variants: parseVariantsJson(row.variants),
     imageGalleryUrls: parseImageGalleryFromVariants(row.variants),
@@ -1643,24 +1750,26 @@ function mapRowToOfficeProduct(row: OfficeProductRow): OfficeProduct {
   if (mapped.ean && !mapped.mainFeatures.EAN) {
     mapped.mainFeatures = { ...mapped.mainFeatures, EAN: mapped.ean }
   }
-  const withCatalogOverrides = applyEuroboxEsselteCatalog(
-    applyBigSeiRotaCatalog(
-      applySoftSeiRotaCatalog(
-        applyAlteaT3042SeiRotaPricing(
-          applyTrattoVideoHighlighterCatalog(
-            applyPilotHiTecpointCatalog(
-              applyStaedtlerNorisCatalog(
-                applyFermagliZincatiCatalog(
-                  applyImballoProTapeCatalog(
-                    applyZenithPointsCatalog(
-                      applyBicCristal50Catalog(
-                        applyPentelMarkerCatalog(
-                          applyStabiloOhpenCatalog(
-                            applyEuroCartLacciCatalog(
-                              applyStarlineArchiveBoxCatalog(
-                                applyStarlinePunchedEnvelopePricing(
-                                  applyOxfordPricing(
-                                    applyStarboxPricing(applyBlasettiMailpackCatalog(mapped)),
+  const withCatalogOverrides = applySicurezzaApparelCatalog(
+    applyEuroboxEsselteCatalog(
+      applyBigSeiRotaCatalog(
+        applySoftSeiRotaCatalog(
+          applyAlteaT3042SeiRotaPricing(
+            applyTrattoVideoHighlighterCatalog(
+              applyPilotHiTecpointCatalog(
+                applyStaedtlerNorisCatalog(
+                  applyFermagliZincatiCatalog(
+                    applyImballoProTapeCatalog(
+                      applyZenithPointsCatalog(
+                        applyBicCristal50Catalog(
+                          applyPentelMarkerCatalog(
+                            applyStabiloOhpenCatalog(
+                              applyEuroCartLacciCatalog(
+                                applyStarlineArchiveBoxCatalog(
+                                  applyStarlinePunchedEnvelopePricing(
+                                    applyOxfordPricing(
+                                      applyStarboxPricing(applyBlasettiMailpackCatalog(mapped)),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -1778,24 +1887,26 @@ function mapLegacyOfficeRowToOfficeProduct(row: OfficeProductsLegacyRow): Office
     description: row.description?.trim() || undefined,
     price: Number.isFinite(rawPrice) ? Number(rawPrice) : undefined,
   }
-  return applyEuroboxEsselteCatalog(
-    applyBigSeiRotaCatalog(
-      applySoftSeiRotaCatalog(
-        applyAlteaT3042SeiRotaPricing(
-          applyTrattoVideoHighlighterCatalog(
-            applyPilotHiTecpointCatalog(
-              applyStaedtlerNorisCatalog(
-                applyFermagliZincatiCatalog(
-                  applyImballoProTapeCatalog(
-                    applyZenithPointsCatalog(
-                      applyBicCristal50Catalog(
-                        applyPentelMarkerCatalog(
-                          applyStabiloOhpenCatalog(
-                            applyEuroCartLacciCatalog(
-                              applyStarlineArchiveBoxCatalog(
-                                applyStarlinePunchedEnvelopePricing(
-                                  applyOxfordPricing(
-                                    applyStarboxPricing(applyBlasettiMailpackCatalog(mapped)),
+  return applySicurezzaApparelCatalog(
+    applyEuroboxEsselteCatalog(
+      applyBigSeiRotaCatalog(
+        applySoftSeiRotaCatalog(
+          applyAlteaT3042SeiRotaPricing(
+            applyTrattoVideoHighlighterCatalog(
+              applyPilotHiTecpointCatalog(
+                applyStaedtlerNorisCatalog(
+                  applyFermagliZincatiCatalog(
+                    applyImballoProTapeCatalog(
+                      applyZenithPointsCatalog(
+                        applyBicCristal50Catalog(
+                          applyPentelMarkerCatalog(
+                            applyStabiloOhpenCatalog(
+                              applyEuroCartLacciCatalog(
+                                applyStarlineArchiveBoxCatalog(
+                                  applyStarlinePunchedEnvelopePricing(
+                                    applyOxfordPricing(
+                                      applyStarboxPricing(applyBlasettiMailpackCatalog(mapped)),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -3292,8 +3403,8 @@ function looksLikePostgresUuid(s: string): boolean {
 }
 
 function shouldLookupProductByPrimaryId(key: string): boolean {
-  const t = key.trim()
-  return looksLikePostgresUuid(t) || /^\d+$/.test(t)
+  // `products.id` è UUID: non usare SKU numerici (es. 89931) come id primaria.
+  return looksLikePostgresUuid(key.trim())
 }
 
 /** Log strutturato per debug (console del browser): messaggio PostgREST + oggetto originale. */
@@ -3502,6 +3613,12 @@ async function fetchProductRowByIdWithSelectFallbacks(
       )
       continue
     }
+    const code = String((res.error as { code?: string }).code ?? '')
+    const msg = String((res.error as { message?: string }).message ?? '').toLowerCase()
+    // SKU numerici passati per errore come id: non bloccare il fallback catalogo.
+    if (code === '22P02' || msg.includes('invalid input syntax for type uuid')) {
+      return null
+    }
     logSupabasePostgrestError('fetchOfficeProductByIdentifier → id eq', res.error)
     throw res.error
   }
@@ -3527,13 +3644,13 @@ export async function fetchOfficeProductByIdentifier(
   const key = decodeProductPathParam(idOrSku)
   if (!key) return null
 
-  const synthetic = resolveSyntheticOfficeProductByCatalogKey(key)
-  if (synthetic) {
-    return synthetic
-  }
+  // Preferisci sempre `public.products` (galleria, brochure_url, allegati JSON).
+  // I cataloghi statici restano fallback solo se il prodotto non è in DB.
+  const syntheticFallback = resolveSyntheticOfficeProductByCatalogKey(key)
 
   const supabase = getSupabaseBrowserClient()
   if (!supabase) {
+    if (syntheticFallback) return syntheticFallback
     throw new Error(
       'Supabase non configurato (mancano VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY)',
     )
@@ -3548,7 +3665,51 @@ export async function fetchOfficeProductByIdentifier(
     row = await fetchProductRowByIdWithSelectFallbacks(supabase, key)
   }
 
+  // Preferisci cataloghi noti (Horten2 / Portwest Texpel) prima del probe gima-* su SKU numerici.
+  if (!row && (key === '89931' || key === '89930' || key.toLowerCase() === 'horten2')) {
+    return buildHorten2LightOfficeProduct()
+  }
+  if (!row && key === '105192') {
+    return buildPortwestTexpelSplashEcoOfficeProduct()
+  }
+  if (!row && key === '104546') {
+    return buildLulea2SoftshellOfficeProduct()
+  }
+  if (!row && key === '86181') {
+    return buildMySen2SoftshellOfficeProduct()
+  }
+  if (!row && key === '104541') {
+    return buildSocciaSoftshellOfficeProduct()
+  }
+  if (!row && key === '97983') {
+    return buildSpaceLadySoftshellOfficeProduct()
+  }
+
+  // Alcuni SKU medicali in URL sono `gima-XXXXX` mentre in DB possono essere solo numerici (o viceversa).
+  if (!row && /^gima-\d+/i.test(key)) {
+    const numericSku = key.replace(/^gima-/i, '').trim()
+    if (numericSku) {
+      row = await fetchProductRowBySkuWithSelectFallbacks(supabase, escapeIlikePattern(numericSku))
+    }
+  } else if (
+    !row &&
+    /^\d{4,}$/.test(key) &&
+    key !== '89931' &&
+    key !== '89930' &&
+    key !== '105192' &&
+    key !== '104546' &&
+    key !== '86181' &&
+    key !== '104541' &&
+    key !== '97983'
+  ) {
+    row = await fetchProductRowBySkuWithSelectFallbacks(
+      supabase,
+      escapeIlikePattern(`gima-${key}`),
+    )
+  }
+
   if (!row) {
+    if (syntheticFallback) return syntheticFallback
     // Fallback solo se il SKU storico del configuratore non è ancora in DB.
     if (timbroMatchesUrlKey(key)) {
       return buildTimbroAziendeFarmacieOfficeProduct()
@@ -3570,6 +3731,22 @@ export async function fetchOfficeProductByIdentifier(
   }
 
   let product = mapRowToOfficeProduct(row)
+  // Se il catalogo statico ha campi utili mancanti in DB, integra senza sovrascrivere galleria/PDF DB.
+  if (syntheticFallback) {
+    product = {
+      ...syntheticFallback,
+      ...product,
+      imageUrl: product.imageUrl || syntheticFallback.imageUrl,
+      imageGalleryUrls: product.imageGalleryUrls?.length
+        ? product.imageGalleryUrls
+        : syntheticFallback.imageGalleryUrls,
+      brochureUrl: product.brochureUrl || syntheticFallback.brochureUrl,
+      catalogPagePdfUrl: product.catalogPagePdfUrl || syntheticFallback.catalogPagePdfUrl,
+      description: product.description || syntheticFallback.description,
+      subtitle: product.subtitle || syntheticFallback.subtitle,
+      faq: product.faq?.length ? product.faq : syntheticFallback.faq,
+    }
+  }
   if (detectStarlineCartellinaModelKindFromNameAndBrand(product.name, product.brand)) {
     product = enrichOfficeProductImageFromVariants(product)
   }

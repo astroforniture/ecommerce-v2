@@ -11,8 +11,10 @@ import { COMPANY_LANDLINE_DISPLAY, COMPANY_LANDLINE_TEL } from '../../data/compa
 
 type DescriptionProps = {
   description: string
-  /** Link brochure PDF opzionale (es. NEW iDEAL). */
+  /** Link brochure / scheda tecnica / descrizione prodotto PDF. */
   brochureUrl?: string | null
+  /** Link pagina di catalogo PDF (allegato distinto). */
+  catalogPagePdfUrl?: string | null
   /** Astro Medical: testi spedizione su ordinazione (5 gg). */
   astroMedicalLeadTimes?: boolean
 }
@@ -52,13 +54,16 @@ const WHATSAPP_SUPPORT_HREF = `https://wa.me/${CATEGORY_PROMO_WHATSAPP_NUMBER}?t
 export function OfficeProductDetailDescriptionSection({
   description,
   brochureUrl,
+  catalogPagePdfUrl,
   astroMedicalLeadTimes = false,
 }: DescriptionProps) {
   const text = description.trim()
   const body = text
     ? text
     : 'Scheda prodotto in aggiornamento: per scheda tecnica dettagliata, compatibilità e disponibilità contatta il nostro ufficio commerciale.'
-  const brochure = brochureUrl?.trim() || ''
+  const descriptionPdf = brochureUrl?.trim() || ''
+  const catalogPdf = catalogPagePdfUrl?.trim() || ''
+  const hasDocuments = Boolean(descriptionPdf || catalogPdf)
 
   const valueBlocks: ProductValueBlock[] = astroMedicalLeadTimes
     ? [
@@ -77,16 +82,39 @@ export function OfficeProductDetailDescriptionSection({
       <h2 className="text-base font-semibold tracking-wide text-slate-600">DESCRIZIONE PRODOTTO</h2>
       <p className="mt-3 whitespace-pre-wrap text-base leading-relaxed text-slate-700">{body}</p>
 
-      {brochure ? (
-        <a
-          href={brochure}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-5 inline-flex w-full items-center justify-center gap-2.5 rounded-xl border-2 border-brand-700 bg-brand-800 px-5 py-3.5 text-sm font-bold text-white shadow-md transition hover:bg-brand-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 sm:w-auto sm:text-base"
-        >
-          <FileDown className="size-5 shrink-0" aria-hidden />
-          Scarica Brochure PDF (Scheda Tecnica)
-        </a>
+      {hasDocuments ? (
+        <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50/80 p-4 sm:p-5">
+          <h3 className="text-sm font-semibold tracking-wide text-slate-800 sm:text-base">
+            Documenti e Schede Tecniche
+          </h3>
+          <p className="mt-1 text-sm text-slate-600">
+            Scarica o apri in anteprima i documenti disponibili per questo articolo.
+          </p>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            {descriptionPdf ? (
+              <a
+                href={descriptionPdf}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-full items-center justify-center gap-2.5 rounded-xl border-2 border-brand-700 bg-brand-800 px-5 py-3.5 text-sm font-bold text-white shadow-md transition hover:bg-brand-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 sm:w-auto sm:text-base"
+              >
+                <FileDown className="size-5 shrink-0" aria-hidden />
+                Descrizione prodotto (PDF)
+              </a>
+            ) : null}
+            {catalogPdf ? (
+              <a
+                href={catalogPdf}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-full items-center justify-center gap-2.5 rounded-xl border-2 border-slate-300 bg-white px-5 py-3.5 text-sm font-bold text-brand-900 shadow-sm transition hover:border-brand-400 hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 sm:w-auto sm:text-base"
+              >
+                <FileDown className="size-5 shrink-0" aria-hidden />
+                Pagina di catalogo (PDF)
+              </a>
+            ) : null}
+          </div>
+        </div>
       ) : null}
 
       <div className="mt-8 border-t border-slate-100 pt-8">

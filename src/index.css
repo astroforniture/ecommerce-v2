@@ -83,3 +83,30 @@ body {
   }
 }
 
+/* Hover preview catalogo GIMA — solo dispositivi con hover reale (no touch sticky). */
+.hover-preview-panel {
+  visibility: hidden;
+  opacity: 0;
+  transform: scale(0.95);
+  transition:
+    opacity 200ms ease-out,
+    transform 200ms ease-out,
+    visibility 200ms ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hover-preview-trigger:hover .hover-preview-panel,
+  .hover-preview-trigger:focus-within .hover-preview-panel {
+    visibility: visible;
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hover-preview-panel {
+    transition: none;
+  }
+}
+
+

@@ -33,6 +33,18 @@ import {
   resolveSacbollProductByCatalogKey,
 } from '../data/sacbollBuste'
 import {
+  buildHorten2LightOfficeProduct,
+  buildLulea2SoftshellOfficeProduct,
+  buildMySen2SoftshellOfficeProduct,
+  buildPortwestTexpelSplashEcoOfficeProduct,
+  buildSocciaSoftshellOfficeProduct,
+  buildSpaceLadySoftshellOfficeProduct,
+} from '../data/sicurezzaApparelCatalog'
+import {
+  SICUREZZA_SUBCATEGORY_GIACCHE,
+  sicurezzaCategoryHref,
+} from './sicurezzaCatalog'
+import {
   modulisticaCategoryHref,
   resolveModulisticaProductByCatalogKey,
 } from '../data/modulisticaCatalog'
@@ -202,6 +214,24 @@ export function resolveSyntheticOfficeProductByCatalogKey(key: string): OfficePr
   if (k.startsWith('gima-')) {
     return resolveLineaAstroMedicalSyntheticByGimaId(k)
   }
+  if (k === '89931' || k === '89930') {
+    return buildHorten2LightOfficeProduct()
+  }
+  if (k === '105192') {
+    return buildPortwestTexpelSplashEcoOfficeProduct()
+  }
+  if (k === '104546') {
+    return buildLulea2SoftshellOfficeProduct()
+  }
+  if (k === '86181') {
+    return buildMySen2SoftshellOfficeProduct()
+  }
+  if (k === '104541') {
+    return buildSocciaSoftshellOfficeProduct()
+  }
+  if (k === '97983') {
+    return buildSpaceLadySoftshellOfficeProduct()
+  }
   return null
 }
 
@@ -259,6 +289,18 @@ export function staticSyntheticOfficeListingPath(product: Pick<OfficeProduct, 'i
     id.startsWith('gima-')
   ) {
     return lineaAstroMedicalIHealthListingPath()
+  }
+  if (
+    id === '89931' ||
+    id === '89930' ||
+    id === '89929' ||
+    id === '105192' ||
+    id === '104546' ||
+    id === '86181' ||
+    id === '104541' ||
+    id === '97983'
+  ) {
+    return sicurezzaCategoryHref(SICUREZZA_SUBCATEGORY_GIACCHE)
   }
   return '/office-products?category=Cancelleria'
 }

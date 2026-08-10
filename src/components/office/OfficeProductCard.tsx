@@ -19,6 +19,7 @@ import { isQuoteOnlyOfficeProduct } from '../../data/casseDitronProducts'
 import { isOfficeProductAstroMedicalLine } from '../../lib/isOfficeProductAstroMedicalLine'
 import { AstroMedicalDeliveryBadge } from '../astroMedical/AstroMedicalDeliveryBadge'
 import { ProductQuoteRequestButton } from '../product/ProductQuoteRequestButton'
+import { DiscountPercentBadge } from '../promo/DiscountPercentBadge'
 
 const eur = new Intl.NumberFormat('it-IT', {
   style: 'currency',
@@ -66,6 +67,17 @@ export function OfficeProductCard({
     product.quantityPriceTiers,
     1,
   )
+  const compareAt =
+    typeof product.compareAtPrice === 'number' &&
+    product.compareAtPrice > unitImponible
+      ? product.compareAtPrice
+      : null
+  const discountPercent =
+    typeof product.discountPercent === 'number' && product.discountPercent > 0
+      ? product.discountPercent
+      : compareAt
+        ? Math.round((1 - unitImponible / compareAt) * 100)
+        : null
   const quantityDiscountHint = product.quantityPriceTiers
     ?.slice()
     .sort((a, b) => a.minQuantity - b.minQuantity)[0]
@@ -117,6 +129,12 @@ export function OfficeProductCard({
             <FileText className={compactGrid ? 'size-10' : 'size-14'} strokeWidth={1.5} />
           </div>
         )}
+        {discountPercent ? (
+          <DiscountPercentBadge
+            percent={discountPercent}
+            className="absolute left-2 top-2 z-10"
+          />
+        ) : null}
       </Link>
 
       <div className={`flex flex-1 flex-col ${cardPad}`}>
@@ -148,7 +166,12 @@ export function OfficeProductCard({
         >
           {!isQuoteOnly ? (
             <div>
-              <p className={priceCls}>
+              {compareAt ? (
+                <p className="text-xs font-medium tabular-nums text-slate-400 line-through sm:text-sm">
+                  {eur.format(compareAt)}
+                </p>
+              ) : null}
+              <p className={compareAt ? `${priceCls} text-red-600` : priceCls}>
                 {eur.format(unitImponible)} + IVA
               </p>
               {!suppressQuantityTierHint && quantityDiscountHint ? (

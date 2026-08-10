@@ -6,6 +6,7 @@ import { effectiveUnitPrice } from '../../lib/quantityPricing'
 import { productDetailPath } from '../../lib/productRoutes'
 import { withOfficeImageCacheBust } from '../../lib/officeImageCacheBust'
 import { OFFICE_CATALOG_DATA_REVISION } from '../../api/officeProductsSupabase'
+import { DiscountPercentBadge } from '../promo/DiscountPercentBadge'
 
 const eur = new Intl.NumberFormat('it-IT', {
   style: 'currency',
@@ -25,6 +26,15 @@ export function CompactOfficeProductCard({ product, disableDetailLink }: Props) 
     setImgOk(true)
   }, [product.id, product.imageUrl])
   const unitImponible = effectiveUnitPrice(product.price, product.quantityPriceTiers, 1)
+  const compareAt =
+    typeof product.compareAtPrice === 'number' &&
+    product.compareAtPrice > unitImponible
+      ? product.compareAtPrice
+      : null
+  const discountPercent =
+    typeof product.discountPercent === 'number' && product.discountPercent > 0
+      ? product.discountPercent
+      : null
   const displayTitle = product.name.trim()
   const imageUrl = withOfficeImageCacheBust(product.imageUrl, OFFICE_CATALOG_DATA_REVISION)
   const to = productDetailPath(product)
@@ -48,15 +58,33 @@ export function CompactOfficeProductCard({ product, disableDetailLink }: Props) 
             <FileText className="size-10" strokeWidth={1.25} />
           </div>
         )}
+        {discountPercent ? (
+          <DiscountPercentBadge
+            percent={discountPercent}
+            className="absolute left-1.5 top-1.5 z-10"
+          />
+        ) : null}
       </div>
       <div className="flex flex-1 flex-col justify-between gap-1 px-2.5 pb-2.5 pt-1">
         <h3 className="line-clamp-2 min-h-[2.5rem] text-xs font-semibold leading-snug text-slate-900 sm:text-[13px]">
           {displayTitle}
         </h3>
-        <p className="text-xs font-bold tabular-nums text-brand-800 sm:text-sm">
-          {eur.format(unitImponible)}
-          <span className="ml-0.5 text-[10px] font-semibold text-slate-500">+ IVA</span>
-        </p>
+        <div>
+          {compareAt ? (
+            <p className="text-[10px] font-medium tabular-nums text-slate-400 line-through">
+              {eur.format(compareAt)}
+            </p>
+          ) : null}
+          <p
+            className={[
+              'text-xs font-bold tabular-nums sm:text-sm',
+              compareAt ? 'text-red-600' : 'text-brand-800',
+            ].join(' ')}
+          >
+            {eur.format(unitImponible)}
+            <span className="ml-0.5 text-[10px] font-semibold text-slate-500">+ IVA</span>
+          </p>
+        </div>
       </div>
     </>
   )

@@ -14,6 +14,7 @@ import {
   GIMA_COMPLETE_CATALOG_COVER_IMAGE_URL,
   GIMA_COMPLETE_CATALOG_PDF_URL,
 } from '../../lib/astroMedicalShopCopy'
+import { HoverImagePreviewTrigger } from './HoverImagePreviewTrigger'
 
 type Props = {
   className?: string
@@ -26,14 +27,14 @@ export function AstroMedicalShopInfoPanel({ className }: Props) {
   return (
     <div className={['mt-8 space-y-4', className].filter(Boolean).join(' ')}>
       <aside
-        className="relative overflow-hidden rounded-2xl border border-medical-200 bg-gradient-to-br from-medical-50 via-white to-teal-50/80 p-5 shadow-sm ring-1 ring-medical-100/80 sm:p-6"
+        className="relative overflow-visible rounded-2xl border border-medical-200 bg-gradient-to-br from-medical-50 via-white to-teal-50/80 p-5 shadow-sm ring-1 ring-medical-100/80 sm:p-6"
         aria-labelledby="astro-medical-gima-catalog-heading"
       >
         <div
           className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-medical-200/30 blur-2xl"
           aria-hidden
         />
-        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
+        <div className="relative z-[1] flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
           <div className="flex min-w-0 flex-1 flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
             <a
               href={GIMA_COMPLETE_CATALOG_PDF_URL}
@@ -75,15 +76,18 @@ export function AstroMedicalShopInfoPanel({ className }: Props) {
               <p className="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
                 {ASTRO_MEDICAL_CATALOG_PROMO_DESCRIPTION}
               </p>
-              <a
+              <HoverImagePreviewTrigger
                 href={GIMA_COMPLETE_CATALOG_PDF_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-medical-800 px-5 py-3 text-sm font-bold text-white shadow-md shadow-medical-800/20 transition hover:bg-medical-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-medical-500/50 focus-visible:ring-offset-2 sm:w-auto"
+                className="mt-5 w-full sm:w-auto"
+                triggerClassName="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-medical-800 px-5 py-3 text-sm font-bold text-white shadow-md shadow-medical-800/20 transition hover:bg-medical-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-medical-500/50 focus-visible:ring-offset-2 sm:w-auto"
+                placement="top"
+                previewCaption="Catalogo Generale GIMA (PDF)"
               >
                 <Download className="size-4 shrink-0" aria-hidden />
                 {ASTRO_MEDICAL_CATALOG_CTA_LABEL}
-              </a>
+              </HoverImagePreviewTrigger>
             </div>
           </div>
 

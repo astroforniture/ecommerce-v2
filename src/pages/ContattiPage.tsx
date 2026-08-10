@@ -26,8 +26,8 @@ export function ContattiPage() {
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-700">Servizio clienti</p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Contattaci</h1>
           <p className="mt-3 max-w-2xl text-base leading-relaxed text-slate-600">
-            Due sedi a disposizione per assistenza, preventivi e ritiro merce. Scrivici su WhatsApp o via email:
-            rispondiamo rapidamente.
+            Due sedi a disposizione per assistenza e preventivi. Il ritiro merce è presso la sede di Mantova
+            (Largo di Porta Pradella, 2). Scrivici su WhatsApp o via email: rispondiamo rapidamente.
           </p>
         </header>
 
@@ -41,7 +41,7 @@ export function ContattiPage() {
               decoding="async"
             />
             <figcaption className="border-t border-slate-100 px-4 py-3 text-sm text-slate-600">
-              {COMPANY_TRADE_NAME} — sedi di Mantova e Porto Mantovano
+              {COMPANY_TRADE_NAME} — sede ufficiale Largo di Porta Pradella, 2, Mantova
             </figcaption>
           </figure>
 
@@ -101,7 +101,7 @@ export function ContattiPage() {
               rel="noopener noreferrer"
               className="inline-flex text-sm font-semibold text-brand-800 underline-offset-2 hover:underline"
             >
-              Apri la mappa della sede di ritiro (Porto Mantovano)
+              Apri la mappa della sede di ritiro (Mantova)
             </a>
           </div>
         </div>

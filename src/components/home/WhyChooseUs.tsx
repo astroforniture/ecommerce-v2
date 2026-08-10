@@ -8,7 +8,7 @@ import {
   Truck,
 } from 'lucide-react'
 
-type StrengthTone = 'brand' | 'emerald'
+type StrengthTone = 'medical'
 
 type StrengthItem = {
   icon: LucideIcon
@@ -19,44 +19,43 @@ type StrengthItem = {
 const STRENGTHS: readonly StrengthItem[] = [
   {
     icon: MapPin,
-    text: 'Sede fisica a Porto Mantovano',
-    tone: 'brand',
+    text: 'Sede fisica a Mantova',
+    tone: 'medical',
   },
   {
     icon: Truck,
     text: 'Consegna diretta in zona Mantova',
-    tone: 'emerald',
+    tone: 'medical',
   },
   {
     icon: FileText,
     text: 'Fatturazione elettronica',
-    tone: 'brand',
+    tone: 'medical',
   },
   {
     icon: MessageSquare,
     text: 'Assistenza telefonica e WhatsApp',
-    tone: 'emerald',
+    tone: 'medical',
   },
   {
     icon: Briefcase,
     text: 'Prezzi riservati per aziende',
-    tone: 'brand',
+    tone: 'medical',
   },
   {
     icon: Building2,
     text: 'Forniture continuative per uffici, scuole e professionisti',
-    tone: 'emerald',
+    tone: 'medical',
   },
 ] as const
 
 const ICON_TONE_CLASS: Record<StrengthTone, string> = {
-  brand: 'bg-brand-100 text-brand-700 ring-brand-200/60',
-  emerald: 'bg-emerald-100 text-emerald-700 ring-emerald-200/60',
+  medical: 'bg-medical-100 text-medical-700 ring-medical-200/70',
 }
 
 function StrengthCard({ icon: Icon, text, tone }: StrengthItem) {
   return (
-    <article className="flex items-start gap-4 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md">
+    <article className="flex items-start gap-4 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition hover:border-medical-200 hover:bg-medical-50/40 hover:shadow-md">
       <span
         className={`flex size-12 shrink-0 items-center justify-center rounded-xl ring-1 ${ICON_TONE_CLASS[tone]}`}
         aria-hidden

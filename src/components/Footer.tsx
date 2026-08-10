@@ -8,6 +8,7 @@ import {
   COMPANY_MAILTO,
   COMPANY_MOBILE_DISPLAY,
   COMPANY_MOBILE_TEL,
+  COMPANY_ADDRESS_SHORT,
   COMPANY_PICKUP_MAPS_URL,
   COMPANY_TRADE_NAME,
 } from '../data/companyContacts'
@@ -76,7 +77,7 @@ const Footer = () => {
           <div className="space-y-1.5 text-sm leading-relaxed md:text-left">
             <p className="font-semibold text-slate-900">{COMPANY_TRADE_NAME}</p>
             <p>Astro Forniture di Borella Mario</p>
-            <p>Sede: Str Cisa 7 - 46047 Porto M.no (MN)</p>
+            <p>Sede: {COMPANY_ADDRESS_SHORT}</p>
             <p className="text-xs text-slate-600 sm:text-sm">
               C.F.: BRLMRA78D11L750E - P.IVA: 02383560204
             </p>

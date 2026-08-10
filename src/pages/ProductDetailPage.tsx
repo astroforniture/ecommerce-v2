@@ -109,6 +109,7 @@ import {
 import { isPunchedEnvelopeProduct } from '../lib/punchedEnvelope'
 import { isTimbroAziendeFarmacieProduct } from '../lib/timbroAziendeFarmacieProduct'
 import { isOfficeProductAstroMedicalLine } from '../lib/isOfficeProductAstroMedicalLine'
+import { lineaAstroMedicalCatalogPath } from '../data/iHealthAstroMedicalProducts'
 import { TimbroAziendeFarmacieDetail } from '../components/product/TimbroAziendeFarmacieDetail'
 import { OfficeProductDetailPurchasePanel } from '../components/product/OfficeProductDetailPurchasePanel'
 import { AstroMedicalHealthcareDisclaimer } from '../components/astroMedical/AstroMedicalHealthcareDisclaimer'
@@ -119,6 +120,11 @@ import {
   OfficeProductDetailDescriptionSection,
   OfficeProductDetailRelatedSection,
 } from '../components/product/OfficeProductDetailMetaSections'
+import { SicurezzaTechnicalDocumentsSection } from '../components/product/SicurezzaTechnicalDocumentsSection'
+import {
+  areSicurezzaApparelSizeVariants,
+  extractApparelSizeFromProduct,
+} from '../data/sicurezzaApparelCatalog'
 import {
   isStaticSyntheticOfficeProduct,
   staticSyntheticOfficeListingPath,
@@ -787,10 +793,17 @@ export function ProductDetailPage() {
     () => Boolean(product && isOfficeProductAstroMedicalLine(product)),
     [product],
   )
+  const catalogBackHref = useMemo(() => {
+    if (!product) return '/office-products'
+    if (isOfficeProductAstroMedicalLine(product)) return lineaAstroMedicalCatalogPath()
+    if (isStaticSyntheticOfficeProduct(product)) return staticSyntheticOfficeListingPath(product)
+    return '/office-products'
+  }, [product])
   const syntheticGalleryImageUrls = useMemo(() => {
     if (!product) return [] as string[]
     const hasExtra = (product.imageGalleryUrls?.length ?? 0) > 0
-    if (!isStaticSynthetic && !hasExtra) return [] as string[]
+    // Galleria per tutte le categorie quando `imageGalleryUrls` è valorizzato (Medical, Sicurezza, Ufficio…).
+    if (!hasExtra && !isStaticSynthetic) return [] as string[]
     const raw = [product.imageUrl, ...(product.imageGalleryUrls ?? [])]
     const seen = new Set<string>()
     const out: string[] = []
@@ -1779,9 +1792,9 @@ export function ProductDetailPage() {
   }, [isPentelMarker, effectivePentelProduct?.id, effectivePentelProduct?.imageUrl])
 
   useEffect(() => {
-    if (!isStaticSynthetic) return
+    if (syntheticGalleryImageUrls.length <= 1 && !isStaticSynthetic) return
     setImgOk(true)
-  }, [isStaticSynthetic, syntheticGalleryIdx])
+  }, [isStaticSynthetic, syntheticGalleryIdx, syntheticGalleryImageUrls.length])
 
   useEffect(() => {
     if (!isPentelMarker) return
@@ -1802,7 +1815,15 @@ export function ProductDetailPage() {
   useEffect(() => {
     const list = product?.variants
     if (list && list.length > 0) {
-      setSelectedJsonVariant(list[0])
+      if (areSicurezzaApparelSizeVariants(list)) {
+        const preferred = extractApparelSizeFromProduct(product)
+        const match = preferred
+          ? list.find((v) => v.label.toUpperCase() === preferred.toUpperCase())
+          : null
+        setSelectedJsonVariant(match ?? list.find((v) => v.label === 'M') ?? list[0])
+      } else {
+        setSelectedJsonVariant(list[0])
+      }
     } else {
       setSelectedJsonVariant(null)
     }
@@ -2336,6 +2357,7 @@ export function ProductDetailPage() {
   // già pronto per miniature varianti (colore/dorso) appena i nuovi SKU verranno aggiunti.
   const showJsonVariants =
     hasJsonVariants && !product?.parentSku?.trim() && !suppressFamilyJsonVariants
+  const isApparelSizeVariants = areSicurezzaApparelSizeVariants(jsonVariants)
 
   const representativeId = useMemo(() => {
     const ids = scopedFamilyMembers.map((m) => m.id).filter(Boolean)
@@ -2698,6 +2720,7 @@ export function ProductDetailPage() {
     if (isQuoteOnlyOfficeProduct(product)) return
     if (isPackSizeVariant && !selectedJsonVariant) return
     if (showJsonVariants && !selectedJsonVariant && !isStaticSynthetic) return
+    if (isApparelSizeVariants && !selectedJsonVariant) return
     const cartBaseProduct = isPentelMarker
       ? effectivePentelProduct ?? product
       : isBlasettiMailpack
@@ -3120,11 +3143,7 @@ export function ProductDetailPage() {
     <main className="min-h-[60vh] bg-gradient-to-b from-brand-50/50 to-white" data-seo-page="product">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <Link
-          to={
-            product && isStaticSyntheticOfficeProduct(product)
-              ? staticSyntheticOfficeListingPath(product)
-              : '/office-products'
-          }
+          to={catalogBackHref}
           className="inline-flex items-center gap-2 text-sm font-semibold text-brand-700 hover:text-brand-900"
         >
           <ArrowLeft className="size-4" aria-hidden />
@@ -3139,7 +3158,9 @@ export function ProductDetailPage() {
                 key={`pdp-hero-${product.id}-${heroImageUrl}`}
                 src={heroImageUrl}
                 alt={`${displayProductName} — SKU ${
-                  isSacbollSizeVariant && selectedJsonVariant?.sku
+                  isApparelSizeVariants && selectedJsonVariant?.sku
+                    ? selectedJsonVariant.sku
+                    : isSacbollSizeVariant && selectedJsonVariant?.sku
                     ? selectedJsonVariant.sku
                     : isStarlineCartellina
                       ? (effectiveCartellinaProduct?.producerCode ?? product.producerCode)
@@ -4183,7 +4204,78 @@ export function ProductDetailPage() {
               </section>
             ) : null}
 
-            {showJsonVariants && !isPackSizeVariant ? (
+            {showJsonVariants && !isPackSizeVariant && isApparelSizeVariants ? (
+              <section className="mt-3.5" aria-label="Seleziona taglia">
+                <h2 className="text-sm font-semibold text-slate-900">Seleziona taglia</h2>
+                <p className="mt-1 text-xs text-slate-600">
+                  Scegli la taglia prima di aggiungere al carrello. Il codice produttore / EAN si
+                  aggiorna in base alla selezione.
+                </p>
+                <label className="mt-3 block">
+                  <span className="sr-only">Taglia</span>
+                  <select
+                    className="w-full max-w-xs rounded-xl border-2 border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+                    value={selectedJsonVariant?.label ?? ''}
+                    onChange={(e) => {
+                      const next = jsonVariants.find((v) => v.label === e.target.value) ?? null
+                      setSelectedJsonVariant(next)
+                    }}
+                  >
+                    {jsonVariants.map((opt) => (
+                      <option key={`size-${opt.label}-${opt.sku ?? ''}`} value={opt.label}>
+                        {opt.label}
+                        {opt.sku ? ` — ${opt.sku}` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Taglie rapide">
+                  {jsonVariants.map((opt) => {
+                    const selected = selectedJsonVariant?.label === opt.label
+                    return (
+                      <button
+                        key={`size-chip-${opt.label}`}
+                        type="button"
+                        onClick={() => setSelectedJsonVariant(opt)}
+                        aria-pressed={selected}
+                        className={[
+                          'min-w-[3rem] rounded-lg border-2 px-3 py-2 text-sm font-bold transition',
+                          selected
+                            ? 'border-brand-600 bg-brand-700 text-white shadow-sm'
+                            : 'border-slate-200 bg-white text-slate-800 hover:border-brand-300',
+                        ].join(' ')}
+                      >
+                        {opt.label}
+                      </button>
+                    )
+                  })}
+                </div>
+                <dl className="mt-3 grid gap-1.5 text-sm text-slate-700 sm:grid-cols-2">
+                  <div>
+                    <dt className="inline text-slate-500">Taglia:{' '}</dt>
+                    <dd className="inline font-semibold text-slate-900">
+                      {selectedJsonVariant?.label ?? '—'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="inline text-slate-500">Cod. produttore:{' '}</dt>
+                    <dd className="inline font-semibold tabular-nums text-slate-900">
+                      {selectedJsonVariant?.sku ?? '—'}
+                    </dd>
+                  </div>
+                  {selectedJsonVariant?.ean ? (
+                    <div className="sm:col-span-2">
+                      <dt className="inline text-slate-500">EAN:{' '}</dt>
+                      <dd className="inline font-semibold tabular-nums text-slate-900">
+                        {selectedJsonVariant.ean}
+                      </dd>
+                    </div>
+                  ) : null}
+                </dl>
+              </section>
+            ) : null}
+
+            {showJsonVariants && !isPackSizeVariant && !isApparelSizeVariants ? (
               <div className="mt-3.5">
                 <h2 className="text-sm font-semibold text-slate-900">Scegli Modello</h2>
                 <div className={variantGridClass}>
@@ -4886,13 +4978,29 @@ export function ProductDetailPage() {
               productName={displayProductName}
               quoteOnly={isQuoteOnlyOfficeProduct(product)}
               brochureUrl={
-                casseDitronBrochureUrlForProduct(product) ??
-                product.brochureUrl ??
-                (displayProductName.toLowerCase().includes('new ideal')
-                  ? '/pdf/brochure-new-ideal.pdf'
-                  : undefined)
+                product.technicalDocuments?.length
+                  ? undefined
+                  : casseDitronBrochureUrlForProduct(product) ??
+                    product.brochureUrl ??
+                    (displayProductName.toLowerCase().includes('new ideal')
+                      ? '/pdf/brochure-new-ideal.pdf'
+                      : undefined)
+              }
+              catalogPagePdfUrl={
+                product.technicalDocuments?.length ? undefined : product.catalogPagePdfUrl
               }
               priceUnitSuffix={isPackSizeVariant ? '/ confezione' : '/ pezzo'}
+              compareAtUnitPrice={
+                typeof product.compareAtPrice === 'number' &&
+                product.compareAtPrice > unitForQty
+                  ? product.compareAtPrice
+                  : null
+              }
+              discountPercent={
+                typeof product.discountPercent === 'number' && product.discountPercent > 0
+                  ? product.discountPercent
+                  : null
+              }
               quantityRuleHint={(() => {
                 const rule = purchaseQuantityRuleForProduct(product)
                 if (!rule || (rule.minOrderQuantity <= 1 && rule.orderQuantityStep <= 1)) return undefined
@@ -4915,14 +5023,23 @@ export function ProductDetailPage() {
         <OfficeProductDetailDescriptionSection
           description={displayProductDescription ?? ''}
           brochureUrl={
-            casseDitronBrochureUrlForProduct(product) ??
-            product.brochureUrl ??
-            (displayProductName.toLowerCase().includes('new ideal')
-              ? '/pdf/brochure-new-ideal.pdf'
-              : undefined)
+            product.technicalDocuments?.length
+              ? undefined
+              : casseDitronBrochureUrlForProduct(product) ??
+                product.brochureUrl ??
+                (displayProductName.toLowerCase().includes('new ideal')
+                  ? '/pdf/brochure-new-ideal.pdf'
+                  : undefined)
+          }
+          catalogPagePdfUrl={
+            product.technicalDocuments?.length ? undefined : product.catalogPagePdfUrl
           }
           astroMedicalLeadTimes={isAstroMedicalLeadTimes}
         />
+
+        {product.technicalDocuments?.length ? (
+          <SicurezzaTechnicalDocumentsSection documents={product.technicalDocuments} />
+        ) : null}
 
         <ProductFaqSection
           productName={displayProductName}

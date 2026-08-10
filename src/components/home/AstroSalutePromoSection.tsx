@@ -1,7 +1,11 @@
-const ASTRO_SALUTE_URL = 'https://www.astro-salute.it/'
+/** PDF informativo ufficiale — file in `public/pdf/`. */
+const ASTRO_SALUTE_PDF_URL = '/pdf/POLIAMBULATORIO%20ASTRO%20SALUTE.pdf'
 
 const ASTRO_SALUTE_BANNER_IMAGE = '/astro-salute/image_e0cb5f.png'
 const ASTRO_SALUTE_SERVICES_IMAGE = '/astro-salute/image_e0ce46.png'
+
+const ASTRO_SALUTE_LABEL =
+  'Poliambulatorio Astro Salute - Punto prelievi convenzionato ATS e Regione Lombardia | Medicina del lavoro e dello sport'
 
 export function AstroSalutePromoSection() {
   return (
@@ -10,23 +14,20 @@ export function AstroSalutePromoSection() {
       aria-labelledby="astro-salute-promo-heading"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <p
-          id="astro-salute-promo-heading"
-          className="sr-only"
-        >
-          Poliambulatorio Astro Salute
+        <p id="astro-salute-promo-heading" className="sr-only">
+          {ASTRO_SALUTE_LABEL}
         </p>
 
         <a
-          href={ASTRO_SALUTE_URL}
+          href={ASTRO_SALUTE_PDF_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="group block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-sky-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40 focus-visible:ring-offset-2"
-          aria-label="Visita il portale Astro Salute - Poliambulatorio e punto prelievi convenzionato ATS"
+          aria-label={`Apri il PDF informativo: ${ASTRO_SALUTE_LABEL}`}
         >
           <img
             src={ASTRO_SALUTE_BANNER_IMAGE}
-            alt="Poliambulatorio Astro Salute - Analisi del sangue, punto prelievi convenzionato ATS"
+            alt={ASTRO_SALUTE_LABEL}
             width={1400}
             height={420}
             className="block w-full object-cover transition duration-300 group-hover:scale-[1.01]"

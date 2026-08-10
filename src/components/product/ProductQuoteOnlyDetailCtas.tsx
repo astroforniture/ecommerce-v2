@@ -17,8 +17,10 @@ function WhatsAppIcon({ className }: { className?: string }) {
 
 type ProductQuoteOnlyDetailCtasProps = {
   productName: string
-  /** Path pubblico brochure PDF (es. `/pdf/brochure-new-ideal.pdf`). */
+  /** Path pubblico brochure / descrizione prodotto PDF. */
   brochureUrl?: string | null
+  /** Pagina di catalogo PDF. */
+  catalogPagePdfUrl?: string | null
 }
 
 /**
@@ -27,12 +29,14 @@ type ProductQuoteOnlyDetailCtasProps = {
 export function ProductQuoteOnlyDetailCtas({
   productName,
   brochureUrl,
+  catalogPagePdfUrl,
 }: ProductQuoteOnlyDetailCtasProps) {
   const whatsappHref = productQuoteRequestHref(productName)
   const nameNorm = productName.trim().toLowerCase()
   const brochure =
     brochureUrl?.trim() ||
     (nameNorm.includes('new ideal') ? NEW_IDEAL_BROCHURE_PDF_URL : '')
+  const catalogPdf = catalogPagePdfUrl?.trim() || ''
 
   return (
     <div className="rounded-2xl border border-emerald-200/90 bg-gradient-to-b from-emerald-50/90 via-white to-white p-5 shadow-md ring-1 ring-emerald-100/80 sm:p-6">
@@ -53,16 +57,34 @@ export function ProductQuoteOnlyDetailCtas({
           Richiedi preventivo su WhatsApp
         </a>
 
-        {brochure ? (
-          <a
-            href={brochure}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex w-full items-center justify-center gap-2.5 rounded-xl border-2 border-brand-700 bg-brand-800 px-5 py-3.5 text-sm font-bold text-white shadow-md transition hover:bg-brand-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 sm:text-base"
-          >
-            <FileDown className="size-5 shrink-0" aria-hidden />
-            Scarica Brochure PDF (Scheda Tecnica)
-          </a>
+        {brochure || catalogPdf ? (
+          <div className="space-y-2 rounded-xl border border-slate-200 bg-white/80 p-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">
+              Documenti e Schede Tecniche
+            </p>
+            {brochure ? (
+              <a
+                href={brochure}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-full items-center justify-center gap-2.5 rounded-xl border-2 border-brand-700 bg-brand-800 px-5 py-3.5 text-sm font-bold text-white shadow-md transition hover:bg-brand-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 sm:text-base"
+              >
+                <FileDown className="size-5 shrink-0" aria-hidden />
+                Descrizione prodotto (PDF)
+              </a>
+            ) : null}
+            {catalogPdf ? (
+              <a
+                href={catalogPdf}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-full items-center justify-center gap-2.5 rounded-xl border-2 border-slate-300 bg-white px-5 py-3.5 text-sm font-bold text-brand-900 shadow-sm transition hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 sm:text-base"
+              >
+                <FileDown className="size-5 shrink-0" aria-hidden />
+                Pagina di catalogo (PDF)
+              </a>
+            ) : null}
+          </div>
         ) : null}
 
         <div className="flex flex-col items-center gap-2 rounded-xl border border-slate-200/80 bg-slate-50/80 px-4 py-3 text-center sm:flex-row sm:justify-center sm:gap-2.5">

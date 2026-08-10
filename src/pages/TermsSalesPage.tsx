@@ -41,7 +41,7 @@ export function TermsSalesPage() {
           <h3 className="text-lg font-semibold text-slate-900">1. Identita del venditore</h3>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
             Il presente sito di commercio elettronico e gestito da Astro Forniture s.r.l., con sede
-            in Largo di Porta Pradella 2, Mantova, Italia (di seguito, "Venditore").
+            in Largo di Porta Pradella, 2, 46100 Mantova MN, Italia (di seguito, "Venditore").
           </p>
         </section>
 
@@ -88,7 +88,7 @@ export function TermsSalesPage() {
           <h3 className="text-lg font-semibold text-slate-900">6. Spedizioni e ritiro in sede</h3>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
             Il Cliente puo scegliere tra spedizione a domicilio e ritiro gratuito presso il punto
-            vendita di Mantova (Largo di Porta Pradella 2). I tempi di consegna variano in base alla
+            vendita di Mantova (Largo di Porta Pradella, 2, 46100 Mantova MN). I tempi di consegna variano in base alla
             disponibilita del prodotto, all&apos;area di destinazione e ai tempi del vettore.
           </p>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
