@@ -87,4 +87,15 @@ export interface OfficeProduct {
   orderQuantityStep?: number
   /** Opzionale: colonna JSONB `variants` su public.products */
   variants?: ProductVariantOption[]
+  /**
+   * GPSR (Reg. UE 2023/988) — produttore / importatore / responsabile UE e avvertenze.
+   * Valorizzati da colonne DB, JSON `gpsr` o cataloghi FE.
+   */
+  manufacturerName?: string
+  manufacturerAddress?: string
+  importerName?: string
+  importerAddress?: string
+  euResponsibleName?: string
+  euResponsibleAddress?: string
+  safetyWarnings?: string
 }

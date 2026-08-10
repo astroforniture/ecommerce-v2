@@ -248,7 +248,7 @@ function inferMacroFromProductName(name: string): string | null {
  * (e, in assenza, dal titolo). Non modifica id / scheda / DB.
  */
 export function resolveAstroMedicalMacro(
-  product: Pick<OfficeProduct, 'name' | 'subcategory'> | null | undefined,
+  product: Pick<OfficeProduct, 'subcategory'> & { name?: string | null } | null | undefined,
 ): string | null {
   if (!product) return null
 
