@@ -159,7 +159,7 @@ export function isAgendaPlanningOfficeProductId(id: string | null | undefined): 
 }
 
 export function agendaPlanLineFromProduct(
-  product: Pick<OfficeProduct, 'producerCode' | 'name' | 'id'> | null | undefined,
+  product: Pick<OfficeProduct, 'producerCode' | 'name'> & { id?: string | null } | null | undefined,
 ): AgendaPlanningLineSpec | null {
   if (!product) return null
   const fromSku = agendaPlanLineFromSku(product.producerCode)

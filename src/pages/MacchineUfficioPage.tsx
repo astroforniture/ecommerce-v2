@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Cpu } from 'lucide-react'
+import { catalogBackNavFromMacchineLayout } from '../lib/catalogBackNavigation'
 import {
   buildCasseDitronOfficeProducts,
   CASSE_DITRON_COVER_IMAGE_URL,
@@ -29,6 +30,13 @@ import {
   buildVerificaBanconoteOfficeProducts,
   macchineUfficioVerificaBanconoteListingPath,
 } from '../data/verificaBanconoteProducts'
+import {
+  PLASTIFICATRICI_COVER_IMAGE_URL,
+  MACCHINE_SUB_PLASTIFICATRICI_LABEL,
+  MACCHINE_SUB_PLASTIFICATRICI_SLUG,
+  buildPlastificatriciOfficeProducts,
+  macchineUfficioPlastificatriciListingPath,
+} from '../data/plastificatriciProducts'
 import { macchineUfficioHubPath } from '../lib/macchineUfficioRoutes'
 import { OfficeProductCard } from '../components/office/OfficeProductCard'
 import {
@@ -41,6 +49,7 @@ const distruggiListingPath = macchineUfficioDistruggiDocumentiListingPath()
 const etichettatriciListingPath = macchineUfficioEtichettatriciListingPath()
 const casseDitronListingPath = macchineUfficioCasseDitronListingPath()
 const verificaBanconoteListingPath = macchineUfficioVerificaBanconoteListingPath()
+const plastificatriciListingPath = macchineUfficioPlastificatriciListingPath()
 const macchineHubPath = macchineUfficioHubPath()
 
 const MACCHINE_SUB_LABEL_BY_SLUG: Record<string, string> = {
@@ -48,6 +57,7 @@ const MACCHINE_SUB_LABEL_BY_SLUG: Record<string, string> = {
   [MACCHINE_SUB_ETICHETTATRICI_SLUG]: MACCHINE_SUB_ETICHETTATRICI_LABEL,
   [MACCHINE_SUB_CASSE_DITRON_SLUG]: MACCHINE_SUB_CASSE_DITRON_LABEL,
   [MACCHINE_SUB_VERIFICA_BANCONOTE_SLUG]: MACCHINE_SUB_VERIFICA_BANCONOTE_LABEL,
+  [MACCHINE_SUB_PLASTIFICATRICI_SLUG]: MACCHINE_SUB_PLASTIFICATRICI_LABEL,
 }
 
 function MacchineBreadcrumb() {
@@ -122,6 +132,12 @@ function MacchineSidebar() {
         >
           {MACCHINE_SUB_VERIFICA_BANCONOTE_LABEL}
         </NavLink>
+        <NavLink
+          to={plastificatriciListingPath}
+          className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
+        >
+          {MACCHINE_SUB_PLASTIFICATRICI_LABEL}
+        </NavLink>
       </nav>
     </aside>
   )
@@ -129,15 +145,21 @@ function MacchineSidebar() {
 
 /** Layout con breadcrumb, sidebar e area contenuti. */
 export function MacchineUfficioLayout() {
+  const { pathname } = useLocation()
+  const catalogBackNav = useMemo(
+    () => catalogBackNavFromMacchineLayout(pathname),
+    [pathname],
+  )
+
   return (
     <main className="min-h-[60vh] bg-gradient-to-b from-slate-50 to-white">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
         <Link
-          to="/office-products?catalog=ufficio"
+          to={catalogBackNav.href}
           className="inline-flex items-center gap-2 text-sm font-semibold text-brand-700 transition hover:text-brand-900"
         >
           <ArrowLeft className="size-4" aria-hidden />
-          Torna al catalogo
+          {catalogBackNav.label}
         </Link>
 
         <MacchineBreadcrumb />
@@ -251,6 +273,22 @@ export function MacchineUfficioHubPage() {
               <div className="aspect-square w-full bg-slate-50">
                 <img
                   src={VERIFICA_BANCONOTE_COVER_IMAGE_URL}
+                  alt=""
+                  className="size-full object-contain p-4"
+                  loading="lazy"
+                  decoding="async"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            }
+          />
+          <OfficeSubcategoryTile
+            title={MACCHINE_SUB_PLASTIFICATRICI_LABEL}
+            onClick={() => void navigate(plastificatriciListingPath)}
+            media={
+              <div className="aspect-square w-full bg-slate-50">
+                <img
+                  src={PLASTIFICATRICI_COVER_IMAGE_URL}
                   alt=""
                   className="size-full object-contain p-4"
                   loading="lazy"
@@ -425,6 +463,42 @@ export function MacchineVerificaBanconotePage() {
       <section className="pt-10" aria-labelledby="macchine-verifica-banconote-catalogo">
         <h2 id="macchine-verifica-banconote-catalogo" className="sr-only">
           Catalogo {MACCHINE_SUB_VERIFICA_BANCONOTE_LABEL}
+        </h2>
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {products.map((p) => (
+            <li key={p.id}>
+              <OfficeProductCard
+                product={p}
+                hideCategoryBadge
+                compactGrid
+                suppressQuantityTierHint
+              />
+            </li>
+          ))}
+        </ul>
+      </section>
+    </>
+  )
+}
+
+/** Elenco plastificatrici e materiale di consumo. */
+export function MacchinePlastificatriciPage() {
+  const products = useMemo(() => buildPlastificatriciOfficeProducts(), [])
+
+  return (
+    <>
+      <header className="border-b border-slate-200 pb-8">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+          {MACCHINE_SUB_PLASTIFICATRICI_LABEL}
+        </h1>
+        <p className="mt-2 max-w-xl text-sm text-slate-600">
+          Plastificatrici GBC, Titanium e Fellowes e pouches Titanium — prezzi imponibili + IVA.
+        </p>
+      </header>
+
+      <section className="pt-10" aria-labelledby="macchine-plastificatrici-catalogo">
+        <h2 id="macchine-plastificatrici-catalogo" className="sr-only">
+          Catalogo {MACCHINE_SUB_PLASTIFICATRICI_LABEL}
         </h2>
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {products.map((p) => (

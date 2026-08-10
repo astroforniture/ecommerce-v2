@@ -8,7 +8,7 @@ import { applySicurezzaPromoDiscount } from '../lib/sicurezzaPromoDiscount'
 import { SICUREZZA_CATEGORY } from '../lib/officeCategories'
 
 /** Taglie standard abbigliamento da lavoro (default listing). */
-export const SICUREZZA_APPAREL_SIZES = ['S', 'M', 'L', 'XL', 'XXL', '3XL'] as const
+export const SICUREZZA_APPAREL_SIZES = ['S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL'] as const
 export type SicurezzaApparelSize = (typeof SICUREZZA_APPAREL_SIZES)[number] | 'XS'
 
 export type SicurezzaTechnicalDocument = {
@@ -26,6 +26,10 @@ type ApparelFamilyConfig = {
   /** Normalizza nome vetrina (senza taglia fissa nel titolo). */
   displayName?: string
   imageUrl?: string
+  /** Descrizione PDP curata (sostituisce testo DB se presente). */
+  description?: string
+  /** Feature principali da unire in `mainFeatures`. */
+  mainFeatures?: Record<string, string>
 }
 
 /** PDF pubblici in `public/docs/safety/` — solo prodotti in allowlist. */
@@ -141,6 +145,112 @@ export const SPACE_LADY_TECHNICAL_DOCUMENTS: readonly SicurezzaTechnicalDocument
   },
 ] as const
 
+export const MOONLIGHT2_TECHNICAL_DOCUMENTS: readonly SicurezzaTechnicalDocument[] = [
+  {
+    id: 'scheda-tecnica',
+    title: '📘 Scheda Tecnica Prodotto',
+    href: '/docs/safety/86492-2.pdf',
+    hint: 'Dettagli tecnici, prestazioni e benefici Moonlight 2 (cod. 86492)',
+  },
+  {
+    id: 'conformita-ue',
+    title: '📜 Dichiarazione di Conformità UE',
+    href: '/docs/safety/86492-1.pdf',
+    hint: 'Conformità Regolamento UE 2016/425 — Certificato 033 2023 0297',
+  },
+  {
+    id: 'scheda-prodotto',
+    title: '📄 Scheda Informativa / Fornitore',
+    href: '/docs/safety/86492.pdf',
+    hint: 'Specifiche logistiche e dati di vendita (cod. 86492)',
+  },
+] as const
+
+export const MOONLIGHT2_ARANCIO_TECHNICAL_DOCUMENTS: readonly SicurezzaTechnicalDocument[] = [
+  {
+    id: 'scheda-tecnica',
+    title: '📘 Scheda Tecnica e Prestazioni',
+    href: '/docs/safety/86494-2.pdf',
+    hint: 'Dettagli tecnici, benefici e logistica Moonlight 2 arancio fluo (cod. 86494)',
+  },
+  {
+    id: 'conformita-ue',
+    title: '📜 Dichiarazione di Conformità UE',
+    href: '/docs/safety/86494-1.pdf',
+    hint: 'Conformità Regolamento UE 2016/425 — Certificato 033 2023 0297',
+  },
+  {
+    id: 'scheda-prodotto',
+    title: '📄 Scheda Informativa Prodotto',
+    href: '/docs/safety/86494.pdf',
+    hint: 'Specifiche sintetiche e dati di vendita (cod. 86494)',
+  },
+] as const
+
+export const MIKY_TECHNICAL_DOCUMENTS: readonly SicurezzaTechnicalDocument[] = [
+  {
+    id: 'scheda-tecnica',
+    title: '📘 Scheda Tecnica Ufficiale',
+    href: '/docs/safety/89950-2.pdf',
+    hint: 'Dettagli prodotto, composizione e caratteristiche U-Power Miky (cod. 89950)',
+  },
+  {
+    id: 'conformita-ue',
+    title: '📜 Certificato di Esame UE del Tipo / Conformità',
+    href: '/docs/safety/89950-1.pdf',
+    hint: 'Certificato Intertek No. LECF100376148 — Regolamento UE 2016/425',
+  },
+  {
+    id: 'scheda-prodotto',
+    title: '📄 Scheda Informativa e Dati Logistici',
+    href: '/docs/safety/89950.pdf',
+    hint: 'Dati di vendita, codici e specifiche (cod. 89950)',
+  },
+] as const
+
+export const MIKY_ARANCIO_TECHNICAL_DOCUMENTS: readonly SicurezzaTechnicalDocument[] = [
+  {
+    id: 'scheda-tecnica',
+    title: '📘 Scheda Tecnica Ufficiale',
+    href: '/docs/safety/89955-2.pdf',
+    hint: 'Dettagli prodotto, composizione e caratteristiche U-Power Miky (cod. 89955)',
+  },
+  {
+    id: 'conformita-ue',
+    title: '📜 Certificato di Esame UE del Tipo / Conformità',
+    href: '/docs/safety/89955-1.pdf',
+    hint: 'Certificato Intertek No. LECF100376148 — Regolamento UE 2016/425',
+  },
+  {
+    id: 'scheda-prodotto',
+    title: '📄 Scheda Informativa e Dati Logistici',
+    href: '/docs/safety/89955.pdf',
+    hint: 'Dati di vendita, codici e specifiche (cod. 89955)',
+  },
+] as const
+
+/** Documentazione condivisa Deltaplus Reno HV (giallo/arancio). */
+export const RENO_HV_TECHNICAL_DOCUMENTS: readonly SicurezzaTechnicalDocument[] = [
+  {
+    id: 'scheda-tecnica',
+    title: '📘 Scheda Tecnica Ufficiale',
+    href: '/docs/safety/73755-2.pdf',
+    hint: 'Specifiche tecniche RENO HV, dettagli costruttivi e tabelle logistiche Deltaplus',
+  },
+  {
+    id: 'conformita-ue',
+    title: '📜 Dichiarazione di Conformità UE',
+    href: '/docs/safety/73755-1.pdf',
+    hint: 'Conformità Regolamento UE 2016/425 — AITEX N. 0161 · Certificato 23 6516 00 0161',
+  },
+  {
+    id: 'scheda-prodotto',
+    title: '📄 Scheda Informativa e Dati Logistici',
+    href: '/docs/safety/73755.pdf',
+    hint: 'Dettagli di vendita, codici e specifiche di confezionamento',
+  },
+] as const
+
 /**
  * Horten2 Light (nero/giallo) — part number / EAN per taglia (Delta Plus).
  * Codici: HORT2NJTM (M), HORT2NJGT (L), HORT2NJXG (XL), HORT2NJXX (XXL).
@@ -199,6 +309,68 @@ const SPACE_LADY_SIZE_VARIANTS: ProductVariantOption[] = [
   { label: 'L', sku: 'FU187GF-L', ean: '8033546443934' },
 ]
 
+/** Deltaplus Moonlight 2 HV giallo fluo/grigio — part number / EAN per taglia (scheda 86492). */
+const MOONLIGHT2_GIALLO_FLUO_SIZE_VARIANTS: ProductVariantOption[] = [
+  { label: 'S', sku: 'MOON2JGPT', ean: '3295249222109' },
+  { label: 'M', sku: 'MOON2JGTM', ean: '3295249222116' },
+  { label: 'L', sku: 'MOON2JGGT', ean: '3295249222123' },
+  { label: 'XL', sku: 'MOON2JGXG', ean: '3295249222130' },
+  { label: 'XXL', sku: 'MOON2JGXX', ean: '3295249222147' },
+  { label: '3XL', sku: 'MOON2JG3X', ean: '3295249222000' },
+]
+
+/** Deltaplus Moonlight 2 HV arancio fluo/grigio — part number / EAN per taglia (scheda 86494). */
+const MOONLIGHT2_ARANCIO_FLUO_SIZE_VARIANTS: ProductVariantOption[] = [
+  { label: 'S', sku: 'MOON2OGPT', ean: '3295249222154' },
+  { label: 'M', sku: 'MOON2OGTM', ean: '3295249222161' },
+  { label: 'L', sku: 'MOON2OGGT', ean: '3295249222178' },
+  { label: 'XL', sku: 'MOON2OGXG', ean: '3295249222185' },
+  { label: 'XXL', sku: 'MOON2OGXX', ean: '3295249222192' },
+  { label: '3XL', sku: 'MOON2OG3X', ean: '3295249222017' },
+]
+
+/** U-Power Miky Softshell HV giallo fluo — part number per taglia (modello HL169YF, scheda 89950). */
+const MIKY_GIALLO_FLUO_SIZE_VARIANTS: ProductVariantOption[] = [
+  { label: 'S', sku: 'HL169YF-S' },
+  { label: 'M', sku: 'HL169YF-M' },
+  { label: 'L', sku: 'HL169YF-L', ean: '8033546387245' },
+  { label: 'XL', sku: 'HL169YF-XL' },
+  { label: 'XXL', sku: 'HL169YF-XXL' },
+  { label: '3XL', sku: 'HL169YF-3XL' },
+  { label: '4XL', sku: 'HL169YF-4XL' },
+]
+
+/** U-Power Miky Softshell HV arancio fluo — part number per taglia (modello HL169OF, scheda 89955). */
+const MIKY_ARANCIO_FLUO_SIZE_VARIANTS: ProductVariantOption[] = [
+  { label: 'S', sku: 'HL169OF-S' },
+  { label: 'M', sku: 'HL169OF-M' },
+  { label: 'L', sku: 'HL169OF-L' },
+  { label: 'XL', sku: 'HL169OF-XL', ean: '8033546387320' },
+  { label: 'XXL', sku: 'HL169OF-XXL' },
+  { label: '3XL', sku: 'HL169OF-3XL' },
+  { label: '4XL', sku: 'HL169OF-4XL' },
+]
+
+/** Deltaplus Reno HV giallo fluo — part number / EAN per taglia (scheda 73755-2). */
+const RENO_HV_GIALLO_FLUO_SIZE_VARIANTS: ProductVariantOption[] = [
+  { label: 'S', sku: 'RENHVJAPT', ean: '3295249161941' },
+  { label: 'M', sku: 'RENHVJATM', ean: '3295249161958' },
+  { label: 'L', sku: 'RENHVJAGT', ean: '3295249161965' },
+  { label: 'XL', sku: 'RENHVJAXG', ean: '3295249161972' },
+  { label: 'XXL', sku: 'RENHVJAXX', ean: '3295249161989' },
+  { label: '3XL', sku: 'RENHVJA3X', ean: '3295249161996' },
+]
+
+/** Deltaplus Reno HV arancio fluo — part number / EAN per taglia (scheda 73755-2). */
+const RENO_HV_ARANCIO_FLUO_SIZE_VARIANTS: ProductVariantOption[] = [
+  { label: 'S', sku: 'RENHVORPT', ean: '3295249162009' },
+  { label: 'M', sku: 'RENHVORTM', ean: '3295249162016' },
+  { label: 'L', sku: 'RENHVORGT', ean: '3295249162023' },
+  { label: 'XL', sku: 'RENHVORXG', ean: '3295249162030' },
+  { label: 'XXL', sku: 'RENHVORXX', ean: '3295249162047' },
+  { label: '3XL', sku: 'RENHVOR3X', ean: '3295249162054' },
+]
+
 const HORTEN2_GALLERY = ['https://odmultimedia.eu/immagini/MD/89930_1.jpg'] as const
 const PORTWEST_TEXPEL_GALLERY = ['https://odmultimedia.eu/immagini/MD/105192_1.jpg'] as const
 const SOCCIA_GALLERY = [
@@ -226,6 +398,129 @@ const SPACE_LADY_DISPLAY_NAME =
   'Giacca Softshell donna Space Lady - grigio/fucsia - U-Power'
 
 const SPACE_LADY_IMAGE_URL = 'https://odmultimedia.eu/immagini/LD/97983.jpg'
+
+const MOONLIGHT2_DISPLAY_NAME =
+  'Giacca Softshell Moonlight 2 alta visibilità - poliestere - giallo fluo - Deltaplus'
+
+const MOONLIGHT2_IMAGE_URL = 'https://odmultimedia.eu/immagini/LD/86492.jpg'
+
+const MOONLIGHT2_DESCRIPTION =
+  'Softshell elasticizzato 2 in 1 ad alta visibilità, antivento e idrorepellente, con maniche staccabili. Dotato di chiusura con zip antifreddo, 5 tasche (3 esterne con zip, 2 interne), fondo maniche con finitura sbieco e parte bassa regolabile con elastico.\n\n' +
+  'Composizione: Softshell 100% poliestere con membrana in TPU, 3 strati laminati. Fodera pile 100% poliestere (130 g/m²). Impermeabilità/traspirabilità: membrana WP 8000 mm / MVP 5000 g/m²/24h. Visibilità Classe 3 (con maniche) / Classe 2 (senza maniche), bande riflettenti a bretella e parallele sul torso e sulle braccia; certificato EN ISO 20471 fino a 25 lavaggi.\n\n' +
+  'Normative: DPI Cat. 2, Certificato CE, EN ISO 13688:2013, EN ISO 20471:2013/A1:2016. Campi d’impiego: lavori pubblici, edilizia, industria mineraria, servizi pubblici, gestione rifiuti e acque. Selezionare la taglia (codici MOON2JG*) prima dell’acquisto. Prezzo unitario imponibile IVA esclusa.'
+
+const MOONLIGHT2_MAIN_FEATURES: Record<string, string> = {
+  Colore: 'giallo fluo / grigio',
+  Materiale: 'Softshell 100% PE + membrana TPU · 3 strati',
+  Fodera: 'Pile 100% poliestere 130 g/m²',
+  Visibilità: 'EN ISO 20471 Classe 3 / Classe 2',
+  'Part number': 'MOON2JGGT',
+  Taglia: 'L',
+  EAN: '3295249222123',
+  Normative: 'DPI Cat. 2 · EN ISO 13688 · EN ISO 20471',
+}
+
+const MOONLIGHT2_ARANCIO_DISPLAY_NAME =
+  'Giacca Softshell Moonlight 2 alta visibilità - poliestere - taglia M - arancio fluo - Deltaplus'
+
+const MOONLIGHT2_ARANCIO_IMAGE_URL = 'https://odmultimedia.eu/immagini/MD/86494_1.jpg'
+const MOONLIGHT2_ARANCIO_GALLERY = ['https://odmultimedia.eu/immagini/MD/86494_2.jpg'] as const
+
+const MOONLIGHT2_ARANCIO_DESCRIPTION =
+  'Giacca Softshell 2 in 1 elasticizzata, traspirante e idrorepellente con maniche staccabili, ideale per l’utilizzo tutto l’anno. Chiusura con zip antifreddo, 5 tasche complessive (3 esterne con zip e 2 interne), fondo maniche rifinito a sbieco e parte inferiore regolabile tramite elastico.\n\n' +
+  'Composizione: Softshell 100% poliestere a 3 strati laminati con membrana TPU. Fodera pile 100% poliestere (130 g/m²). Impermeabilità e traspirabilità: membrana WP 8000 mm / MVP 5000 g/m²/24h. Alta visibilità Classe 3 (con maniche) / Classe 2 (senza maniche), bande retroriflettenti cucite argento a bretella e parallele su torso e braccia; resistente fino a 25 cicli di lavaggio.\n\n' +
+  'Normative: DPI Cat. 2, Certificato CE, EN ISO 13688:2013+A1:2021, EN ISO 20471:2013/A1:2016. Settori d’impiego: lavori pubblici, edilizia, industria mineraria, servizi pubblici, gestione rifiuti/acque e lavoro temporaneo. Selezionare la taglia (codici MOON2OG*) prima dell’acquisto. Prezzo unitario imponibile IVA esclusa.'
+
+const MOONLIGHT2_ARANCIO_MAIN_FEATURES: Record<string, string> = {
+  Colore: 'arancio fluo / grigio',
+  Materiale: 'Softshell 100% PE + membrana TPU · 3 strati',
+  Fodera: 'Pile 100% poliestere 130 g/m²',
+  Visibilità: 'EN ISO 20471 Classe 3 / Classe 2',
+  'Part number': 'MOON2OGTM',
+  Taglia: 'M',
+  EAN: '3295249222161',
+  Normative: 'DPI Cat. 2 · EN ISO 13688 · EN ISO 20471',
+}
+
+const MIKY_DISPLAY_NAME =
+  'Giacca alta visibilità Softshell Miky - taglia L - giallo fluo - U-Power'
+
+const MIKY_IMAGE_URL = 'https://odmultimedia.eu/immagini/HD/89950.jpg'
+
+const MIKY_DESCRIPTION =
+  'Giacca in tessuto Softshell stretch, traspirante, antivento e idrorepellente. Dotata di 2 ampie tasche frontali con zip, tasca porta cellulare sul petto chiusa da zip, cappuccio staccabile tramite zip, maniche preformate e fondo sagomato. Presenta coulisse antimpigliamento regolabile dall’interno della tasca, polsini regolabili con velcro, polsini antivento elasticizzati con foro per il pollice, e zip YKK di alta qualità. Strisce riflettenti termo-applicate su busto e braccia per la massima visibilità.\n\n' +
+  'Composizione: 96% poliestere, 4% elastane con membrana in TPU (grammatura 310–320 g/m²). Vestibilità / stagionalità: 4 stagioni (autunno / inverno). Alta visibilità Classe 2 con 2 bande riflettenti attorno al busto e 2 attorno a ciascuna manica (larghezza bande 60 mm).\n\n' +
+  'Normative: DPI Cat. II, Certificato CE, EN ISO 13688:2013, EN ISO 20471:2013+A1:2016. Modello MIKY (cod. modello HL169YF). Selezionare la taglia (codici HL169YF-*) prima dell’acquisto. Prezzo unitario imponibile IVA esclusa.'
+
+const MIKY_MAIN_FEATURES: Record<string, string> = {
+  Colore: 'giallo fluo (Yellow Fluo)',
+  Modello: 'MIKY · HL169YF',
+  Materiale: '96% PE / 4% EA · membrana TPU · 310–320 g/m²',
+  Visibilità: 'EN ISO 20471 Classe 2',
+  'Part number': 'HL169YF-L',
+  Taglia: 'L',
+  EAN: '8033546387245',
+  Normative: 'DPI Cat. II · EN ISO 13688 · EN ISO 20471',
+}
+
+const MIKY_ARANCIO_DISPLAY_NAME =
+  'Giacca alta visibilità Softshell Miky - taglia XL - arancio fluo - U-Power'
+
+const MIKY_ARANCIO_IMAGE_URL = 'https://odmultimedia.eu/immagini/HD/89955.jpg'
+
+const MIKY_ARANCIO_DESCRIPTION =
+  'Giacca in tessuto Softshell stretch, traspirante, antivento e idrorepellente. Dotata di 2 ampie tasche frontali con zip, tasca porta cellulare sul petto chiusa da zip, cappuccio staccabile tramite zip, maniche preformate e fondo sagomato. Presenta coulisse antimpigliamento regolabile dall’interno della tasca, polsini regolabili con velcro, polsini antivento elasticizzati con foro per il pollice, e zip YKK di alta qualità. Strisce riflettenti termo-applicate su busto e braccia per garantire la massima visibilità.\n\n' +
+  'Composizione: 96% poliestere, 4% elastane con membrana in TPU (grammatura 310–320 g/m²). Vestibilità / stagionalità: 4 stagioni (autunno / inverno). Alta visibilità Classe 2 con 2 bande riflettenti attorno al busto e 2 attorno a ciascuna manica (larghezza bande 60 mm).\n\n' +
+  'Normative: DPI Cat. II, Certificato CE, EN ISO 13688:2013, EN ISO 20471:2013+A1:2016. Modello MIKY (cod. modello HL169 / HL169OF). Selezionare la taglia (codici HL169OF-*) prima dell’acquisto. Prezzo unitario imponibile IVA esclusa.'
+
+const MIKY_ARANCIO_MAIN_FEATURES: Record<string, string> = {
+  Colore: 'arancio fluo (Orange Fluo)',
+  Modello: 'MIKY · HL169OF',
+  Materiale: '96% PE / 4% EA · membrana TPU · 310–320 g/m²',
+  Visibilità: 'EN ISO 20471 Classe 2',
+  'Part number': 'HL169OF-XL',
+  Taglia: 'XL',
+  EAN: '8033546387320',
+  Normative: 'DPI Cat. II · EN ISO 13688 · EN ISO 20471',
+}
+
+const RENO_HV_DESCRIPTION =
+  'Giubbotto alta visibilità 2 in 1 antivento, idrorepellente e impermeabile con fodera in pile e maniche rimovibili/staccabili. Ideale per i primi freddi e per garantire massima visibilità giorno e notte.\n\n' +
+  'Tessuto esterno: Oxford 100% poliestere spalmato/rivestito in PU. Fodera interna: pile 100% poliestere. Imbottitura: 100% fibra di poliestere. Grammatura totale: 465 g/m². Cuciture impermeabili. Cappuccio fisso a scomparsa. Collo alto foderato in pile. Chiusura a zip. Bordo a coste su polsini e fondo vita. 4 tasche (2 esterne a toppa, 1 interna con zip, 1 interna per il telefono). Zip interna per accesso alla marcatura (ricamo, serigrafia, transfer). 4 fasce riflettenti (2 sul torso e 2 sulle braccia).\n\n' +
+  'Campi di utilizzo: lavori pubblici, edilizia, industria mineraria, pulizia, lavoro temporaneo, servizi pubblici. Normative: DPI Cat. II, marcatura CE, EN ISO 13688:2013/A1:2021, EN ISO 20471:2013/A1:2016 (Classe 3 con maniche / Classe 2 smanicato; certificato dopo 25 lavaggi), EN343:2019 / EN343:2003 A1:2007. Selezionare la taglia (codici RENHV*) prima dell’acquisto. Prezzo unitario imponibile IVA esclusa.'
+
+const RENO_HV_GIALLO_DISPLAY_NAME =
+  'Giubbotto alta visibilità Reno HV - poliestere/poliuretano - taglia XL - giallo fluo - Deltaplus'
+
+const RENO_HV_ARANCIO_DISPLAY_NAME =
+  'Giubbotto alta visibilità Reno HV - poliestere/poliuretano - taglia XL - arancio fluo - Deltaplus'
+
+const RENO_HV_GIALLO_IMAGE_URL = 'https://odmultimedia.eu/immagini/HD/73755.jpg'
+const RENO_HV_ARANCIO_IMAGE_URL = 'https://odmultimedia.eu/immagini/HD/73757.jpg'
+
+const RENO_HV_GIALLO_MAIN_FEATURES: Record<string, string> = {
+  Colore: 'giallo fluo',
+  Modello: 'RENO HV',
+  Genere: 'Uomo / Unisex',
+  Materiale: 'Oxford PE + PU · fodera pile · 465 g/m²',
+  Visibilità: 'EN ISO 20471 Classe 3 / Classe 2',
+  'Part number': 'RENHVJAXG',
+  Taglia: 'XL',
+  EAN: '3295249161972',
+  Normative: 'DPI Cat. II · EN ISO 13688 · EN ISO 20471 · EN343',
+}
+
+const RENO_HV_ARANCIO_MAIN_FEATURES: Record<string, string> = {
+  Colore: 'arancio fluo',
+  Modello: 'RENO HV',
+  Genere: 'Uomo / Unisex',
+  Materiale: 'Oxford PE + PU · fodera pile · 465 g/m²',
+  Visibilità: 'EN ISO 20471 Classe 3 / Classe 2',
+  'Part number': 'RENHVORXG',
+  Taglia: 'XL',
+  EAN: '3295249162030',
+  Normative: 'DPI Cat. II · EN ISO 13688 · EN ISO 20471 · EN343',
+}
 
 const HORTEN2_FAMILY: ApparelFamilyConfig = {
   sizes: HORTEN2_SIZE_VARIANTS,
@@ -272,6 +567,61 @@ const SPACE_LADY_FAMILY: ApparelFamilyConfig = {
   imageUrl: SPACE_LADY_IMAGE_URL,
 }
 
+const MOONLIGHT2_FAMILY: ApparelFamilyConfig = {
+  sizes: MOONLIGHT2_GIALLO_FLUO_SIZE_VARIANTS,
+  documents: MOONLIGHT2_TECHNICAL_DOCUMENTS,
+  displayName: MOONLIGHT2_DISPLAY_NAME,
+  imageUrl: MOONLIGHT2_IMAGE_URL,
+  description: MOONLIGHT2_DESCRIPTION,
+  mainFeatures: MOONLIGHT2_MAIN_FEATURES,
+}
+
+const MOONLIGHT2_ARANCIO_FAMILY: ApparelFamilyConfig = {
+  sizes: MOONLIGHT2_ARANCIO_FLUO_SIZE_VARIANTS,
+  documents: MOONLIGHT2_ARANCIO_TECHNICAL_DOCUMENTS,
+  galleryUrls: [...MOONLIGHT2_ARANCIO_GALLERY],
+  displayName: MOONLIGHT2_ARANCIO_DISPLAY_NAME,
+  imageUrl: MOONLIGHT2_ARANCIO_IMAGE_URL,
+  description: MOONLIGHT2_ARANCIO_DESCRIPTION,
+  mainFeatures: MOONLIGHT2_ARANCIO_MAIN_FEATURES,
+}
+
+const MIKY_FAMILY: ApparelFamilyConfig = {
+  sizes: MIKY_GIALLO_FLUO_SIZE_VARIANTS,
+  documents: MIKY_TECHNICAL_DOCUMENTS,
+  displayName: MIKY_DISPLAY_NAME,
+  imageUrl: MIKY_IMAGE_URL,
+  description: MIKY_DESCRIPTION,
+  mainFeatures: MIKY_MAIN_FEATURES,
+}
+
+const MIKY_ARANCIO_FAMILY: ApparelFamilyConfig = {
+  sizes: MIKY_ARANCIO_FLUO_SIZE_VARIANTS,
+  documents: MIKY_ARANCIO_TECHNICAL_DOCUMENTS,
+  displayName: MIKY_ARANCIO_DISPLAY_NAME,
+  imageUrl: MIKY_ARANCIO_IMAGE_URL,
+  description: MIKY_ARANCIO_DESCRIPTION,
+  mainFeatures: MIKY_ARANCIO_MAIN_FEATURES,
+}
+
+const RENO_HV_GIALLO_FAMILY: ApparelFamilyConfig = {
+  sizes: RENO_HV_GIALLO_FLUO_SIZE_VARIANTS,
+  documents: RENO_HV_TECHNICAL_DOCUMENTS,
+  displayName: RENO_HV_GIALLO_DISPLAY_NAME,
+  imageUrl: RENO_HV_GIALLO_IMAGE_URL,
+  description: RENO_HV_DESCRIPTION,
+  mainFeatures: RENO_HV_GIALLO_MAIN_FEATURES,
+}
+
+const RENO_HV_ARANCIO_FAMILY: ApparelFamilyConfig = {
+  sizes: RENO_HV_ARANCIO_FLUO_SIZE_VARIANTS,
+  documents: RENO_HV_TECHNICAL_DOCUMENTS,
+  displayName: RENO_HV_ARANCIO_DISPLAY_NAME,
+  imageUrl: RENO_HV_ARANCIO_IMAGE_URL,
+  description: RENO_HV_DESCRIPTION,
+  mainFeatures: RENO_HV_ARANCIO_MAIN_FEATURES,
+}
+
 /** Famiglie con documentazione PDF dedicata (allowlist). */
 const APPAREL_FAMILY_BY_SKU: Record<string, ApparelFamilyConfig> = {
   '89931': HORTEN2_FAMILY,
@@ -282,6 +632,12 @@ const APPAREL_FAMILY_BY_SKU: Record<string, ApparelFamilyConfig> = {
   '86181': MYSEN2_FAMILY,
   '104541': SOCCIA_FAMILY,
   '97983': SPACE_LADY_FAMILY,
+  '86492': MOONLIGHT2_FAMILY,
+  '86494': MOONLIGHT2_ARANCIO_FAMILY,
+  '89950': MIKY_FAMILY,
+  '89955': MIKY_ARANCIO_FAMILY,
+  '73755': RENO_HV_GIALLO_FAMILY,
+  '73757': RENO_HV_ARANCIO_FAMILY,
 }
 
 /** SKU con certificazioni/PDF tecnici consentiti in categoria Sicurezza. */
@@ -293,7 +649,7 @@ const APPAREL_SUBCATEGORIES = new Set([
   SICUREZZA_SUBCATEGORY_GIACCHE.toLowerCase(),
 ])
 
-const SIZE_LABEL_RE = /^(XS|S|M|L|XL|XXL|3XL|XXXL)$/i
+const SIZE_LABEL_RE = /^(XS|S|M|L|XL|XXL|2XL|3XL|XXXL|4XL)$/i
 
 export function isSicurezzaApparelSizeLabel(label: string): boolean {
   return SIZE_LABEL_RE.test(label.trim())
@@ -342,22 +698,27 @@ export function isSicurezzaDocsAllowlistedProduct(
 export function extractApparelSizeFromProduct(
   product: Pick<OfficeProduct, 'name' | 'format' | 'mainFeatures'>,
 ): SicurezzaApparelSize | null {
+  const normalizeSize = (raw: string): SicurezzaApparelSize => {
+    const s = raw.trim().toUpperCase()
+    if (s === '2XL') return 'XXL'
+    if (s === 'XXXL') return '3XL'
+    return s as SicurezzaApparelSize
+  }
   const fromFormat = String(product.format ?? '')
     .trim()
-    .match(/^(XS|S|M|L|XL|XXL|3XL)\b/i)
+    .match(/^(XS|S|M|L|XL|XXL|2XL|3XL|4XL)\b/i)
   if (fromFormat) {
-    const s = fromFormat[1].toUpperCase()
-    return (s === 'XXXL' ? '3XL' : s) as SicurezzaApparelSize
+    return normalizeSize(fromFormat[1])
   }
-  const fromName = String(product.name ?? '').match(/\btaglia\s+(XS|S|M|L|XL|XXL|3XL|XXXL)\b/i)
+  const fromName = String(product.name ?? '').match(
+    /\btaglia\s+(XS|S|M|L|XL|XXL|2XL|3XL|XXXL|4XL)\b/i,
+  )
   if (fromName) {
-    const s = fromName[1].toUpperCase()
-    return (s === 'XXXL' ? '3XL' : s) as SicurezzaApparelSize
+    return normalizeSize(fromName[1])
   }
   const feat = product.mainFeatures?.Taglia ?? product.mainFeatures?.taglia ?? ''
   if (isSicurezzaApparelSizeLabel(feat)) {
-    const s = feat.trim().toUpperCase()
-    return (s === 'XXXL' ? '3XL' : s) as SicurezzaApparelSize
+    return normalizeSize(feat)
   }
   return null
 }
@@ -426,6 +787,15 @@ export function applySicurezzaApparelCatalog(product: OfficeProduct): OfficeProd
   }
   if (family?.imageUrl?.trim()) {
     next = { ...next, imageUrl: family.imageUrl.trim() }
+  }
+  if (family?.description?.trim()) {
+    next = { ...next, description: family.description.trim() }
+  }
+  if (family?.mainFeatures && Object.keys(family.mainFeatures).length) {
+    next = {
+      ...next,
+      mainFeatures: { ...next.mainFeatures, ...family.mainFeatures },
+    }
   }
 
   if (family?.sizes?.length) {
@@ -628,5 +998,114 @@ export function buildSpaceLadySoftshellOfficeProduct(): OfficeProduct {
     ean: '8033546443934',
     description:
       'Giacca Softshell donna U-Power Space Lady, grigio/fucsia (modello FU187GF). Softshell ~320 g/m² con membrana U-Tex e tecnologia Free Sound. Disponibile solo nelle taglie M e L a magazzino; selezionare la taglia (FU187GF-M / FU187GF-L) prima dell’acquisto. Conformità tipica EN ISO 13688 / EN 14058 (DPI Cat. I). Prezzo unitario imponibile IVA esclusa.',
+  })
+}
+
+/** Fallback PDP Deltaplus Moonlight 2 Softshell HV giallo fluo (86492). */
+export function buildMoonlight2SoftshellOfficeProduct(): OfficeProduct {
+  return applySicurezzaApparelCatalog({
+    id: '86492',
+    name: MOONLIGHT2_DISPLAY_NAME,
+    brand: 'Deltaplus',
+    producerCode: '86492',
+    category: SICUREZZA_CATEGORY,
+    subcategory: SICUREZZA_SUBCATEGORY_GIACCHE,
+    mainFeatures: { ...MOONLIGHT2_MAIN_FEATURES },
+    imageUrl: MOONLIGHT2_IMAGE_URL,
+    format: 'L · Softshell HV 2 in 1 · taglie S–3XL',
+    price: 60,
+    ean: '3295249222123',
+    description: MOONLIGHT2_DESCRIPTION,
+  })
+}
+
+/** Fallback PDP Deltaplus Moonlight 2 Softshell HV arancio fluo (86494). */
+export function buildMoonlight2ArancioSoftshellOfficeProduct(): OfficeProduct {
+  return applySicurezzaApparelCatalog({
+    id: '86494',
+    name: MOONLIGHT2_ARANCIO_DISPLAY_NAME,
+    brand: 'Deltaplus',
+    producerCode: '86494',
+    category: SICUREZZA_CATEGORY,
+    subcategory: SICUREZZA_SUBCATEGORY_GIACCHE,
+    mainFeatures: { ...MOONLIGHT2_ARANCIO_MAIN_FEATURES },
+    imageUrl: MOONLIGHT2_ARANCIO_IMAGE_URL,
+    imageGalleryUrls: [...MOONLIGHT2_ARANCIO_GALLERY],
+    format: 'M · Softshell HV 2 in 1 · taglie S–3XL',
+    price: 60,
+    ean: '3295249222161',
+    description: MOONLIGHT2_ARANCIO_DESCRIPTION,
+  })
+}
+
+/** Fallback PDP U-Power Miky Softshell HV giallo fluo (89950). */
+export function buildMikySoftshellOfficeProduct(): OfficeProduct {
+  return applySicurezzaApparelCatalog({
+    id: '89950',
+    name: MIKY_DISPLAY_NAME,
+    brand: 'U-Power',
+    producerCode: '89950',
+    category: SICUREZZA_CATEGORY,
+    subcategory: SICUREZZA_SUBCATEGORY_GIACCHE,
+    mainFeatures: { ...MIKY_MAIN_FEATURES },
+    imageUrl: MIKY_IMAGE_URL,
+    format: 'L · Softshell HV Miky · taglie S–4XL',
+    price: 55,
+    ean: '8033546387245',
+    description: MIKY_DESCRIPTION,
+  })
+}
+
+/** Fallback PDP U-Power Miky Softshell HV arancio fluo (89955). */
+export function buildMikyArancioSoftshellOfficeProduct(): OfficeProduct {
+  return applySicurezzaApparelCatalog({
+    id: '89955',
+    name: MIKY_ARANCIO_DISPLAY_NAME,
+    brand: 'U-Power',
+    producerCode: '89955',
+    category: SICUREZZA_CATEGORY,
+    subcategory: SICUREZZA_SUBCATEGORY_GIACCHE,
+    mainFeatures: { ...MIKY_ARANCIO_MAIN_FEATURES },
+    imageUrl: MIKY_ARANCIO_IMAGE_URL,
+    format: 'XL · Softshell HV Miky · taglie S–4XL',
+    price: 55,
+    ean: '8033546387320',
+    description: MIKY_ARANCIO_DESCRIPTION,
+  })
+}
+
+/** Fallback PDP Deltaplus Reno HV giallo fluo (73755). */
+export function buildRenoHvGialloOfficeProduct(): OfficeProduct {
+  return applySicurezzaApparelCatalog({
+    id: '73755',
+    name: RENO_HV_GIALLO_DISPLAY_NAME,
+    brand: 'Deltaplus',
+    producerCode: '73755',
+    category: SICUREZZA_CATEGORY,
+    subcategory: SICUREZZA_SUBCATEGORY_GIUBBOTTI,
+    mainFeatures: { ...RENO_HV_GIALLO_MAIN_FEATURES },
+    imageUrl: RENO_HV_GIALLO_IMAGE_URL,
+    format: 'XL · Reno HV 2 in 1 · taglie S–3XL',
+    price: 55,
+    ean: '3295249161972',
+    description: RENO_HV_DESCRIPTION,
+  })
+}
+
+/** Fallback PDP Deltaplus Reno HV arancio fluo (73757). */
+export function buildRenoHvArancioOfficeProduct(): OfficeProduct {
+  return applySicurezzaApparelCatalog({
+    id: '73757',
+    name: RENO_HV_ARANCIO_DISPLAY_NAME,
+    brand: 'Deltaplus',
+    producerCode: '73757',
+    category: SICUREZZA_CATEGORY,
+    subcategory: SICUREZZA_SUBCATEGORY_GIUBBOTTI,
+    mainFeatures: { ...RENO_HV_ARANCIO_MAIN_FEATURES },
+    imageUrl: RENO_HV_ARANCIO_IMAGE_URL,
+    format: 'XL · Reno HV 2 in 1 · taglie S–3XL',
+    price: 55,
+    ean: '3295249162030',
+    description: RENO_HV_DESCRIPTION,
   })
 }

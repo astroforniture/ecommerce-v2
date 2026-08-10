@@ -6,6 +6,7 @@ import { buildCasseDitronOfficeProducts } from '../data/casseDitronProducts'
 import { buildDistruggidocumentiOfficeProducts } from '../data/distruggidocumentiProducts'
 import { buildEtichettatriciOfficeProducts } from '../data/macchineEtichettatrici'
 import { buildVerificaBanconoteOfficeProducts } from '../data/verificaBanconoteProducts'
+import { buildPlastificatriciOfficeProducts } from '../data/plastificatriciProducts'
 import type { MegaMenuPreviewSource } from '../data/megaMenuNav'
 import { buildPileOfficeProducts } from '../data/pileProducts'
 import { buildQuaderniOfficeProducts } from '../data/quaderniProducts'
@@ -31,6 +32,9 @@ import {
   normalizeOfficeProductCategory,
   officeCategoryFilterFromUrlParam,
 } from '../lib/officeCategories'
+import { matchesAstroMedicalSubcategoryFilter } from '../lib/astroMedicalSubcategories'
+import { LINEA_ASTRO_MEDICAL_CATEGORY } from '../data/iHealthAstroMedicalProducts'
+import { buildLineaAstroMedicalAllOfficeProducts } from '../data/lineaAstroMedicalCombined'
 import { isTimbroAziendeFarmacieProduct } from '../lib/timbroAziendeFarmacieProduct'
 import { isSupabaseConfigured } from '../lib/supabaseClient'
 import type { QueryClient } from '@tanstack/react-query'
@@ -147,6 +151,14 @@ function filterByPreviewSource(
       if (categoryNorm === 'modulistica') {
         return matchesModulisticaSubcategoryFilter(p, source.subcategory)
       }
+      if (
+        categoryNorm === LINEA_ASTRO_MEDICAL_CATEGORY.toLowerCase() ||
+        source.category.localeCompare(LINEA_ASTRO_MEDICAL_CATEGORY, 'it', {
+          sensitivity: 'base',
+        }) === 0
+      ) {
+        return matchesAstroMedicalSubcategoryFilter(p, source.subcategory)
+      }
       const sub = (p.subcategory ?? '').trim()
       return sub.localeCompare(source.subcategory, 'it', { sensitivity: 'base' }) === 0
     })
@@ -160,7 +172,7 @@ function filterByPreviewSource(
 }
 
 function syncMacchinePreview(
-  catalog: 'distruggi' | 'etichettatrici' | 'casse' | 'verifica-banconote' | 'hub',
+  catalog: 'distruggi' | 'etichettatrici' | 'casse' | 'verifica-banconote' | 'plastificatrici' | 'hub',
 ): OfficeProduct[] {
   if (catalog === 'distruggi') return listPreviewProducts(buildDistruggidocumentiOfficeProducts())
   if (catalog === 'etichettatrici') return listPreviewProducts(buildEtichettatriciOfficeProducts())
@@ -168,11 +180,15 @@ function syncMacchinePreview(
   if (catalog === 'verifica-banconote') {
     return listPreviewProducts(buildVerificaBanconoteOfficeProducts())
   }
+  if (catalog === 'plastificatrici') {
+    return listPreviewProducts(buildPlastificatriciOfficeProducts())
+  }
   return listPreviewProducts([
     ...buildDistruggidocumentiOfficeProducts(),
     ...buildEtichettatriciOfficeProducts(),
     ...buildCasseDitronOfficeProducts(),
     ...buildVerificaBanconoteOfficeProducts(),
+    ...buildPlastificatriciOfficeProducts(),
   ])
 }
 
@@ -214,11 +230,26 @@ export async function fetchMegaMenuPreviewProducts(
   }
 
   if (source.kind === 'category') {
+    if (
+      source.category.localeCompare(LINEA_ASTRO_MEDICAL_CATEGORY, 'it', {
+        sensitivity: 'base',
+      }) === 0
+    ) {
+      return listPreviewProducts(buildLineaAstroMedicalAllOfficeProducts())
+    }
     const products = await fetchCategoryProducts(source.category)
     return listPreviewProducts(filterByPreviewSource(products, source))
   }
 
   if (source.kind === 'office-subcategory') {
+    if (
+      source.category.localeCompare(LINEA_ASTRO_MEDICAL_CATEGORY, 'it', {
+        sensitivity: 'base',
+      }) === 0
+    ) {
+      const products = buildLineaAstroMedicalAllOfficeProducts()
+      return listPreviewProducts(filterByPreviewSource(products, source))
+    }
     const products = await fetchCategoryProducts(source.category)
     return listPreviewProducts(filterByPreviewSource(products, source))
   }
