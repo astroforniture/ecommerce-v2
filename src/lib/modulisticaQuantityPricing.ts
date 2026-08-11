@@ -85,6 +85,7 @@ export const MODULISTICA_SKU_QUANTITY_PRICING: Record<string, ModulisticaSkuPric
   'E 3259':   { basePrice: 9.9,  tiers: [] },  // Schede 3col 15×21 orizzontale
   'E 3369':   { basePrice: 9.9,  tiers: [] },  // Schede 3col 17×24 orizzontale
   'E 3406':   { basePrice: 9.9,  tiers: [] },  // Schede 3col 24×17 verticale
+  E2172:      { basePrice: 22.9, tiers: [] },  // Giornale degli affari 96pg 31×24,5
 }
 
 function roundEur(value: number): number {
