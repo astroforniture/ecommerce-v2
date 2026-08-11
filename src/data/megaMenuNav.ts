@@ -50,14 +50,6 @@ import {
   macchineUfficioPlastificatriciListingPath,
 } from './plastificatriciProducts'
 import { macchineUfficioHubPath } from '../lib/macchineUfficioRoutes'
-import {
-  LINEA_ASTRO_MEDICAL_CATEGORY,
-  lineaAstroMedicalCatalogPath,
-} from './iHealthAstroMedicalProducts'
-import {
-  ASTRO_MEDICAL_MACROS,
-  lineaAstroMedicalMacroHref,
-} from '../lib/astroMedicalSubcategories'
 import { SERVIZI_NAV_ITEMS } from './serviziCatalog'
 import {
   CANCELLERIA_SUB_BUSTE,
@@ -277,29 +269,6 @@ export const MEGA_MENU_CATEGORIES: MegaMenuCategory[] = [
         coverImageUrl: PLASTIFICATRICI_COVER_IMAGE_URL,
         preview: { kind: 'macchine', catalog: 'plastificatrici' },
       },
-    ],
-  },
-  {
-    id: 'astro-medical',
-    label: 'Astro Medical Shop',
-    href: lineaAstroMedicalCatalogPath(),
-    subs: [
-      {
-        id: 'astro-medical-all',
-        label: 'Tutti i prodotti',
-        href: lineaAstroMedicalCatalogPath(),
-        preview: { kind: 'category', category: LINEA_ASTRO_MEDICAL_CATEGORY },
-      },
-      ...ASTRO_MEDICAL_MACROS.map((macro) => ({
-        id: `astro-medical-${macro.id}`,
-        label: macro.label,
-        href: lineaAstroMedicalMacroHref(macro.label),
-        preview: {
-          kind: 'office-subcategory' as const,
-          category: LINEA_ASTRO_MEDICAL_CATEGORY,
-          subcategory: macro.label,
-        },
-      })),
     ],
   },
   {
