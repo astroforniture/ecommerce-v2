@@ -1,7 +1,8 @@
 /** PDF informativo ufficiale — file in `public/pdf/`. */
 const ASTRO_SALUTE_PDF_URL = '/pdf/POLIAMBULATORIO%20ASTRO%20SALUTE.pdf'
 
-const ASTRO_SALUTE_BANNER_IMAGE = '/astro-salute/image_e0cb5f.png'
+/** Banner ufficiale Poliambulatorio (export da PDF informativo). */
+const ASTRO_SALUTE_BANNER_IMAGE = '/images/banners/astro-salute.jpg'
 const ASTRO_SALUTE_SERVICES_IMAGE = '/astro-salute/image_e0ce46.png'
 
 const ASTRO_SALUTE_LABEL =
@@ -28,9 +29,9 @@ export function AstroSalutePromoSection() {
           <img
             src={ASTRO_SALUTE_BANNER_IMAGE}
             alt={ASTRO_SALUTE_LABEL}
-            width={1400}
-            height={420}
-            className="block w-full object-cover transition duration-300 group-hover:scale-[1.01]"
+            width={1500}
+            height={1000}
+            className="block w-full bg-white object-contain transition duration-300 group-hover:scale-[1.01]"
             loading="lazy"
             decoding="async"
           />
