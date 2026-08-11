@@ -7,7 +7,6 @@ export const MODULISTICA_CATEGORY_NORM = 'modulistica'
 export const MODULISTICA_SUB_ALBERGHI = 'Alberghi e Ristoranti' as const
 export const MODULISTICA_SUB_CONDOMINIO = 'Condominio ed Edilizia' as const
 export const MODULISTICA_SUB_CONTABILITA = 'Contabilità IVA e Generale' as const
-export const MODULISTICA_SUB_MAGAZZINO = 'Magazzino e Trasporti' as const
 export const MODULISTICA_SUB_STAMPATI_FISCALI = 'Stampati Fiscali' as const
 
 /** Alias legacy → macro ufficiali (URL, DB, migration precedenti). */
@@ -25,12 +24,6 @@ const MODULISTICA_SUBCATEGORY_ALIASES: Record<string, string> = {
   'registri fiscali e iva': MODULISTICA_SUB_CONTABILITA,
   'registri fiscali e beni usati': MODULISTICA_SUB_CONTABILITA,
   'schede contabili e maste': MODULISTICA_SUB_CONTABILITA,
-  'buoni di consegna e tentata vendita': MODULISTICA_SUB_MAGAZZINO,
-  'documenti di trasporto (ddt)': MODULISTICA_SUB_MAGAZZINO,
-  'documenti di trasporto': MODULISTICA_SUB_MAGAZZINO,
-  'documenti di trasporto e tentata vendita': MODULISTICA_SUB_MAGAZZINO,
-  'buoni di consegna e ricevute': MODULISTICA_SUB_MAGAZZINO,
-  'magazzino e trasporti': MODULISTICA_SUB_MAGAZZINO,
   'ricevute fiscali e fatture': MODULISTICA_SUB_STAMPATI_FISCALI,
   'stampati fiscali': MODULISTICA_SUB_STAMPATI_FISCALI,
 }
@@ -39,7 +32,6 @@ export const MODULISTICA_SUBCATEGORIES = [
   MODULISTICA_SUB_ALBERGHI,
   MODULISTICA_SUB_CONDOMINIO,
   MODULISTICA_SUB_CONTABILITA,
-  MODULISTICA_SUB_MAGAZZINO,
   MODULISTICA_SUB_STAMPATI_FISCALI,
 ] as const
 
@@ -53,7 +45,6 @@ export const MODULISTICA_SUBCATEGORY_COVER_IMAGE: Record<ModulisticaSubcategory,
   [MODULISTICA_SUB_ALBERGHI]: '/images/d06c153f-a63e-428c-ada0-6a10dfb17f4a.jpg',
   [MODULISTICA_SUB_CONDOMINIO]: '/images/298dec2f-59c6-4cf3-b8a1-c27af2d613ab.jpg',
   [MODULISTICA_SUB_CONTABILITA]: '/images/86e56334-f38d-4d6e-b0aa-2ef9b6fc565a.jpg',
-  [MODULISTICA_SUB_MAGAZZINO]: '/images/2534e81f-339e-4485-8400-f3367285121e.jpg',
   [MODULISTICA_SUB_STAMPATI_FISCALI]: '/images/82aed2d3-b9a7-4813-8183-2abd6fee6add.jpg',
 }
 
@@ -354,142 +345,6 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     imageUrl: '/images/ec49d2be-fc99-4a91-8e29-55278111be90.jpg',
     description:
       'Registro acquisti beni usati Edipro, 23 pagine numerate, formato 31 × 24,5 cm.',
-  },
-  // Magazzino e Trasporti — buoni di consegna
-  {
-    sku: 'E 5199 CT',
-    name: 'Blocco buono di consegna 33×3 autoricalcante – Formato 9,9×17',
-    subcategory: MODULISTICA_SUB_MAGAZZINO,
-    ean: '8023328519926',
-    brand: 'Edipro',
-    format: '9,9 x 17 cm',
-    imageUrl: '/images/a0d59abb-d8ad-4bb2-a129-418e1091f206.jpg',
-    description:
-      'Blocco buono di consegna Edipro 33×3 autoricalcante, formato 9,9 × 17 cm.',
-  },
-  {
-    sku: 'E 5196 C',
-    name: 'Blocco buono di consegna 50×2 autoricalcante – Formato 9,9×17',
-    subcategory: MODULISTICA_SUB_MAGAZZINO,
-    ean: '8023328519612',
-    brand: 'Edipro',
-    format: '9,9 x 17 cm',
-    imageUrl: '/images/E5196C.jpg',
-    description:
-      'Blocco buono di consegna Edipro 50×2 autoricalcante, formato 9,9 × 17 cm.',
-  },
-  {
-    sku: 'E 5197 C',
-    name: 'Blocco buono di consegna 50×2 autoricalcante – Formato 12×17,5',
-    subcategory: MODULISTICA_SUB_MAGAZZINO,
-    ean: '8023328519711',
-    brand: 'Edipro',
-    format: '12 x 17,5 cm',
-    imageUrl: '/images/acd68330-ccd7-4966-a019-5e2850498133.jpg',
-    description:
-      'Blocco buono di consegna Edipro 50×2 autoricalcante, formato 12 × 17,5 cm.',
-  },
-  {
-    sku: 'E 5209 C',
-    name: 'Blocco buono di consegna 50×2 autoricalcante – Formato 22×14,8',
-    subcategory: MODULISTICA_SUB_MAGAZZINO,
-    ean: '8023328520915',
-    brand: 'Edipro',
-    format: '22 x 14,8 cm',
-    imageUrl: '/images/b81e025a-a6f2-4666-8ecc-ec6d54009ef2.jpg',
-    description:
-      'Blocco buono di consegna Edipro 50×2 autoricalcante, formato 22 × 14,8 cm.',
-  },
-  {
-    sku: 'E 5217 A',
-    name: 'Blocco nota di consegna tentata vendita 50×2 autoricalcante – Formato 14,8×22',
-    subcategory: MODULISTICA_SUB_MAGAZZINO,
-    ean: '8023328521714',
-    brand: 'Edipro',
-    format: '14,8 x 22 cm',
-    imageUrl: '/images/5138f9f1-8b53-44c2-88be-d9a573b8f19e.jpg',
-    description:
-      'Blocco nota di consegna tentata vendita Edipro 50×2 autoricalcante, formato 14,8 × 22 cm.',
-  },
-  // Magazzino e Trasporti — DDT
-  {
-    sku: 'E 5215 CT',
-    name: 'Blocco documento di trasporto 33×3 autoricalcante – Formato 22×14,8',
-    subcategory: MODULISTICA_SUB_MAGAZZINO,
-    ean: '8023328521523',
-    brand: 'Edipro',
-    format: '22 x 14,8 cm',
-    imageUrl: '/images/67916f2e-6c8e-4bd5-afa0-48539f0193c3.jpg',
-    description:
-      'Blocco documento di trasporto Edipro 33×3 autoricalcante, formato 22 × 14,8 cm.',
-  },
-  {
-    sku: 'E 5219 CT',
-    name: 'Blocco documento di trasporto 33×3 autoricalcante – Formato 29,7×22',
-    subcategory: MODULISTICA_SUB_MAGAZZINO,
-    ean: '8023328521929',
-    brand: 'Edipro',
-    format: '29,7 x 22 cm',
-    imageUrl: '/images/2534e81f-339e-4485-8400-f3367285121e.jpg',
-    description:
-      'Blocco documento di trasporto Edipro 33×3 autoricalcante, formato 29,7 × 22 cm.',
-  },
-  {
-    sku: 'E 5214 C',
-    name: 'Blocco documento di trasporto 50×2 autoricalcante – Formato 22×14,8',
-    subcategory: MODULISTICA_SUB_MAGAZZINO,
-    ean: '8023328521417',
-    brand: 'Edipro',
-    format: '22 x 14,8 cm',
-    imageUrl: '/images/54ff20b5-7ee1-47b9-8072-0689994338d5.jpg',
-    description:
-      'Blocco documento di trasporto Edipro 50×2 autoricalcante, formato 22 × 14,8 cm.',
-  },
-  {
-    sku: 'E 5218 C',
-    name: 'Blocco documento di trasporto 25×4 autoricalcante – Formato 29,7×22',
-    subcategory: MODULISTICA_SUB_MAGAZZINO,
-    ean: '8023328521813',
-    brand: 'Edipro',
-    format: '29,7 x 22 cm',
-    imageUrl: '/images/d24a0031-d576-4d01-85a7-5bfa004a03bf.jpg',
-    description:
-      'Blocco documento di trasporto Edipro 25×4 autoricalcante, formato 29,7 × 22 cm.',
-  },
-  // Magazzino e Trasporti — DDT tentata vendita
-  {
-    sku: 'E 5220 G',
-    name: 'Blocco documento di trasporto carico per tentata vendita 50×2 autoricalcante – Formato 29,7×22',
-    subcategory: MODULISTICA_SUB_MAGAZZINO,
-    ean: '8023328522018',
-    brand: 'Edipro',
-    format: '29,7 x 22 cm',
-    imageUrl: '/images/5a2bd0c9-2438-4f03-8594-7dbc2d48802d.jpg',
-    description:
-      'Blocco documento di trasporto carico per tentata vendita Edipro 50×2 autoricalcante, formato 29,7 × 22 cm.',
-  },
-  {
-    sku: 'E 5221 C',
-    name: 'Blocco D.D.T. fattura tentata vendita 50×2 autoricalcante – Formato 29,7×22',
-    subcategory: MODULISTICA_SUB_MAGAZZINO,
-    ean: '8023328522117',
-    brand: 'Edipro',
-    format: '29,7 x 22 cm',
-    imageUrl: '/images/3ed3120b-c35b-4039-a941-b10b6dca6d1c.jpg',
-    description:
-      'Blocco D.D.T. fattura tentata vendita Edipro 50×2 autoricalcante, formato 29,7 × 22 cm.',
-  },
-  // Magazzino e Trasporti — buoni / ricevute
-  {
-    sku: 'E 5183',
-    name: 'Blocco buono di consegna 100 fogli uso mano – Formato 9,9×17',
-    subcategory: MODULISTICA_SUB_MAGAZZINO,
-    ean: '8023328518301',
-    brand: 'Edipro',
-    format: '9,9 x 17 cm',
-    imageUrl: '/images/2cbbb207-0340-42bb-afd5-4217dd356ff0.jpg',
-    description:
-      'Blocco buono di consegna Edipro 100 fogli uso mano, formato 9,9 × 17 cm.',
   },
   // Contabilità IVA e Generale — schede
   {
