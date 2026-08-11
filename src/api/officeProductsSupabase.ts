@@ -50,6 +50,7 @@ import {
 import { buildSupabaseIlikePatterns } from '../lib/supabaseSearchPatterns'
 import { debugLogVetrinaProdottiNomi } from '../lib/debugShowcaseCatalog'
 import { purchaseQuantityRuleForSku } from '../lib/purchaseQuantity'
+import { applyModulisticaQuantityPricing } from '../lib/modulisticaQuantityPricing'
 
 /**
  * Catalogo lista/vetrina: unisce `public.office_products` (solo colonne base presenti sul DB) e
@@ -61,7 +62,7 @@ import { purchaseQuantityRuleForSku } from '../lib/purchaseQuantity'
  * Aumenta dopo pulizie massicce su `public.products` (es. titoli): nuove `queryKey` in React Query
  * così il client non riusa dati serializzati vecchi con titoli obsoleti.
  */
-export const OFFICE_CATALOG_DATA_REVISION = 279
+export const OFFICE_CATALOG_DATA_REVISION = 282
 
 const SUPPRESSED_PRODUCTS_BY_ID = new Set([
   '55acce14-88cd-4b12-807d-cd2753894639', // Starbox dorso 5 cm arancio (rimozione richiesta)
@@ -3210,8 +3211,11 @@ function attachQuantityTiers(
     tiersByProductId.get(idKey) ??
     (skuKey !== idKey ? tiersByProductId.get(skuKey) : undefined) ??
     []
-  if (!tiers.length) return product
-  return { ...product, quantityPriceTiers: tiers.map((t) => ({ ...t })) }
+  const withDbTiers = tiers.length
+    ? { ...product, quantityPriceTiers: tiers.map((t) => ({ ...t })) }
+    : product
+  // Modulistica: regola categoria ≥10 pezzi (−10%) sul listino corrente (override DB).
+  return applyModulisticaQuantityPricing(withDbTiers)
 }
 
 /** Se un solo SKU della famiglia ha righe in `product_quantity_prices`, riusa lo stesso listino per gli altri. */

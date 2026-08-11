@@ -57,7 +57,6 @@ export const MODULISTICA_IMAGE_BY_SKU = {
   'E 5350': '/images/f8291f0e-e4a5-43e8-964b-583c72260f0a.jpg',
   'E 5351': '/images/E5351.jpg',
   'E 5911': '/images/E5911.jpg',
-  'E 9117': '/images/E9117.jpg',
   E2666: '/images/E2666.jpg',
   'E 5196 C': '/images/E5196C.jpg',
   'E 5567 C': '/images/E5567C.jpg',

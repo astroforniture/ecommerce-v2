@@ -92,6 +92,10 @@ import {
   quantityDiscountRowsDetailed,
 } from '../lib/quantityPricing'
 import {
+  applyModulisticaQuantityPricing,
+  isModulisticaQuantityPricingProduct,
+} from '../lib/modulisticaQuantityPricing'
+import {
   nextPurchaseQuantity,
   purchaseQuantityRuleForProduct,
   snapPurchaseQuantity,
@@ -2597,6 +2601,12 @@ export function ProductDetailPage() {
     }
     const own = product?.quantityPriceTiers
     if (own && own.length > 0) return own.map((t) => ({ ...t }))
+    if (isModulisticaQuantityPricingProduct(product) && product) {
+      const priced = applyModulisticaQuantityPricing(product)
+      if (priced.quantityPriceTiers?.length) {
+        return priced.quantityPriceTiers.map((t) => ({ ...t }))
+      }
+    }
     if (isStarlineCartellina) {
       const fromSelected = effectiveCartellinaProduct?.quantityPriceTiers
       if (fromSelected && fromSelected.length > 0) return fromSelected.map((t) => ({ ...t }))
@@ -2755,7 +2765,9 @@ export function ProductDetailPage() {
     [effectiveBasePrice, effectiveQuantityTiers],
   )
   const showQuantityDiscountTable =
-    ((effectiveQuantityTiers?.length ?? 0) > 1 || isImpulse75A4) &&
+    ((effectiveQuantityTiers ?? []).some((t) => t.minQuantity > 1) ||
+      (effectiveQuantityTiers?.length ?? 0) > 1 ||
+      isImpulse75A4) &&
     !isPilotHiTecpoint &&
     !isStaedtlerNoris &&
     !isZenithPoints &&
@@ -2784,6 +2796,11 @@ export function ProductDetailPage() {
               {discountRowsDetailed.map((row, rowIdx) => {
                 const active = isQuantityInDiscountTier(quantity, row)
                 const isBaseRow = rowIdx === 0
+                const baseUnit = effectiveBasePrice ?? 0
+                const pctOff =
+                  !isBaseRow && baseUnit > 0 && row.unitPrice < baseUnit
+                    ? Math.round((1 - row.unitPrice / baseUnit) * 100)
+                    : 0
                 return (
                   <tr
                     key={`tier-${row.minQty}-${row.maxQty ?? 'x'}-${row.unitPrice}-${rowIdx}`}
@@ -2797,6 +2814,11 @@ export function ProductDetailPage() {
                       className={`py-2.5 pr-2 ${active ? 'text-slate-900' : 'text-slate-700'}`}
                     >
                       {row.label}
+                      {pctOff > 0 ? (
+                        <span className="ml-2 inline-block rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-800">
+                          −{pctOff}%
+                        </span>
+                      ) : null}
                     </td>
                     <td
                       className={[

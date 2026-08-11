@@ -85,6 +85,7 @@ import {
   matchesModulisticaSubcategoryFilter,
   modulisticaCategoryHref,
 } from '../data/modulisticaCatalog'
+import { applyModulisticaQuantityPricing } from '../lib/modulisticaQuantityPricing'
 import { mergeCartaTermicaListingProducts } from '../data/cartaTermicaCatalog'
 import {
   isTimbroAziendeFarmacieProduct,
@@ -655,7 +656,7 @@ export function OfficePage() {
       return mergeModulisticaListingProducts(
         normalizedProducts,
         selectedSubcategory || undefined,
-      )
+      ).map(applyModulisticaQuantityPricing)
     }
     if (selectedCategoryNorm === 'carta') {
       return mergeCartaTermicaListingProducts(normalizedProducts)

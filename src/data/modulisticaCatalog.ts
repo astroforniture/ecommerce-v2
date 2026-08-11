@@ -103,17 +103,6 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
       'Blocco comande Edipro a 25×3 fogli autoricalcanti, formato 17 × 9,9 cm. Ideale per alberghi e ristoranti.',
   },
   {
-    sku: 'E 9117',
-    name: 'Blocco comande a 7 tagliandi - 25x2 fogli autoricalcanti - 22 x 10 cm - Edipro',
-    subcategory: MODULISTICA_SUB_ALBERGHI,
-    ean: '8023328911706',
-    brand: 'Edipro',
-    format: '22 x 10 cm',
-    imageUrl: '/images/E9117.jpg',
-    description:
-      'Blocco comande Edipro a 7 tagliandi, 25×2 fogli autoricalcanti, formato 22 × 10 cm.',
-  },
-  {
     sku: 'E 5913',
     name: 'Blocco comande - 2 copie autoricalcanti - 17 x 9,9 cm - Edipro',
     subcategory: MODULISTICA_SUB_ALBERGHI,
