@@ -23,7 +23,7 @@ export function AstroSalutePromoSection() {
           href={ASTRO_SALUTE_PDF_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="group block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-sky-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40 focus-visible:ring-offset-2"
+          className="group flex justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-sky-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40 focus-visible:ring-offset-2 sm:p-4 md:p-5"
           aria-label={`Apri il PDF informativo: ${ASTRO_SALUTE_LABEL}`}
         >
           <img
@@ -31,7 +31,7 @@ export function AstroSalutePromoSection() {
             alt={ASTRO_SALUTE_LABEL}
             width={1500}
             height={1000}
-            className="block w-full bg-white object-contain transition duration-300 group-hover:scale-[1.01]"
+            className="mx-auto block h-auto w-[70%] max-w-full bg-white object-contain transition duration-300 group-hover:scale-[1.01]"
             loading="lazy"
             decoding="async"
           />
