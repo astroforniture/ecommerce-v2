@@ -213,17 +213,6 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
       'Blocco prima nota cassa Edipro 50×2 autoricalcante (cassa-banca), formato 22 × 29,7 cm.',
   },
   {
-    sku: 'E 5351',
-    name: 'Blocco stato di cassa 100 fogli uso mano – Formato 22×14,8',
-    subcategory: MODULISTICA_SUB_CONTABILITA,
-    ean: '8023328535100',
-    brand: 'Edipro',
-    format: '22 x 14,8 cm',
-    imageUrl: '/images/E5351.jpg',
-    description:
-      'Blocco stato di cassa Edipro 100 fogli uso mano, formato 22 × 14,8 cm.',
-  },
-  {
     sku: 'E 5356',
     name: 'Blocco prima nota cassa 100 fogli uso mano (entrata – uscita – IVA) – Formato 29,7×22',
     subcategory: MODULISTICA_SUB_CONTABILITA,
@@ -255,17 +244,6 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     imageUrl: '/images/ee4bb8de-1d14-4b04-b9fd-ff408aed5277.jpg',
     description:
       'Blocco prima nota cassa Edipro 50×2 autoricalcante (entrate – uscite), formato 29,7 × 22 cm.',
-  },
-  {
-    sku: 'E 5279 A',
-    name: 'Blocco fattura generica 50×2 autoricalcante – Formato 22×14,8',
-    subcategory: MODULISTICA_SUB_CONTABILITA,
-    ean: '8023328527914',
-    brand: 'Edipro',
-    format: '22 x 14,8 cm',
-    imageUrl: '/images/1ebf60d5-d1ba-419f-b002-50cb6aa27555.jpg',
-    description:
-      'Blocco fattura generica Edipro 50×2 autoricalcante, formato 22 × 14,8 cm.',
   },
   {
     sku: 'E4033',
@@ -347,15 +325,6 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     imageUrl: '/images/55037817-9ba0-4a46-ab8e-bd40cd82a800.jpg',
     description: 'Registro 3 colonne Edipro, 96 pagine, formato 31 × 24,5 cm.',
   },
-  {
-    sku: 'E2649',
-    name: 'Registro libro cassa 96 pagine – Formato 17×12',
-    subcategory: MODULISTICA_SUB_CONTABILITA,
-    brand: 'Edipro',
-    format: '17 x 12 cm',
-    imageUrl: '/images/481977de-4f37-43e5-94c5-8effefc09045.jpg',
-    description: 'Registro libro cassa Edipro, 96 pagine, formato 17 × 12 cm.',
-  },
   // Contabilità IVA e Generale — registri fiscali
   {
     sku: 'E2172',
@@ -385,27 +354,6 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     imageUrl: '/images/ec49d2be-fc99-4a91-8e29-55278111be90.jpg',
     description:
       'Registro acquisti beni usati Edipro, 23 pagine numerate, formato 31 × 24,5 cm.',
-  },
-  {
-    sku: 'E2133',
-    name: 'Registro IVA fatture 22 pagine numerate – Formato 31×24,5',
-    subcategory: MODULISTICA_SUB_CONTABILITA,
-    brand: 'Edipro',
-    format: '31 x 24,5 cm',
-    imageUrl: '/images/b0292a0e-2440-4a32-a52a-6fcd32136524.jpg',
-    description:
-      'Registro IVA fatture Edipro, 22 pagine numerate, formato 31 × 24,5 cm.',
-  },
-  // Contabilità IVA e Generale — beni usati
-  {
-    sku: 'E2134',
-    name: 'Registro vendite beni usati 23 pagine numerate – Formato 31×24,5',
-    subcategory: MODULISTICA_SUB_CONTABILITA,
-    brand: 'Edipro',
-    format: '31 x 24,5 cm',
-    imageUrl: '/images/972d6ca2-7136-4917-91fb-facff83a4523.jpg',
-    description:
-      'Registro vendite beni usati Edipro, 23 pagine numerate, formato 31 × 24,5 cm.',
   },
   // Magazzino e Trasporti — buoni di consegna
   {

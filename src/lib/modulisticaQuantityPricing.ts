@@ -19,8 +19,9 @@ type ModulisticaSkuPricing = {
 
 /**
  * Listini quantità dedicati (imponibile) — chiave = SKU normalizzato (`E 5913`).
- * E 5913: Blocco comande 2 copie 17×9,9
- * E 5911: Blocco comande 25×3 fogli 17×9,9
+ * E 5913 / E 5911: blocchi comande
+ * E 5504 C / E 5563 C: ricevute affitto / generica
+ * E 2529: verbale assemblea condominio
  */
 export const MODULISTICA_SKU_QUANTITY_PRICING: Record<string, ModulisticaSkuPricing> = {
   'E 5913': {
@@ -39,13 +40,36 @@ export const MODULISTICA_SKU_QUANTITY_PRICING: Record<string, ModulisticaSkuPric
       { minQuantity: 31, unitPrice: 1.0 },
     ],
   },
+  'E 5504 C': {
+    basePrice: 4.0,
+    tiers: [
+      { minQuantity: 1, unitPrice: 4.0 },
+      { minQuantity: 11, unitPrice: 3.2 },
+      { minQuantity: 21, unitPrice: 2.9 },
+    ],
+  },
+  'E 5563 C': {
+    basePrice: 4.0,
+    tiers: [
+      { minQuantity: 1, unitPrice: 4.0 },
+      { minQuantity: 11, unitPrice: 3.2 },
+      { minQuantity: 21, unitPrice: 2.9 },
+    ],
+  },
+  'E 2529': {
+    basePrice: 12.9,
+    tiers: [
+      { minQuantity: 1, unitPrice: 12.9 },
+      { minQuantity: 5, unitPrice: 10.9 },
+    ],
+  },
 }
 
 function roundEur(value: number): number {
   return Math.round(value * 100) / 100
 }
 
-/** Normalizza SKU Modulistica (`E5913` / `e 5913` → `E 5913`). */
+/** Normalizza SKU Modulistica (`E5913` → `E 5913`, `E5504C` → `E 5504 C`). */
 export function normalizeModulisticaSkuKey(raw: string | null | undefined): string {
   const t = String(raw ?? '')
     .trim()
@@ -53,8 +77,8 @@ export function normalizeModulisticaSkuKey(raw: string | null | undefined): stri
     .replace(/\s+/g, ' ')
   if (!t) return ''
   const compact = t.replace(/\s/g, '')
-  const m = compact.match(/^E(\d+[A-Z]*)$/)
-  if (m) return `E ${m[1]}`
+  const m = compact.match(/^E(\d+)([A-Z]*)$/)
+  if (m) return m[2] ? `E ${m[1]} ${m[2]}` : `E ${m[1]}`
   return t
 }
 
@@ -105,7 +129,7 @@ function tiersEqual(
 
 /**
  * Applica listini quantità Modulistica:
- * - SKU dedicati (comande E 5913 / E 5911) con scaglioni assoluti
+ * - SKU dedicati (comande, ricevute, verbale) con scaglioni assoluti
  * - resto categoria: ≥10 pezzi (−10%) sul listino corrente
  */
 export function applyModulisticaQuantityPricing(product: OfficeProduct): OfficeProduct {

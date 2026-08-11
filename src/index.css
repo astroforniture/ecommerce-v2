@@ -109,4 +109,67 @@ body {
   }
 }
 
+/* Homepage — banner promozionale Agende 2027 */
+@keyframes agende-promo-shine {
+  0% {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  18%,
+  100% {
+    transform: translateX(220%) skewX(-18deg);
+  }
+}
+
+@keyframes agende-promo-title-glow {
+  0%,
+  100% {
+    text-shadow: 0 0 0 rgba(255, 255, 255, 0);
+  }
+  50% {
+    text-shadow: 0 0 18px rgba(255, 255, 255, 0.35);
+  }
+}
+
+@keyframes agende-promo-cta-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 10px 25px -8px rgba(15, 23, 42, 0.35),
+      0 0 0 0 rgba(255, 255, 255, 0.35);
+  }
+  50% {
+    box-shadow:
+      0 14px 32px -10px rgba(15, 23, 42, 0.45),
+      0 0 0 6px rgba(255, 255, 255, 0.08);
+  }
+}
+
+.home-agende-promo-shine::after {
+  content: '';
+  position: absolute;
+  inset: -40% -60%;
+  background: linear-gradient(
+    105deg,
+    transparent 42%,
+    rgba(255, 255, 255, 0.14) 50%,
+    transparent 58%
+  );
+  animation: agende-promo-shine 4.5s ease-in-out infinite;
+}
+
+.home-agende-promo-title {
+  animation: agende-promo-title-glow 3.5s ease-in-out infinite;
+}
+
+.home-agende-promo-cta {
+  animation: agende-promo-cta-pulse 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-agende-promo-shine::after,
+  .home-agende-promo-title,
+  .home-agende-promo-cta {
+    animation: none;
+  }
+}
 
