@@ -16,7 +16,7 @@ const LINE_CARD_CLASS =
 export function HeroSection() {
   return (
     <section className="bg-white" aria-labelledby="hero-heading">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 px-4 py-12 lg:grid-cols-12">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-8 px-4 pb-12 pt-6 lg:grid-cols-12 sm:pt-8">
         <div className="lg:col-span-5">
           <img
             src={HERO_DECORATIVE_IMAGE_URL}

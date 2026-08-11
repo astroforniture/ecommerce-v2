@@ -1,6 +1,5 @@
 import { HeroSection } from '../components/home/HeroSection'
 import { HomeAgende2027PromoSection } from '../components/home/HomeAgende2027PromoSection'
-import { HomeCategoryHub } from '../components/home/HomeCategoryHub'
 import { FeaturedCategorySpotlight } from '../components/home/FeaturedCategorySpotlight'
 import { BrandMarquee } from '../components/home/BrandMarquee'
 import { WhyChooseUs } from '../components/home/WhyChooseUs'
@@ -11,6 +10,7 @@ import { AstroMedicalShopInfoPanel } from '../components/astroMedical/AstroMedic
 export function HomePage() {
   return (
     <main>
+      <HomeAgende2027PromoSection />
       <HeroSection />
       <section
         className="bg-gradient-to-b from-medical-50/80 to-white"
@@ -20,8 +20,6 @@ export function HomePage() {
           <AstroMedicalShopInfoPanel className="mt-4" />
         </div>
       </section>
-      <HomeCategoryHub />
-      <HomeAgende2027PromoSection />
       <FeaturedCategorySpotlight />
       <BrandMarquee />
       <WhyChooseUs />

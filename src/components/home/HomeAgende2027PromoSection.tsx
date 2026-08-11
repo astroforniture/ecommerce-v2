@@ -12,10 +12,10 @@ const PROMO_CTA = 'Esplora le Agende'
 export function HomeAgende2027PromoSection() {
   return (
     <section
-      className="border-b border-slate-100 bg-gradient-to-b from-slate-50/60 to-white"
+      className="bg-white"
       aria-labelledby="home-agende-2027-heading"
     >
-      <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-9 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 pb-4 pt-6 sm:px-6 sm:pb-5 sm:pt-8 lg:px-8">
         <Link
           to={agendeCategoryHref()}
           className="home-agende-promo-card group relative block overflow-hidden rounded-2xl border border-slate-200/80 shadow-md transition duration-500 hover:scale-[1.02] hover:border-brand-300/60 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2"
