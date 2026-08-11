@@ -3,6 +3,7 @@ import Footer from './components/Footer'
 import { SiteHeader } from './components/layout/SiteHeader'
 import { CartQuickView } from './components/cart/CartQuickView'
 import { CartDrawerProvider } from './context/CartDrawerContext'
+import { Agende2027WelcomeModal } from './components/home/Agende2027WelcomeModal'
 import { AdminRoute } from './components/auth/AdminRoute'
 import { AdminLayout } from './admin/AdminLayout'
 import { AdminHomePage } from './admin/pages/AdminHomePage'
@@ -226,6 +227,7 @@ function StorefrontLayout() {
       <CategoryPromoWidget />
       <Footer />
       <CartQuickView />
+      <Agende2027WelcomeModal />
     </CartDrawerProvider>
   )
 }

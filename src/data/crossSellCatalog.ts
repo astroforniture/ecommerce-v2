@@ -43,6 +43,23 @@ import {
   CARTA_SUBCATEGORY_TERMICA,
   CARTUCCE_TONER_CATEGORY,
 } from '../lib/officeCategories'
+import {
+  AGENDA_ALFA_COLORS,
+  AGENDA_ALFA_SIZES,
+  buildAgendaAlfaOfficeProduct,
+} from './agendeAlfaGiornaliereProducts'
+import {
+  AGENDA_DELTA_SETT_SIZES,
+  buildAgendaDeltaSettOfficeProduct,
+} from './agendeDeltaSettimanaliProducts'
+import {
+  AGENDA_DELTA_COLORS,
+} from './agendeDeltaGiornaliereProducts'
+import {
+  AGENDA_PLAN_ALFA_COLORS,
+  AGENDA_PLAN_LINES,
+  buildAgendaPlanningOfficeProduct,
+} from './agendePlanningProducts'
 
 const BUSTE_TRASPARENTI_SUB = 'Buste Trasparenti' as const
 
@@ -823,9 +840,22 @@ export function getCrossSellForCart(
 }
 
 /**
- * Griglia statica carrello/checkout: essenziali fissi dall'anello ufficio.
+ * Griglia statica carrello/checkout: Agende 2027 in priorità, poi essenziali ufficio.
  */
+const CART_CHECKOUT_AGENDE_2027: readonly OfficeProduct[] = [
+  buildAgendaAlfaOfficeProduct(
+    AGENDA_ALFA_SIZES.find((s) => s.key === '15x21') ?? AGENDA_ALFA_SIZES[0]!,
+    AGENDA_ALFA_COLORS[0],
+  ),
+  buildAgendaDeltaSettOfficeProduct(AGENDA_DELTA_SETT_SIZES[0]!, AGENDA_DELTA_COLORS[0]),
+  buildAgendaPlanningOfficeProduct(
+    AGENDA_PLAN_LINES.find((l) => l.family === 'alfa') ?? AGENDA_PLAN_LINES[0]!,
+    AGENDA_PLAN_ALFA_COLORS[0],
+  ),
+]
+
 export const CART_CHECKOUT_ESSENTIALS: readonly OfficeProduct[] = [
+  ...CART_CHECKOUT_AGENDE_2027,
   OFFICE_RING_CURATED.carta[0]!,
   OFFICE_RING_CURATED['buste-trasparenti'][0]!,
   OFFICE_RING_CURATED.archivio[0]!,
