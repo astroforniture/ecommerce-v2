@@ -52,6 +52,7 @@ const SUB_LABEL = {
   MODULISTICA_SUB_ALBERGHI: 'Alberghi e Ristoranti',
   MODULISTICA_SUB_CONDOMINIO: 'Condominio ed Edilizia',
   MODULISTICA_SUB_CONTABILITA: 'Contabilità IVA e Generale',
+  MODULISTICA_SUB_MAGAZZINO: 'Magazzino e Trasporto',
   MODULISTICA_SUB_STAMPATI_FISCALI: 'Stampati Fiscali',
 }
 

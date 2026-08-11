@@ -30,6 +30,10 @@ import {
   agendeOfficeProductsHref,
   agendeSubcategoryFromSlug,
 } from './lib/agendeCatalog'
+import {
+  modulisticaOfficeProductsHref,
+  modulisticaSubcategoryFromSlug,
+} from './data/modulisticaCatalog'
 import { CartPage } from './pages/CartPage'
 import { HomePage } from './pages/HomePage'
 import { OfficePage } from './pages/OfficePage'
@@ -75,6 +79,7 @@ function LegacyCategoryRoute() {
   if (s === 'carta') return <Navigate to="/office-products?category=Carta" replace />
   if (s === 'archivio') return <Navigate to="/office-products?category=Archivio" replace />
   if (s === 'agende') return <Navigate to={agendeOfficeProductsHref()} replace />
+  if (s === 'modulistica') return <Navigate to={modulisticaOfficeProductsHref()} replace />
   if (s === 'macchine-ufficio' || s === 'macchine-per-ufficio')
     return <Navigate to={MACCHINE_UFFICIO_BASE_PATH} replace />
   return <PlaceholderPage />
@@ -89,6 +94,17 @@ function AgendeSubcategoryRedirect() {
   const subcategory = agendeSubcategoryFromSlug(subSlug)
   if (!subcategory) return <Navigate to={agendeOfficeProductsHref()} replace />
   return <Navigate to={agendeOfficeProductsHref(subcategory)} replace />
+}
+
+function ModulisticaHubRedirect() {
+  return <Navigate to={modulisticaOfficeProductsHref()} replace />
+}
+
+function ModulisticaSubcategoryRedirect() {
+  const { subSlug = '' } = useParams<{ subSlug: string }>()
+  const subcategory = modulisticaSubcategoryFromSlug(subSlug)
+  if (!subcategory) return <Navigate to={modulisticaOfficeProductsHref()} replace />
+  return <Navigate to={modulisticaOfficeProductsHref(subcategory)} replace />
 }
 
 function MacchineUfficioLegacyRedirect() {
@@ -146,6 +162,8 @@ export default function App() {
         />
         <Route path="/agende" element={<AgendeHubRedirect />} />
         <Route path="/agende/:subSlug" element={<AgendeSubcategoryRedirect />} />
+        <Route path="/modulistica" element={<ModulisticaHubRedirect />} />
+        <Route path="/modulistica/:subSlug" element={<ModulisticaSubcategoryRedirect />} />
         <Route path="/prodotti/:slug" element={<ProductDetailPage />} />
         <Route
           path="/product/:productId"

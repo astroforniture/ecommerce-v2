@@ -1456,7 +1456,7 @@ export function OfficePage() {
                 {MODULISTICA_CATEGORY}
               </h2>
               <p className="mt-1.5 text-sm text-slate-600 sm:text-base">
-                Scegli la macro-categoria: Alberghi e Ristoranti, Condominio ed Edilizia, Contabilità IVA e Generale, Magazzino e Trasporti o Stampati Fiscali.
+                Scegli la macro-categoria: Alberghi e Ristoranti, Condominio ed Edilizia, Contabilità IVA e Generale, Magazzino e Trasporto o Stampati Fiscali.
               </p>
             </div>
             <div className={OFFICE_SUBCATEGORY_TILE_GRID_CLASS}>

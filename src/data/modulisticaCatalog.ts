@@ -7,6 +7,7 @@ export const MODULISTICA_CATEGORY_NORM = 'modulistica'
 export const MODULISTICA_SUB_ALBERGHI = 'Alberghi e Ristoranti' as const
 export const MODULISTICA_SUB_CONDOMINIO = 'Condominio ed Edilizia' as const
 export const MODULISTICA_SUB_CONTABILITA = 'Contabilità IVA e Generale' as const
+export const MODULISTICA_SUB_MAGAZZINO = 'Magazzino e Trasporto' as const
 export const MODULISTICA_SUB_STAMPATI_FISCALI = 'Stampati Fiscali' as const
 
 /** Alias legacy → macro ufficiali (URL, DB, migration precedenti). */
@@ -24,6 +25,13 @@ const MODULISTICA_SUBCATEGORY_ALIASES: Record<string, string> = {
   'registri fiscali e iva': MODULISTICA_SUB_CONTABILITA,
   'registri fiscali e beni usati': MODULISTICA_SUB_CONTABILITA,
   'schede contabili e maste': MODULISTICA_SUB_CONTABILITA,
+  'magazzino e trasporto': MODULISTICA_SUB_MAGAZZINO,
+  'magazzino e trasporti': MODULISTICA_SUB_MAGAZZINO,
+  'buoni di consegna e tentata vendita': MODULISTICA_SUB_MAGAZZINO,
+  'documenti di trasporto (ddt)': MODULISTICA_SUB_MAGAZZINO,
+  'documenti di trasporto': MODULISTICA_SUB_MAGAZZINO,
+  'documenti di trasporto e tentata vendita': MODULISTICA_SUB_MAGAZZINO,
+  'buoni di consegna e ricevute': MODULISTICA_SUB_MAGAZZINO,
   'ricevute fiscali e fatture': MODULISTICA_SUB_STAMPATI_FISCALI,
   'stampati fiscali': MODULISTICA_SUB_STAMPATI_FISCALI,
 }
@@ -32,6 +40,7 @@ export const MODULISTICA_SUBCATEGORIES = [
   MODULISTICA_SUB_ALBERGHI,
   MODULISTICA_SUB_CONDOMINIO,
   MODULISTICA_SUB_CONTABILITA,
+  MODULISTICA_SUB_MAGAZZINO,
   MODULISTICA_SUB_STAMPATI_FISCALI,
 ] as const
 
@@ -45,14 +54,46 @@ export const MODULISTICA_SUBCATEGORY_COVER_IMAGE: Record<ModulisticaSubcategory,
   [MODULISTICA_SUB_ALBERGHI]: '/images/d06c153f-a63e-428c-ada0-6a10dfb17f4a.jpg',
   [MODULISTICA_SUB_CONDOMINIO]: '/images/298dec2f-59c6-4cf3-b8a1-c27af2d613ab.jpg',
   [MODULISTICA_SUB_CONTABILITA]: '/images/86e56334-f38d-4d6e-b0aa-2ef9b6fc565a.jpg',
+  [MODULISTICA_SUB_MAGAZZINO]: '/images/2534e81f-339e-4485-8400-f3367285121e.jpg',
   [MODULISTICA_SUB_STAMPATI_FISCALI]: '/images/82aed2d3-b9a7-4813-8183-2abd6fee6add.jpg',
 }
 
+/** Slug path `/modulistica/:slug` → etichetta sottocategoria. */
+export const MODULISTICA_SUBCATEGORY_SLUGS: Record<string, ModulisticaSubcategory> = {
+  'alberghi-e-ristoranti': MODULISTICA_SUB_ALBERGHI,
+  'condominio-ed-edilizia': MODULISTICA_SUB_CONDOMINIO,
+  'contabilita-iva-e-generale': MODULISTICA_SUB_CONTABILITA,
+  'magazzino-e-trasporto': MODULISTICA_SUB_MAGAZZINO,
+  'stampati-fiscali': MODULISTICA_SUB_STAMPATI_FISCALI,
+}
+
+/** Pretty URL hub (`/modulistica`) e listing sottocategoria. */
 export function modulisticaCategoryHref(subcategory?: string): string {
+  const sub = subcategory?.trim()
+  if (!sub) return '/modulistica'
+  const canonical = canonicalizeModulisticaSubcategory(sub)
+  const slug = Object.entries(MODULISTICA_SUBCATEGORY_SLUGS).find(([, label]) => label === canonical)?.[0]
+  if (slug) return `/modulistica/${slug}`
+  const params = new URLSearchParams()
+  params.set('category', MODULISTICA_CATEGORY)
+  params.set('subcategory', sub)
+  return `/office-products?${params.toString()}`
+}
+
+/** URL interno OfficePage (query) usato dai redirect `/modulistica`. */
+export function modulisticaOfficeProductsHref(subcategory?: string): string {
   const params = new URLSearchParams()
   params.set('category', MODULISTICA_CATEGORY)
   if (subcategory?.trim()) params.set('subcategory', subcategory.trim())
   return `/office-products?${params.toString()}`
+}
+
+export function modulisticaSubcategoryFromSlug(
+  slug: string | null | undefined,
+): ModulisticaSubcategory | null {
+  const key = (slug ?? '').trim().toLowerCase()
+  if (!key) return null
+  return MODULISTICA_SUBCATEGORY_SLUGS[key] ?? null
 }
 
 export function canonicalizeModulisticaSubcategory(
