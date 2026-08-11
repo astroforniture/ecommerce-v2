@@ -63,6 +63,28 @@ export const MODULISTICA_SKU_QUANTITY_PRICING: Record<string, ModulisticaSkuPric
       { minQuantity: 5, unitPrice: 10.9 },
     ],
   },
+
+  // Prezzi fissi (nessun tier sconto quantità)
+  'E 5349':   { basePrice: 8.9,  tiers: [] },  // prima nota 100fg 14,8×22
+  'E 5349 A': { basePrice: 8.9,  tiers: [] },  // prima nota 50×2 14,8×22
+  'E 5350':   { basePrice: 10.9, tiers: [] },  // prima nota 50×2 cassa-banca 22×29,7
+  'E 5356':   { basePrice: 10.9, tiers: [] },  // prima nota 100fg ent-usc-IVA 29,7×22
+  'E 5356 A': { basePrice: 10.9, tiers: [] },  // prima nota 50×2 ent-usc-IVA 29,7×22
+  'E 5359 A': { basePrice: 10.9, tiers: [] },  // prima nota 50×2 ent-usc 29,7×22
+  E2769:      { basePrice: 10.9, tiers: [] },  // Registro 3 colonne 31×24,5
+  E2117:      { basePrice: 10.9, tiers: [] },  // Registro acquisti beni usati 31×24,5
+  E2686:      { basePrice: 13.9, tiers: [] },  // Registro cassa ent/usc 24×17
+  E2656:      { basePrice: 12.9, tiers: [] },  // Registro dare/avere/saldo 17×12
+  'E 2108':   { basePrice: 5.4,  tiers: [] },  // Registro corrispettivi 31×24,5
+  E2666:      { basePrice: 12.9, tiers: [] },  // Registro due colonne 24×17
+  'E 2104 A': { basePrice: 5.4,  tiers: [] },  // Reg. prima nota IVA 13×2 (1 anno)
+  'E 2102 A': { basePrice: 7.4,  tiers: [] },  // Reg. prima nota IVA 25×2 (2 anni)
+  E4034:      { basePrice: 11.9, tiers: [] },  // Scadenzario effetti attivi 24×17
+  E4033:      { basePrice: 11.9, tiers: [] },  // Scadenzario effetti passivi 24×17
+  'E 3399':   { basePrice: 9.9,  tiers: [] },  // Schede 2col 24×17 verticale
+  'E 3259':   { basePrice: 9.9,  tiers: [] },  // Schede 3col 15×21 orizzontale
+  'E 3369':   { basePrice: 9.9,  tiers: [] },  // Schede 3col 17×24 orizzontale
+  'E 3406':   { basePrice: 9.9,  tiers: [] },  // Schede 3col 24×17 verticale
 }
 
 function roundEur(value: number): number {
@@ -146,6 +168,8 @@ export function applyModulisticaQuantityPricing(product: OfficeProduct): OfficeP
       ...product,
       price: dedicated.basePrice,
       quantityPriceTiers: dedicated.tiers.map((t) => ({ ...t })),
+      // Assicura che nessun tier residuo da DB venga applicato per prezzi fissi
+      ...(dedicated.tiers.length === 0 ? { quantityPriceTiers: [] } : {}),
     }
   }
 
