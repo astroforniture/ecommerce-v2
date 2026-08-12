@@ -432,6 +432,47 @@ export const MODULISTICA_CATALOG: readonly ModulisticaCatalogItem[] = [
     description:
       'Schede contabili Edipro a 3 colonne, formato 24 × 17 cm verticale, confezione da 100 pezzi.',
   },
+  // Magazzino e Trasporto — buoni di consegna Data Ufficio
+  {
+    sku: 'DU161570000',
+    name: 'Blocco buoni di consegna - 50/50 copie autoric. - 11,5 x 16,5 cm - DU161570000 - Data Ufficio',
+    subcategory: MODULISTICA_SUB_MAGAZZINO,
+    brand: 'Data Ufficio',
+    format: '11,5 x 16,5 cm',
+    imageUrl: 'https://odmultimedia.eu/immagini/HD/90880.jpg',
+    description:
+      'Blocco buoni di consegna Data Ufficio 50/50 copie autoricalcanti, formato 11,5 × 16,5 cm.',
+  },
+  {
+    sku: 'DU164570000',
+    name: 'Blocco buoni di consegna - 50/50 copie autoric. - 21,5 x 14,8 cm - DU164570000 - Data Ufficio',
+    subcategory: MODULISTICA_SUB_MAGAZZINO,
+    brand: 'Data Ufficio',
+    format: '21,5 x 14,8 cm',
+    imageUrl: 'https://odmultimedia.eu/immagini/HD/90891.jpg',
+    description:
+      'Blocco buoni di consegna Data Ufficio 50/50 copie autoricalcanti, formato 21,5 × 14,8 cm.',
+  },
+  {
+    sku: 'DU161583300',
+    name: 'Blocco buoni di consegna - 33/33/33 copie autoric. - 11,5 x 16,5 cm - DU161583300 - Data Ufficio',
+    subcategory: MODULISTICA_SUB_MAGAZZINO,
+    brand: 'Data Ufficio',
+    format: '11,5 x 16,5 cm',
+    imageUrl: 'https://odmultimedia.eu/immagini/HD/90881.jpg',
+    description:
+      'Blocco buoni di consegna Data Ufficio 33/33/33 copie autoricalcanti, formato 11,5 × 16,5 cm.',
+  },
+  {
+    sku: 'DU164583300',
+    name: 'Blocco buoni di consegna - 33/33/33 copie autoric. - 21,5 x 14,8 cm - DU164583300 - Data Ufficio',
+    subcategory: MODULISTICA_SUB_MAGAZZINO,
+    brand: 'Data Ufficio',
+    format: '21,5 x 14,8 cm',
+    imageUrl: 'https://odmultimedia.eu/immagini/HD/90892.jpg',
+    description:
+      'Blocco buoni di consegna Data Ufficio 33/33/33 copie autoricalcanti, formato 21,5 × 14,8 cm.',
+  },
   // Stampati Fiscali — ricevute fiscali / fatture
   {
     sku: 'E 5348 C',

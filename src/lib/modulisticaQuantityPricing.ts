@@ -64,6 +64,40 @@ export const MODULISTICA_SKU_QUANTITY_PRICING: Record<string, ModulisticaSkuPric
     ],
   },
 
+  // Magazzino e Trasporto — Data Ufficio (buoni di consegna)
+  DU161570000: {
+    basePrice: 4.0,
+    tiers: [
+      { minQuantity: 1, unitPrice: 4.0 },
+      { minQuantity: 11, unitPrice: 3.2 },
+      { minQuantity: 21, unitPrice: 2.5 },
+    ],
+  },
+  DU164570000: {
+    basePrice: 4.5,
+    tiers: [
+      { minQuantity: 1, unitPrice: 4.5 },
+      { minQuantity: 11, unitPrice: 3.8 },
+      { minQuantity: 21, unitPrice: 3.0 },
+    ],
+  },
+  DU161583300: {
+    basePrice: 4.0,
+    tiers: [
+      { minQuantity: 1, unitPrice: 4.0 },
+      { minQuantity: 11, unitPrice: 3.2 },
+      { minQuantity: 21, unitPrice: 2.5 },
+    ],
+  },
+  DU164583300: {
+    basePrice: 4.7,
+    tiers: [
+      { minQuantity: 1, unitPrice: 4.7 },
+      { minQuantity: 11, unitPrice: 4.2 },
+      { minQuantity: 21, unitPrice: 3.5 },
+    ],
+  },
+
   // Prezzi fissi (nessun tier sconto quantità)
   'E 5349':   { basePrice: 8.9,  tiers: [] },  // prima nota 100fg 14,8×22
   'E 5349 A': { basePrice: 8.9,  tiers: [] },  // prima nota 50×2 14,8×22

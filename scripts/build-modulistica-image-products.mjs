@@ -14,6 +14,10 @@ export const MODULISTICA_IMAGE_BY_SKU = {
   'E 3369': '/images/67e70187-52d7-4788-bd05-54495c728c0c.jpg',
   'E 3259': '/images/80e3b5c6-de8e-4d92-bcb9-5dfe75970e79.jpg',
   'E 3406': '/images/9754b9bb-7d4e-4967-a8dd-a99dde182fe8.jpg',
+  DU161570000: 'https://odmultimedia.eu/immagini/HD/90880.jpg',
+  DU164570000: 'https://odmultimedia.eu/immagini/HD/90891.jpg',
+  DU161583300: 'https://odmultimedia.eu/immagini/HD/90881.jpg',
+  DU164583300: 'https://odmultimedia.eu/immagini/HD/90892.jpg',
   // Ricevute fiscali: mapping corretto dopo audit copertine (SKU stampato)
   'E 5340 C': '/images/82aed2d3-b9a7-4813-8183-2abd6fee6add.jpg',
   'E 5348 C': '/images/ad8ad89c-fa28-4b8f-bee6-9be1d057cd55.jpg',
