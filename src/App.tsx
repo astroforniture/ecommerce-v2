@@ -55,6 +55,7 @@ import { RegisterPage } from './pages/RegisterPage'
 import { AccountProfilePage } from './pages/AccountProfilePage'
 import { CategoryPromoWidget } from './components/promo/CategoryPromoWidget'
 import { CookieConsentBanner } from './components/cookies/CookieConsentBanner'
+import { GoogleAnalytics } from './components/analytics/GoogleAnalytics'
 import { SiteSeoDefaults } from './components/seo/SiteSeoDefaults'
 import { PasswordRecoveryGate } from './components/auth/PasswordRecoveryGate'
 import { SERVIZI_PAGES, type ServizioSlug } from './data/serviziCatalog'
@@ -213,6 +214,7 @@ export default function App() {
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
     <PasswordRecoveryGate />
+    <GoogleAnalytics />
     <CookieConsentBanner />
     </>
   )

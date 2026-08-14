@@ -8,7 +8,7 @@ type Props = {
   className?: string
 }
 
-/** Badge giacenza in pronta consegna — stesso schema visivo del badge tempi Astro Medical. */
+/** Badge giacenza in pronta consegna, stesso schema visivo del badge tempi Astro Medical. */
 export function ImmediateAvailabilityBadge({ variant = 'pill', className }: Props) {
   if (variant === 'banner') {
     return (
@@ -24,7 +24,7 @@ export function ImmediateAvailabilityBadge({ variant = 'pill', className }: Prop
         <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-700" aria-hidden />
         <span>
           <span className="font-semibold">{IMMEDIATE_AVAILABILITY_LABEL}</span>
-          {' — '}
+          {' - '}
           merce in pronta consegna dal magazzino.
         </span>
       </p>
