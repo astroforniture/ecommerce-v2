@@ -1,6 +1,6 @@
 import type { OfficeProduct } from '../types/officeProduct'
 import { AGENDE_CATEGORY } from '../lib/officeCategories'
-import { AGENDE_SUBCATEGORY_GIORNALIERE, withAgendaCatalogYear } from '../lib/agendeCatalog'
+import { AGENDE_SUBCATEGORY_GIORNALIERE, applyAgendeImmediateAvailability, withAgendaCatalogYear } from '../lib/agendeCatalog'
 import type { AgendaAlfaSizeSpec } from './agendeAlfaGiornaliereProducts'
 
 export const AGENDA_DELTA_OFFICE_ID_PREFIX = 'AF-AGENDA-DELTA-'
@@ -179,7 +179,7 @@ export function buildAgendaDeltaOfficeProduct(
   color: AgendaDeltaColor = AGENDA_DELTA_COLORS[0],
 ): OfficeProduct {
   const variantSku = agendaDeltaVariantSku(size.sku, color)
-  return {
+  return applyAgendeImmediateAvailability({
     id: agendaDeltaProductIdForVariant(size.sku, color),
     name: agendaDeltaDisplayName(size, color),
     brand: 'DELTA',
@@ -201,7 +201,7 @@ export function buildAgendaDeltaOfficeProduct(
     description:
       'Agenda giornaliera DELTA a blocco fisso, con sabato e domenica separati. Ideale per ufficio e studio: seleziona misura e colore della copertina; codice articolo e prezzo si aggiornano in base al formato scelto.',
     price: size.price,
-  }
+  })
 }
 
 /** 12 schede = 3 misure × 4 colori — listing Agende Giornaliere. */

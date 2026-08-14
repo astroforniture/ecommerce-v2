@@ -5,6 +5,7 @@ import { OfficeProductDetailTrustStrip } from './OfficeProductDetailTrustStrip'
 import { ProductQuoteOnlyDetailCtas } from './ProductQuoteOnlyDetailCtas'
 import { ProductWhatsappQuoteButton } from './ProductWhatsappQuoteButton'
 import { AstroMedicalDeliveryBadge } from '../astroMedical/AstroMedicalDeliveryBadge'
+import { ImmediateAvailabilityBadge } from '../office/ImmediateAvailabilityBadge'
 import { DiscountPercentBadge } from '../promo/DiscountPercentBadge'
 
 const eur = new Intl.NumberFormat('it-IT', {
@@ -39,6 +40,8 @@ export type OfficeProductDetailPurchasePanelProps = {
   quantityRuleHint?: string
   /** Astro Medical Shop: badge e trust strip con tempi 5 gg lavorativi. */
   astroMedicalLeadTimes?: boolean
+  /** Categoria Agende: badge «Disponibilità immediata». */
+  immediateAvailability?: boolean
   /** Prezzo listino (imponibile) da mostrare barrato se in promo. */
   compareAtUnitPrice?: number | null
   /** Percentuale sconto promo (es. 20). */
@@ -65,6 +68,7 @@ export function OfficeProductDetailPurchasePanel({
   priceUnitSuffix = '/ pezzo',
   quantityRuleHint,
   astroMedicalLeadTimes = false,
+  immediateAvailability = false,
   compareAtUnitPrice = null,
   discountPercent = null,
 }: OfficeProductDetailPurchasePanelProps) {
@@ -80,12 +84,18 @@ export function OfficeProductDetailPurchasePanel({
     return (
       <div className={root}>
         {astroMedicalLeadTimes ? <AstroMedicalDeliveryBadge variant="banner" /> : null}
+        {!astroMedicalLeadTimes && immediateAvailability ? (
+          <ImmediateAvailabilityBadge variant="banner" />
+        ) : null}
         <ProductQuoteOnlyDetailCtas
           productName={productName}
           brochureUrl={brochureUrl}
           catalogPagePdfUrl={catalogPagePdfUrl}
         />
-        <OfficeProductDetailTrustStrip astroMedicalLeadTimes={astroMedicalLeadTimes} />
+        <OfficeProductDetailTrustStrip
+          astroMedicalLeadTimes={astroMedicalLeadTimes}
+          immediateAvailability={immediateAvailability}
+        />
       </div>
     )
   }
@@ -96,6 +106,9 @@ export function OfficeProductDetailPurchasePanel({
   return (
     <div className={root}>
       {astroMedicalLeadTimes ? <AstroMedicalDeliveryBadge variant="banner" /> : null}
+      {!astroMedicalLeadTimes && immediateAvailability ? (
+        <ImmediateAvailabilityBadge variant="banner" />
+      ) : null}
       <div className="rounded-2xl border border-red-400/80 bg-gradient-to-b from-red-50/70 to-white p-4 shadow-sm ring-1 ring-red-200/60">
         <div className="flex flex-wrap items-center gap-2">
           <p className="text-sm font-medium text-slate-500">{priceLineLabel}</p>
@@ -187,7 +200,10 @@ export function OfficeProductDetailPurchasePanel({
         </div>
       ) : null}
       <ProductWhatsappQuoteButton productName={productName} />
-      <OfficeProductDetailTrustStrip astroMedicalLeadTimes={astroMedicalLeadTimes} />
+      <OfficeProductDetailTrustStrip
+        astroMedicalLeadTimes={astroMedicalLeadTimes}
+        immediateAvailability={immediateAvailability}
+      />
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import type { OfficeProduct } from '../types/officeProduct'
 import { AGENDE_CATEGORY } from '../lib/officeCategories'
-import { AGENDE_SUBCATEGORY_SETTIMANALI, withAgendaCatalogYear } from '../lib/agendeCatalog'
+import { AGENDE_SUBCATEGORY_SETTIMANALI, applyAgendeImmediateAvailability, withAgendaCatalogYear } from '../lib/agendeCatalog'
 import type { AgendaAlfaSizeSpec } from './agendeAlfaGiornaliereProducts'
 import {
   AGENDA_DELTA_COLORS,
@@ -138,7 +138,7 @@ export function buildAgendaDeltaSettOfficeProduct(
   color: AgendaDeltaColor = AGENDA_DELTA_COLORS[0],
 ): OfficeProduct {
   const variantSku = agendaDeltaSettVariantSku(size.sku, color)
-  return {
+  return applyAgendeImmediateAvailability({
     id: agendaDeltaSettProductIdForVariant(size.sku, color),
     name: agendaDeltaSettDisplayName(size, color),
     brand: 'DELTA',
@@ -159,7 +159,7 @@ export function buildAgendaDeltaSettOfficeProduct(
     description:
       'Agenda settimanale DELTA a blocco fisso, ideale per ufficio e studio. Seleziona misura e colore della copertina: codice articolo e prezzo si aggiornano in base al formato scelto.',
     price: size.price,
-  }
+  })
 }
 
 /** 8 schede = 2 misure × 4 colori — listing Agende Settimanali. */

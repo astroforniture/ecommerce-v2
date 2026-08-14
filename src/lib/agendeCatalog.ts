@@ -1,3 +1,4 @@
+import type { OfficeProduct } from '../types/officeProduct'
 import { AGENDE_CATEGORY } from './officeCategories'
 
 export const AGENDE_SUBCATEGORY_GIORNALIERE = 'Agende Giornaliere' as const
@@ -52,6 +53,45 @@ export function applyAgendeCatalogYearIfNeeded(
     return name
   }
   return withAgendaCatalogYear(name)
+}
+
+export const IMMEDIATE_AVAILABILITY_LABEL = 'Disponibilità immediata'
+
+export function isAgendeCategoryProduct(
+  product: Pick<OfficeProduct, 'category'> | null | undefined,
+): boolean {
+  const cat = (product?.category ?? '').trim()
+  return Boolean(cat) && cat.localeCompare(AGENDE_CATEGORY, 'it', { sensitivity: 'base' }) === 0
+}
+
+/** Badge/listing: Agende (e articoli già marcati in pronta consegna). */
+export function showsImmediateAvailability(
+  product: Pick<OfficeProduct, 'category' | 'inStock' | 'availabilityLabel'> | null | undefined,
+): boolean {
+  if (!product) return false
+  if (product.inStock === true) return true
+  if ((product.availabilityLabel ?? '').trim() === IMMEDIATE_AVAILABILITY_LABEL) return true
+  return isAgendeCategoryProduct(product)
+}
+
+export function applyAgendeImmediateAvailability(product: OfficeProduct): OfficeProduct {
+  if (!isAgendeCategoryProduct(product)) return product
+  if (
+    product.inStock === true &&
+    product.availabilityLabel === IMMEDIATE_AVAILABILITY_LABEL &&
+    product.mainFeatures?.Disponibilità === IMMEDIATE_AVAILABILITY_LABEL
+  ) {
+    return product
+  }
+  return {
+    ...product,
+    inStock: true,
+    availabilityLabel: IMMEDIATE_AVAILABILITY_LABEL,
+    mainFeatures: {
+      ...product.mainFeatures,
+      Disponibilità: IMMEDIATE_AVAILABILITY_LABEL,
+    },
+  }
 }
 
 export const AGENDE_CATEGORY_DESCRIPTION =

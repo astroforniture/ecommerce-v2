@@ -1,6 +1,6 @@
 import type { OfficeProduct } from '../types/officeProduct'
 import { AGENDE_CATEGORY } from '../lib/officeCategories'
-import { AGENDE_SUBCATEGORY_SETTIMANALI, withAgendaCatalogYear } from '../lib/agendeCatalog'
+import { AGENDE_SUBCATEGORY_SETTIMANALI, applyAgendeImmediateAvailability, withAgendaCatalogYear } from '../lib/agendeCatalog'
 import type { AgendaAlfaSizeSpec } from './agendeAlfaGiornaliereProducts'
 
 export const AGENDA_WP_SETT_OFFICE_ID_PREFIX = 'AF-AGENDA-WP-SETT-'
@@ -167,7 +167,7 @@ export function buildAgendaWpSettOfficeProduct(
   color: AgendaWpSettColor = AGENDA_WP_SETT_COLORS[0],
 ): OfficeProduct {
   const variantSku = agendaWpSettVariantSku(size.sku, color)
-  return {
+  return applyAgendeImmediateAvailability({
     id: agendaWpSettProductIdForVariant(size.sku, color),
     name: agendaWpSettDisplayName(size, color),
     brand: 'WEEKLY PATTERN',
@@ -189,7 +189,7 @@ export function buildAgendaWpSettOfficeProduct(
     description:
       'Agenda settimanale WEEKLY PATTERN a blocco fisso, ideale per ufficio e studio. Seleziona misura e colore della copertina: codice articolo e prezzo si aggiornano in base al formato scelto.',
     price: size.price,
-  }
+  })
 }
 
 /** 8 schede = 4 misure × 2 colori — listing Agende Settimanali. */

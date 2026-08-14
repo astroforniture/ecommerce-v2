@@ -57,6 +57,10 @@ export interface OfficeProduct {
   compareAtPrice?: number
   /** Percentuale sconto promo visibile a FE (es. 20 → badge "-20%"). */
   discountPercent?: number
+  /** true = articolo in pronta consegna (badge «Disponibilità immediata»). */
+  inStock?: boolean
+  /** Etichetta giacenza visibile in listing/PDP (es. «Disponibilità immediata»). */
+  availabilityLabel?: string
   /** Opzionale: colonna `format` su `public.products` (es. buste Mailpack Blasetti). */
   format?: string
   /** Opzionale: EAN-13 su `public.products` (es. Modulistica Edipro). */

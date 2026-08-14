@@ -29,6 +29,7 @@ import {
 import { buildQuaderniOfficeProducts, cancelleriaQuaderniListingPath } from '../data/quaderniProducts'
 import {
   agendeCategoryHref,
+  applyAgendeImmediateAvailability,
   AGENDE_SUBCATEGORY_GIORNALIERE,
   AGENDE_SUBCATEGORY_PLANNING,
   AGENDE_SUBCATEGORY_SETTIMANALI,
@@ -219,31 +220,31 @@ export function resolveSyntheticOfficeProductByCatalogKey(key: string): OfficePr
   }
   {
     const alfaSett = resolveAgendaAlfaSettProductByCatalogKey(k)
-    if (alfaSett) return alfaSett
+    if (alfaSett) return applyAgendeImmediateAvailability(alfaSett)
   }
   {
     const deltaSett = resolveAgendaDeltaSettProductByCatalogKey(k)
-    if (deltaSett) return deltaSett
+    if (deltaSett) return applyAgendeImmediateAvailability(deltaSett)
   }
   {
     const text = resolveAgendaTextProductByCatalogKey(k)
-    if (text) return text
+    if (text) return applyAgendeImmediateAvailability(text)
   }
   {
     const wpSett = resolveAgendaWpSettProductByCatalogKey(k)
-    if (wpSett) return wpSett
+    if (wpSett) return applyAgendeImmediateAvailability(wpSett)
   }
   {
     const plan = resolveAgendaPlanningProductByCatalogKey(k)
-    if (plan) return plan
+    if (plan) return applyAgendeImmediateAvailability(plan)
   }
   {
     const delta = resolveAgendaDeltaProductByCatalogKey(k)
-    if (delta) return delta
+    if (delta) return applyAgendeImmediateAvailability(delta)
   }
   {
     const alfa = resolveAgendaAlfaProductByCatalogKey(k)
-    if (alfa) return alfa
+    if (alfa) return applyAgendeImmediateAvailability(alfa)
   }
   if (k.startsWith('AF-SHOPPER-')) {
     return resolveShopperProductByCatalogKey(k)

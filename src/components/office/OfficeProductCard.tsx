@@ -18,8 +18,10 @@ import {
 import { isQuoteOnlyOfficeProduct } from '../../data/casseDitronProducts'
 import { isOfficeProductAstroMedicalLine } from '../../lib/isOfficeProductAstroMedicalLine'
 import { AstroMedicalDeliveryBadge } from '../astroMedical/AstroMedicalDeliveryBadge'
+import { ImmediateAvailabilityBadge } from './ImmediateAvailabilityBadge'
 import { ProductQuoteRequestButton } from '../product/ProductQuoteRequestButton'
 import { DiscountPercentBadge } from '../promo/DiscountPercentBadge'
+import { showsImmediateAvailability } from '../../lib/agendeCatalog'
 
 const eur = new Intl.NumberFormat('it-IT', {
   style: 'currency',
@@ -62,6 +64,7 @@ export function OfficeProductCard({
 
   const isQuoteOnly = isQuoteOnlyOfficeProduct(product)
   const isAstroMedical = isOfficeProductAstroMedicalLine(product)
+  const isImmediateAvailability = !isAstroMedical && showsImmediateAvailability(product)
   const unitImponible = effectiveUnitPrice(
     product.price,
     product.quantityPriceTiers,
@@ -151,6 +154,10 @@ export function OfficeProductCard({
         {isAstroMedical ? (
           <div className={compactGrid ? 'mt-1.5' : 'mt-2'}>
             <AstroMedicalDeliveryBadge />
+          </div>
+        ) : isImmediateAvailability ? (
+          <div className={compactGrid ? 'mt-1.5' : 'mt-2'}>
+            <ImmediateAvailabilityBadge />
           </div>
         ) : null}
         {!hideCategoryBadge ? (

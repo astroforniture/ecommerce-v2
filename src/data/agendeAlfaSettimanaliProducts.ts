@@ -1,6 +1,6 @@
 import type { OfficeProduct } from '../types/officeProduct'
 import { AGENDE_CATEGORY } from '../lib/officeCategories'
-import { AGENDE_SUBCATEGORY_SETTIMANALI, withAgendaCatalogYear } from '../lib/agendeCatalog'
+import { AGENDE_SUBCATEGORY_SETTIMANALI, applyAgendeImmediateAvailability, withAgendaCatalogYear } from '../lib/agendeCatalog'
 import type { AgendaAlfaColor, AgendaAlfaSizeSpec } from './agendeAlfaGiornaliereProducts'
 import { AGENDA_ALFA_COLORS } from './agendeAlfaGiornaliereProducts'
 
@@ -144,7 +144,7 @@ export function buildAgendaAlfaSettOfficeProduct(
   color: AgendaAlfaColor = AGENDA_ALFA_COLORS[0],
 ): OfficeProduct {
   const variantSku = agendaAlfaSettVariantSku(size.sku, color)
-  return {
+  return applyAgendeImmediateAvailability({
     id: agendaAlfaSettProductIdForVariant(size.sku, color),
     name: agendaAlfaSettDisplayName(size, color),
     brand: 'ALFA',
@@ -165,7 +165,7 @@ export function buildAgendaAlfaSettOfficeProduct(
     description:
       'Agenda settimanale ALFA a blocco fisso, formato 17x24 cm. Ideale per ufficio e studio: seleziona il colore della copertina; codice articolo e prezzo si aggiornano in scheda.',
     price: size.price,
-  }
+  })
 }
 
 /** 5 schede colore — listing Agende Settimanali. */

@@ -1,6 +1,6 @@
 import type { OfficeProduct } from '../types/officeProduct'
 import { AGENDE_CATEGORY } from '../lib/officeCategories'
-import { AGENDE_SUBCATEGORY_GIORNALIERE, withAgendaCatalogYear } from '../lib/agendeCatalog'
+import { AGENDE_SUBCATEGORY_GIORNALIERE, applyAgendeImmediateAvailability, withAgendaCatalogYear } from '../lib/agendeCatalog'
 
 export const AGENDA_ALFA_OFFICE_ID_PREFIX = 'AF-AGENDA-ALFA-'
 export const AGENDA_ALFA_HUB_ID = 'AF-AGENDA-ALFA'
@@ -199,7 +199,7 @@ export function buildAgendaAlfaOfficeProduct(
   color: AgendaAlfaColor = AGENDA_ALFA_COLORS[0],
 ): OfficeProduct {
   const variantSku = agendaAlfaVariantSku(size.sku, color)
-  return {
+  return applyAgendeImmediateAvailability({
     id: agendaAlfaProductIdForVariant(size.sku, color),
     name: agendaAlfaDisplayName(size, color),
     brand: 'ALFA',
@@ -220,7 +220,7 @@ export function buildAgendaAlfaOfficeProduct(
     description:
       'Agenda giornaliera ALFA a blocco fisso, ideale per ufficio e studio. Seleziona misura e colore della copertina: codice articolo e prezzo si aggiornano in base al formato scelto.',
     price: size.price,
-  }
+  })
 }
 
 /** 25 schede = 5 misure × 5 colori — listing Agende Giornaliere. */

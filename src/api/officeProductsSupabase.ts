@@ -6,7 +6,7 @@ import type {
 import { getSupabaseBrowserClient } from '../lib/supabaseClient'
 import { escapeIlikePattern } from '../lib/ilike'
 import { decodeProductPathParam } from '../lib/productRoutes'
-import { applyAgendeCatalogYearIfNeeded } from '../lib/agendeCatalog'
+import { applyAgendeCatalogYearIfNeeded, applyAgendeImmediateAvailability } from '../lib/agendeCatalog'
 import { normalizeOfficeProductCategory } from '../lib/officeCategories'
 import {
   fetchQuantityPriceTiersByProductId,
@@ -63,7 +63,7 @@ import { applyModulisticaQuantityPricing } from '../lib/modulisticaQuantityPrici
  * Aumenta dopo pulizie massicce su `public.products` (es. titoli): nuove `queryKey` in React Query
  * così il client non riusa dati serializzati vecchi con titoli obsoleti.
  */
-export const OFFICE_CATALOG_DATA_REVISION = 291
+export const OFFICE_CATALOG_DATA_REVISION = 292
 
 const SUPPRESSED_PRODUCTS_BY_ID = new Set([
   '55acce14-88cd-4b12-807d-cd2753894639', // Starbox dorso 5 cm arancio (rimozione richiesta)
@@ -1842,7 +1842,9 @@ function mapRowToOfficeProduct(row: OfficeProductRow): OfficeProduct {
       ),
     ),
   )
-  return applyCartaTermicaQuantityPricing(withCatalogOverrides) ?? withCatalogOverrides
+  return applyAgendeImmediateAvailability(
+    applyCartaTermicaQuantityPricing(withCatalogOverrides) ?? withCatalogOverrides,
+  )
 }
 
 /** Risultato compatto per autocomplete header (no listini quantità). */
@@ -1948,7 +1950,8 @@ function mapLegacyOfficeRowToOfficeProduct(row: OfficeProductsLegacyRow): Office
     description: row.description?.trim() || undefined,
     price: Number.isFinite(rawPrice) ? Number(rawPrice) : undefined,
   }
-  return applySicurezzaApparelCatalog(
+  return applyAgendeImmediateAvailability(
+    applySicurezzaApparelCatalog(
     applyEuroboxEsselteCatalog(
       applyBigSeiRotaCatalog(
         applySoftSeiRotaCatalog(
@@ -1984,6 +1987,7 @@ function mapLegacyOfficeRowToOfficeProduct(row: OfficeProductsLegacyRow): Office
         ),
       ),
     ),
+  )
   )
 }
 

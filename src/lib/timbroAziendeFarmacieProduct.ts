@@ -1,4 +1,5 @@
 import type { OfficeProduct } from '../types/officeProduct'
+import { applyAgendeImmediateAvailability } from './agendeCatalog'
 import { buildCartucceTonerOfficeProducts } from '../data/cartucceTonerProducts'
 import { buildPileOfficeProducts } from '../data/pileProducts'
 import { buildQuaderniOfficeProducts } from '../data/quaderniProducts'
@@ -197,5 +198,5 @@ export function getInjectedLocalCatalogProducts(): OfficeProduct[] {
     ...buildLaboratoryBagsAstroMedicalOfficeProducts(),
     ...buildWellnessBagsScalesAstroMedicalOfficeProducts(),
     ...buildProfessionalInstrumentationAstroMedicalOfficeProducts(),
-  ]
+  ].map(applyAgendeImmediateAvailability)
 }

@@ -7,6 +7,7 @@ import {
   ASTRO_MEDICAL_SHIPPING_LEAD_LABEL,
   ASTRO_MEDICAL_SHIPPING_LEAD_TEXT,
 } from '../../lib/astroMedicalShopCopy'
+import { IMMEDIATE_AVAILABILITY_LABEL } from '../../lib/agendeCatalog'
 import { COMPANY_LANDLINE_DISPLAY, COMPANY_LANDLINE_TEL } from '../../data/companyContacts'
 
 type DescriptionProps = {
@@ -17,6 +18,8 @@ type DescriptionProps = {
   catalogPagePdfUrl?: string | null
   /** Astro Medical: testi spedizione su ordinazione (5 gg). */
   astroMedicalLeadTimes?: boolean
+  /** Categoria Agende: consegna da magazzino in pronta disponibilità. */
+  immediateAvailability?: boolean
   /** Specifiche tecniche chiave/valore (es. formato, micron, rulli). */
   mainFeatures?: Record<string, string> | null
 }
@@ -58,6 +61,7 @@ export function OfficeProductDetailDescriptionSection({
   brochureUrl,
   catalogPagePdfUrl,
   astroMedicalLeadTimes = false,
+  immediateAvailability = false,
   mainFeatures,
 }: DescriptionProps) {
   const text = description.trim()
@@ -81,7 +85,17 @@ export function OfficeProductDetailDescriptionSection({
           body: `${ASTRO_MEDICAL_SHIPPING_LEAD_TEXT} Per articoli fuori listino o preventivi dedicati chiama lo ${COMPANY_LANDLINE_DISPLAY}.`,
         },
       ]
-    : PRODUCT_VALUE_BLOCKS
+    : immediateAvailability
+      ? [
+          PRODUCT_VALUE_BLOCKS[0],
+          PRODUCT_VALUE_BLOCKS[1],
+          {
+            icon: Truck,
+            title: `✅ ${IMMEDIATE_AVAILABILITY_LABEL}`,
+            body: 'Merce in pronta consegna dal magazzino. Spedizione tracciata e imballaggio sicuro; il nostro team è a disposizione su WhatsApp per assistenza o grandi ordinativi.',
+          },
+        ]
+      : PRODUCT_VALUE_BLOCKS
 
   return (
     <section className="mt-10 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">

@@ -1,6 +1,6 @@
 import type { OfficeProduct } from '../types/officeProduct'
 import { AGENDE_CATEGORY } from '../lib/officeCategories'
-import { AGENDE_SUBCATEGORY_PLANNING, withAgendaCatalogYear } from '../lib/agendeCatalog'
+import { AGENDE_SUBCATEGORY_PLANNING, applyAgendeImmediateAvailability, withAgendaCatalogYear } from '../lib/agendeCatalog'
 import type { AgendaAlfaSizeSpec } from './agendeAlfaGiornaliereProducts'
 
 export const AGENDA_PLAN_OFFICE_ID_PREFIX = 'AF-AGENDA-PLAN-'
@@ -212,7 +212,7 @@ export function buildAgendaPlanningOfficeProduct(
   const resolvedColor =
     line.colors != null ? (color?.trim() || line.colors[0]) : null
   const variantSku = agendaPlanVariantSku(line.sku, resolvedColor)
-  return {
+  return applyAgendeImmediateAvailability({
     id: agendaPlanProductIdForVariant(line.sku, resolvedColor),
     name: agendaPlanDisplayName(line, resolvedColor),
     brand: line.brand,
@@ -233,7 +233,7 @@ export function buildAgendaPlanningOfficeProduct(
     description:
       'Planning settimanale spiralato, ideale per scrivania e ufficio. Seleziona misura e colore disponibili: codice articolo e prezzo si aggiornano in scheda.',
     price: line.price,
-  }
+  })
 }
 
 /** 12 schede = 4+3+3 colori + 2 singoli datati. */

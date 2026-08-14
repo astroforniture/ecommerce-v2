@@ -115,6 +115,7 @@ import {
 import { isPunchedEnvelopeProduct } from '../lib/punchedEnvelope'
 import { isTimbroAziendeFarmacieProduct } from '../lib/timbroAziendeFarmacieProduct'
 import { isOfficeProductAstroMedicalLine } from '../lib/isOfficeProductAstroMedicalLine'
+import { showsImmediateAvailability } from '../lib/agendeCatalog'
 import { catalogBackNavFromProduct } from '../lib/catalogBackNavigation'
 import { TimbroAziendeFarmacieDetail } from '../components/product/TimbroAziendeFarmacieDetail'
 import { OfficeProductDetailPurchasePanel } from '../components/product/OfficeProductDetailPurchasePanel'
@@ -927,6 +928,10 @@ export function ProductDetailPage() {
   const isAstroMedicalLeadTimes = useMemo(
     () => Boolean(product && isOfficeProductAstroMedicalLine(product)),
     [product],
+  )
+  const isImmediateAvailability = useMemo(
+    () => Boolean(product && !isAstroMedicalLeadTimes && showsImmediateAvailability(product)),
+    [product, isAstroMedicalLeadTimes],
   )
   const catalogBackNav = useMemo(() => catalogBackNavFromProduct(product), [product])
   const syntheticGalleryImageUrls = useMemo(() => {
@@ -6120,6 +6125,7 @@ export function ProductDetailPage() {
                 isQuoteOnlyOfficeProduct(product) ? undefined : quantityDiscountTableNode
               }
               astroMedicalLeadTimes={isAstroMedicalLeadTimes}
+              immediateAvailability={isImmediateAvailability}
             />
           </div>
         </div>
@@ -6141,6 +6147,7 @@ export function ProductDetailPage() {
             product.technicalDocuments?.length ? undefined : product.catalogPagePdfUrl
           }
           astroMedicalLeadTimes={isAstroMedicalLeadTimes}
+          immediateAvailability={isImmediateAvailability}
           mainFeatures={product.mainFeatures}
         />
 

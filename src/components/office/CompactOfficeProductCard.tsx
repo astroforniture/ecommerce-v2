@@ -7,6 +7,8 @@ import { productDetailPath } from '../../lib/productRoutes'
 import { withOfficeImageCacheBust } from '../../lib/officeImageCacheBust'
 import { OFFICE_CATALOG_DATA_REVISION } from '../../api/officeProductsSupabase'
 import { DiscountPercentBadge } from '../promo/DiscountPercentBadge'
+import { ImmediateAvailabilityBadge } from './ImmediateAvailabilityBadge'
+import { showsImmediateAvailability } from '../../lib/agendeCatalog'
 
 const eur = new Intl.NumberFormat('it-IT', {
   style: 'currency',
@@ -69,6 +71,11 @@ export function CompactOfficeProductCard({ product, disableDetailLink }: Props) 
         <h3 className="line-clamp-2 min-h-[2.5rem] text-xs font-semibold leading-snug text-slate-900 sm:text-[13px]">
           {displayTitle}
         </h3>
+        {showsImmediateAvailability(product) ? (
+          <div className="mt-1">
+            <ImmediateAvailabilityBadge />
+          </div>
+        ) : null}
         <div>
           {compareAt ? (
             <p className="text-[10px] font-medium tabular-nums text-slate-400 line-through">
