@@ -1,6 +1,6 @@
 import type { OfficeProduct } from '../types/officeProduct'
 import { AGENDE_CATEGORY } from '../lib/officeCategories'
-import { AGENDE_SUBCATEGORY_SETTIMANALI } from '../lib/agendeCatalog'
+import { AGENDE_SUBCATEGORY_SETTIMANALI, withAgendaCatalogYear } from '../lib/agendeCatalog'
 import type { AgendaAlfaSizeSpec } from './agendeAlfaGiornaliereProducts'
 
 export const AGENDA_WP_SETT_OFFICE_ID_PREFIX = 'AF-AGENDA-WP-SETT-'
@@ -157,7 +157,9 @@ export function agendaWpSettSizeFromProduct(
 
 export function agendaWpSettDisplayName(size: AgendaAlfaSizeSpec, color: string): string {
   const col = color.trim() || AGENDA_WP_SETT_COLORS[0]
-  return `Agenda Settimanale WEEKLY PATTERN - ${size.fullLabel} - ${col}`
+  return withAgendaCatalogYear(
+    `Agenda Settimanale WEEKLY PATTERN - ${size.fullLabel} - ${col}`,
+  )
 }
 
 export function buildAgendaWpSettOfficeProduct(

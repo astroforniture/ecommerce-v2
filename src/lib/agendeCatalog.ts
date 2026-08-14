@@ -29,6 +29,31 @@ export const AGENDE_SUBCATEGORY_SLUGS: Record<string, AgendeSubcategory> = {
   organizer: AGENDE_SUBCATEGORY_PLANNING,
 }
 
+/** Anno di collezione mostrato in coda al nome prodotto (SKU/prezzi/URL invariati). */
+export const AGENDA_CATALOG_YEAR = '2027'
+
+/**
+ * Aggiunge ` 2027` in fondo al titolo. Idempotente se il nome termina già con l’anno.
+ */
+export function withAgendaCatalogYear(name: string): string {
+  const trimmed = name.trim()
+  if (!trimmed) return trimmed
+  if (new RegExp(`(?:^|\\s)${AGENDA_CATALOG_YEAR}\\s*$`).test(trimmed)) return trimmed
+  return `${trimmed} ${AGENDA_CATALOG_YEAR}`
+}
+
+/** Applica l’anno di collezione solo ai prodotti della categoria Agende. */
+export function applyAgendeCatalogYearIfNeeded(
+  name: string,
+  category: string | null | undefined,
+): string {
+  const cat = (category ?? '').trim()
+  if (!cat || cat.localeCompare(AGENDE_CATEGORY, 'it', { sensitivity: 'base' }) !== 0) {
+    return name
+  }
+  return withAgendaCatalogYear(name)
+}
+
 export const AGENDE_CATEGORY_DESCRIPTION =
   "Scopri la nostra ampia selezione di agende per l'ufficio, la scuola e il tempo libero. Agende giornaliere, settimanali e planning dei migliori marchi per pianificare al meglio le tue giornate."
 

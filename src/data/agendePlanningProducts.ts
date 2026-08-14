@@ -1,6 +1,6 @@
 import type { OfficeProduct } from '../types/officeProduct'
 import { AGENDE_CATEGORY } from '../lib/officeCategories'
-import { AGENDE_SUBCATEGORY_PLANNING } from '../lib/agendeCatalog'
+import { AGENDE_SUBCATEGORY_PLANNING, withAgendaCatalogYear } from '../lib/agendeCatalog'
 import type { AgendaAlfaSizeSpec } from './agendeAlfaGiornaliereProducts'
 
 export const AGENDA_PLAN_OFFICE_ID_PREFIX = 'AF-AGENDA-PLAN-'
@@ -133,9 +133,9 @@ export function agendaPlanColorFromSku(sku: string | null | undefined): string |
 }
 
 export function agendaPlanDisplayName(line: AgendaPlanningLineSpec, color?: string | null): string {
-  if (!line.colors) return line.titleBase
+  if (!line.colors) return withAgendaCatalogYear(line.titleBase)
   const col = (color ?? '').trim() || line.colors[0]
-  return `${line.titleBase} - ${col}`
+  return withAgendaCatalogYear(`${line.titleBase} - ${col}`)
 }
 
 export function isAgendaPlanningProduct(

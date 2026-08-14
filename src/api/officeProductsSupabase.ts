@@ -6,6 +6,7 @@ import type {
 import { getSupabaseBrowserClient } from '../lib/supabaseClient'
 import { escapeIlikePattern } from '../lib/ilike'
 import { decodeProductPathParam } from '../lib/productRoutes'
+import { applyAgendeCatalogYearIfNeeded } from '../lib/agendeCatalog'
 import { normalizeOfficeProductCategory } from '../lib/officeCategories'
 import {
   fetchQuantityPriceTiersByProductId,
@@ -62,7 +63,7 @@ import { applyModulisticaQuantityPricing } from '../lib/modulisticaQuantityPrici
  * Aumenta dopo pulizie massicce su `public.products` (es. titoli): nuove `queryKey` in React Query
  * così il client non riusa dati serializzati vecchi con titoli obsoleti.
  */
-export const OFFICE_CATALOG_DATA_REVISION = 290
+export const OFFICE_CATALOG_DATA_REVISION = 291
 
 const SUPPRESSED_PRODUCTS_BY_ID = new Set([
   '55acce14-88cd-4b12-807d-cd2753894639', // Starbox dorso 5 cm arancio (rimozione richiesta)
@@ -1734,8 +1735,11 @@ function mapRowToOfficeProduct(row: OfficeProductRow): OfficeProduct {
   const description = (row.description ?? undefined)
     ?.replace('Dati estratti letteralmente da screenshot prodotto office.', '')
     .trim()
-  const name = normalizeStarlineThreeFlapsName(row.name != null ? String(row.name) : '')
   const category = normalizeOfficeProductCategory(row.category ?? '')
+  const name = applyAgendeCatalogYearIfNeeded(
+    normalizeStarlineThreeFlapsName(row.name != null ? String(row.name) : ''),
+    category,
+  )
 
   const docs = parseProductDocumentUrls(row)
   const gpsrFields = parseGpsrFieldsFromRow(row)
@@ -1857,8 +1861,10 @@ export type OfficeSearchSuggestion = {
 
 function suggestionDisplayNameFromRow(row: OfficeProductRow): string {
   const raw = row.name != null ? String(row.name) : ''
-  if (!isOxfordBinderName(raw)) return raw
-  return normalizeOxfordModelNameByThickness(raw, detectStarboxThicknessCm(raw))
+  const named = isOxfordBinderName(raw)
+    ? normalizeOxfordModelNameByThickness(raw, detectStarboxThicknessCm(raw))
+    : raw
+  return applyAgendeCatalogYearIfNeeded(named, row.category)
 }
 
 function mapRowToSuggestion(row: OfficeProductRow): OfficeSearchSuggestion {
@@ -1927,12 +1933,16 @@ function mapLegacyOfficeRowToOfficeProduct(row: OfficeProductsLegacyRow): Office
     typeof rawPriceSource === 'string'
       ? Number.parseFloat(rawPriceSource)
       : rawPriceSource
+  const category = normalizeOfficeProductCategory(row.category ?? '')
   const mapped: OfficeProduct = {
     id: row.id,
-    name: normalizeStarlineThreeFlapsName(row.name != null ? String(row.name) : ''),
+    name: applyAgendeCatalogYearIfNeeded(
+      normalizeStarlineThreeFlapsName(row.name != null ? String(row.name) : ''),
+      category,
+    ),
     brand: '',
     producerCode: row.id,
-    category: normalizeOfficeProductCategory(row.category ?? ''),
+    category,
     mainFeatures: {},
     imageUrl: (row.image_url ?? '').trim(),
     description: row.description?.trim() || undefined,

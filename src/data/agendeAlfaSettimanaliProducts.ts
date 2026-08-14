@@ -1,6 +1,6 @@
 import type { OfficeProduct } from '../types/officeProduct'
 import { AGENDE_CATEGORY } from '../lib/officeCategories'
-import { AGENDE_SUBCATEGORY_SETTIMANALI } from '../lib/agendeCatalog'
+import { AGENDE_SUBCATEGORY_SETTIMANALI, withAgendaCatalogYear } from '../lib/agendeCatalog'
 import type { AgendaAlfaColor, AgendaAlfaSizeSpec } from './agendeAlfaGiornaliereProducts'
 import { AGENDA_ALFA_COLORS } from './agendeAlfaGiornaliereProducts'
 
@@ -136,7 +136,7 @@ export function agendaAlfaSettSizeFromProduct(
 
 export function agendaAlfaSettDisplayName(size: AgendaAlfaSizeSpec, color: string): string {
   const col = color.trim() || AGENDA_ALFA_COLORS[0]
-  return `Agenda Settimanale ALFA - ${size.fullLabel} - ${col}`
+  return withAgendaCatalogYear(`Agenda Settimanale ALFA - ${size.fullLabel} - ${col}`)
 }
 
 export function buildAgendaAlfaSettOfficeProduct(

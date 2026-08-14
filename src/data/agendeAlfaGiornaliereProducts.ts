@@ -1,6 +1,6 @@
 import type { OfficeProduct } from '../types/officeProduct'
 import { AGENDE_CATEGORY } from '../lib/officeCategories'
-import { AGENDE_SUBCATEGORY_GIORNALIERE } from '../lib/agendeCatalog'
+import { AGENDE_SUBCATEGORY_GIORNALIERE, withAgendaCatalogYear } from '../lib/agendeCatalog'
 
 export const AGENDA_ALFA_OFFICE_ID_PREFIX = 'AF-AGENDA-ALFA-'
 export const AGENDA_ALFA_HUB_ID = 'AF-AGENDA-ALFA'
@@ -191,7 +191,7 @@ export function agendaAlfaSizeFromProduct(
 
 export function agendaAlfaDisplayName(size: AgendaAlfaSizeSpec, color: string): string {
   const col = color.trim() || AGENDA_ALFA_COLORS[0]
-  return `Agenda Giornaliera ALFA - ${size.fullLabel} - ${col}`
+  return withAgendaCatalogYear(`Agenda Giornaliera ALFA - ${size.fullLabel} - ${col}`)
 }
 
 export function buildAgendaAlfaOfficeProduct(

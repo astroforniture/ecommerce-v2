@@ -1,6 +1,6 @@
 import type { OfficeProduct } from '../types/officeProduct'
 import { AGENDE_CATEGORY } from '../lib/officeCategories'
-import { AGENDE_SUBCATEGORY_GIORNALIERE } from '../lib/agendeCatalog'
+import { AGENDE_SUBCATEGORY_GIORNALIERE, withAgendaCatalogYear } from '../lib/agendeCatalog'
 import type { AgendaAlfaSizeSpec } from './agendeAlfaGiornaliereProducts'
 
 export const AGENDA_DELTA_OFFICE_ID_PREFIX = 'AF-AGENDA-DELTA-'
@@ -169,7 +169,9 @@ export function agendaDeltaSizeFromProduct(
 
 export function agendaDeltaDisplayName(size: AgendaAlfaSizeSpec, color: string): string {
   const col = color.trim() || AGENDA_DELTA_COLORS[0]
-  return `Agenda Giornaliera DELTA - ${size.fullLabel} - Sabato/Domenica Separati - ${col}`
+  return withAgendaCatalogYear(
+    `Agenda Giornaliera DELTA - ${size.fullLabel} - Sabato/Domenica Separati - ${col}`,
+  )
 }
 
 export function buildAgendaDeltaOfficeProduct(
