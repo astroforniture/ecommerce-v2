@@ -1,6 +1,7 @@
 import { isCookieCategoryAllowed } from './cookieConsent'
 
 export const GA_MEASUREMENT_ID = 'G-VQ92JYJF6D'
+export const GTM_CONTAINER_ID = 'GTM-P3CNF34T'
 export const GA_SCRIPT_SRC = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`
 
 declare global {

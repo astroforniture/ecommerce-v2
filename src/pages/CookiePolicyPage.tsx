@@ -58,7 +58,10 @@ export function CookiePolicyPage() {
             </li>
             <li>
               <strong>Analitici:</strong> misurano l&apos;uso del sito in forma aggregata. Attivati solo con consenso.
-              Utilizziamo Google Analytics 4 (Google tag, ID <code className="rounded bg-slate-100 px-1 py-0.5 text-[13px]">G-VQ92JYJF6D</code>
+              Utilizziamo Google Tag Manager (
+              <code className="rounded bg-slate-100 px-1 py-0.5 text-[13px]">GTM-P3CNF34T</code>
+              ) e Google Analytics 4 (Google tag, ID{' '}
+              <code className="rounded bg-slate-100 px-1 py-0.5 text-[13px]">G-VQ92JYJF6D</code>
               ), con IP anonimizzato e Consent Mode: i dati di navigazione partono solo dopo
               &quot;Accetta tutti&quot; o dopo aver abilitato i cookie analitici.
             </li>

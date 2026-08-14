@@ -2,8 +2,39 @@
 <html lang="it" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Consent Mode: default denied prima di GTM / gtag (GDPR) -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      window.gtag = gtag;
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        wait_for_update: 500
+      });
+      try {
+        var stored = localStorage.getItem('af:cookie-consent:v1');
+        if (stored) {
+          var parsed = JSON.parse(stored);
+          if (parsed && parsed.preferences && parsed.preferences.analytics) {
+            gtag('consent', 'update', { analytics_storage: 'granted' });
+          }
+        }
+      } catch (e) {}
+    </script>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-P3CNF34T');</script>
+    <!-- End Google Tag Manager -->
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Astro Forniture | Cancelleria, Shopper e Macchine per Ufficio (asforniture.it)</title>
     <meta
       name="description"
@@ -74,28 +105,6 @@
       }
     </script>
 
-    <!-- Google tag (gtag.js) — Consent Mode: analitici attivi solo dopo consenso cookie -->
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      window.gtag = gtag;
-      gtag('consent', 'default', {
-        ad_storage: 'denied',
-        ad_user_data: 'denied',
-        ad_personalization: 'denied',
-        analytics_storage: 'denied',
-        wait_for_update: 500
-      });
-      try {
-        var stored = localStorage.getItem('af:cookie-consent:v1');
-        if (stored) {
-          var parsed = JSON.parse(stored);
-          if (parsed && parsed.preferences && parsed.preferences.analytics) {
-            gtag('consent', 'update', { analytics_storage: 'granted' });
-          }
-        }
-      } catch (e) {}
-    </script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VQ92JYJF6D"></script>
     <script>
       gtag('js', new Date());
@@ -110,6 +119,10 @@
     />
   </head>
   <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-P3CNF34T"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
