@@ -100,16 +100,9 @@ export function agendaAlfaBaseSizeSku(sku: string | null | undefined): string | 
   return hit?.sku ?? null
 }
 
-/** Miniatura / hero: override copertina 2027 per varianti, altrimenti Bocchio per codice misura. */
-const AGENDA_ALFA_VARIANT_IMAGE_URL: Record<string, string> = {
-  '7123AF-VERDE-LIME': '/images/products/agenda-alfa-giornaliera-9x13-verde-lime.png',
-}
-
+/** Miniatura / hero Bocchio per codice misura (ignora suffisso colore). */
 export function agendaAlfaImageUrlForSku(sku: string): string {
-  const upper = String(sku ?? '').trim().toUpperCase()
-  const variantHit = AGENDA_ALFA_VARIANT_IMAGE_URL[upper]
-  if (variantHit) return variantHit
-  const base = agendaAlfaBaseSizeSku(sku) ?? upper.split('-')[0]
+  const base = agendaAlfaBaseSizeSku(sku) ?? String(sku ?? '').trim().toUpperCase().split('-')[0]
   if (!base) return AGENDA_ALFA_IMAGE_URL
   return `https://www.bocchiosrl.it/ftp/bocchio/immagini/thumb/A${base}-1024-1024-0.jpg`
 }
@@ -223,7 +216,7 @@ export function buildAgendaAlfaOfficeProduct(
       Codice: variantSku,
       'Codice misura': size.sku,
     },
-    imageUrl: agendaAlfaImageUrlForSku(variantSku),
+    imageUrl: agendaAlfaImageUrlForSku(size.sku),
     description:
       'Agenda giornaliera ALFA a blocco fisso, ideale per ufficio e studio. Seleziona misura e colore della copertina: codice articolo e prezzo si aggiornano in base al formato scelto.',
     price: size.price,

@@ -57,14 +57,8 @@ export function agendaAlfaSettProductIdForVariant(sizeSku: string, color: string
   return `${AGENDA_ALFA_SETT_OFFICE_ID_PREFIX}${agendaAlfaSettVariantSku(sizeSku, color)}`
 }
 
-const AGENDA_ALFA_SETT_VARIANT_IMAGE_URL: Record<string, string> = {
-  '7157AF-AZZURRO': '/images/products/agenda-alfa-settimanale-17x24-azzurro.png',
-}
-
 export function agendaAlfaSettImageUrlForSku(sku: string): string {
   const upper = String(sku ?? '').trim().toUpperCase()
-  const variantHit = AGENDA_ALFA_SETT_VARIANT_IMAGE_URL[upper]
-  if (variantHit) return variantHit
   if (upper.includes('7157AF') || !upper) return AGENDA_ALFA_SETT_IMAGE_URL
   return AGENDA_ALFA_SETT_IMAGE_URL
 }
@@ -167,7 +161,7 @@ export function buildAgendaAlfaSettOfficeProduct(
       Codice: variantSku,
       'Codice misura': size.sku,
     },
-    imageUrl: agendaAlfaSettImageUrlForSku(variantSku),
+    imageUrl: AGENDA_ALFA_SETT_IMAGE_URL,
     description:
       'Agenda settimanale ALFA a blocco fisso, formato 17x24 cm. Ideale per ufficio e studio: seleziona il colore della copertina; codice articolo e prezzo si aggiornano in scheda.',
     price: size.price,

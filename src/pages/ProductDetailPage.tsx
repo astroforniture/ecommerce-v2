@@ -191,10 +191,10 @@ import {
   type AgendaAlfaColor,
 } from '../data/agendeAlfaGiornaliereProducts'
 import {
+  AGENDA_ALFA_SETT_IMAGE_URL,
   AGENDA_ALFA_SETT_SIZES,
   agendaAlfaSettColorFromProduct,
   agendaAlfaSettDisplayName,
-  agendaAlfaSettImageUrlForSku,
   agendaAlfaSettSizeFromProduct,
   agendaAlfaSettVariantSku,
   buildAgendaAlfaSettOfficeProduct,
@@ -1086,7 +1086,7 @@ export function ProductDetailPage() {
     ? buildAgendaAlfaSettOfficeProduct
     : buildAgendaAlfaOfficeProduct
   const agendaAlfaLineImageUrl = (sku: string | null | undefined) =>
-    isAgendaAlfaSett ? agendaAlfaSettImageUrlForSku(sku ?? '') : agendaAlfaImageUrlForSku(sku ?? '')
+    isAgendaAlfaSett ? AGENDA_ALFA_SETT_IMAGE_URL : agendaAlfaImageUrlForSku(sku ?? '')
   const agendaAlfaLineDisplayName = (size: NonNullable<typeof agendaAlfaSize>, color: string) =>
     isAgendaAlfaSett ? agendaAlfaSettDisplayName(size, color) : agendaAlfaDisplayName(size, color)
   const isAgendaDelta = useMemo(() => isAgendaDeltaGiornalieraProduct(product), [product])
@@ -2895,9 +2895,7 @@ export function ProductDetailPage() {
       if (mapped) return bust(mapped)
     }
     if (product && isAgendaAlfaLine) {
-      const mapped = agendaAlfaLineImageUrl(
-        agendaAlfaVariantCode ?? agendaAlfaSize?.sku ?? product.producerCode,
-      )
+      const mapped = agendaAlfaLineImageUrl(agendaAlfaSize?.sku ?? product.producerCode)
       if (mapped) return bust(mapped)
     }
     if (product && isAgendaDeltaLine) {
@@ -4063,13 +4061,7 @@ export function ProductDetailPage() {
                         ? buildAgendaAlfaLineProduct(agendaAlfaSize, color)
                         : null
                     const thumbUrl = withOfficeImageCacheBust(
-                      agendaAlfaLineImageUrl(
-                        agendaAlfaSize != null
-                          ? isAgendaAlfaSett
-                            ? agendaAlfaSettVariantSku(agendaAlfaSize.sku, color)
-                            : agendaAlfaVariantSku(agendaAlfaSize.sku, color)
-                          : product.producerCode,
-                      ),
+                      agendaAlfaLineImageUrl(agendaAlfaSize?.sku ?? product.producerCode),
                       OFFICE_CATALOG_DATA_REVISION,
                     )
                     if (!target) return null
