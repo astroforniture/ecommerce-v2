@@ -100,10 +100,12 @@ type CrossSellSectionProps = {
  */
 export function CrossSellSection({
   crossSell,
-  heading = 'Completa la tua postazione',
-  subheading = 'Spesso acquistati insieme',
+  heading,
+  subheading,
   className = '',
 }: CrossSellSectionProps) {
+  const resolvedHeading = heading ?? crossSell.heading ?? 'Completa la tua postazione'
+  const resolvedSubheading = subheading ?? crossSell.subheading ?? 'Spesso acquistati insieme'
   const { addOfficeProduct } = useCart()
   const [tick, setTick] = useState(0)
   const [paused, setPaused] = useState(false)
@@ -162,20 +164,20 @@ export function CrossSellSection({
         <ShoppingCart className="size-5 text-brand-700" aria-hidden />
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-700">
-            {subheading}
+            {resolvedSubheading}
           </p>
           <h2
             id="cross-sell-heading"
             className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl"
           >
-            {heading}
+            {resolvedHeading}
           </h2>
         </div>
       </div>
 
       <ul
         className="mt-6 flex gap-4 overflow-x-auto pb-2 scroll-smooth [-webkit-overflow-scrolling:touch]"
-        aria-label={heading}
+        aria-label={resolvedHeading}
       >
         {displaySlots.map((slot) => (
           <CrossSellCard

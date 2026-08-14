@@ -38,6 +38,7 @@ import {
   matchesShopperPlasticaProduct,
 } from './shopperCancelleria'
 import {
+  AGENDE_CATEGORY,
   CARTA_SUBCATEGORY_A3,
   CARTA_SUBCATEGORY_A4,
   CARTA_SUBCATEGORY_TERMICA,
@@ -228,6 +229,7 @@ export type OfficeCrossSellGroup =
   | 'carta-termica'
   | 'shopper'
   | 'casse'
+  | 'agende'
 
 export const OFFICE_CROSS_SELL_RING: readonly OfficeCrossSellGroup[] = [
   'archivio',
@@ -360,6 +362,10 @@ export type CrossSellDbPools = {
   shopper?: readonly OfficeProduct[]
   alberghi?: readonly OfficeProduct[]
   casse?: readonly OfficeProduct[]
+  penne?: readonly OfficeProduct[]
+  pennarelliMatite?: readonly OfficeProduct[]
+  evidenziatori?: readonly OfficeProduct[]
+  cucitrici?: readonly OfficeProduct[]
 }
 
 function poolEtichettatrici(): OfficeProduct[] {
@@ -435,6 +441,72 @@ function isBusteTrasparentiProduct(product: OfficeProduct): boolean {
   return /buste?\s*(forate|trasparent|ppl)/i.test(name) || /cartellin.*\ba\s*l\b/i.test(name)
 }
 
+function cancelleriaHaystack(
+  product: Pick<OfficeProduct, 'name' | 'subcategory'>,
+): string {
+  return `${product.name} ${product.subcategory ?? ''}`.toLowerCase()
+}
+
+export function isPenneCrossSellProduct(
+  product: Pick<OfficeProduct, 'name' | 'subcategory'>,
+): boolean {
+  const n = cancelleriaHaystack(product)
+  if (/pennarell|evidenziat|highlighter|cucitric|stapler/.test(n)) return false
+  return /\bpenne?\b|biro|roller|sfera/.test(n)
+}
+
+export function isPennarelliMatiteCrossSellProduct(
+  product: Pick<OfficeProduct, 'name' | 'subcategory'>,
+): boolean {
+  const n = cancelleriaHaystack(product)
+  if (/evidenziat|highlighter/.test(n)) return false
+  return /pennarell|matite?|marcatore|marcatori|\bmarker\b/.test(n)
+}
+
+export function isEvidenziatoriCrossSellProduct(
+  product: Pick<OfficeProduct, 'name' | 'subcategory'>,
+): boolean {
+  return /evidenziat|highlighter/.test(cancelleriaHaystack(product))
+}
+
+export function isCucitriciCrossSellProduct(
+  product: Pick<OfficeProduct, 'name' | 'subcategory'>,
+): boolean {
+  return /cucitric|stapler|spillatric/.test(cancelleriaHaystack(product))
+}
+
+function hashSeed(value: string): number {
+  let h = 2166136261
+  for (let i = 0; i < value.length; i++) {
+    h ^= value.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return h >>> 0
+}
+
+function shuffleCopy<T>(items: readonly T[], seed: string): T[] {
+  const arr = [...items]
+  let s = hashSeed(seed) || 1
+  for (let i = arr.length - 1; i > 0; i--) {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0
+    const j = s % (i + 1)
+    const tmp = arr[i]!
+    arr[i] = arr[j]!
+    arr[j] = tmp
+  }
+  return arr
+}
+
+function isAgendaProduct(
+  product: Pick<OfficeProduct, 'id' | 'category' | 'name'>,
+): boolean {
+  const cat = (product.category ?? '').trim()
+  if (cat.localeCompare(AGENDE_CATEGORY, 'it', { sensitivity: 'base' }) === 0) return true
+  const id = String(product.id ?? '').toUpperCase()
+  if (id.startsWith('AF-AGENDA')) return true
+  return /\bagenda\b/i.test(product.name ?? '') && cat.toLowerCase() !== 'cancelleria'
+}
+
 function isCancelleriaEssentialProduct(
   product: Pick<OfficeProduct, 'category' | 'subcategory' | 'name'>,
 ): boolean {
@@ -493,6 +565,7 @@ function isCassaProduct(product: Pick<OfficeProduct, 'id' | 'category' | 'subcat
 export function detectOfficeCrossSellGroup(
   product: Pick<OfficeProduct, 'id' | 'category' | 'subcategory' | 'name' | 'producerCode'>,
 ): OfficeCrossSellGroup | null {
+  if (isAgendaProduct(product)) return 'agende'
   if (isDistruggiProduct(product)) return 'distruggi-documenti'
   if (isCassaProduct(product)) return 'casse'
   if (isCartaTermicaProduct(product)) return 'carta-termica'
@@ -557,6 +630,8 @@ export type CrossSellResult = {
   /** True quando la UI usa slot tipizzati con label. */
   fourSlots: boolean
   autoPlay: boolean
+  heading?: string
+  subheading?: string
 }
 
 function emptyCrossSell(): CrossSellResult {
@@ -590,7 +665,12 @@ function resultFromSlots(
   extras?: Partial<
     Pick<
       CrossSellResult,
-      'rotateCarta' | 'rotateBuste' | 'rotateEtichettatrici' | 'rotateCartucceToner'
+      | 'rotateCarta'
+      | 'rotateBuste'
+      | 'rotateEtichettatrici'
+      | 'rotateCartucceToner'
+      | 'heading'
+      | 'subheading'
     >
   >,
 ): CrossSellResult {
@@ -607,6 +687,8 @@ function resultFromSlots(
     rotateCartucceToner: extras?.rotateCartucceToner ?? [],
     fourSlots: slots.length > 0,
     autoPlay,
+    heading: extras?.heading,
+    subheading: extras?.subheading,
   }
 }
 
@@ -618,8 +700,9 @@ export function getCrossSellForProduct(
   limit = 8,
   dbPools?: CrossSellDbPools,
 ): CrossSellResult {
+  const group = detectOfficeCrossSellGroup(product)
   const specificIds = product.relatedProductIds ?? []
-  if (specificIds.length > 0) {
+  if (specificIds.length > 0 && group !== 'agende') {
     const products = specificIds
       .map((id) => CROSS_SELL_BY_ID.get(id))
       .filter((p): p is OfficeProduct => p !== undefined)
@@ -627,7 +710,6 @@ export function getCrossSellForProduct(
     return { ...emptyCrossSell(), products }
   }
 
-  const group = detectOfficeCrossSellGroup(product)
   if (!group) {
     return emptyCrossSell()
   }
@@ -654,6 +736,54 @@ export function getCrossSellForProduct(
   const rotateCasse = mergePool(dbPools?.casse, poolCasseFallback(), product.id)
   const rotateEtichettatrici = poolEtichettatrici().filter((p) => p.id !== product.id)
   const rotateCartucceToner = poolCartucceToner().filter((p) => p.id !== product.id)
+  const seed = product.id || product.producerCode || product.name
+  const fallbackCancelleria = dbPools?.cancelleria ?? []
+  const rotatePenne = shuffleCopy(
+    mergePool(
+      dbPools?.penne ?? fallbackCancelleria.filter(isPenneCrossSellProduct),
+      [],
+      product.id,
+    ),
+    `${seed}:penne`,
+  )
+  const rotatePennarelliMatite = shuffleCopy(
+    mergePool(
+      dbPools?.pennarelliMatite ??
+        fallbackCancelleria.filter(isPennarelliMatiteCrossSellProduct),
+      [],
+      product.id,
+    ),
+    `${seed}:pennarelli`,
+  )
+  const rotateEvidenziatori = shuffleCopy(
+    mergePool(
+      dbPools?.evidenziatori ?? fallbackCancelleria.filter(isEvidenziatoriCrossSellProduct),
+      [],
+      product.id,
+    ),
+    `${seed}:evidenziatori`,
+  )
+  const rotateCucitrici = shuffleCopy(
+    mergePool(
+      dbPools?.cucitrici ?? fallbackCancelleria.filter(isCucitriciCrossSellProduct),
+      [],
+      product.id,
+    ),
+    `${seed}:cucitrici`,
+  )
+
+  if (group === 'agende') {
+    const slots: CrossSellSlot[] = [
+      { key: 'penne', label: 'Penne', pool: rotatePenne },
+      { key: 'pennarelli-matite', label: 'Pennarelli e Matite', pool: rotatePennarelliMatite },
+      { key: 'evidenziatori', label: 'Evidenziatori', pool: rotateEvidenziatori },
+      { key: 'cucitrici', label: 'Cucitrici', pool: rotateCucitrici },
+    ].filter((s) => s.pool.length > 0)
+    return resultFromSlots(slots, {
+      heading: 'Completa la tua agenda con...',
+      subheading: 'Spesso acquistati insieme',
+    })
+  }
 
   // Hospitality ring: Alberghi ↔ Carta Termica ↔ Casse ↔ Shopper
   if (

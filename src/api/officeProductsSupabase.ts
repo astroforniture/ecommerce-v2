@@ -62,7 +62,7 @@ import { applyModulisticaQuantityPricing } from '../lib/modulisticaQuantityPrici
  * Aumenta dopo pulizie massicce su `public.products` (es. titoli): nuove `queryKey` in React Query
  * così il client non riusa dati serializzati vecchi con titoli obsoleti.
  */
-export const OFFICE_CATALOG_DATA_REVISION = 289
+export const OFFICE_CATALOG_DATA_REVISION = 290
 
 const SUPPRESSED_PRODUCTS_BY_ID = new Set([
   '55acce14-88cd-4b12-807d-cd2753894639', // Starbox dorso 5 cm arancio (rimozione richiesta)
@@ -5219,6 +5219,10 @@ export type CrossSellRotationPools = {
   shopper: OfficeProduct[]
   alberghi: OfficeProduct[]
   casse: OfficeProduct[]
+  penne: OfficeProduct[]
+  pennarelliMatite: OfficeProduct[]
+  evidenziatori: OfficeProduct[]
+  cucitrici: OfficeProduct[]
 }
 
 const CANCELLERIA_ESSENTIAL_RE =
@@ -5232,10 +5236,11 @@ function isCancelleriaEssentialProduct(p: OfficeProduct): boolean {
 
 function cancelleriaEssentialBucket(p: OfficeProduct): string {
   const n = `${p.name} ${p.subcategory ?? ''}`.toLowerCase()
-  if (/penna|penne|biro|roller|sfera/.test(n)) return 'penne'
-  if (/cucitric|stapler|spillatric/.test(n)) return 'cucitrici'
-  if (/nastro\s*adesiv|scotch/.test(n)) return 'nastri'
   if (/evidenziat|highlighter/.test(n)) return 'evidenziatori'
+  if (/cucitric|stapler|spillatric/.test(n)) return 'cucitrici'
+  if (/pennarell|matite?|marcatore|marcatori|\bmarker\b/.test(n)) return 'pennarelli-matite'
+  if (/\bpenne?\b|biro|roller|sfera/.test(n)) return 'penne'
+  if (/nastro\s*adesiv|scotch/.test(n)) return 'nastri'
   if (/fermagli|clip\b/.test(n)) return 'fermagli'
   if (/\bpunti\b/.test(n)) return 'punti'
   if (/marcat|marker/.test(n)) return 'marcatori'
@@ -5295,6 +5300,10 @@ export async function fetchCrossSellRotationPools(
     shopper: [],
     alberghi: [],
     casse: [],
+    penne: [],
+    pennarelliMatite: [],
+    evidenziatori: [],
+    cucitrici: [],
   }
   const supabase = getSupabaseBrowserClient()
   if (!supabase) return empty
@@ -5499,6 +5508,19 @@ export async function fetchCrossSellRotationPools(
     })
     .slice(0, limitPerPool)
 
+  const penne = cancelleriaRaw
+    .filter((p) => cancelleriaEssentialBucket(p) === 'penne')
+    .slice(0, limitPerPool)
+  const pennarelliMatite = cancelleriaRaw
+    .filter((p) => cancelleriaEssentialBucket(p) === 'pennarelli-matite')
+    .slice(0, limitPerPool)
+  const evidenziatori = cancelleriaRaw
+    .filter((p) => cancelleriaEssentialBucket(p) === 'evidenziatori')
+    .slice(0, limitPerPool)
+  const cucitrici = cancelleriaRaw
+    .filter((p) => cancelleriaEssentialBucket(p) === 'cucitrici')
+    .slice(0, limitPerPool)
+
   return {
     carta,
     buste,
@@ -5508,6 +5530,10 @@ export async function fetchCrossSellRotationPools(
     shopper,
     alberghi,
     casse,
+    penne,
+    pennarelliMatite,
+    evidenziatori,
+    cucitrici,
   }
 }
 

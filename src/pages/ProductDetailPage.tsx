@@ -897,7 +897,7 @@ export function ProductDetailPage() {
   const product = query.data ?? undefined
 
   const crossSellPoolsQuery = useQuery({
-    queryKey: ['cross-sell-rotation-pools'],
+    queryKey: ['cross-sell-rotation-pools', OFFICE_CATALOG_DATA_REVISION],
     queryFn: () => fetchCrossSellRotationPools(24),
     staleTime: 5 * 60 * 1000,
   })
@@ -913,6 +913,10 @@ export function ProductDetailPage() {
       shopper: crossSellPoolsQuery.data?.shopper,
       alberghi: crossSellPoolsQuery.data?.alberghi,
       casse: crossSellPoolsQuery.data?.casse,
+      penne: crossSellPoolsQuery.data?.penne,
+      pennarelliMatite: crossSellPoolsQuery.data?.pennarelliMatite,
+      evidenziatori: crossSellPoolsQuery.data?.evidenziatori,
+      cucitrici: crossSellPoolsQuery.data?.cucitrici,
     })
   }, [product, crossSellPoolsQuery.data])
 
