@@ -37,7 +37,7 @@
       "destination": "/prerender/office-products/category-Archivio/index.html"
     },
     {
-      "source": "/((?!assets/).*)",
+      "source": "/((?!assets/|api/|feeds/).*)",
       "destination": "/index.html"
     }
   ]
