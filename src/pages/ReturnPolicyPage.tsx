@@ -12,14 +12,14 @@ const TOC: TocItem[] = [
   { id: 'recesso-consumatori', label: '2. Diritto di recesso (14 giorni)' },
   { id: 'come-esercitare', label: '3. Come esercitare il reso' },
   { id: 'spedizione-reso', label: '4. Spedizione del reso e costi' },
-  { id: 'rimborso', label: '5. Tempi e modalità di rimborso' },
+  { id: 'rimborso', label: '5. Tempi e modalitÃƒÂ  di rimborso' },
   { id: 'esclusioni', label: '6. Casi di esclusione' },
   { id: 'b2b', label: '7. Clienti professionali (B2B)' },
   { id: 'garanzia', label: '8. Resi per difetto / garanzia' },
   { id: 'contatti', label: '9. Contatti' },
 ]
 
-/** Pagina dedicata «Norme sui resi» per Google Merchant Center e clienti. */
+/** Pagina dedicata Ã‚Â«Norme sui resiÃ‚Â» per Google Merchant Center e clienti. */
 export function ReturnPolicyPage() {
   return (
     <main className="min-h-[60vh] bg-gradient-to-b from-brand-50/50 to-white">
@@ -102,8 +102,8 @@ export function ReturnPolicyPage() {
             <li>eventuale motivazione (facoltativa per il recesso B2C).</li>
           </ul>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            È possibile utilizzare il modulo tipo di recesso previsto dall&apos;Allegato I, parte B, del
-            Codice del Consumo, senza che ciò sia obbligatorio.
+            ÃƒÂˆ possibile utilizzare il modulo tipo di recesso previsto dall&apos;Allegato I, parte B, del
+            Codice del Consumo, senza che ciÃƒÂ² sia obbligatorio.
           </p>
         </section>
 
@@ -114,7 +114,7 @@ export function ReturnPolicyPage() {
             <strong>integri</strong>, nella confezione originale ove possibile, all&apos;indirizzo:
           </p>
           <p className="mt-2 rounded-lg bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800">
-            Astro Forniture s.r.l. — {COMPANY_ADDRESS_MANTOVA}
+            Astro Forniture s.r.l.  -  {COMPANY_ADDRESS_MANTOVA}
           </p>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
             Salvo diverso accordo scritto, le <strong>spese di spedizione del reso</strong> sono a carico
@@ -124,12 +124,12 @@ export function ReturnPolicyPage() {
         </section>
 
         <section id="rimborso" className="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
-          <h3 className="text-lg font-semibold text-slate-900">5. Tempi e modalità di rimborso</h3>
+          <h3 className="text-lg font-semibold text-slate-900">5. Tempi e modalitÃƒÂ  di rimborso</h3>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
             Il Venditore rimborsa i pagamenti ricevuti per i beni restituiti, compresi i costi di consegna
-            standard (esclusi costi aggiuntivi per modalità di consegna diverse da quella meno costosa
+            standard (esclusi costi aggiuntivi per modalitÃƒÂ  di consegna diverse da quella meno costosa
             offerta), senza indebito ritardo e comunque entro <strong>14 giorni</strong> dal giorno in cui
-            è informato della decisione di recedere.
+            ÃƒÂ¨ informato della decisione di recedere.
           </p>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
             Il Venditore si riserva di trattenere il rimborso fino alla ricezione dei beni o fino alla
@@ -141,7 +141,7 @@ export function ReturnPolicyPage() {
         <section id="esclusioni" className="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
           <h3 className="text-lg font-semibold text-slate-900">6. Casi di esclusione</h3>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            Il diritto di recesso è escluso nei casi previsti dall&apos;art. 59 del Codice del Consumo,
+            Il diritto di recesso ÃƒÂ¨ escluso nei casi previsti dall&apos;art. 59 del Codice del Consumo,
             tra cui, a titolo esemplificativo:
           </p>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
@@ -165,8 +165,8 @@ export function ReturnPolicyPage() {
         <section id="garanzia" className="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
           <h3 className="text-lg font-semibold text-slate-900">8. Resi per difetto / garanzia</h3>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            In caso di prodotto difettoso o non conforme, il Cliente consumatore può avvalersi della{' '}
-            <strong>garanzia legale di conformità</strong> (2 anni dalla consegna), come descritto nei{' '}
+            In caso di prodotto difettoso o non conforme, il Cliente consumatore puÃƒÂ² avvalersi della{' '}
+            <strong>garanzia legale di conformitÃƒÂ </strong> (2 anni dalla consegna), come descritto nei{' '}
             <Link
               to="/termini-condizioni-vendita#garanzia-legale"
               className="font-semibold text-brand-700 hover:underline"
@@ -174,7 +174,7 @@ export function ReturnPolicyPage() {
               Termini e Condizioni di Vendita
             </Link>
             . Contattare il Servizio Clienti indicando numero d&apos;ordine, codice articolo e descrizione
-            del problema: in questi casi le modalità di reso/rimborso o sostituzione seguono la normativa
+            del problema: in questi casi le modalitÃƒÂ  di reso/rimborso o sostituzione seguono la normativa
             di garanzia e potranno differire dal recesso volontario.
           </p>
         </section>
@@ -182,7 +182,7 @@ export function ReturnPolicyPage() {
         <section id="contatti" className="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
           <h3 className="text-lg font-semibold text-slate-900">9. Contatti</h3>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            Astro Forniture s.r.l. — {COMPANY_ADDRESS_MANTOVA}
+            Astro Forniture s.r.l.  -  {COMPANY_ADDRESS_MANTOVA}
             <br />
             E-mail:{' '}
             <a className="font-semibold text-brand-700 hover:underline" href={`mailto:${COMPANY_EMAIL}`}>

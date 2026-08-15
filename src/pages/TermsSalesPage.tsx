@@ -8,15 +8,15 @@ import {
 type TocItem = { id: string; label: string }
 
 const TOC: TocItem[] = [
-  { id: 'identita-venditore', label: '1. Identità del venditore' },
+  { id: 'identita-venditore', label: '1. IdentitÃ  del venditore' },
   { id: 'ambito-applicazione', label: '2. Ambito di applicazione' },
   { id: 'prezzi-e-iva', label: '3. Prezzi e IVA' },
   { id: 'ordini-e-conclusione', label: '4. Ordini e conclusione del contratto' },
   { id: 'diritto-di-recesso', label: '5. Diritto di recesso (14 giorni)' },
   { id: 'spedizioni-ritiro', label: '6. Spedizioni e ritiro in sede' },
-  { id: 'disponibilita', label: '7. Disponibilità prodotti e immagini' },
+  { id: 'disponibilita', label: '7. DisponibilitÃ  prodotti e immagini' },
   { id: 'pagamenti', label: '8. Pagamenti e fatturazione' },
-  { id: 'garanzia-legale', label: '9. Garanzia legale di conformità (2 anni)' },
+  { id: 'garanzia-legale', label: '9. Garanzia legale di conformitÃ  (2 anni)' },
   { id: 'sicurezza-prodotti-gpsr', label: '10. Sicurezza dei prodotti (GPSR)' },
   { id: 'foro-competente', label: '11. Legge applicabile e foro competente' },
 ]
@@ -44,9 +44,9 @@ export function TermsSalesPage() {
         </section>
 
         <section id="identita-venditore" className="mt-8 rounded-2xl border border-slate-200 bg-white p-5">
-          <h3 className="text-lg font-semibold text-slate-900">1. Identità del venditore</h3>
+          <h3 className="text-lg font-semibold text-slate-900">1. IdentitÃ  del venditore</h3>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            Il presente sito di commercio elettronico è gestito da Astro Forniture s.r.l., con sede in{' '}
+            Il presente sito di commercio elettronico Ã¨ gestito da Astro Forniture s.r.l., con sede in{' '}
             {COMPANY_ADDRESS_MANTOVA}, Italia (di seguito, &quot;Venditore&quot;). Contatti:{' '}
             <a className="font-semibold text-brand-700 hover:underline" href={`mailto:${COMPANY_EMAIL}`}>
               {COMPANY_EMAIL}
@@ -98,20 +98,20 @@ export function TermsSalesPage() {
             Per esercitare il recesso, il Cliente deve informare il Venditore con una dichiarazione
             esplicita (es. lettera inviata per posta, e-mail a {COMPANY_EMAIL} o comunicazione tramite i
             canali di assistenza indicati sul sito), indicando numero d&apos;ordine, dati anagrafici e beni
-            oggetto di reso. È possibile utilizzare il modulo tipo di recesso previsto dall&apos;Allegato I,
-            parte B, del Codice del Consumo, senza che ciò sia obbligatorio.
+            oggetto di reso. Ã possibile utilizzare il modulo tipo di recesso previsto dall&apos;Allegato I,
+            parte B, del Codice del Consumo, senza che ciÃ² sia obbligatorio.
           </p>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
             Entro 14 giorni dalla comunicazione del recesso, il Cliente restituisce i beni integri, nella
             confezione originale ove possibile, a proprie spese salvo diverso accordo, all&apos;indirizzo:{' '}
             {COMPANY_ADDRESS_MANTOVA}. Il Venditore rimborsa i pagamenti ricevuti, compresi i costi di
-            consegna standard (esclusi costi aggiuntivi per modalità di consegna diverse da quella meno
-            costosa offerta), senza indebito ritardo e comunque entro 14 giorni dal giorno in cui è
+            consegna standard (esclusi costi aggiuntivi per modalitÃ  di consegna diverse da quella meno
+            costosa offerta), senza indebito ritardo e comunque entro 14 giorni dal giorno in cui Ã¨
             informato della decisione di recedere, riservandosi di trattenere il rimborso fino alla
             ricezione dei beni o alla prova dell&apos;avvenuta spedizione.
           </p>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            Il diritto di recesso è escluso nei casi previsti dall&apos;art. 59 del Codice del Consumo
+            Il diritto di recesso Ã¨ escluso nei casi previsti dall&apos;art. 59 del Codice del Consumo
             (es. beni confezionati su misura o chiaramente personalizzati, beni sigillati non idonei alla
             restituzione per motivi igienici o di protezione della salute aperti dopo la consegna, ecc.).
           </p>
@@ -120,7 +120,7 @@ export function TermsSalesPage() {
             consumatori non trova applicazione, salvi diversi accordi commerciali.
           </p>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            Dettaglio operativo su modalità di reso e rimborso:{' '}
+            Dettaglio operativo su modalitÃ  di reso e rimborso:{' '}
             <Link to="/politica-resi" className="font-semibold text-brand-700 hover:underline">
               Norme sui resi
             </Link>
@@ -131,8 +131,8 @@ export function TermsSalesPage() {
         <section id="spedizioni-ritiro" className="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
           <h3 className="text-lg font-semibold text-slate-900">6. Spedizioni e ritiro in sede</h3>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            Il Cliente può scegliere tra spedizione a domicilio e ritiro gratuito presso il punto vendita di
-            Mantova ({COMPANY_ADDRESS_MANTOVA}). I tempi di consegna variano in base alla disponibilità del
+            Il Cliente puÃ² scegliere tra spedizione a domicilio e ritiro gratuito presso il punto vendita di
+            Mantova ({COMPANY_ADDRESS_MANTOVA}). I tempi di consegna variano in base alla disponibilitÃ  del
             prodotto, all&apos;area di destinazione e ai tempi del vettore.
           </p>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
@@ -142,14 +142,14 @@ export function TermsSalesPage() {
         </section>
 
         <section id="disponibilita" className="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
-          <h3 className="text-lg font-semibold text-slate-900">7. Disponibilità prodotti e immagini</h3>
+          <h3 className="text-lg font-semibold text-slate-900">7. DisponibilitÃ  prodotti e immagini</h3>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            Le immagini dei prodotti hanno finalità illustrativa e possono non rappresentare in modo
+            Le immagini dei prodotti hanno finalitÃ  illustrativa e possono non rappresentare in modo
             perfettamente fedele il prodotto reale (es. variazioni di colore, packaging, dettaglio).
           </p>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            In caso di indisponibilità sopravvenuta del prodotto ordinato, il Cliente verrà tempestivamente
-            informato e potrà scegliere tra rimborso dell&apos;importo versato o proposta di prodotto
+            In caso di indisponibilitÃ  sopravvenuta del prodotto ordinato, il Cliente verrÃ  tempestivamente
+            informato e potrÃ  scegliere tra rimborso dell&apos;importo versato o proposta di prodotto
             sostitutivo equivalente.
           </p>
         </section>
@@ -165,20 +165,20 @@ export function TermsSalesPage() {
 
         <section id="garanzia-legale" className="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
           <h3 className="text-lg font-semibold text-slate-900">
-            9. Garanzia legale di conformità (2 anni)
+            9. Garanzia legale di conformitÃ  (2 anni)
           </h3>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            Ai sensi del Codice del Consumo, il Venditore è responsabile nei confronti del consumatore per
-            qualsiasi difetto di conformità esistente al momento della consegna del bene. La{' '}
-            <strong>garanzia legale di conformità</strong> ha durata di <strong>due (2) anni</strong> dalla
+            Ai sensi del Codice del Consumo, il Venditore Ã¨ responsabile nei confronti del consumatore per
+            qualsiasi difetto di conformitÃ  esistente al momento della consegna del bene. La{' '}
+            <strong>garanzia legale di conformitÃ </strong> ha durata di <strong>due (2) anni</strong> dalla
             consegna per i beni di consumo acquistati da Cliente consumatore (B2C).
           </p>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            In caso di difetto di conformità, il consumatore ha diritto al ripristino della conformità
-            mediante riparazione o sostituzione, oppure — nei casi previsti dalla legge — alla riduzione
+            In caso di difetto di conformitÃ , il consumatore ha diritto al ripristino della conformitÃ 
+            mediante riparazione o sostituzione, oppure â" nei casi previsti dalla legge â" alla riduzione
             del prezzo o alla risoluzione del contratto. La denuncia del difetto va effettuata entro i
             termini di legge. Restano salvi i diritti derivanti da eventuali garanzie convenzionali del
-            produttore, che non sostituiscono né limitano la garanzia legale.
+            produttore, che non sostituiscono nÃ© limitano la garanzia legale.
           </p>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
             Per i Clienti B2B si applicano le norme del Codice Civile in materia di vizi della cosa venduta
@@ -189,7 +189,7 @@ export function TermsSalesPage() {
 
         <section id="sicurezza-prodotti-gpsr" className="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
           <h3 className="text-lg font-semibold text-slate-900">
-            10. Sicurezza dei prodotti (GPSR — Regolamento UE 2023/988)
+            10. Sicurezza dei prodotti (GPSR â" Regolamento UE 2023/988)
           </h3>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
             Il Venditore commercializza prodotti conformi alla normativa europea in materia di sicurezza
@@ -198,15 +198,15 @@ export function TermsSalesPage() {
           </p>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
             Nelle schede prodotto, ove disponibili, sono indicati i riferimenti al produttore e/o
-            all&apos;importatore / responsabile economico nell&apos;Unione Europea, nonché le avvertenze e le
-            informazioni di sicurezza rilevanti. Il Cliente è tenuto a consultare tali indicazioni e le
+            all&apos;importatore / responsabile economico nell&apos;Unione Europea, nonchÃ© le avvertenze e le
+            informazioni di sicurezza rilevanti. Il Cliente Ã¨ tenuto a consultare tali indicazioni e le
             istruzioni d&apos;uso allegate al prodotto prima dell&apos;utilizzo.
           </p>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
             Per segnalazioni relative alla sicurezza di un prodotto (difetti, incidenti, rischi), il Cliente
-            può contattare il Venditore a {COMPANY_EMAIL} o ai recapiti indicati nella pagina Contatti,
+            puÃ² contattare il Venditore a {COMPANY_EMAIL} o ai recapiti indicati nella pagina Contatti,
             fornendo codice articolo, numero d&apos;ordine e descrizione del problema. Il Venditore collabora
-            con le autorità e gli operatori economici della filiera secondo gli obblighi di legge.
+            con le autoritÃ  e gli operatori economici della filiera secondo gli obblighi di legge.
           </p>
         </section>
 
@@ -218,13 +218,13 @@ export function TermsSalesPage() {
             I presenti Termini sono regolati dalla legge italiana.
           </p>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            Per le controversie con Cliente <strong>consumatore</strong>, è competente in via esclusiva il
+            Per le controversie con Cliente <strong>consumatore</strong>, Ã¨ competente in via esclusiva il
             foro del luogo di <strong>residenza o domicilio eletto del consumatore</strong>, ai sensi della
-            normativa vigente a tutela del consumatore. Il consumatore può inoltre avvalersi della
+            normativa vigente a tutela del consumatore. Il consumatore puÃ² inoltre avvalersi della
             piattaforma europea di risoluzione delle controversie online (ODR), ove applicabile.
           </p>
           <p className="mt-2 text-sm leading-relaxed text-slate-700">
-            Per le controversie con Cliente professionista/azienda (B2B), è competente in via esclusiva il
+            Per le controversie con Cliente professionista/azienda (B2B), Ã¨ competente in via esclusiva il
             Foro di Mantova, salvi eventuali fori inderogabili di legge.
           </p>
         </section>
