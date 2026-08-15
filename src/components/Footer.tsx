@@ -136,6 +136,11 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link className="text-slate-700 underline-offset-4 hover:underline" to="/politica-resi">
+                  Norme sui resi
+                </Link>
+              </li>
+              <li>
                 <Link className="text-slate-700 underline-offset-4 hover:underline" to="/privacy-policy">
                   Privacy
                 </Link>

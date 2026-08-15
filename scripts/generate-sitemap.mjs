@@ -71,6 +71,7 @@ async function generate() {
     '/privacy-policy',
     '/cookie-policy',
     '/termini-condizioni-vendita',
+    '/politica-resi',
   ]
   const urls = [...staticUrls]
   const seen = new Set(urls)

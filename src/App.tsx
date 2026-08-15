@@ -45,6 +45,7 @@ import { ServizioDetailPage } from './pages/ServizioDetailPage'
 import { FaqPage } from './pages/FaqPage'
 import { ContattiPage } from './pages/ContattiPage'
 import { TermsSalesPage } from './pages/TermsSalesPage'
+import { ReturnPolicyPage } from './pages/ReturnPolicyPage'
 import {
   LegalGovernanceDocPage,
   LegalGovernanceHubPage,
@@ -188,6 +189,7 @@ export default function App() {
         <Route path="/account/profile" element={<AccountProfilePage />} />
         <Route path="/profile" element={<Navigate to="/account/profile" replace />} />
         <Route path="/termini-condizioni-vendita" element={<TermsSalesPage />} />
+        <Route path="/politica-resi" element={<ReturnPolicyPage />} />
         <Route path="/note-legali-governance" element={<LegalGovernanceHubPage />} />
         <Route path="/note-legali-governance/:slug" element={<LegalGovernanceDocPage />} />
         <Route path="/faq" element={<FaqPage />} />
