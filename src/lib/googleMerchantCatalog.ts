@@ -15,6 +15,7 @@ import {
   stableMerchantIdHash,
   type GoogleMerchantFeedItem,
 } from './googleMerchantFeed'
+import { resolveMerchantImageLink } from './googleMerchantImages'
 import { buildCartucceTonerOfficeProducts } from '../data/cartucceTonerProducts'
 import { buildPileOfficeProducts } from '../data/pileProducts'
 import { buildQuaderniOfficeProducts } from '../data/quaderniProducts'
@@ -228,19 +229,35 @@ export async function buildGoogleMerchantFeedItems(
   for (const product of synthetics) {
     const key = productCatalogKey(product)
     if (!key) continue
-    // I sintetici hanno priorit sui duplicati DB (immagini/prezzi FE-canonici).
+    // I sintetici hanno priorit? sui duplicati DB (immagini/prezzi FE-canonici).
     byKey.set(key, { product, stock: product.inStock === false ? 0 : null })
     syntheticCount += 1
   }
 
   const items: GoogleMerchantFeedItem[] = []
   const usedIds = new Set<string>()
-  for (const { product, stock } of byKey.values()) {
-    const item = mapOfficeProductToMerchantItem(product, { origin, stock })
+  const entries = Array.from(byKey.values())
+
+  // Risolvi image_link in parallelo (GIMA 404 ? fallback sul nostro dominio).
+  const resolvedImages = await Promise.all(
+    entries.map(({ product }) =>
+      resolveMerchantImageLink(product.imageUrl ?? '', {
+        origin,
+        categoryHint: `${product.category ?? ''} ${product.subcategory ?? ''} ${product.name ?? ''}`,
+      }),
+    ),
+  )
+
+  for (let i = 0; i < entries.length; i++) {
+    const { product, stock } = entries[i]!
+    const item = mapOfficeProductToMerchantItem(product, {
+      origin,
+      stock,
+      imageLink: resolvedImages[i],
+    })
     if (!item) continue
     let offerId = item.id
     if (usedIds.has(offerId)) {
-      // Collisione rarissima: aggiungi suffisso hash della chiave catalogo completa.
       const catalogKey = productCatalogKey(product)
       const suffix = stableMerchantIdHash(`${catalogKey}#${offerId}`).slice(0, 6)
       offerId = normalizeMerchantOfferId(`${offerId.slice(0, 43)}-${suffix}`)
@@ -268,7 +285,7 @@ export async function buildGoogleMerchantFeedXml(
 export function resolveMerchantFeedEnv(env: Record<string, string | undefined> = {}): BuildMerchantFeedOptions {
   const origin = (env.VITE_SITE_URL || SITE_ORIGIN).replace(/\/$/, '')
   const supabaseUrl = (env.VITE_SUPABASE_URL || env.SUPABASE_URL || '').replace(/\/$/, '')
-  // Preferisci la anon key (tabella products pubblica): la service role pu mancare/essere invalida in locale.
+  // Preferisci la anon key (tabella products pubblica): la service role pu? mancare/essere invalida in locale.
   const supabaseKey =
     env.VITE_SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY || env.SUPABASE_SERVICE_ROLE_KEY || ''
   return { origin, supabaseUrl: supabaseUrl || undefined, supabaseKey: supabaseKey || undefined }

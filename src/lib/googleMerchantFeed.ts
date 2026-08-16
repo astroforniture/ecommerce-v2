@@ -36,6 +36,8 @@ export type MapMerchantOptions = {
   origin?: string
   /** Stock numerico da DB (informativo; availability usa inStock FE). */
   stock?: number | null
+  /** image_link gia sanificato/risolto (es. dopo HEAD check GIMA). */
+  imageLink?: string
 }
 
 /** Limite Google Merchant Center per l'attributo `id`. */
@@ -155,7 +157,8 @@ export function mapOfficeProductToMerchantItem(
     `${product.name}${product.brand ? ` - ${product.brand}` : ''}`
   const description = truncateMerchantText(descriptionRaw, 5000)
   const link = productDetailAbsoluteUrl(product, origin)
-  const image_link = absoluteAssetUrl(product.imageUrl, origin)
+  const image_link =
+    (opts.imageLink && opts.imageLink.trim()) || absoluteAssetUrl(product.imageUrl, origin)
   if (!image_link || !link) return null
 
   const additional = (product.imageGalleryUrls ?? [])
