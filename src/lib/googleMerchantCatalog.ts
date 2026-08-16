@@ -10,7 +10,9 @@ import { productCatalogKey } from './productRoutes'
 import { SITE_ORIGIN } from './siteSeo'
 import {
   mapOfficeProductToMerchantItem,
+  normalizeMerchantOfferId,
   renderGoogleMerchantRssXml,
+  stableMerchantIdHash,
   type GoogleMerchantFeedItem,
 } from './googleMerchantFeed'
 import { buildCartucceTonerOfficeProducts } from '../data/cartucceTonerProducts'
@@ -226,15 +228,27 @@ export async function buildGoogleMerchantFeedItems(
   for (const product of synthetics) {
     const key = productCatalogKey(product)
     if (!key) continue
-    // I sintetici hanno prioritù sui duplicati DB (immagini/prezzi FE-canonici).
+    // I sintetici hanno priorit¬ù sui duplicati DB (immagini/prezzi FE-canonici).
     byKey.set(key, { product, stock: product.inStock === false ? 0 : null })
     syntheticCount += 1
   }
 
   const items: GoogleMerchantFeedItem[] = []
+  const usedIds = new Set<string>()
   for (const { product, stock } of byKey.values()) {
     const item = mapOfficeProductToMerchantItem(product, { origin, stock })
-    if (item) items.push(item)
+    if (!item) continue
+    let offerId = item.id
+    if (usedIds.has(offerId)) {
+      // Collisione rarissima: aggiungi suffisso hash della chiave catalogo completa.
+      const catalogKey = productCatalogKey(product)
+      const suffix = stableMerchantIdHash(`${catalogKey}#${offerId}`).slice(0, 6)
+      offerId = normalizeMerchantOfferId(`${offerId.slice(0, 43)}-${suffix}`)
+      item.id = offerId
+    }
+    if (usedIds.has(offerId)) continue
+    usedIds.add(offerId)
+    items.push(item)
   }
 
   items.sort((a, b) => a.id.localeCompare(b.id, 'en'))
@@ -254,7 +268,7 @@ export async function buildGoogleMerchantFeedXml(
 export function resolveMerchantFeedEnv(env: Record<string, string | undefined> = {}): BuildMerchantFeedOptions {
   const origin = (env.VITE_SITE_URL || SITE_ORIGIN).replace(/\/$/, '')
   const supabaseUrl = (env.VITE_SUPABASE_URL || env.SUPABASE_URL || '').replace(/\/$/, '')
-  // Preferisci la anon key (tabella products pubblica): la service role puù mancare/essere invalida in locale.
+  // Preferisci la anon key (tabella products pubblica): la service role pu¬ù mancare/essere invalida in locale.
   const supabaseKey =
     env.VITE_SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY || env.SUPABASE_SERVICE_ROLE_KEY || ''
   return { origin, supabaseUrl: supabaseUrl || undefined, supabaseKey: supabaseKey || undefined }

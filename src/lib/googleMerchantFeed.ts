@@ -1,8 +1,8 @@
 /**
  * Google Merchant Center product feed helpers (RSS 2.0 + g: namespace).
- * Prices are IVA inclusa (imponibile  VAT_RATE)  formato "12.50 EUR".
+ * Prices are IVA inclusa (imponibile x VAT_RATE) - formato "12.50 EUR".
  *
- * Merchant Center ? Products ? Feeds ? Scheduled fetch:
+ * Merchant Center -> Products -> Feeds -> Scheduled fetch:
  *   https://www.asforniture.it/api/google-merchant-feed
  *   https://www.asforniture.it/feeds/google-merchant-feed.xml
  */
@@ -34,21 +34,24 @@ export type GoogleMerchantFeedItem = {
 
 export type MapMerchantOptions = {
   origin?: string
-  /** Stock numerico da DB; se 0 ? out_of_stock. Se assente, usa inStock FE o default in_stock. */
+  /** Stock numerico da DB (informativo; availability usa inStock FE). */
   stock?: number | null
 }
 
+/** Limite Google Merchant Center per l'attributo `id`. */
+export const MERCHANT_OFFER_ID_MAX_LENGTH = 50
+
 /** Google product taxonomy IDs (IT retail / office / medical). */
 const GOOGLE_CATEGORY_BY_SITE: Array<{ match: RegExp; id: string }> = [
-  { match: /agende/i, id: '5181' }, // Office Supplies > Planning & Organizers > Calendars & Planners
-  { match: /modulistica/i, id: '923' }, // Office Supplies > Filing & Organization
-  { match: /carta/i, id: '961' }, // Office Supplies > Office Paper
+  { match: /agende/i, id: '5181' },
+  { match: /modulistica/i, id: '923' },
+  { match: /carta/i, id: '961' },
   { match: /archivio/i, id: '923' },
-  { match: /sicurezza|dpi|abbigliamento/i, id: '2047' }, // Apparel & Accessories > Clothing
-  { match: /astro\s*medical|medical|salute|chirurg|diagnost/i, id: '491' }, // Health & Beauty > Health Care
-  { match: /macchine|distrugg|etichett|plastific|cassa|toner|verifica/i, id: '1624' }, // Electronics > Print / Office Electronics
-  { match: /shopper|buste|sacboll/i, id: '100' }, // Luggage & Bags > Shopping Bags / Handbags-ish; Bags
-  { match: /cancelleria|penne|quadern|pile|timbr/i, id: '922' }, // Office Supplies
+  { match: /sicurezza|dpi|abbigliamento/i, id: '2047' },
+  { match: /astro\s*medical|medical|salute|chirurg|diagnost/i, id: '491' },
+  { match: /macchine|distrugg|etichett|plastific|cassa|toner|verifica/i, id: '1624' },
+  { match: /shopper|buste|sacboll/i, id: '100' },
+  { match: /cancelleria|penne|quadern|pile|timbr/i, id: '922' },
 ]
 
 const DEFAULT_GOOGLE_CATEGORY = '922'
@@ -79,7 +82,30 @@ export function formatMerchantGrossPrice(imponibile: number): string {
 export function truncateMerchantText(value: string, max: number): string {
   const cleaned = value.replace(/\s+/g, ' ').trim()
   if (cleaned.length <= max) return cleaned
-  return `${cleaned.slice(0, Math.max(0, max - 1)).trimEnd()}`
+  return `${cleaned.slice(0, Math.max(0, max - 1)).trimEnd()}...`
+}
+
+/** Hash FNV-1a 32-bit stabile (8 hex) per ID tronchi univoci. */
+export function stableMerchantIdHash(input: string): string {
+  let h = 0x811c9dc5
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i)
+    h = Math.imul(h, 0x01000193)
+  }
+  return (h >>> 0).toString(16).padStart(8, '0')
+}
+
+/**
+ * Normalizza l'offer id Merchant: max 50 caratteri, stabile e univoco.
+ * Se la chiave catalogo supera 50, usa prefisso + hash della chiave completa.
+ */
+export function normalizeMerchantOfferId(raw: string): string {
+  const cleaned = raw.trim().replace(/\s+/g, '-')
+  if (!cleaned) return ''
+  if (cleaned.length <= MERCHANT_OFFER_ID_MAX_LENGTH) return cleaned
+  const hash = stableMerchantIdHash(cleaned)
+  const prefixLen = MERCHANT_OFFER_ID_MAX_LENGTH - 1 - hash.length
+  return `${cleaned.slice(0, Math.max(1, prefixLen))}-${hash}`
 }
 
 export function isFeedableOfficeProduct(
@@ -97,7 +123,6 @@ export function isFeedableOfficeProduct(
   }
   const key = productCatalogKey(product)
   if (!key) return false
-  // stock esplicitamente 0 resta feedable ma out_of_stock (non escluso)
   void opts
   return true
 }
@@ -106,8 +131,7 @@ function resolveAvailability(
   product: OfficeProduct,
   _stock?: number | null,
 ): GoogleMerchantAvailability {
-  // La colonna `products.stock` non è affidabile sul catalogo attuale (spesso 0).
-  // Allineamento a JSON-LD PDP: in vendita = in_stock, salvo flag FE esplicito.
+  // products.stock non e affidabile; allineamento a JSON-LD PDP.
   void _stock
   if (product.inStock === false) return 'out_of_stock'
   return 'in_stock'
@@ -120,12 +144,15 @@ export function mapOfficeProductToMerchantItem(
   if (!isFeedableOfficeProduct(product, opts)) return null
 
   const origin = (opts.origin ?? SITE_ORIGIN).replace(/\/$/, '')
-  const id = productCatalogKey(product)
+  const catalogKey = productCatalogKey(product)
+  const id = normalizeMerchantOfferId(catalogKey)
+  if (!id) return null
+
   const title = truncateMerchantText(product.name, 150)
   const descriptionRaw =
     (product.description ?? '').trim() ||
     (product.subtitle ?? '').trim() ||
-    `${product.name}${product.brand ? `  ${product.brand}` : ''}`
+    `${product.name}${product.brand ? ` - ${product.brand}` : ''}`
   const description = truncateMerchantText(descriptionRaw, 5000)
   const link = productDetailAbsoluteUrl(product, origin)
   const image_link = absoluteAssetUrl(product.imageUrl, origin)
@@ -143,7 +170,8 @@ export function mapOfficeProductToMerchantItem(
 
   const ean = (product.ean ?? product.mainFeatures?.EAN ?? '').replace(/\D/g, '')
   const gtin = ean.length >= 8 && ean.length <= 14 ? ean : undefined
-  const mpn = (product.producerCode ?? '').trim() || undefined
+  const mpnRaw = (product.producerCode ?? '').trim() || catalogKey
+  const mpn = mpnRaw ? mpnRaw.slice(0, 70) : undefined
 
   return {
     id,
