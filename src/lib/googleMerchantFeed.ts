@@ -9,6 +9,11 @@
 
 import type { OfficeProduct } from '../types/officeProduct'
 import { isQuoteOnlyOfficeProduct } from '../data/casseDitronProducts'
+import {
+  merchantAgendeCustomLabels,
+  merchantAgendeProductType,
+} from './googleMerchantAgende'
+import { isAgendeCategoryProduct } from './agendeCatalog'
 import { VAT_RATE, roundMoney2 } from './cartMerchandiseIvato'
 import { productCatalogKey, productDetailAbsoluteUrl } from './productRoutes'
 import { SITE_BRAND_NAME, SITE_ORIGIN } from './siteSeo'
@@ -26,6 +31,9 @@ export type GoogleMerchantFeedItem = {
   brand: string
   google_product_category: string
   product_type?: string
+  custom_label_0?: string
+  custom_label_1?: string
+  custom_label_2?: string
   gtin?: string
   mpn?: string
   additional_image_link?: string[]
@@ -167,9 +175,13 @@ export function mapOfficeProductToMerchantItem(
     .slice(0, 10)
 
   const brand = (product.brand ?? '').trim() || SITE_BRAND_NAME
-  const productTypeParts = [product.category, product.subcategory]
-    .map((s) => (s ?? '').trim())
-    .filter(Boolean)
+  const agendeLabels = merchantAgendeCustomLabels(product)
+  const product_type = isAgendeCategoryProduct(product)
+    ? merchantAgendeProductType(product) ?? undefined
+    : [product.category, product.subcategory]
+        .map((s) => (s ?? '').trim())
+        .filter(Boolean)
+        .join(' > ') || undefined
 
   const ean = (product.ean ?? product.mainFeatures?.EAN ?? '').replace(/\D/g, '')
   const gtin = ean.length >= 8 && ean.length <= 14 ? ean : undefined
@@ -186,7 +198,10 @@ export function mapOfficeProductToMerchantItem(
     availability: resolveAvailability(product, opts.stock),
     brand,
     google_product_category: googleProductCategoryForProduct(product),
-    product_type: productTypeParts.length ? productTypeParts.join(' > ') : undefined,
+    product_type,
+    custom_label_0: agendeLabels?.custom_label_0,
+    custom_label_1: agendeLabels?.custom_label_1,
+    custom_label_2: agendeLabels?.custom_label_2,
     gtin,
     mpn,
     additional_image_link: additional.length ? additional : undefined,
@@ -219,6 +234,15 @@ function itemToXml(item: GoogleMerchantFeedItem): string {
   ]
   if (item.product_type) {
     lines.push(`      <g:product_type>${xmlEscape(item.product_type)}</g:product_type>`)
+  }
+  if (item.custom_label_0) {
+    lines.push(`      <g:custom_label_0>${xmlEscape(item.custom_label_0)}</g:custom_label_0>`)
+  }
+  if (item.custom_label_1) {
+    lines.push(`      <g:custom_label_1>${xmlEscape(item.custom_label_1)}</g:custom_label_1>`)
+  }
+  if (item.custom_label_2) {
+    lines.push(`      <g:custom_label_2>${xmlEscape(item.custom_label_2)}</g:custom_label_2>`)
   }
   if (item.gtin) {
     lines.push(`      <g:gtin>${xmlEscape(item.gtin)}</g:gtin>`)
