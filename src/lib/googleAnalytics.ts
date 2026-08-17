@@ -26,15 +26,6 @@ function readStorage(key: string): string | null {
   }
 }
 
-function removeStorage(key: string): void {
-  try {
-    sessionStorage.removeItem(key)
-    localStorage.removeItem(key)
-  } catch {
-    /* quota / privacy mode */
-  }
-}
-
 declare global {
   interface Window {
     dataLayer: unknown[]
@@ -163,7 +154,6 @@ function hasSentGa4Purchase(transactionId: string): boolean {
 
 function markGa4PurchaseSent(transactionId: string): void {
   writeStorage(`${GA4_PURCHASE_SENT_PREFIX}${transactionId}`, '1')
-  removeStorage(GA4_PURCHASE_PENDING_KEY)
 }
 
 function toPurchaseEcommerce(payload: Ga4PurchaseEcommerce) {
@@ -182,20 +172,25 @@ function toPurchaseEcommerce(payload: Ga4PurchaseEcommerce) {
   }
 }
 
+const pushedPurchaseThisRuntime = new Set<string>()
+
 /**
  * Push GA4/GTM `purchase` sul dataLayer e, se disponibile, anche via gtag.
- * Non dipende dal consenso cookie: Tag Assistant deve vedere l'evento al load di /checkout/success.
- * Deduplica per transaction_id (refresh / Strict Mode).
+ * Il payload resta in storage: Tag Assistant ricarica /checkout/success senza history state.
  */
 export function trackGoogleAnalyticsPurchase(payload: Ga4PurchaseEcommerce): boolean {
   if (typeof window === 'undefined') return false
   if (!payload.transaction_id || payload.items.length === 0) return false
   persistPendingGa4Purchase(payload)
-  if (hasSentGa4Purchase(payload.transaction_id)) return false
 
   const ecommerce = toPurchaseEcommerce(payload)
   window.dataLayer = window.dataLayer || []
-  markGa4PurchaseSent(payload.transaction_id)
+
+  if (pushedPurchaseThisRuntime.has(payload.transaction_id)) {
+    console.log('[GA4] purchase già pushato in questo runtime, skip', payload.transaction_id)
+    return false
+  }
+  pushedPurchaseThisRuntime.add(payload.transaction_id)
 
   window.dataLayer.push({ ecommerce: null })
   window.dataLayer.push({
@@ -203,8 +198,11 @@ export function trackGoogleAnalyticsPurchase(payload: Ga4PurchaseEcommerce): boo
     ecommerce,
   })
 
-  if (typeof window.gtag === 'function') {
+  if (typeof window.gtag === 'function' && !hasSentGa4Purchase(payload.transaction_id)) {
     window.gtag('event', 'purchase', ecommerce)
+    markGa4PurchaseSent(payload.transaction_id)
+  } else if (typeof window.gtag === 'function') {
+    console.log('[GA4] gtag purchase già inviato per', payload.transaction_id)
   }
   return true
 }

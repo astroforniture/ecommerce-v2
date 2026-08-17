@@ -398,7 +398,9 @@ export function CartPage() {
     persistPendingGa4Purchase(purchase)
 
     clearCart()
-    navigate('/checkout/success', { state: { orderRef: result.orderRef, purchase } })
+    navigate(`/checkout/success?order=${encodeURIComponent(result.orderRef)}`, {
+      state: { orderRef: result.orderRef, purchase },
+    })
     return true
   }
 
