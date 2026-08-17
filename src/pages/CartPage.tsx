@@ -29,6 +29,7 @@ import { persistCheckoutOrder, type CheckoutOrderInput, type CustomerType, isBus
 import { isStripeConfigured } from '../lib/stripe'
 import { resolveLoggedInUserFormData } from '../lib/userAuth'
 import { sendOrderConfirmationEmailSafe } from '../api/transactionalEmails'
+import { buildGa4PurchaseFromCheckout, persistPendingGa4Purchase } from '../lib/googleAnalytics'
 
 const eur = new Intl.NumberFormat('it-IT', {
   style: 'currency',
@@ -387,8 +388,17 @@ export function CartPage() {
       shippingAddress: shippingAddress || undefined,
     })
 
+    const purchase = buildGa4PurchaseFromCheckout({
+      orderRef: result.orderRef,
+      items: checkoutInput.items,
+      totalWithVat: checkoutInput.totalWithVat,
+      vatAmount: checkoutInput.vatAmount,
+      shippingFee: checkoutInput.shippingFee,
+    })
+    persistPendingGa4Purchase(purchase)
+
     clearCart()
-    navigate('/checkout/success', { state: { orderRef: result.orderRef } })
+    navigate('/checkout/success', { state: { orderRef: result.orderRef, purchase } })
     return true
   }
 

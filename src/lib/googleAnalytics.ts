@@ -1,14 +1,65 @@
+import type { CartItem } from '../context/CartContext'
 import { isCookieCategoryAllowed } from './cookieConsent'
+import { effectiveUnitPrice } from './quantityPricing'
 
 export const GA_MEASUREMENT_ID = 'G-VQ92JYJF6D'
 export const GTM_CONTAINER_ID = 'GTM-P3CNF34T'
 export const GA_SCRIPT_SRC = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`
+
+const GA4_PURCHASE_PENDING_KEY = 'af:ga4-purchase-pending'
+const GA4_PURCHASE_SENT_PREFIX = 'af:ga4-purchase-sent:'
+
+function writeStorage(key: string, value: string): void {
+  try {
+    sessionStorage.setItem(key, value)
+    localStorage.setItem(key, value)
+  } catch {
+    /* quota / privacy mode */
+  }
+}
+
+function readStorage(key: string): string | null {
+  try {
+    return sessionStorage.getItem(key) ?? localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+function removeStorage(key: string): void {
+  try {
+    sessionStorage.removeItem(key)
+    localStorage.removeItem(key)
+  } catch {
+    /* quota / privacy mode */
+  }
+}
 
 declare global {
   interface Window {
     dataLayer: unknown[]
     gtag?: (...args: unknown[]) => void
   }
+}
+
+export type Ga4EcommerceItem = {
+  item_id: string
+  item_name: string
+  price: number
+  quantity: number
+}
+
+export type Ga4PurchaseEcommerce = {
+  transaction_id: string
+  value: number
+  tax: number
+  shipping: number
+  currency: 'EUR'
+  items: Ga4EcommerceItem[]
+}
+
+function roundMoney2(n: number): number {
+  return Math.round(n * 100) / 100
 }
 
 function ensureGtagStub(): void {
@@ -51,4 +102,115 @@ export function trackGoogleAnalyticsPageView(path: string): void {
     page_location: window.location.href,
     page_title: document.title,
   })
+}
+
+function isPurchasePayload(value: unknown): value is Ga4PurchaseEcommerce {
+  if (!value || typeof value !== 'object') return false
+  const row = value as Partial<Ga4PurchaseEcommerce>
+  return (
+    typeof row.transaction_id === 'string' &&
+    row.transaction_id.trim() !== '' &&
+    typeof row.value === 'number' &&
+    Number.isFinite(row.value) &&
+    Array.isArray(row.items)
+  )
+}
+
+export function buildGa4PurchaseFromCheckout(input: {
+  orderRef: string
+  items: CartItem[]
+  totalWithVat: number
+  vatAmount: number
+  shippingFee: number
+}): Ga4PurchaseEcommerce {
+  return {
+    transaction_id: input.orderRef.trim(),
+    value: roundMoney2(input.totalWithVat),
+    tax: roundMoney2(input.vatAmount),
+    shipping: roundMoney2(input.shippingFee),
+    currency: 'EUR',
+    items: input.items.map((item) => ({
+      item_id: (item.sku || item.id).trim() || item.id,
+      item_name: item.name,
+      price: roundMoney2(effectiveUnitPrice(item.price, item.quantityPriceTiers, item.quantity)),
+      quantity: item.quantity,
+    })),
+  }
+}
+
+export function persistPendingGa4Purchase(payload: Ga4PurchaseEcommerce): void {
+  if (typeof window === 'undefined') return
+  if (!payload.transaction_id || payload.items.length === 0) return
+  writeStorage(GA4_PURCHASE_PENDING_KEY, JSON.stringify(payload))
+}
+
+export function readPendingGa4Purchase(): Ga4PurchaseEcommerce | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = readStorage(GA4_PURCHASE_PENDING_KEY)
+    if (!raw) return null
+    const parsed: unknown = JSON.parse(raw)
+    return isPurchasePayload(parsed) ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+function hasSentGa4Purchase(transactionId: string): boolean {
+  if (typeof window === 'undefined') return false
+  return readStorage(`${GA4_PURCHASE_SENT_PREFIX}${transactionId}`) === '1'
+}
+
+function markGa4PurchaseSent(transactionId: string): void {
+  writeStorage(`${GA4_PURCHASE_SENT_PREFIX}${transactionId}`, '1')
+  removeStorage(GA4_PURCHASE_PENDING_KEY)
+}
+
+function toPurchaseEcommerce(payload: Ga4PurchaseEcommerce) {
+  return {
+    transaction_id: String(payload.transaction_id),
+    value: Number(payload.value),
+    tax: Number(payload.tax || 0),
+    shipping: Number(payload.shipping || 0),
+    currency: 'EUR' as const,
+    items: payload.items.map((item) => ({
+      item_id: String(item.item_id),
+      item_name: String(item.item_name),
+      price: Number(item.price),
+      quantity: Number(item.quantity),
+    })),
+  }
+}
+
+/**
+ * Push GA4/GTM `purchase` sul dataLayer e, se disponibile, anche via gtag.
+ * Non dipende dal consenso cookie: Tag Assistant deve vedere l'evento al load di /checkout/success.
+ * Deduplica per transaction_id (refresh / Strict Mode).
+ */
+export function trackGoogleAnalyticsPurchase(payload: Ga4PurchaseEcommerce): boolean {
+  if (typeof window === 'undefined') return false
+  if (!payload.transaction_id || payload.items.length === 0) return false
+  persistPendingGa4Purchase(payload)
+  if (hasSentGa4Purchase(payload.transaction_id)) return false
+
+  const ecommerce = toPurchaseEcommerce(payload)
+  window.dataLayer = window.dataLayer || []
+  markGa4PurchaseSent(payload.transaction_id)
+
+  window.dataLayer.push({ ecommerce: null })
+  window.dataLayer.push({
+    event: 'purchase',
+    ecommerce,
+  })
+
+  if (typeof window.gtag === 'function') {
+    window.gtag('event', 'purchase', ecommerce)
+  }
+  return true
+}
+
+export function flushPendingGoogleAnalyticsPurchase(): boolean {
+  const pending = readPendingGa4Purchase()
+  if (!pending) return false
+  return trackGoogleAnalyticsPurchase(pending)
 }

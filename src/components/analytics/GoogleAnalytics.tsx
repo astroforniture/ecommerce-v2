@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 
 import {
   ensureGoogleAnalyticsLoaded,
+  flushPendingGoogleAnalyticsPurchase,
   syncGoogleAnalyticsConsent,
   trackGoogleAnalyticsPageView,
 } from '../../lib/googleAnalytics'
@@ -28,6 +29,7 @@ export function GoogleAnalytics() {
         trackGoogleAnalyticsPageView(
           currentPath(window.location.pathname, window.location.search),
         )
+        flushPendingGoogleAnalyticsPurchase()
       }
     }
 

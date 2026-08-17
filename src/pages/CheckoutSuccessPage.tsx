@@ -1,9 +1,27 @@
+import { useLayoutEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { CheckCircle2 } from 'lucide-react'
+import {
+  readPendingGa4Purchase,
+  trackGoogleAnalyticsPurchase,
+  type Ga4PurchaseEcommerce,
+} from '../lib/googleAnalytics'
+
+type CheckoutSuccessState = {
+  orderRef?: string
+  purchase?: Ga4PurchaseEcommerce
+}
 
 export function CheckoutSuccessPage() {
-  const location = useLocation() as { state?: { orderRef?: string } }
-  const orderRef = location.state?.orderRef
+  const location = useLocation()
+  const state = (location.state ?? {}) as CheckoutSuccessState
+  const orderRef = state.orderRef ?? readPendingGa4Purchase()?.transaction_id
+
+  useLayoutEffect(() => {
+    const payload = state.purchase ?? readPendingGa4Purchase()
+    if (!payload) return
+    trackGoogleAnalyticsPurchase(payload)
+  }, [state.purchase])
 
   return (
     <main className="min-h-[60vh] bg-gradient-to-b from-brand-50/50 to-white">
