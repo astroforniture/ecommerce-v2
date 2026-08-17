@@ -25,18 +25,8 @@ export function CheckoutSuccessPage() {
 
   useLayoutEffect(() => {
     const payload = state.purchase ?? readPendingGa4Purchase()
-    window.dataLayer = window.dataLayer || []
-    console.log('🚀 PURCHASE TRACKING START:', payload)
-    console.log('gtag disponibile:', typeof window.gtag)
-    console.log('dataLayer disponibile:', Array.isArray(window.dataLayer))
-
-    if (!payload) {
-      console.warn('[GA4] purchase NON inviato: manca l’oggetto ordine (state/localStorage vuoti)')
-      return
-    }
-
-    const pushed = trackGoogleAnalyticsPurchase(payload)
-    console.log('[GA4] purchase push result:', pushed, payload.transaction_id)
+    if (!payload) return
+    trackGoogleAnalyticsPurchase(payload)
   }, [state.purchase])
 
   return (
