@@ -89,6 +89,8 @@ export interface OfficeProduct {
   relatedProductIds?: string[]
   /** Opzionale: da tabella Supabase product_quantity_prices */
   quantityPriceTiers?: QuantityPriceTier[]
+  /** Se true, mostra la tabella listino quantità anche con un solo scaglione. */
+  showQuantityDiscountTable?: boolean
   /** Quantità minima d'acquisto (pezzi/conf.). Default implicito: 1. */
   minOrderQuantity?: number
   /** Incremento quantità consentito (es. 24 → solo multipli di 24). Default implicito: 1. */

@@ -7,6 +7,7 @@ import {
   snapPurchaseQuantity,
   type PurchaseQuantityRule,
 } from '../lib/purchaseQuantity'
+import { applyLegacyAstroMedicalProductOverrides } from '../data/legacyAstroMedicalOfficeProducts'
 
 export type CartLineVariant = {
   label: string
@@ -39,6 +40,34 @@ export type LastAddedCartPreview = {
   imageUrl: string
   /** Totale riga IVA inclusa (22%) al momento dell’aggiunta. */
   rowIvato: number
+}
+
+function applyCatalogPriceSnapshotToCartItem(item: CartItem): CartItem {
+  const stub: OfficeProduct = {
+    id: item.id,
+    name: item.name,
+    brand: 'Gima',
+    producerCode: item.sku,
+    category: '',
+    subcategory: '',
+    mainFeatures: {},
+    imageUrl: item.imageUrl ?? '',
+    price: item.price,
+    quantityPriceTiers: item.quantityPriceTiers,
+  }
+  const applied = applyLegacyAstroMedicalProductOverrides(stub)
+  if (applied === stub) return item
+  const next: CartItem = {
+    ...item,
+    name: applied.name || item.name,
+    price: applied.price,
+  }
+  if (applied.quantityPriceTiers?.length) {
+    next.quantityPriceTiers = applied.quantityPriceTiers.map((t) => ({ ...t }))
+  } else {
+    delete next.quantityPriceTiers
+  }
+  return next
 }
 
 function makeLineId(productId: string, variantLabel?: string) {
@@ -130,7 +159,7 @@ function sanitizeCartItems(raw: unknown): CartItem[] {
         next.orderQuantityStep = rule.orderQuantityStep
         next.quantity = snapPurchaseQuantity(next.quantity, rule)
       }
-      return next
+      return applyCatalogPriceSnapshotToCartItem(next)
     })
     .filter((item): item is CartItem => item != null)
 }
@@ -194,6 +223,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
             ? {
                 ...item,
                 quantity: nextQtyForPreview,
+                price: product.price,
+                name,
+                imageUrl: (product.imageUrl ?? '').trim() || item.imageUrl,
+                quantityPriceTiers: product.quantityPriceTiers,
                 ...(mergedRule
                   ? {
                       minOrderQuantity: mergedRule.minOrderQuantity,

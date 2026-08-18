@@ -64,7 +64,7 @@ import { applyLegacyAstroMedicalProductOverrides } from '../data/legacyAstroMedi
  * Aumenta dopo pulizie massicce su `public.products` (es. titoli): nuove `queryKey` in React Query
  * così il client non riusa dati serializzati vecchi con titoli obsoleti.
  */
-export const OFFICE_CATALOG_DATA_REVISION = 295
+export const OFFICE_CATALOG_DATA_REVISION = 296
 
 const SUPPRESSED_PRODUCTS_BY_ID = new Set([
   '55acce14-88cd-4b12-807d-cd2753894639', // Starbox dorso 5 cm arancio (rimozione richiesta)
@@ -3203,10 +3203,9 @@ function attachQuantityTiers(
   tiersByProductId: Map<string, QuantityPriceTier[]>,
 ): OfficeProduct {
   const withLegacyMedical = applyLegacyAstroMedicalProductOverrides(product)
-  if (withLegacyMedical.quantityPriceTiers?.length && withLegacyMedical !== product) {
+  if (withLegacyMedical !== product) {
     return applyModulisticaQuantityPricing(withLegacyMedical)
   }
-  product = withLegacyMedical
   if (isOxfordBinderName(product.name)) {
     return applyOxfordPricing(product)
   }

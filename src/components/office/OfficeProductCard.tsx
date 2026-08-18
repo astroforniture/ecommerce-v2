@@ -82,7 +82,7 @@ export function OfficeProductCard({
         ? Math.round((1 - unitImponible / compareAt) * 100)
         : null
   const quantityDiscountHint = product.quantityPriceTiers
-    ?.slice()
+    ?.filter((t) => t.minQuantity > 1)
     .sort((a, b) => a.minQuantity - b.minQuantity)[0]
 
   const detailTo = productDetailPath(product)

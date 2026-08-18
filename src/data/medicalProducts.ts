@@ -423,14 +423,36 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
   },
   {
     sku: 'AMS-0018',
-    name: 'ELETTRODI PE-FOAM MONOUSO 48-50 mm - Conf. 50 pz',
+    name: 'ELETTRODI PE-FOAM MONOUSO 48-50 mm - Conf. 50 pz.',
     fullDescription:
       'Elettrodi PE-Foam monouso diametro 48-50 mm, confezione da 50 pezzi. Codice GIMA 33371. ' +
-      'Prezzo riferito alla confezione da 50 pz, imponibile IVA esclusa.',
-    price: 28.5,
+      'Prezzo fisso per confezione da 50 pz, imponibile IVA esclusa.',
+    price: 6.7,
     categoryPath: [macroLabelFromId('diagnostica'), 'Consumabili'],
     macroId: 'diagnostica',
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33371.jpg',
+  },
+  {
+    sku: 'AMS-0031',
+    name: 'ELETTRODI MONOUSO FOAM 36-40 mm - Conf. 2000 pz.',
+    fullDescription:
+      'Elettrodi monouso foam diametro 36-40 mm, confezione da 2000 pezzi. Codice GIMA 33314. ' +
+      'Prezzo riferito alla confezione da 2000 pz, imponibile IVA esclusa.',
+    price: 200,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Consumabili'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33314.jpg',
+  },
+  {
+    sku: 'AMS-0032',
+    name: 'ELETTRODI FOAM MONOUSO 48-50mm - gel - Conf. 1200 pz.',
+    fullDescription:
+      'Elettrodi foam monouso diametro 48-50 mm con gel, confezione da 1200 pezzi. Codice GIMA 33344. ' +
+      'Prezzo riferito alla confezione da 1200 pz, imponibile IVA esclusa.',
+    price: 170,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Consumabili'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33344.jpg',
   },
   {
     sku: 'AMS-0019',

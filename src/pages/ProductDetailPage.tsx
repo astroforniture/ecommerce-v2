@@ -2609,7 +2609,9 @@ export function ProductDetailPage() {
       return []
     }
     const own = product?.quantityPriceTiers
-    if (own && own.length > 0) return own.map((t) => ({ ...t }))
+    if (Array.isArray(own)) {
+      return own.length > 0 ? own.map((t) => ({ ...t })) : []
+    }
     if (isModulisticaQuantityPricingProduct(product) && product) {
       const priced = applyModulisticaQuantityPricing(product)
       if (priced.quantityPriceTiers?.length) {
@@ -2774,7 +2776,8 @@ export function ProductDetailPage() {
     [effectiveBasePrice, effectiveQuantityTiers],
   )
   const showQuantityDiscountTable =
-    ((effectiveQuantityTiers ?? []).some((t) => t.minQuantity > 1) ||
+    (Boolean(product?.showQuantityDiscountTable) ||
+      (effectiveQuantityTiers ?? []).some((t) => t.minQuantity > 1) ||
       (effectiveQuantityTiers?.length ?? 0) > 1 ||
       isImpulse75A4) &&
     !isPilotHiTecpoint &&
