@@ -574,6 +574,39 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     gimaSku: '32524',
   },
   {
+    sku: 'AMS-0043',
+    name: 'FONENDO REGALITE DELUXE',
+    fullDescription:
+      'Fonendoscopio REGALITE DELUXE. Codice GIMA 32526. Prezzo fisso, imponibile IVA esclusa.',
+    price: 55,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32526.jpg',
+    gimaSku: '32526',
+  },
+  {
+    sku: 'AMS-0044',
+    name: 'DUOFONO "CLASSIC CARDIOLOGICO" - lira blu',
+    fullDescription:
+      'Duofono CLASSIC CARDIOLOGICO con lira blu. Codice GIMA 32550. Prezzo unitario imponibile IVA esclusa.',
+    price: 30,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32550.jpg',
+    gimaSku: '32550',
+  },
+  {
+    sku: 'AMS-0045',
+    name: 'DUOFONO "JOTARAP" - lira nera',
+    fullDescription:
+      'Duofono JOTARAP con lira nera. Codice GIMA 32580. Prezzo unitario imponibile IVA esclusa.',
+    price: 14,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32580.jpg',
+    gimaSku: '32580',
+  },
+  {
     sku: 'AMS-0019',
     name: 'SET 4 ELETTRODI PERIFERICI (PINZE)',
     fullDescription: 'SET 4 ELETTRODI PERIFERICI (PINZE)',

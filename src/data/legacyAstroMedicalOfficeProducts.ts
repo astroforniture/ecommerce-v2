@@ -250,6 +250,49 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
     quantityPriceTiers: [{ minQuantity: 1, unitPrice: 17 }],
     showQuantityDiscountTable: true,
   },
+  {
+    gimaSku: '32526',
+    name: 'FONENDO REGALITE DELUXE',
+    price: 55,
+    features: { Modello: 'REGALITE DELUXE', Tipo: 'Fonendoscopio' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32526.jpg',
+    description:
+      'Fonendoscopio REGALITE DELUXE. Codice GIMA 32526. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti. Prezzo unitario imponibile IVA esclusa.',
+    downloadId: '158232',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '32550',
+    name: 'DUOFONO "CLASSIC CARDIOLOGICO" - lira blu',
+    price: 30,
+    features: { Modello: 'CLASSIC CARDIOLOGICO', Lira: 'Blu', Tipo: 'Duofono' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32550.jpg',
+    galleryUrls: ['https://www.gimaitaly.com/images/prodotti/medium/32550_a.jpg'],
+    description:
+      'Duofono CLASSIC CARDIOLOGICO con lira blu. Codice GIMA 32550. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti. Prezzo unitario imponibile IVA esclusa.',
+    downloadId: '158232',
+    quantityPriceTiers: [{ minQuantity: 1, unitPrice: 30 }],
+    showQuantityDiscountTable: true,
+  },
+  {
+    gimaSku: '32580',
+    name: 'DUOFONO "JOTARAP" - lira nera',
+    price: 14,
+    features: { Modello: 'JOTARAP', Lira: 'Nera', Tipo: 'Duofono' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32580.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/32580_a.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/32580_b.jpg',
+    ],
+    description:
+      'Duofono JOTARAP con lira nera. Codice GIMA 32580. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti. Prezzo unitario imponibile IVA esclusa.',
+    downloadId: '158539',
+    quantityPriceTiers: [{ minQuantity: 1, unitPrice: 14 }],
+    showQuantityDiscountTable: true,
+  },
 ]
 
 const GIMA_OVERRIDE_BY_SKU = new Map(GIMA_CATALOG_OVERRIDES.map((row) => [row.gimaSku, row]))
@@ -281,8 +324,17 @@ function gimaCatalogOverrideForProduct(
     if (name.includes('210x20')) return GIMA_OVERRIDE_BY_SKU.get('33021') ?? null
   }
   if (name.includes('duofono') && name.includes('yton')) return GIMA_OVERRIDE_BY_SKU.get('49511') ?? null
+  if (name.includes('duofono') && name.includes('cardiologico')) {
+    return GIMA_OVERRIDE_BY_SKU.get('32550') ?? null
+  }
+  if (name.includes('duofono') && name.includes('jotarap')) {
+    return GIMA_OVERRIDE_BY_SKU.get('32580') ?? null
+  }
   if (name.includes('fonendoscopio') && name.includes('yton')) {
     return GIMA_OVERRIDE_BY_SKU.get('49501') ?? null
+  }
+  if (name.includes('fonendo') && name.includes('regalite')) {
+    return GIMA_OVERRIDE_BY_SKU.get('32526') ?? null
   }
   if (name.includes('fonendo') && name.includes('trad')) return GIMA_OVERRIDE_BY_SKU.get('32560') ?? null
   if (name.includes('fonendo') && name.includes('wan')) return GIMA_OVERRIDE_BY_SKU.get('32570') ?? null
