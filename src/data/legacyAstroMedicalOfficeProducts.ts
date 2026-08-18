@@ -38,8 +38,9 @@ type GimaCatalogOverride = {
   gimaSku: string
   name: string
   price: number
-  packLabel: string
+  packLabel?: string
   features?: Record<string, string>
+  imageUrl?: string
   galleryUrls?: string[]
   description: string
   /** Path Download GIMA: `https://www.gimaitaly.com/Download/{id}/{sku}` */
@@ -163,6 +164,92 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
     quantityPriceTiers: [{ minQuantity: 1, unitPrice: 30 }],
     showQuantityDiscountTable: true,
   },
+  {
+    gimaSku: '32560',
+    name: 'FONENDO "TRAD" - lira nera',
+    price: 4.2,
+    features: { Modello: 'TRAD', Lira: 'Nera', Tipo: 'Fonendoscopio' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32555_57-64_b.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/32560.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/32555_57-64_a.jpg',
+    ],
+    description:
+      'Fonendoscopio TRAD con lira nera. Codice GIMA 32560. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti. Prezzo unitario imponibile IVA esclusa.',
+    downloadId: '158328',
+    quantityPriceTiers: [{ minQuantity: 1, unitPrice: 4.2 }],
+    showQuantityDiscountTable: true,
+  },
+  {
+    gimaSku: '49511',
+    name: 'DUOFONO YTON - lira blu scuro',
+    price: 15,
+    features: { Modello: 'YTON', Lira: 'Blu scuro', Tipo: 'Duofono' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/49511.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/49511_a.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/49511_c.jpg',
+    ],
+    description:
+      'Duofono YTON con lira blu scuro. Codice GIMA 49511. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti. Prezzo unitario imponibile IVA esclusa.',
+    downloadId: '158313',
+    quantityPriceTiers: [{ minQuantity: 1, unitPrice: 15 }],
+    showQuantityDiscountTable: true,
+  },
+  {
+    gimaSku: '32570',
+    name: 'FONENDO "WAN" - lira blu',
+    price: 14,
+    features: { Modello: 'WAN', Lira: 'Blu', Tipo: 'Fonendoscopio' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32570.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/32570_a.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/32569-72_b.jpg',
+    ],
+    description:
+      'Fonendoscopio WAN con lira blu. Codice GIMA 32570. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti. Prezzo unitario imponibile IVA esclusa.',
+    downloadId: '158313',
+    quantityPriceTiers: [{ minQuantity: 1, unitPrice: 14 }],
+    showQuantityDiscountTable: true,
+  },
+  {
+    gimaSku: '49501',
+    name: 'FONENDOSCOPIO YTON - lira blu scuro',
+    price: 13,
+    features: { Modello: 'YTON', Lira: 'Blu scuro', Tipo: 'Fonendoscopio' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/49501.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/49501_a.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/49501_c.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/49501_b.jpg',
+    ],
+    description:
+      'Fonendoscopio YTON con lira blu scuro. Codice GIMA 49501. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti. Prezzo unitario imponibile IVA esclusa.',
+    downloadId: '158313',
+    quantityPriceTiers: [{ minQuantity: 1, unitPrice: 13 }],
+    showQuantityDiscountTable: true,
+  },
+  {
+    gimaSku: '32524',
+    name: 'STETOSCOPIO LINUX - lira nera',
+    price: 17,
+    features: { Modello: 'LINUX', Lira: 'Nera', Tipo: 'Stetoscopio' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32524.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/32524_b.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/32524_a.jpg',
+    ],
+    description:
+      'Stetoscopio LINUX con lira nera. Codice GIMA 32524. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti. Prezzo unitario imponibile IVA esclusa.',
+    downloadId: '158539',
+    quantityPriceTiers: [{ minQuantity: 1, unitPrice: 17 }],
+    showQuantityDiscountTable: true,
+  },
 ]
 
 const GIMA_OVERRIDE_BY_SKU = new Map(GIMA_CATALOG_OVERRIDES.map((row) => [row.gimaSku, row]))
@@ -193,6 +280,15 @@ function gimaCatalogOverrideForProduct(
     if (name.includes('110x20')) return GIMA_OVERRIDE_BY_SKU.get('32970') ?? null
     if (name.includes('210x20')) return GIMA_OVERRIDE_BY_SKU.get('33021') ?? null
   }
+  if (name.includes('duofono') && name.includes('yton')) return GIMA_OVERRIDE_BY_SKU.get('49511') ?? null
+  if (name.includes('fonendoscopio') && name.includes('yton')) {
+    return GIMA_OVERRIDE_BY_SKU.get('49501') ?? null
+  }
+  if (name.includes('fonendo') && name.includes('trad')) return GIMA_OVERRIDE_BY_SKU.get('32560') ?? null
+  if (name.includes('fonendo') && name.includes('wan')) return GIMA_OVERRIDE_BY_SKU.get('32570') ?? null
+  if (name.includes('stetoscopio') && name.includes('linux')) {
+    return GIMA_OVERRIDE_BY_SKU.get('32524') ?? null
+  }
   return null
 }
 
@@ -200,24 +296,27 @@ function gimaCatalogOverrideForProduct(
 export function applyLegacyAstroMedicalProductOverrides(product: OfficeProduct): OfficeProduct {
   const spec = gimaCatalogOverrideForProduct(product)
   if (!spec) return product
+  const imageUrl = spec.imageUrl?.trim() || product.imageUrl
+  const gallery = (spec.galleryUrls?.length ? spec.galleryUrls : product.imageGalleryUrls ?? [])
+    .map((url) => url.trim())
+    .filter((url) => url && url !== imageUrl)
   return {
     ...product,
     name: spec.name,
     price: spec.price,
     description: spec.description,
+    imageUrl,
     brochureUrl: `https://www.gimaitaly.com/Catalogo/PrintDataSheet?sku=${spec.gimaSku}`,
     brochureLinkLabel: 'Scheda Tecnica',
     catalogPagePdfUrl: `https://www.gimaitaly.com/Download/${spec.downloadId}/${spec.gimaSku}`,
     catalogPagePdfLabel: 'Manuale / Documento PDF',
     quantityPriceTiers: spec.quantityPriceTiers.map((t) => ({ ...t })),
     showQuantityDiscountTable: spec.showQuantityDiscountTable === true,
-    imageGalleryUrls: spec.galleryUrls?.length
-      ? spec.galleryUrls.filter((url) => url !== product.imageUrl)
-      : product.imageGalleryUrls,
+    imageGalleryUrls: gallery.length ? gallery : undefined,
     mainFeatures: {
       ...(product.mainFeatures ?? {}),
       'Codice GIMA': spec.gimaSku,
-      Confezione: spec.packLabel,
+      ...(spec.packLabel ? { Confezione: spec.packLabel } : {}),
       ...(spec.features ?? {}),
     },
   }

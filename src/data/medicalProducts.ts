@@ -519,6 +519,61 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     gimaSku: '33021',
   },
   {
+    sku: 'AMS-0038',
+    name: 'FONENDO "TRAD" - lira nera',
+    fullDescription:
+      'Fonendoscopio TRAD con lira nera. Codice GIMA 32560. Prezzo unitario imponibile IVA esclusa.',
+    price: 4.2,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32555_57-64_b.jpg',
+    gimaSku: '32560',
+  },
+  {
+    sku: 'AMS-0039',
+    name: 'DUOFONO YTON - lira blu scuro',
+    fullDescription:
+      'Duofono YTON con lira blu scuro. Codice GIMA 49511. Prezzo unitario imponibile IVA esclusa.',
+    price: 15,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/49511.jpg',
+    gimaSku: '49511',
+  },
+  {
+    sku: 'AMS-0040',
+    name: 'FONENDO "WAN" - lira blu',
+    fullDescription:
+      'Fonendoscopio WAN con lira blu. Codice GIMA 32570. Prezzo unitario imponibile IVA esclusa.',
+    price: 14,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32570.jpg',
+    gimaSku: '32570',
+  },
+  {
+    sku: 'AMS-0041',
+    name: 'FONENDOSCOPIO YTON - lira blu scuro',
+    fullDescription:
+      'Fonendoscopio YTON con lira blu scuro. Codice GIMA 49501. Prezzo unitario imponibile IVA esclusa.',
+    price: 13,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/49501.jpg',
+    gimaSku: '49501',
+  },
+  {
+    sku: 'AMS-0042',
+    name: 'STETOSCOPIO LINUX - lira nera',
+    fullDescription:
+      'Stetoscopio LINUX con lira nera. Codice GIMA 32524. Prezzo unitario imponibile IVA esclusa.',
+    price: 17,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32524.jpg',
+    gimaSku: '32524',
+  },
+  {
     sku: 'AMS-0019',
     name: 'SET 4 ELETTRODI PERIFERICI (PINZE)',
     fullDescription: 'SET 4 ELETTRODI PERIFERICI (PINZE)',

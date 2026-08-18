@@ -151,6 +151,8 @@ function inferMacroFromProductName(name: string): string | null {
     title.includes('pesaneonat') ||
     title.includes('otoscop') ||
     title.includes('stetoscop') ||
+    title.includes('fonendo') ||
+    title.includes('duofono') ||
     title.includes('spirometr') ||
     title.includes('ecg') ||
     title.includes('monitor') ||
