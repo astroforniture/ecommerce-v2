@@ -14,8 +14,10 @@ type DescriptionProps = {
   description: string
   /** Link brochure / scheda tecnica / descrizione prodotto PDF. */
   brochureUrl?: string | null
+  brochureLinkLabel?: string | null
   /** Link pagina di catalogo PDF (allegato distinto). */
   catalogPagePdfUrl?: string | null
+  catalogPagePdfLabel?: string | null
   /** Astro Medical: testi spedizione su ordinazione (5 gg). */
   astroMedicalLeadTimes?: boolean
   /** Categoria Agende: consegna da magazzino in pronta disponibilità. */
@@ -59,7 +61,9 @@ const WHATSAPP_SUPPORT_HREF = `https://wa.me/${CATEGORY_PROMO_WHATSAPP_NUMBER}?t
 export function OfficeProductDetailDescriptionSection({
   description,
   brochureUrl,
+  brochureLinkLabel,
   catalogPagePdfUrl,
+  catalogPagePdfLabel,
   astroMedicalLeadTimes = false,
   immediateAvailability = false,
   mainFeatures,
@@ -138,7 +142,7 @@ export function OfficeProductDetailDescriptionSection({
                 className="inline-flex w-full items-center justify-center gap-2.5 rounded-xl border-2 border-brand-700 bg-brand-800 px-5 py-3.5 text-sm font-bold text-white shadow-md transition hover:bg-brand-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 sm:w-auto sm:text-base"
               >
                 <FileDown className="size-5 shrink-0" aria-hidden />
-                Descrizione prodotto (PDF)
+                {brochureLinkLabel?.trim() || 'Descrizione prodotto (PDF)'}
               </a>
             ) : null}
             {catalogPdf ? (
@@ -149,7 +153,7 @@ export function OfficeProductDetailDescriptionSection({
                 className="inline-flex w-full items-center justify-center gap-2.5 rounded-xl border-2 border-slate-300 bg-white px-5 py-3.5 text-sm font-bold text-brand-900 shadow-sm transition hover:border-brand-400 hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 sm:w-auto sm:text-base"
               >
                 <FileDown className="size-5 shrink-0" aria-hidden />
-                Pagina di catalogo (PDF)
+                {catalogPagePdfLabel?.trim() || 'Pagina di catalogo (PDF)'}
               </a>
             ) : null}
           </div>

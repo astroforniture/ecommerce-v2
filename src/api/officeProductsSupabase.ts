@@ -52,6 +52,7 @@ import { buildSupabaseIlikePatterns } from '../lib/supabaseSearchPatterns'
 import { debugLogVetrinaProdottiNomi } from '../lib/debugShowcaseCatalog'
 import { purchaseQuantityRuleForSku } from '../lib/purchaseQuantity'
 import { applyModulisticaQuantityPricing } from '../lib/modulisticaQuantityPricing'
+import { applyLegacyAstroMedicalProductOverrides } from '../data/legacyAstroMedicalOfficeProducts'
 
 /**
  * Catalogo lista/vetrina: unisce `public.office_products` (solo colonne base presenti sul DB) e
@@ -63,7 +64,7 @@ import { applyModulisticaQuantityPricing } from '../lib/modulisticaQuantityPrici
  * Aumenta dopo pulizie massicce su `public.products` (es. titoli): nuove `queryKey` in React Query
  * così il client non riusa dati serializzati vecchi con titoli obsoleti.
  */
-export const OFFICE_CATALOG_DATA_REVISION = 294
+export const OFFICE_CATALOG_DATA_REVISION = 295
 
 const SUPPRESSED_PRODUCTS_BY_ID = new Set([
   '55acce14-88cd-4b12-807d-cd2753894639', // Starbox dorso 5 cm arancio (rimozione richiesta)
@@ -3201,6 +3202,11 @@ function attachQuantityTiers(
   product: OfficeProduct,
   tiersByProductId: Map<string, QuantityPriceTier[]>,
 ): OfficeProduct {
+  const withLegacyMedical = applyLegacyAstroMedicalProductOverrides(product)
+  if (withLegacyMedical.quantityPriceTiers?.length && withLegacyMedical !== product) {
+    return applyModulisticaQuantityPricing(withLegacyMedical)
+  }
+  product = withLegacyMedical
   if (isOxfordBinderName(product.name)) {
     return applyOxfordPricing(product)
   }
@@ -3851,6 +3857,7 @@ export async function fetchOfficeProductByIdentifier(
       subcategory: product.subcategory || syntheticFallback.subcategory,
     }
     product = mergeGpsrFields(product, syntheticFallback)
+    product = applyLegacyAstroMedicalProductOverrides(product)
   }
   if (detectStarlineCartellinaModelKindFromNameAndBrand(product.name, product.brand)) {
     product = enrichOfficeProductImageFromVariants(product)

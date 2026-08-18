@@ -6100,7 +6100,13 @@ export function ProductDetailPage() {
               catalogPagePdfUrl={
                 product.technicalDocuments?.length ? undefined : product.catalogPagePdfUrl
               }
-              priceUnitSuffix={isPackSizeVariant ? '/ confezione' : '/ pezzo'}
+              brochureLinkLabel={product.brochureLinkLabel}
+              catalogPagePdfLabel={product.catalogPagePdfLabel}
+              priceUnitSuffix={
+                isPackSizeVariant || (product.mainFeatures?.Confezione ?? '').trim()
+                  ? '/ confezione'
+                  : '/ pezzo'
+              }
               compareAtUnitPrice={
                 typeof product.compareAtPrice === 'number' &&
                 product.compareAtPrice > unitForQty
@@ -6146,6 +6152,8 @@ export function ProductDetailPage() {
           catalogPagePdfUrl={
             product.technicalDocuments?.length ? undefined : product.catalogPagePdfUrl
           }
+          brochureLinkLabel={product.brochureLinkLabel}
+          catalogPagePdfLabel={product.catalogPagePdfLabel}
           astroMedicalLeadTimes={isAstroMedicalLeadTimes}
           immediateAvailability={isImmediateAvailability}
           mainFeatures={product.mainFeatures}

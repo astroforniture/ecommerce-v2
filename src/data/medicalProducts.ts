@@ -423,8 +423,10 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
   },
   {
     sku: 'AMS-0018',
-    name: 'ELETTRODI PE-FOAM MONOUSO 48-50 mm',
-    fullDescription: 'ELETTRODI PE-FOAM MONOUSO 48-50 mm',
+    name: 'ELETTRODI PE-FOAM MONOUSO 48-50 mm - Conf. 50 pz',
+    fullDescription:
+      'Elettrodi PE-Foam monouso diametro 48-50 mm, confezione da 50 pezzi. Codice GIMA 33371. ' +
+      'Prezzo riferito alla confezione da 50 pz, imponibile IVA esclusa.',
     price: 28.5,
     categoryPath: [macroLabelFromId('diagnostica'), 'Consumabili'],
     macroId: 'diagnostica',

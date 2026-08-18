@@ -32,8 +32,10 @@ export type OfficeProductDetailPurchasePanelProps = {
   quoteOnly?: boolean
   /** Brochure / descrizione prodotto PDF. */
   brochureUrl?: string | null
+  brochureLinkLabel?: string | null
   /** Pagina di catalogo PDF (allegato distinto). */
   catalogPagePdfUrl?: string | null
+  catalogPagePdfLabel?: string | null
   /** Suffisso unità prezzo (default "/ pezzo"). Es. "/ confezione". */
   priceUnitSuffix?: string
   /** Nota sotto il selettore quantità (es. minimo / multipli). */
@@ -64,7 +66,9 @@ export function OfficeProductDetailPurchasePanel({
   quantityDiscountTable,
   quoteOnly = false,
   brochureUrl,
+  brochureLinkLabel,
   catalogPagePdfUrl,
+  catalogPagePdfLabel,
   priceUnitSuffix = '/ pezzo',
   quantityRuleHint,
   astroMedicalLeadTimes = false,
@@ -90,7 +94,9 @@ export function OfficeProductDetailPurchasePanel({
         <ProductQuoteOnlyDetailCtas
           productName={productName}
           brochureUrl={brochureUrl}
+          brochureLinkLabel={brochureLinkLabel}
           catalogPagePdfUrl={catalogPagePdfUrl}
+          catalogPagePdfLabel={catalogPagePdfLabel}
         />
         <OfficeProductDetailTrustStrip
           astroMedicalLeadTimes={astroMedicalLeadTimes}
@@ -184,7 +190,7 @@ export function OfficeProductDetailPurchasePanel({
               rel="noopener noreferrer"
               className="inline-flex w-full items-center justify-center gap-2 rounded-lg border-2 border-brand-700 bg-white px-5 py-3 text-sm font-bold text-brand-900 transition hover:bg-brand-50"
             >
-              Descrizione prodotto (PDF)
+              {brochureLinkLabel?.trim() || 'Descrizione prodotto (PDF)'}
             </a>
           ) : null}
           {catalogPdf ? (
@@ -194,7 +200,7 @@ export function OfficeProductDetailPurchasePanel({
               rel="noopener noreferrer"
               className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-brand-900 transition hover:bg-brand-50"
             >
-              Pagina di catalogo (PDF)
+              {catalogPagePdfLabel?.trim() || 'Pagina di catalogo (PDF)'}
             </a>
           ) : null}
         </div>

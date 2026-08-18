@@ -4,7 +4,7 @@ import {
   buildIHealthAstroMedicalOfficeProducts,
   isAstroMedicalProductCategory,
 } from './iHealthAstroMedicalProducts'
-import { buildLegacyAstroMedicalOfficeProducts } from './legacyAstroMedicalOfficeProducts'
+import { buildLegacyAstroMedicalOfficeProducts, applyLegacyAstroMedicalProductOverrides } from './legacyAstroMedicalOfficeProducts'
 import { buildProfessionalDiagnosticAstroMedicalOfficeProducts } from './professionalDiagnosticAstroMedicalProducts'
 import { buildIvCannulaAstroMedicalOfficeProducts } from './ivCannulaAstroMedicalProducts'
 import { buildEthiconSuturesAstroMedicalOfficeProducts } from './ethiconSuturesAstroMedicalProducts'
@@ -53,15 +53,16 @@ export function mergeLineaAstroMedicalCatalog(remoteNormalized: OfficeProduct[])
     byId.set(String(p.id), p)
   }
   for (const p of fromRemote) {
-    if (staticSyntheticNames.has(p.name.trim().toLowerCase())) {
+    const remote = applyLegacyAstroMedicalProductOverrides(p)
+    if (staticSyntheticNames.has(remote.name.trim().toLowerCase())) {
       continue
     }
-    const id = String(p.id)
+    const id = String(remote.id)
     const existing = byId.get(id)
     if (existing && isStaticSyntheticOfficeProduct(existing)) {
       continue
     }
-    byId.set(id, p)
+    byId.set(id, remote)
   }
   return applyAstroMedicalSubcategoriesToCatalog(
     Array.from(byId.values()).sort((a, b) =>

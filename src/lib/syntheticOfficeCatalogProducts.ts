@@ -331,6 +331,10 @@ export function resolveSyntheticOfficeProductByCatalogKey(key: string): OfficePr
   if (k === '73757') {
     return buildRenoHvArancioOfficeProduct()
   }
+  if (/^\d{4,}$/.test(k)) {
+    const gimaNumeric = resolveLineaAstroMedicalSyntheticByGimaId(`gima-${k}`)
+    if (gimaNumeric) return gimaNumeric
+  }
   const plastificatrici = resolvePlastificatriciProductByCatalogKey(k)
   if (plastificatrici) return plastificatrici
   return null

@@ -67,8 +67,12 @@ export interface OfficeProduct {
   ean?: string
   /** Opzionale: URL brochure / scheda tecnica PDF (es. Casse Ditron NEW iDEAL, GIMA PrintDataSheet). */
   brochureUrl?: string
+  /** Etichetta link scheda tecnica (default: «Descrizione prodotto (PDF)»). */
+  brochureLinkLabel?: string
   /** Opzionale: URL pagina di catalogo PDF (allegato distinto dalla scheda tecnica). */
   catalogPagePdfUrl?: string
+  /** Etichetta link PDF catalogo/manuale (default: «Pagina di catalogo (PDF)»). */
+  catalogPagePdfLabel?: string
   /**
    * Documenti tecnici / certificazioni (es. abbigliamento Sicurezza):
    * scheda fornitore, dichiarazione CE, scheda produttore.
