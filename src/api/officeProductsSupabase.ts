@@ -3043,7 +3043,7 @@ function officeProductMatchesSearchTerms(p: OfficeProduct, terms: string[]): boo
   if (!terms.length) return true
   const fields = officeProductToSearchFields(p)
   const synthetic = terms.filter((t) => t !== 'g84' && t !== 'g85')
-  if (synthetic.length > 0 && !searchableProductMatchesAllTerms(fields, synthetic)) {
+  if (synthetic.length > 0 && !searchableProductMatchesAllTerms(fields, synthetic, { suggestAutocomplete: true })) {
     return false
   }
   if (terms.includes('g84') && !rowMatchesOxfordG84SearchAlias(p.name)) return false

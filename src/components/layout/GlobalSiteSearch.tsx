@@ -10,25 +10,24 @@ import {
   useOfficeSearchSuggestions,
 } from '../../hooks/useOfficeSearchSuggestions'
 import { productDetailPath } from '../../lib/productRoutes'
-import { OFFICE_GENERAL_SHOP_PATH } from '../../lib/isGeneralOfficeShopCatalogProduct'
+import { lineaAstroMedicalCatalogPath } from '../../data/iHealthAstroMedicalProducts'
 import {
   getSearchHistory,
   pushSearchHistory,
   removeSearchHistoryItem,
 } from '../../lib/searchHistoryStorage'
-import { isExcludedFromOfficeSearchSuggestions } from '../../lib/isOfficeProductAstroMedicalLine'
-import type { OfficeSearchCatalogScope } from '../../lib/officeClientSearch'
-import { useCart } from '../../context/CartContext'
-import { officeSearchSuggestionToProduct } from '../../lib/officeSearchSuggestionToProduct'
 import {
-  buildTimbroDefaultCartVariant,
-  isTimbroAziendeFarmacieProduct,
-} from '../../lib/timbroAziendeFarmacieProduct'
+  findExactSkuOfficeSuggestion,
+  type OfficeSearchCatalogScope,
+} from '../../lib/officeClientSearch'
 import type { OfficeSearchSuggestion } from '../../api/officeProductsSupabase'
 import { SearchSuggestionRow } from './SearchSuggestionRow'
 import { CATALOG_CONNECTION_ERROR_MESSAGE } from '../../lib/catalogConnectionError'
 
-const PLACEHOLDER_ROTATE = ['Cerca tra migliaia di prodotti...'] as const
+const PLACEHOLDER_ROTATE = [
+  'Cerca per nome, descrizione o codice articolo…',
+  'Codice GIMA / SKU oppure nome prodotto…',
+] as const
 
 const PLACEHOLDER_INTERVAL_MS = 3200
 const SUGGEST_DEBOUNCE_MS = 80
@@ -41,17 +40,19 @@ function applySearchToParams(prev: URLSearchParams, raw: string) {
   const v = raw.trim()
   if (v) next.set('search', v)
   else next.delete('search')
-  const category = (next.get('category') ?? '').trim()
-  if (!category || category.toLowerCase() !== 'linea specializzata astro medical') {
-    next.set('catalog', 'ufficio')
-  }
+  return next
+}
+
+function applyGlobalSearchParams(raw: string): URLSearchParams {
+  const next = new URLSearchParams()
+  const v = raw.trim()
+  if (v) next.set('search', v)
   return next
 }
 
 export function GlobalSiteSearch() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { addOfficeProduct } = useCart()
   const queryClient = useQueryClient()
   const [searchParams, setSearchParams] = useSearchParams()
   const listboxId = useId()
@@ -59,8 +60,8 @@ export function GlobalSiteSearch() {
 
   const isOfficeCatalog =
     location.pathname === '/office-products' || location.pathname === '/office'
-  /** Header / shop generale: mai articoli sanitari (solo catalogo ufficio). */
-  const searchScope: OfficeSearchCatalogScope = 'office'
+  /** Catalogo completo: ufficio + GIMA / Astro Medical (codice o nome). */
+  const searchScope: OfficeSearchCatalogScope = 'all'
   const placeholderRotate = PLACEHOLDER_ROTATE
 
   const urlSearch = searchParams.get('search') ?? searchParams.get('q') ?? ''
@@ -148,7 +149,7 @@ export function GlobalSiteSearch() {
     draftTrim.length >= MIN_CHARS_SUGGEST && draftTrim !== debouncedSuggest
 
   const {
-    suggestions: rawSuggestions,
+    suggestions,
     isFetching,
     isIndexLoading,
     isCatalogConnectionError,
@@ -157,26 +158,9 @@ export function GlobalSiteSearch() {
       query: draftTrim,
       debouncedQuery: debouncedSuggest,
       minChars: MIN_CHARS_SUGGEST,
-      limit: 8,
+      limit: 10,
       scope: searchScope,
     })
-
-  const suggestions = useMemo(
-    () =>
-      rawSuggestions.filter(
-        (item) =>
-          !isExcludedFromOfficeSearchSuggestions({
-            id: item.id,
-            producerCode: item.producerCode,
-            name: item.name,
-            brand: item.brand,
-            category: item.category ?? '',
-            subcategory: item.subcategory,
-            mainFeatures: {},
-          }),
-      ),
-    [rawSuggestions],
-  )
 
   const showHistoryPanel =
     isResultsOpen && draftTrim === '' && searchHistory.length > 0
@@ -236,24 +220,50 @@ export function GlobalSiteSearch() {
   )
   useClickOutside(mobileSearchRootRef, closeResultsPanel, mobileOpen)
 
+  function goToProductSuggestion(item: OfficeSearchSuggestion) {
+    recordSearchQuery(draftTrim || item.producerCode || item.name)
+    closeSearchUi(true)
+    navigate(productDetailPath(item))
+  }
+
   function commitSearch(raw: string) {
     const v = raw.trim()
     if (v.length >= MIN_CHARS_SUGGEST) {
       recordSearchQuery(v)
     }
-    if (isOfficeCatalog) {
+
+    // Match esatto SKU / codice GIMA → scheda prodotto (come gimaitaly.com)
+    const exact = findExactSkuOfficeSuggestion(v, searchScope)
+    if (exact) {
+      closeSearchUi(true)
+      navigate(productDetailPath(exact))
+      return
+    }
+
+    const isAstroMedicalPage =
+      location.pathname === lineaAstroMedicalCatalogPath() ||
+      location.pathname.startsWith('/categoria/astro-medical')
+
+    if (isAstroMedicalPage) {
       setSearchParams((prev) => applySearchToParams(prev, raw), { replace: true })
+      return
+    }
+
+    if (isOfficeCatalog) {
+      setSearchParams(applyGlobalSearchParams(raw), { replace: true })
     } else if (v) {
-      navigate(`${OFFICE_GENERAL_SHOP_PATH}&search=${encodeURIComponent(v)}`)
+      navigate(`/office-products?search=${encodeURIComponent(v)}`)
     } else {
-      navigate(OFFICE_GENERAL_SHOP_PATH)
+      navigate('/office-products?catalog=ufficio')
     }
   }
 
   function scheduleCommitCatalog(raw: string) {
     if (!isOfficeCatalog) return
     if (catalogDebounceRef.current) clearTimeout(catalogDebounceRef.current)
-    catalogDebounceRef.current = setTimeout(() => commitSearch(raw), CATALOG_URL_DEBOUNCE_MS)
+    catalogDebounceRef.current = setTimeout(() => {
+      setSearchParams((prev) => applySearchToParams(prev, raw), { replace: true })
+    }, CATALOG_URL_DEBOUNCE_MS)
   }
 
   function handleChange(value: string) {
@@ -294,15 +304,7 @@ export function GlobalSiteSearch() {
   }
 
   function handleSuggestionPick(item: OfficeSearchSuggestion) {
-    recordSearchQuery(draft)
-    const product = officeSearchSuggestionToProduct(item)
-    if (isTimbroAziendeFarmacieProduct(product)) {
-      addOfficeProduct(product, 1, buildTimbroDefaultCartVariant())
-    } else {
-      addOfficeProduct(product)
-    }
-    closeSearchUi(true)
-    navigate(productDetailPath(item))
+    goToProductSuggestion(item)
   }
 
   function handleClear() {
@@ -312,7 +314,14 @@ export function GlobalSiteSearch() {
     setDebouncedSuggest('')
     setIsResultsOpen(false)
     if (isOfficeCatalog) {
-      commitSearch('')
+      setSearchParams((prev) => {
+        const next = applySearchToParams(prev, '')
+        const category = (next.get('category') ?? '').trim()
+        if (!category || category.toLowerCase() !== 'linea specializzata astro medical') {
+          next.set('catalog', 'ufficio')
+        }
+        return next
+      }, { replace: true })
     }
   }
 
@@ -419,7 +428,7 @@ export function GlobalSiteSearch() {
           id={hintId}
           className="border-t border-slate-100 px-3 py-2 text-center text-[11px] text-slate-400"
         >
-          Clic su un prodotto: aggiunta al carrello e scheda dettaglio · Invio per tutti i risultati
+          Clic su un risultato per aprire la scheda · Invio: codice esatto → scheda, altrimenti elenco
         </p>
       ) : null}
     </>
@@ -502,7 +511,7 @@ export function GlobalSiteSearch() {
               id={`${hintId}-mobile`}
               className="border-t border-slate-200 bg-white px-4 py-3 text-center text-xs text-slate-400"
             >
-              Clic su un prodotto: aggiunta al carrello e scheda dettaglio · Invio per tutti i risultati
+              Clic su un risultato per aprire la scheda · Invio: codice esatto → scheda, altrimenti elenco
             </p>
           ) : null}
         </div>
@@ -542,7 +551,7 @@ export function GlobalSiteSearch() {
           onSubmit={handleSubmitWrapped}
         >
           <label htmlFor="site-search-mobile" className="sr-only">
-            Cerca prodotti
+            Cerca prodotti per nome, descrizione o codice articolo
           </label>
           <div className="relative shrink-0">
             <Search
@@ -615,7 +624,7 @@ export function GlobalSiteSearch() {
         onSubmit={handleSubmit}
       >
         <label htmlFor="site-search" className="sr-only">
-          Cerca prodotti
+          Cerca prodotti per nome, descrizione o codice articolo
         </label>
         <div ref={desktopInputWrapRef} className="relative">
           <Search

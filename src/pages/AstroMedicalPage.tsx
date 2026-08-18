@@ -16,17 +16,15 @@ import {
   lineaAstroMedicalIHealthListingPath,
 } from '../data/iHealthAstroMedicalProducts'
 import {
-  isAstroMedicalSubcategoryLabel,
   matchesAstroMedicalSubcategoryFilter,
+  normalizeAstroMedicalNavFilter,
 } from '../lib/astroMedicalSubcategories'
-import { tokenizeSearchQuery } from '../lib/officeSearchRelevance'
+import { officeProductMatchesSearchQuery } from '../lib/officeSearchRelevance'
 
 export function AstroMedicalPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const subcategoryFromUrl = (searchParams.get('subcategory') ?? '').trim()
-  const selectedSubcategory = isAstroMedicalSubcategoryLabel(subcategoryFromUrl)
-    ? subcategoryFromUrl
-    : null
+  const selectedSubcategory = normalizeAstroMedicalNavFilter(subcategoryFromUrl)
   const searchQuery = (searchParams.get('search') ?? searchParams.get('q') ?? '').trim()
 
   const { products, isLoading } = useOfficeCatalog(LINEA_ASTRO_MEDICAL_CATEGORY, null)
@@ -46,16 +44,7 @@ export function AstroMedicalPage() {
       list = list.filter((p) => matchesAstroMedicalSubcategoryFilter(p, selectedSubcategory))
     }
     if (searchQuery) {
-      const terms = tokenizeSearchQuery(searchQuery)
-      if (terms.length > 0) {
-        list = list.filter((p) => {
-          const hay = `${p.name} ${p.brand ?? ''} ${p.producerCode ?? ''} ${p.id} ${p.subcategory ?? ''} ${p.description ?? ''}`
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/\p{M}/gu, '')
-          return terms.every((t) => hay.includes(t.toLowerCase()))
-        })
-      }
+      list = list.filter((p) => officeProductMatchesSearchQuery(p, searchQuery))
     }
     return list
   }, [catalog, selectedSubcategory, searchQuery])

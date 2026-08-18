@@ -65,6 +65,12 @@ export function flexibleItalianWordMatch(word: string, term: string): boolean {
     if (Math.abs(w.length - t.length) <= maxDist + 1 && levenshtein(w, t) <= maxDist) return true
   }
 
+  // Doppie italiane: «eletrodi» ↔ «elettrodi»
+  if (t.length >= 5) {
+    const collapse = (s: string) => s.replace(/([bcdfghlmnpqrstvz])\1+/g, '$1')
+    if (collapse(w) === collapse(t)) return true
+  }
+
   return false
 }
 

@@ -181,17 +181,22 @@ export function searchOfficeProductsClient(
     return terms.every((term) => termMatchesEntry(entry, term))
   })
 
-  if (candidates.length < limit && queryNorm.length >= 3 && fuseIndex) {
+  if (queryNorm.length >= 3 && fuseIndex) {
     const seen = new Set(candidates.map((entry) => entry.suggestion.id))
-    for (const hit of fuseIndex.search(queryNorm, { limit: limit * 4 })) {
+    for (const hit of fuseIndex.search(queryNorm, { limit: Math.max(limit * 4, 24) })) {
       const item = hit.item
       if (seen.has(item.suggestion.id)) continue
       if (scope === 'medical' && !item.isMedical) continue
       if (scope === 'office' && item.isMedical) continue
-      if (hit.score != null && hit.score > 0.55) continue
+      if (hit.score != null && hit.score > 0.62) continue
       candidates.push(item)
       seen.add(item.suggestion.id)
     }
+  }
+
+  const exact = findExactSkuIndexedEntry(trimmed, scope)
+  if (exact) {
+    candidates = [exact, ...candidates.filter((c) => c.suggestion.id !== exact.suggestion.id)]
   }
 
   return rankWithFuse(queryNorm, candidates)
@@ -202,6 +207,60 @@ export function searchOfficeProductsClient(
     )
     .slice(0, limit)
     .map((e) => e.suggestion)
+}
+
+function normalizeSkuKey(raw: string): string {
+  return String(raw ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/^gima-/i, '')
+    .replace(/\s+/g, '')
+}
+
+function entryMatchesExactSku(entry: IndexedProduct, queryRaw: string): boolean {
+  const q = queryRaw.trim()
+  if (!q) return false
+  const qLower = q.toLowerCase()
+  const qKey = normalizeSkuKey(q)
+
+  const id = String(entry.suggestion.id ?? '').trim()
+  const sku = String(entry.suggestion.producerCode ?? '').trim()
+  const idLower = id.toLowerCase()
+  const skuLower = sku.toLowerCase()
+
+  if (idLower === qLower || skuLower === qLower) return true
+  if (normalizeSkuKey(id) === qKey || normalizeSkuKey(sku) === qKey) return true
+  if (entry.gimaCodes.some((code) => code === q || code === qKey)) return true
+  if (/^\d{4,6}$/.test(qKey) && (idLower === `gima-${qKey}` || skuLower === `gima-${qKey}`)) {
+    return true
+  }
+  return false
+}
+
+function findExactSkuIndexedEntry(
+  rawQuery: string,
+  scope: OfficeSearchCatalogScope = 'all',
+): IndexedProduct | null {
+  const q = rawQuery.trim()
+  if (!q) return null
+  const index = getActiveSearchIndex()
+  for (const entry of index) {
+    if (scope === 'medical' && !entry.isMedical) continue
+    if (scope === 'office' && entry.isMedical) continue
+    if (entryMatchesExactSku(entry, q)) return entry
+  }
+  return null
+}
+
+/**
+ * Match esatto su SKU / codice GIMA / id prodotto.
+ * Usato per redirect diretto alla scheda (comportamento tipo gimaitaly.com).
+ */
+export function findExactSkuOfficeSuggestion(
+  rawQuery: string,
+  scope: OfficeSearchCatalogScope = 'all',
+): OfficeSearchSuggestion | null {
+  return findExactSkuIndexedEntry(rawQuery, scope)?.suggestion ?? null
 }
 
 /** Invalida cache indice (test o hot reload catalogo). */

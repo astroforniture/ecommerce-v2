@@ -88,7 +88,7 @@ export function searchableProductMatchesTerm(
   }
 
   const haystack = buildProductSearchHaystack(fields)
-  if (options?.suggestAutocomplete && t.length >= 3 && haystack.includes(t)) return true
+  if (t.length >= 3 && haystack.includes(t)) return true
   if (t.length >= 3 && flexibleTermMatchesInHaystack(haystack, term)) return true
 
   return (
@@ -214,6 +214,18 @@ export function officeProductToSearchFields(
     description: product.description?.trim() || undefined,
     id: product.id,
   }
+}
+
+/** Filtro listing: stessa logica flessibile dell’autocomplete (parziali, typo, plurali). */
+export function officeProductMatchesSearchQuery(
+  product: Parameters<typeof officeProductToSearchFields>[0],
+  rawQuery: string,
+): boolean {
+  const terms = tokenizeSearchQuery(rawQuery)
+  if (!terms.length) return false
+  return searchableProductMatchesAllTerms(officeProductToSearchFields(product), terms, {
+    suggestAutocomplete: true,
+  })
 }
 
 export { normalizeSearchText, tokenizeSearchQuery }

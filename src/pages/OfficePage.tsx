@@ -102,6 +102,7 @@ import {
   isOfficeGeneralShopCatalogUrl,
   OFFICE_GENERAL_SHOP_PATH,
 } from '../lib/isGeneralOfficeShopCatalogProduct'
+import { officeProductMatchesSearchQuery } from '../lib/officeSearchRelevance'
 import { matchesIgieneSubcategoryFilter } from '../lib/prodottiIgieneSubcategories'
 import {
   matchesSicurezzaSubcategoryFilter,
@@ -584,19 +585,21 @@ export function OfficePage() {
     (isOfficeGeneralShopCatalogUrl(searchParams) || !categoryFromUrl?.trim())
 
   const catalogProducts = useMemo(() => {
+    if (searchTrim) return products
     if (!isGeneralShopCatalog) return products
     return products.filter(isGeneralOfficeShopCatalogProduct)
-  }, [products, isGeneralShopCatalog])
+  }, [products, isGeneralShopCatalog, searchTrim])
 
   /** Shop generale: URL canonica con `catalog=ufficio` (esclude materiale sanitario). */
   useEffect(() => {
+    if (searchTrim) return
     if (selectedCategoryNorm === LINEA_ASTRO_MEDICAL_CATEGORY_NORM) return
     if (categoryFromUrl?.trim()) return
     if (isOfficeGeneralShopCatalogUrl(searchParams)) return
     const next = new URLSearchParams(searchParams)
     next.set('catalog', 'ufficio')
     setSearchParams(next, { replace: true })
-  }, [categoryFromUrl, searchParams, selectedCategoryNorm, setSearchParams])
+  }, [categoryFromUrl, searchParams, selectedCategoryNorm, setSearchParams, searchTrim])
 
   /** Cancelleria (Rev 191): nessun filtro per sottocategoria in URL — rimuovi residui `subcategory=`. */
   useEffect(() => {
@@ -946,9 +949,7 @@ export function OfficePage() {
         isStaticSyntheticListingView(activeCategory, selectedCancelleriaView) &&
         searchTrim
       ) {
-        const q = normNameLite(searchTrim)
-        const hay = normNameLite(`${p.name} ${p.brand}`)
-        if (!hay.includes(q)) return false
+        if (!officeProductMatchesSearchQuery(p, searchTrim)) return false
       }
 
       for (const [featureKey, values] of selectedFeatures.entries()) {
