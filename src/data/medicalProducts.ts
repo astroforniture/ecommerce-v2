@@ -170,6 +170,8 @@ export type MedicalProduct = {
   readonly macroId?: string
   /** Opzionale: immagine vetrina (es. da media Gima). */
   readonly imageUrl?: string
+  /** Codice GIMA ufficiale (id catalogo `gima-{sku}`), se distinto dallo stem immagine. */
+  readonly gimaSku?: string
   readonly cta?: MedicalProductCta
 }
 
@@ -453,6 +455,68 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     categoryPath: [macroLabelFromId('diagnostica'), 'Consumabili'],
     macroId: 'diagnostica',
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33344.jpg',
+    gimaSku: '33344',
+  },
+  {
+    sku: 'AMS-0033',
+    name: 'Carta termica ECG 215x25 mmxm - rotolo griglia arancio - Conf. 5pz',
+    fullDescription:
+      'Carta termica ECG 215x25 mmxm, rotolo con griglia arancio, confezione da 5 pezzi. Codice GIMA 32950. ' +
+      'Prezzo riferito alla confezione da 5 pz, imponibile IVA esclusa.',
+    price: 30,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Consumabili'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32950.jpg',
+    gimaSku: '32950',
+  },
+  {
+    sku: 'AMS-0034',
+    name: 'Carta termica ECG 80x20 mmxm - rotolo griglia arancio - Conf. 10pz',
+    fullDescription:
+      'Carta termica ECG 80x20 mmxm, rotolo con griglia arancio, confezione da 10 pezzi. Codice GIMA 32969. ' +
+      'Prezzo riferito alla confezione da 10 pz, imponibile IVA esclusa.',
+    price: 25,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Consumabili'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32969.jpg',
+    gimaSku: '32969',
+  },
+  {
+    sku: 'AMS-0035',
+    name: 'Carta termica ECG 210x30 mmxm - rotolo griglia arancio - Conf. 5pz',
+    fullDescription:
+      'Carta termica ECG 210x30 mmxm, rotolo con griglia arancio, confezione da 5 pezzi. Codice GIMA 32967. ' +
+      'Prezzo riferito alla confezione da 5 pz, imponibile IVA esclusa.',
+    price: 29,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Consumabili'],
+    macroId: 'diagnostica',
+    // 32967.jpg non è pubblicato su GIMA: asset condiviso con 32969, id catalogo gima-32967.
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32969.jpg',
+    gimaSku: '32967',
+  },
+  {
+    sku: 'AMS-0036',
+    name: 'Carta termica ECG 110x20 mmxm - rotolo griglia arancio - Conf. 10pz',
+    fullDescription:
+      'Carta termica ECG 110x20 mmxm, rotolo con griglia arancio, confezione da 10 pezzi. Codice GIMA 32970. ' +
+      'Prezzo riferito alla confezione da 10 pz, imponibile IVA esclusa.',
+    price: 30,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Consumabili'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32970.jpg',
+    gimaSku: '32970',
+  },
+  {
+    sku: 'AMS-0037',
+    name: 'Carta termica ECG 210x20 mmxm - rotolo griglia arancio - Conf. 5pz',
+    fullDescription:
+      'Carta termica ECG 210x20 mmxm, rotolo con griglia arancio, confezione da 5 pezzi. Codice GIMA 33021. ' +
+      'Prezzo riferito alla confezione da 5 pz, imponibile IVA esclusa.',
+    price: 30,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Consumabili'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33021.jpg',
+    gimaSku: '33021',
   },
   {
     sku: 'AMS-0019',
