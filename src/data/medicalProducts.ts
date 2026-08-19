@@ -281,12 +281,15 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
   },
   {
     sku: 'AMS-0002',
-    name: 'ELETTRODI MONOUSO FOAM - adulti',
-    fullDescription: 'ELETTRODI MONOUSO FOAM - adulti',
-    price: 18.9,
-    categoryPath: [macroLabelFromId('diagnostica'), 'Consumabili'],
-    macroId: 'diagnostica',
+    name: 'CAVO ECG VETERINARIA 5 derivazioni per 33305/6',
+    fullDescription:
+      'Cavo ECG veterinaria 5 derivazioni compatibile con ECG GIMA 33305/33306. Codice GIMA 33319. ' +
+      'Prezzo fisso, imponibile IVA esclusa.',
+    price: 130,
+    categoryPath: [macroLabelFromId('elettromedicali'), 'Elettromedicali'],
+    macroId: 'elettromedicali',
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33319.jpg',
+    gimaSku: '33319',
   },
   {
     sku: 'AMS-0003',
@@ -605,6 +608,84 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     macroId: 'diagnostica',
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32580.jpg',
     gimaSku: '32580',
+  },
+  // ── Sfigmomanometri e misuratori di pressione ──────────────────────────────
+  {
+    sku: 'AMS-0046',
+    name: 'SFIGMO LONDON nero - aneroide',
+    fullDescription:
+      'Sfigmomanometro aneroide LONDON nero. Codice GIMA 32725. Prezzo unitario imponibile IVA esclusa.',
+    price: 20,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32725.jpg',
+    gimaSku: '32725',
+  },
+  {
+    sku: 'AMS-0047',
+    name: 'SFIGMO PALMARE KOBE',
+    fullDescription:
+      'Sfigmomanometro palmare KOBE. Codice GIMA 32690. Prezzo unitario imponibile IVA esclusa.',
+    price: 19,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32690.jpg',
+    gimaSku: '32690',
+  },
+  {
+    sku: 'AMS-0048',
+    name: 'MISURATORE DI PRESSIONE AUTOMATICO GIMA SMART',
+    fullDescription:
+      'Misuratore di pressione automatico GIMA SMART. Codice GIMA 32921. Prezzo unitario imponibile IVA esclusa.',
+    price: 25,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32921.jpg',
+    gimaSku: '32921',
+  },
+  {
+    sku: 'AMS-0049',
+    name: 'SFIGMO MINOR-2 - bracciale a velcro',
+    fullDescription:
+      'Sfigmomanometro MINOR-2 con bracciale a velcro. Codice GIMA 32714. Prezzo unitario imponibile IVA esclusa.',
+    price: 35,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32714.jpg',
+    gimaSku: '32714',
+  },
+  {
+    sku: 'AMS-0050',
+    name: 'MISURATORE DI PRESSIONE DIGITALE OMRON M2+ HEM-7188-LE',
+    fullDescription:
+      'Misuratore di pressione digitale OMRON M2+ HEM-7188-LE. Codice GIMA 49898. Prezzo fisso, imponibile IVA esclusa.',
+    price: 40,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/49898.jpeg',
+    gimaSku: '49898',
+  },
+  {
+    sku: 'AMS-0051',
+    name: 'MISURATORE DI PRESSIONE DIGITALE OMRON M3 COMFORT AFIB HEM-7196-FLE',
+    fullDescription:
+      'Misuratore di pressione digitale OMRON M3 COMFORT AFIB HEM-7196-FLE. Codice GIMA 49907. Prezzo fisso, imponibile IVA esclusa.',
+    price: 60,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/49907.jpeg',
+    gimaSku: '49907',
+  },
+  {
+    sku: 'AMS-0052',
+    name: 'MISURATORE DI PRESSIONE AUTOMATICO EASYCHECK GIMA',
+    fullDescription:
+      'Misuratore di pressione automatico EASYCHECK GIMA. Codice GIMA 49880. Prezzo unitario imponibile IVA esclusa.',
+    price: 20,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/49880.jpg',
+    gimaSku: '49880',
   },
   {
     sku: 'AMS-0019',

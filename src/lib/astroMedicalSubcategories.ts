@@ -158,7 +158,10 @@ function inferMacroFromProductName(name: string): string | null {
     title.includes('monitor') ||
     title.includes('termometr') ||
     title.includes('ossimetro') ||
-    title.includes('glucomet')
+    title.includes('glucomet') ||
+    title.includes('sfigmo') ||
+    title.includes('pressione') ||
+    title.includes('omron')
   ) {
     return 'Diagnostica'
   }

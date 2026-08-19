@@ -293,6 +293,131 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
     quantityPriceTiers: [{ minQuantity: 1, unitPrice: 14 }],
     showQuantityDiscountTable: true,
   },
+  // ── Cavi ECG ───────────────────────────────────────────────────────────────
+  {
+    gimaSku: '33319',
+    name: 'CAVO ECG VETERINARIA 5 derivazioni per 33305/6',
+    price: 130,
+    features: { Derivazioni: '5', Compatibilità: 'ECG GIMA 33305 / 33306', Tipo: 'Cavo ECG veterinaria' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33319.jpg',
+    description:
+      'Cavo ECG veterinaria 5 derivazioni, compatibile con elettrocardiografo GIMA 33305/33306. ' +
+      'Codice GIMA 33319. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Elettromedicali.',
+    downloadId: '158305',
+    quantityPriceTiers: [],
+  },
+  // ── Sfigmomanometri e misuratori di pressione ──────────────────────────────
+  {
+    gimaSku: '32725',
+    name: 'SFIGMO LONDON nero - aneroide',
+    price: 20,
+    features: { Modello: 'LONDON', Colore: 'Nero', Tipo: 'Sfigmomanometro aneroide' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32725.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/32725_b.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/32725_c.jpg',
+    ],
+    description:
+      'Sfigmomanometro aneroide LONDON nero. Codice GIMA 32725. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti.',
+    downloadId: '158385',
+    quantityPriceTiers: [{ minQuantity: 1, unitPrice: 20 }],
+    showQuantityDiscountTable: true,
+  },
+  {
+    gimaSku: '32690',
+    name: 'SFIGMO PALMARE KOBE',
+    price: 19,
+    features: { Modello: 'KOBE', Tipo: 'Sfigmomanometro palmare' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32690.jpg',
+    description:
+      'Sfigmomanometro palmare KOBE. Codice GIMA 32690. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti.',
+    downloadId: '158420',
+    quantityPriceTiers: [{ minQuantity: 1, unitPrice: 19 }],
+    showQuantityDiscountTable: true,
+  },
+  {
+    gimaSku: '32921',
+    name: 'MISURATORE DI PRESSIONE AUTOMATICO GIMA SMART',
+    price: 25,
+    features: { Modello: 'GIMA SMART', Tipo: 'Misuratore automatico' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32921.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/32921_b.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/32921_a.jpg',
+    ],
+    description:
+      'Misuratore di pressione automatico GIMA SMART. Codice GIMA 32921. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti.',
+    downloadId: '158864',
+    quantityPriceTiers: [{ minQuantity: 1, unitPrice: 25 }],
+    showQuantityDiscountTable: true,
+  },
+  {
+    gimaSku: '32714',
+    name: 'SFIGMO MINOR-2 - bracciale a velcro',
+    price: 35,
+    features: { Modello: 'MINOR-2', Tipo: 'Sfigmomanometro aneroide', Bracciale: 'Velcro' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32714.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/32714_a.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/32714_b.jpg',
+    ],
+    description:
+      'Sfigmomanometro MINOR-2 con bracciale a velcro. Codice GIMA 32714. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti.',
+    downloadId: '158835',
+    quantityPriceTiers: [{ minQuantity: 1, unitPrice: 35 }],
+    showQuantityDiscountTable: true,
+  },
+  {
+    gimaSku: '49898',
+    name: 'MISURATORE DI PRESSIONE DIGITALE OMRON M2+ HEM-7188-LE',
+    price: 40,
+    features: { Marca: 'OMRON', Modello: 'M2+ HEM-7188-LE', Tipo: 'Misuratore digitale' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/49898.jpeg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/49898_a.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/49898_b.jpg',
+    ],
+    description:
+      'Misuratore di pressione digitale OMRON M2+ HEM-7188-LE. Codice GIMA 49898. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti.',
+    downloadId: '',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '49907',
+    name: 'MISURATORE DI PRESSIONE DIGITALE OMRON M3 COMFORT AFIB HEM-7196-FLE',
+    price: 60,
+    features: { Marca: 'OMRON', Modello: 'M3 COMFORT AFIB HEM-7196-FLE', Tipo: 'Misuratore digitale' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/49907.jpeg',
+    galleryUrls: ['https://www.gimaitaly.com/images/prodotti/medium/49907_a.jpg'],
+    description:
+      'Misuratore di pressione digitale OMRON M3 COMFORT AFIB HEM-7196-FLE. Codice GIMA 49907. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti.',
+    downloadId: '',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '49880',
+    name: 'MISURATORE DI PRESSIONE AUTOMATICO EASYCHECK GIMA',
+    price: 20,
+    features: { Modello: 'EASYCHECK', Tipo: 'Misuratore automatico' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/49880.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/49880_b.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/49880_a.jpg',
+    ],
+    description:
+      'Misuratore di pressione automatico EASYCHECK GIMA. Codice GIMA 49880. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti.',
+    downloadId: '158864',
+    quantityPriceTiers: [{ minQuantity: 1, unitPrice: 20 }],
+    showQuantityDiscountTable: true,
+  },
 ]
 
 const GIMA_OVERRIDE_BY_SKU = new Map(GIMA_CATALOG_OVERRIDES.map((row) => [row.gimaSku, row]))
@@ -341,6 +466,16 @@ function gimaCatalogOverrideForProduct(
   if (name.includes('stetoscopio') && name.includes('linux')) {
     return GIMA_OVERRIDE_BY_SKU.get('32524') ?? null
   }
+  if (name.includes('cavo') && name.includes('ecg') && name.includes('vet')) return GIMA_OVERRIDE_BY_SKU.get('33319') ?? null
+  if (name.includes('sfigmo') && name.includes('london')) return GIMA_OVERRIDE_BY_SKU.get('32725') ?? null
+  if (name.includes('sfigmo') && name.includes('kobe')) return GIMA_OVERRIDE_BY_SKU.get('32690') ?? null
+  if (name.includes('sfigmo') && name.includes('minor')) return GIMA_OVERRIDE_BY_SKU.get('32714') ?? null
+  if (name.includes('pressione') && name.includes('smart') && name.includes('gima')) {
+    return GIMA_OVERRIDE_BY_SKU.get('32921') ?? null
+  }
+  if (name.includes('pressione') && name.includes('easycheck')) return GIMA_OVERRIDE_BY_SKU.get('49880') ?? null
+  if (name.includes('omron') && name.includes('m2')) return GIMA_OVERRIDE_BY_SKU.get('49898') ?? null
+  if (name.includes('omron') && name.includes('m3')) return GIMA_OVERRIDE_BY_SKU.get('49907') ?? null
   return null
 }
 
