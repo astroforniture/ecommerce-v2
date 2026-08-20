@@ -687,6 +687,73 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/49880.jpg',
     gimaSku: '49880',
   },
+  // ── ECG ────────────────────────────────────────────────────────────────────
+  {
+    sku: 'AMS-0053',
+    name: 'ECG CONTEC 300G - 3 canali con display',
+    fullDescription:
+      'Elettrocardiografo CONTEC 300G a 3 canali con display. Codice GIMA 33221. Prezzo fisso, imponibile IVA esclusa.',
+    price: 400,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33221.jpg',
+    gimaSku: '33221',
+  },
+  {
+    sku: 'AMS-0054',
+    name: 'ECG CONTEC 1200G - 12 canali con display',
+    fullDescription:
+      'Elettrocardiografo CONTEC 1200G a 12 canali con display. Codice GIMA 33224. Prezzo fisso, imponibile IVA esclusa.',
+    price: 740,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33224.jpg',
+    gimaSku: '33224',
+  },
+  {
+    sku: 'AMS-0055',
+    name: 'ECG CONTEC 600G - 3/6 canali con display',
+    fullDescription:
+      'Elettrocardiografo CONTEC 600G a 3/6 canali con display. Codice GIMA 33222. Prezzo fisso, imponibile IVA esclusa.',
+    price: 599,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33222.jpeg',
+    gimaSku: '33222',
+  },
+  {
+    sku: 'AMS-0056',
+    name: 'CARDIOLINE ECG200L FULL (Glasgow + EasyApp) - schermo a colori touch da 7',
+    fullDescription:
+      'Cardioline ECG200L FULL con interpretazione Glasgow e EasyApp, schermo touch a colori da 7". Codice GIMA 54205. Prezzo fisso, imponibile IVA esclusa.',
+    price: 1600,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/54205.jpg',
+    gimaSku: '54205',
+  },
+  {
+    sku: 'AMS-0057',
+    name: 'NEO ECG T180 TABLET ECG con stampante',
+    fullDescription:
+      'NEO ECG T180 tablet ECG con stampante. Codice GIMA 54231. Prezzo fisso, imponibile IVA esclusa.',
+    price: 1500,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/54231.jpg',
+    gimaSku: '54231',
+  },
+  {
+    sku: 'AMS-0058',
+    name: 'MONITOR ECG TASCABILE PCECG-500',
+    fullDescription:
+      'Monitor ECG tascabile PCECG-500. Codice GIMA 33236. Prezzo fisso, imponibile IVA esclusa.',
+    price: 700,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33236_b.jpg',
+    gimaSku: '33236',
+  },
   {
     sku: 'AMS-0019',
     name: 'SET 4 ELETTRODI PERIFERICI (PINZE)',

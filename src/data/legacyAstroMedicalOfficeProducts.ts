@@ -418,6 +418,105 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
     quantityPriceTiers: [{ minQuantity: 1, unitPrice: 20 }],
     showQuantityDiscountTable: true,
   },
+  // ── ECG ────────────────────────────────────────────────────────────────────
+  {
+    gimaSku: '33221',
+    name: 'ECG CONTEC 300G - 3 canali con display',
+    price: 400,
+    features: { Marca: 'CONTEC', Modello: '300G', Canali: '3', Tipo: 'ECG' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33221.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/33221_a.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/33221_c.jpg',
+    ],
+    description:
+      'Elettrocardiografo CONTEC 300G a 3 canali con display. Codice GIMA 33221. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti.',
+    downloadId: '158778',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '33224',
+    name: 'ECG CONTEC 1200G - 12 canali con display',
+    price: 740,
+    features: { Marca: 'CONTEC', Modello: '1200G', Canali: '12', Tipo: 'ECG' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33224.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/33224_a.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/33224_b.jpg',
+    ],
+    description:
+      'Elettrocardiografo CONTEC 1200G a 12 canali con display. Codice GIMA 33224. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti.',
+    downloadId: '158477',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '33222',
+    name: 'ECG CONTEC 600G - 3/6 canali con display',
+    price: 599,
+    features: { Marca: 'CONTEC', Modello: '600G', Canali: '3/6', Tipo: 'ECG' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33222.jpeg',
+    galleryUrls: ['https://www.gimaitaly.com/images/prodotti/medium/33222_a.jpg'],
+    description:
+      'Elettrocardiografo CONTEC 600G a 3/6 canali con display. Codice GIMA 33222. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti.',
+    downloadId: '158778',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '54205',
+    name: 'CARDIOLINE ECG200L FULL (Glasgow + EasyApp) - schermo a colori touch da 7',
+    price: 1600,
+    features: {
+      Marca: 'CARDIOLINE',
+      Modello: 'ECG200L FULL',
+      Display: 'Touch 7" a colori',
+      Tipo: 'ECG',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/54205.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/54205_b.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/54205_c.jpg',
+    ],
+    description:
+      'Cardioline ECG200L FULL (Glasgow + EasyApp) con schermo a colori touch da 7". Codice GIMA 54205. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti.',
+    downloadId: '158331',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '54231',
+    name: 'NEO ECG T180 TABLET ECG con stampante',
+    price: 1500,
+    features: { Modello: 'NEO ECG T180', Tipo: 'Tablet ECG', Stampante: 'Integrata' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/54231.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/54231_b.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/54231_c.jpg',
+    ],
+    description:
+      'NEO ECG T180 tablet ECG con stampante. Codice GIMA 54231. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti.',
+    downloadId: '158565',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '33236',
+    name: 'MONITOR ECG TASCABILE PCECG-500',
+    price: 700,
+    features: { Modello: 'PCECG-500', Tipo: 'Monitor ECG tascabile' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33236_b.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/33236_c.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/33236.jpg',
+    ],
+    description:
+      'Monitor ECG tascabile PCECG-500. Codice GIMA 33236. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti.',
+    downloadId: '158508',
+    quantityPriceTiers: [],
+  },
 ]
 
 const GIMA_OVERRIDE_BY_SKU = new Map(GIMA_CATALOG_OVERRIDES.map((row) => [row.gimaSku, row]))
@@ -476,6 +575,14 @@ function gimaCatalogOverrideForProduct(
   if (name.includes('pressione') && name.includes('easycheck')) return GIMA_OVERRIDE_BY_SKU.get('49880') ?? null
   if (name.includes('omron') && name.includes('m2')) return GIMA_OVERRIDE_BY_SKU.get('49898') ?? null
   if (name.includes('omron') && name.includes('m3')) return GIMA_OVERRIDE_BY_SKU.get('49907') ?? null
+  if (name.includes('contec') && name.includes('300g')) return GIMA_OVERRIDE_BY_SKU.get('33221') ?? null
+  if (name.includes('contec') && name.includes('1200g')) return GIMA_OVERRIDE_BY_SKU.get('33224') ?? null
+  if (name.includes('contec') && name.includes('600g')) return GIMA_OVERRIDE_BY_SKU.get('33222') ?? null
+  if (name.includes('cardioline') && name.includes('ecg200')) return GIMA_OVERRIDE_BY_SKU.get('54205') ?? null
+  if (name.includes('neo') && name.includes('t180')) return GIMA_OVERRIDE_BY_SKU.get('54231') ?? null
+  if (name.includes('pcecg') || (name.includes('tascabile') && name.includes('ecg'))) {
+    return GIMA_OVERRIDE_BY_SKU.get('33236') ?? null
+  }
   return null
 }
 
