@@ -8,6 +8,10 @@ import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { signUpWithEmailPassword } from '../lib/userAuth'
+import {
+  PrivacyMarketingConsents,
+  type PrivacyMarketingConsentValues,
+} from '../components/privacy/PrivacyMarketingConsents'
 
 const schema = z
   .object({
@@ -30,6 +34,10 @@ const schema = z
       .trim()
       .regex(/^\d{5}$/, 'CAP non valido (5 cifre)'),
     province: z.string().trim().min(2, 'Seleziona la provincia'),
+    /** Consensi marketing: sempre default false; non obbligatori. */
+    consentNewsletter: z.boolean().default(false),
+    consentProfiling: z.boolean().default(false),
+    consentThirdParties: z.boolean().default(false),
   })
   .superRefine((data, ctx) => {
     if (data.password !== data.confirmPassword) {
@@ -135,9 +143,17 @@ export function RegisterPage() {
       city: '',
       zipCode: '',
       province: '',
+      consentNewsletter: false,
+      consentProfiling: false,
+      consentThirdParties: false,
     },
   })
   const accountType = watch('accountType')
+  const privacyConsents: PrivacyMarketingConsentValues = {
+    newsletter: Boolean(watch('consentNewsletter')),
+    profiling: Boolean(watch('consentProfiling')),
+    thirdParties: Boolean(watch('consentThirdParties')),
+  }
 
   async function onSubmit(values: RegisterForm) {
     setError('')
@@ -160,6 +176,9 @@ export function RegisterPage() {
         city: values.city,
         zipCode: values.zipCode,
         province: values.province,
+        newsletterOptIn: values.consentNewsletter === true,
+        profilingOptIn: values.consentProfiling === true,
+        thirdPartiesOptIn: values.consentThirdParties === true,
       })
       if (!res.ok) {
         setError(res.error ?? 'Registrazione non riuscita.')
@@ -393,6 +412,17 @@ export function RegisterPage() {
                   </section>
                 </div>
               </div>
+
+              <PrivacyMarketingConsents
+                idPrefix="register"
+                values={privacyConsents}
+                onChange={(next) => {
+                  setValue('consentNewsletter', next.newsletter, { shouldDirty: true })
+                  setValue('consentProfiling', next.profiling, { shouldDirty: true })
+                  setValue('consentThirdParties', next.thirdParties, { shouldDirty: true })
+                }}
+                className="rounded-xl border border-slate-200 bg-slate-50/80 p-4"
+              />
 
               {error ? <p className="text-sm font-medium text-red-700">{error}</p> : null}
               {success ? <p className="text-sm font-medium text-emerald-700">{success}</p> : null}

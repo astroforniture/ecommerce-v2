@@ -99,7 +99,7 @@ import {
 import {
   buildIHealthAstroMedicalOfficeProducts,
   iHealthCanonicalProductId,
-  lineaAstroMedicalIHealthListingPath,
+  lineaAstroMedicalCatalogPath,
 } from '../data/iHealthAstroMedicalProducts'
 import {
   buildLegacyAstroMedicalOfficeProducts,
@@ -417,7 +417,7 @@ export function staticSyntheticOfficeListingPath(product: Pick<OfficeProduct, 'i
     id.startsWith('AF-PROINSTR-') ||
     id.startsWith('gima-')
   ) {
-    return lineaAstroMedicalIHealthListingPath()
+    return lineaAstroMedicalCatalogPath()
   }
   if (
     id === '89931' ||

@@ -1,4 +1,4 @@
-import { FileText, ShoppingCart } from 'lucide-react'
+import { FileText } from 'lucide-react'
 import type { OfficeSearchSuggestion } from '../../api/officeProductsSupabase'
 import { OFFICE_CATALOG_DATA_REVISION } from '../../api/officeProductsSupabase'
 import { withOfficeImageCacheBust } from '../../lib/officeImageCacheBust'
@@ -16,6 +16,7 @@ type SearchSuggestionRowProps = {
   onPick: (item: OfficeSearchSuggestion) => void
 }
 
+/** Riga autocomplete: anteprima, titolo, codice articolo (SKU / GIMA). */
 export function SearchSuggestionRow({
   item,
   query,
@@ -31,6 +32,7 @@ export function SearchSuggestionRow({
     ? 'mt-1 text-sm font-bold tabular-nums text-brand-800'
     : 'mt-1.5 text-base font-bold tabular-nums text-brand-800'
   const imageUrl = withOfficeImageCacheBust(item.imageUrl, OFFICE_CATALOG_DATA_REVISION)
+  const articleCode = (item.producerCode || item.id || '').trim()
 
   return (
     <li role="option" aria-selected={false}>
@@ -66,6 +68,12 @@ export function SearchSuggestionRow({
           <p className={titleCls}>
             <SearchHighlightText text={item.name.trim()} query={query} />
           </p>
+          {articleCode ? (
+            <p className="mt-0.5 text-xs font-medium tabular-nums text-slate-600">
+              Cod.{' '}
+              <SearchHighlightText text={articleCode} query={query} />
+            </p>
+          ) : null}
           {item.colorName ? (
             <p className="mt-0.5 text-xs text-slate-500">Colore: {item.colorName}</p>
           ) : null}
@@ -73,12 +81,6 @@ export function SearchSuggestionRow({
             {typeof item.price === 'number' ? `${eur.format(item.price)} + IVA` : '—'}
           </p>
         </div>
-        <span
-          className="mt-1 flex size-9 shrink-0 items-center justify-center self-center rounded-full border border-slate-200 bg-white text-slate-400 transition group-hover:border-brand-300 group-hover:bg-brand-600 group-hover:text-white"
-          aria-hidden
-        >
-          <ShoppingCart className="size-4" />
-        </span>
       </button>
     </li>
   )

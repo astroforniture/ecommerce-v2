@@ -275,6 +275,10 @@ export async function signUpWithEmailPassword(
     city: string
     zipCode: string
     province: string
+    /** Consensi marketing: default false se omessi. */
+    newsletterOptIn?: boolean
+    profilingOptIn?: boolean
+    thirdPartiesOptIn?: boolean
   },
 ): Promise<{ ok: boolean; error?: string }> {
   const supabase = getSupabaseBrowserClient()
@@ -293,6 +297,9 @@ export async function signUpWithEmailPassword(
   const zipCode = input.zipCode.trim()
   const province = input.province.trim().toUpperCase()
   const email = input.email.trim()
+  const newsletterOptIn = input.newsletterOptIn === true
+  const profilingOptIn = input.profilingOptIn === true
+  const thirdPartiesOptIn = input.thirdPartiesOptIn === true
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -322,6 +329,9 @@ export async function signUpWithEmailPassword(
         default_shipping_city: city,
         default_shipping_zip_code: zipCode,
         default_shipping_province: province,
+        newsletter_opt_in: newsletterOptIn,
+        profiling_opt_in: profilingOptIn,
+        third_parties_opt_in: thirdPartiesOptIn,
       },
     },
   })
@@ -356,6 +366,7 @@ export async function signUpWithEmailPassword(
     default_shipping_city: city,
     default_shipping_zip_code: zipCode,
     default_shipping_province: province,
+    newsletter_opt_in: newsletterOptIn,
   }
 
   const profileRes = await supabase.from('profiles').upsert(upsertPayload, { onConflict: 'id' })

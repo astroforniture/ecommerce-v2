@@ -517,6 +517,306 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
     downloadId: '158508',
     quantityPriceTiers: [],
   },
+  // ── Colposcopi ─────────────────────────────────────────────────────────────
+  {
+    gimaSku: '29613',
+    name: 'COLPOSCOPIO ALLTION A LED - 3,75X, 7X, 15X > 28.000 Lux',
+    price: 2100,
+    features: {
+      Marca: 'ALLTION',
+      Illuminazione: 'LED > 28.000 Lux',
+      Ingrandimenti: '3,75X / 7X / 15X',
+      Tipo: 'Colposcopio',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/29613.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/29613_b.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/29613_c.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/29613_d.jpg',
+    ],
+    description:
+      'Colposcopio ALLTION a LED con ingrandimenti 3,75X, 7X, 15X e illuminazione > 28.000 Lux. Codice GIMA 29613. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Ginecologia › Strumenti.',
+    downloadId: '158543',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '29600',
+    name: 'COLPOSCOPIO GIMA COLPY',
+    price: 2800,
+    features: { Marca: 'GIMA', Modello: 'COLPY', Tipo: 'Colposcopio' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/29600.jpg',
+    description:
+      'Colposcopio GIMA COLPY. Codice GIMA 29600. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Ginecologia › Strumenti.',
+    downloadId: '158543',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '29612',
+    name: 'COLPOSCOPIO ALLTION A LED - 9X',
+    price: 1900,
+    features: {
+      Marca: 'ALLTION',
+      Illuminazione: 'LED',
+      Ingrandimento: '9X',
+      Tipo: 'Colposcopio',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/29612.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/29612_a.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/29612_c.jpg',
+    ],
+    description:
+      'Colposcopio ALLTION a LED con ingrandimento 9X. Codice GIMA 29612. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Ginecologia › Strumenti.',
+    downloadId: '158543',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '29620',
+    name: 'VIDEOCOLPOSCOPIO A LED COLPRO',
+    price: 2600,
+    features: {
+      Marca: 'COLPRO',
+      Illuminazione: 'LED',
+      Tipo: 'Videocolposcopio',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/29620.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/29620_a.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/29620_b.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/29620_c.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/29620_d.jpg',
+    ],
+    description:
+      'Videocolposcopio a LED COLPRO. Codice GIMA 29620. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Ginecologia › Strumenti.',
+    downloadId: '158543',
+    quantityPriceTiers: [],
+  },
+  // ── Lettini / poltrone ginecologiche ───────────────────────────────────────
+  {
+    gimaSku: '27507',
+    name: 'LETTINO GINECOLOGICO ALTEZZA VAR. - blu',
+    price: 1300,
+    features: {
+      Colore: 'Blu',
+      Altezza: 'Variabile',
+      Tipo: 'Lettino ginecologico',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27507.jpg',
+    description:
+      'Lettino ginecologico ad altezza variabile, colore blu. Codice GIMA 27507. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Ginecologia › Arredo.',
+    downloadId: '158608',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '27506',
+    name: 'LETTINO GINECOLOGICO ALTEZZA VAR. - verde',
+    price: 1300,
+    features: {
+      Colore: 'Verde',
+      Altezza: 'Variabile',
+      Tipo: 'Lettino ginecologico',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27506.jpg',
+    description:
+      'Lettino ginecologico ad altezza variabile, colore verde. Codice GIMA 27506. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Ginecologia › Arredo.',
+    downloadId: '158608',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '27520',
+    name: 'POLTRONA GINECOLOGICA GYNEX - colore a richiesta',
+    price: 3000,
+    features: {
+      Modello: 'GYNEX',
+      Colore: 'A richiesta',
+      Tipo: 'Poltrona ginecologica',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27520.jpg',
+    galleryUrls: ['https://www.gimaitaly.com/images/prodotti/medium/27520-26_a.jpg'],
+    description:
+      'Poltrona ginecologica GYNEX, colore a richiesta. Codice GIMA 27520. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Ginecologia › Arredo.',
+    downloadId: '158499',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '27496',
+    name: 'LETTO GINECOLOGICO AD ALTEZZA VARIABILE - altri colori',
+    price: 1700,
+    features: {
+      Colore: 'Altri colori',
+      Altezza: 'Variabile',
+      Tipo: 'Letto ginecologico',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27496.jpg',
+    description:
+      'Letto ginecologico ad altezza variabile, altri colori. Codice GIMA 27496. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Ginecologia › Arredo.',
+    downloadId: '158608',
+    quantityPriceTiers: [],
+  },
+  // ── Defibrillatore / Holter ────────────────────────────────────────────────
+  {
+    gimaSku: '35340',
+    name: 'DEFIBRILLATORE iPad CU-SP1 AED - GB,FR,IT,ES,DE,PL,US, JP, KR, Arabo',
+    price: 900,
+    features: {
+      Modello: 'iPad CU-SP1 AED',
+      Tipo: 'Defibrillatore',
+      Lingue: 'GB, FR, IT, ES, DE, PL, US, JP, KR, Arabo',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/35340.jpg',
+    galleryUrls: ['https://www.gimaitaly.com/images/prodotti/medium/35340_b.jpg'],
+    description:
+      'Defibrillatore iPad CU-SP1 AED multilingua (GB, FR, IT, ES, DE, PL, US, JP, KR, Arabo). Codice GIMA 35340. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Emergenza e pronto soccorso › Pronto soccorso.',
+    downloadId: '158667',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '35130',
+    name: 'HOLTER ECG + SOFTWARE',
+    price: 600,
+    features: { Tipo: 'Holter ECG', Incluso: 'Software' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/35130.jpeg',
+    galleryUrls: ['https://www.gimaitaly.com/images/prodotti/medium/35130_a.jpg'],
+    description:
+      'Holter ECG con software. Codice GIMA 35130. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti.',
+    downloadId: '158729',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '54300',
+    name: 'SISTEMA DI MONITORAGGIO HOLTER M12 - 12 derivazioni',
+    price: 950,
+    features: {
+      Modello: 'Holter M12',
+      Derivazioni: '12',
+      Tipo: 'Sistema di monitoraggio Holter',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/54300.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/54300_b.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/54300_d.jpg',
+    ],
+    description:
+      'Sistema di monitoraggio Holter M12 a 12 derivazioni. Codice GIMA 54300. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti.',
+    downloadId: '158626',
+    quantityPriceTiers: [],
+  },
+  // ── Dermatoscopi / Criochirurgia ───────────────────────────────────────────
+  {
+    gimaSku: '32177',
+    name: 'DERMATOSCOPIO A LED POLARIZZATI+UV+BIANCHI MIC Wi-Fi & USB con software',
+    price: 700,
+    features: {
+      Modello: 'MIC',
+      Illuminazione: 'LED polarizzati + UV + bianchi',
+      Connettività: 'Wi-Fi & USB',
+      Tipo: 'Dermatoscopio',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32177.jpeg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/32177_b.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/32177_e.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/32177_a.jpg',
+    ],
+    description:
+      'Dermatoscopio a LED polarizzati + UV + bianchi MIC Wi-Fi & USB con software. Codice GIMA 32177. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti.',
+    downloadId: '158362',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '31146',
+    name: 'DERMATOSCOPIO HEINE DELTA 30 - K-230.28.305',
+    price: 1500,
+    features: {
+      Marca: 'HEINE',
+      Modello: 'DELTA 30',
+      Codice: 'K-230.28.305',
+      Tipo: 'Dermatoscopio',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/31146.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/31146_b.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/31146_d.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/31146_a.jpg',
+    ],
+    description:
+      'Dermatoscopio HEINE DELTA 30 (K-230.28.305). Codice GIMA 31146. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti.',
+    downloadId: '',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '31187',
+    name: 'DERMATOSCOPIO GIMA 2000 - 10 ingrandimenti',
+    price: 190,
+    features: {
+      Marca: 'GIMA',
+      Modello: '2000',
+      Ingrandimenti: '10',
+      Tipo: 'Dermatoscopio',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/31187.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/31187_a.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/31187_b.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/31187_c.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/31187_d.jpg',
+    ],
+    description:
+      'Dermatoscopio GIMA 2000 a 10 ingrandimenti. Codice GIMA 31187. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti.',
+    downloadId: '158362',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '31158',
+    name: 'DERMATOSCOPIO LED HEINE MINI 3000 - nero',
+    price: 400,
+    features: {
+      Marca: 'HEINE',
+      Modello: 'MINI 3000',
+      Colore: 'Nero',
+      Illuminazione: 'LED',
+      Tipo: 'Dermatoscopio',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/31158.jpg',
+    galleryUrls: ['https://www.gimaitaly.com/images/prodotti/medium/31158_a.jpg'],
+    description:
+      'Dermatoscopio LED HEINE MINI 3000, colore nero. Codice GIMA 31158. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Strumenti.',
+    downloadId: '',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '30586',
+    name: 'DISPOSITIVO CRIOCHIRURGICO CRYOMEGA con cartuccia 16 g',
+    price: 290,
+    features: {
+      Modello: 'CRYOMEGA',
+      Cartuccia: '16 g',
+      Tipo: 'Dispositivo criochirurgico',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/30586.jpg',
+    galleryUrls: ['https://www.gimaitaly.com/images/prodotti/medium/30586_b.jpg'],
+    description:
+      'Dispositivo criochirurgico CRYOMEGA con cartuccia 16 g. Codice GIMA 30586. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Linea: Strumentario e chirurgia › Strumenti.',
+    downloadId: '158707',
+    quantityPriceTiers: [{ minQuantity: 1, unitPrice: 290 }],
+    showQuantityDiscountTable: true,
+  },
 ]
 
 const GIMA_OVERRIDE_BY_SKU = new Map(GIMA_CATALOG_OVERRIDES.map((row) => [row.gimaSku, row]))
@@ -582,6 +882,69 @@ function gimaCatalogOverrideForProduct(
   if (name.includes('neo') && name.includes('t180')) return GIMA_OVERRIDE_BY_SKU.get('54231') ?? null
   if (name.includes('pcecg') || (name.includes('tascabile') && name.includes('ecg'))) {
     return GIMA_OVERRIDE_BY_SKU.get('33236') ?? null
+  }
+  if (name.includes('videocolposcop') || name.includes('colpro')) {
+    return GIMA_OVERRIDE_BY_SKU.get('29620') ?? null
+  }
+  if (name.includes('colposcop') && name.includes('colpy')) {
+    return GIMA_OVERRIDE_BY_SKU.get('29600') ?? null
+  }
+  if (name.includes('colposcop') && name.includes('alltion') && name.includes('9x')) {
+    return GIMA_OVERRIDE_BY_SKU.get('29612') ?? null
+  }
+  if (
+    name.includes('colposcop') &&
+    name.includes('alltion') &&
+    (name.includes('3,75') || name.includes('3.75') || name.includes('28.000') || name.includes('28000'))
+  ) {
+    return GIMA_OVERRIDE_BY_SKU.get('29613') ?? null
+  }
+  if (name.includes('gynex') || (name.includes('poltrona') && name.includes('ginecolog'))) {
+    return GIMA_OVERRIDE_BY_SKU.get('27520') ?? null
+  }
+  if (name.includes('lettino') && name.includes('ginecolog') && name.includes('blu')) {
+    return GIMA_OVERRIDE_BY_SKU.get('27507') ?? null
+  }
+  if (name.includes('lettino') && name.includes('ginecolog') && name.includes('verde')) {
+    return GIMA_OVERRIDE_BY_SKU.get('27506') ?? null
+  }
+  if (
+    name.includes('letto') &&
+    name.includes('ginecolog') &&
+    (name.includes('altri colori') || name.includes('altezza variabile'))
+  ) {
+    return GIMA_OVERRIDE_BY_SKU.get('27496') ?? null
+  }
+  if (
+    name.includes('defibrill') &&
+    (name.includes('cu-sp1') || name.includes('ipad') || name.includes('aed'))
+  ) {
+    return GIMA_OVERRIDE_BY_SKU.get('35340') ?? null
+  }
+  if (name.includes('holter') && name.includes('m12')) {
+    return GIMA_OVERRIDE_BY_SKU.get('54300') ?? null
+  }
+  if (name.includes('holter') && name.includes('ecg')) {
+    return GIMA_OVERRIDE_BY_SKU.get('35130') ?? null
+  }
+  if (
+    name.includes('dermatoscop') &&
+    name.includes('mic') &&
+    (name.includes('wifi') || name.includes('wi-fi'))
+  ) {
+    return GIMA_OVERRIDE_BY_SKU.get('32177') ?? null
+  }
+  if (name.includes('dermatoscop') && name.includes('delta') && name.includes('30')) {
+    return GIMA_OVERRIDE_BY_SKU.get('31146') ?? null
+  }
+  if (name.includes('dermatoscop') && name.includes('gima') && name.includes('2000')) {
+    return GIMA_OVERRIDE_BY_SKU.get('31187') ?? null
+  }
+  if (name.includes('dermatoscop') && name.includes('mini') && name.includes('3000')) {
+    return GIMA_OVERRIDE_BY_SKU.get('31158') ?? null
+  }
+  if (name.includes('cryomega') || (name.includes('criochirurg') && name.includes('16'))) {
+    return GIMA_OVERRIDE_BY_SKU.get('30586') ?? null
   }
   return null
 }

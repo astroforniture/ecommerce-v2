@@ -2,7 +2,7 @@ import type { OfficeProduct } from '../types/officeProduct'
 import {
   LINEA_ASTRO_MEDICAL_CATEGORY,
   isAstroMedicalProductCategory,
-  lineaAstroMedicalIHealthListingPath,
+  lineaAstroMedicalCatalogPath,
 } from '../data/iHealthAstroMedicalProducts'
 import {
   lineaAstroMedicalMacroHref,
@@ -86,18 +86,22 @@ export function catalogBackNavFromProduct(
     }
   }
 
-  if (isStaticSyntheticOfficeProduct(product)) {
-    const href = staticSyntheticOfficeListingPath(product)
-    const category = categoryNormalized
-    return {
-      href,
-      label: category && category !== OFFICE_CATEGORY_FALLBACK
-        ? `Torna a ${category}`
-        : 'Torna al catalogo',
-    }
-  }
-
-  if (isAstroMedicalProductCategory(product.category) || String(product.id).startsWith('gima-')) {
+  // Astro Medical / GIMA: sempre `/categoria/astro-medical` (SearchBar dedicata),
+  // non `/office-products` dove la barra medical non esiste.
+  const productId = String(product.id ?? '')
+  if (
+    isAstroMedicalProductCategory(product.category) ||
+    productId.startsWith('gima-') ||
+    productId.startsWith('AF-IHEALTH-') ||
+    productId.startsWith('AF-AMED-') ||
+    productId.startsWith('AF-DIAG-') ||
+    productId.startsWith('AF-SURG-') ||
+    productId.startsWith('AF-IVCANN-') ||
+    productId.startsWith('AF-SUT-') ||
+    productId.startsWith('AF-LAB-') ||
+    productId.startsWith('AF-WELL-') ||
+    productId.startsWith('AF-PROINSTR-')
+  ) {
     const macro = resolveAstroMedicalMacro(product)
     if (macro) {
       return {
@@ -106,8 +110,19 @@ export function catalogBackNavFromProduct(
       }
     }
     return {
-      href: lineaAstroMedicalIHealthListingPath(),
-      label: 'Torna ad Astro Medical',
+      href: lineaAstroMedicalCatalogPath(),
+      label: `Torna a ${LINEA_ASTRO_MEDICAL_CATEGORY}`,
+    }
+  }
+
+  if (isStaticSyntheticOfficeProduct(product)) {
+    const href = staticSyntheticOfficeListingPath(product)
+    const category = categoryNormalized
+    return {
+      href,
+      label: category && category !== OFFICE_CATEGORY_FALLBACK
+        ? `Torna a ${category}`
+        : 'Torna al catalogo',
     }
   }
 

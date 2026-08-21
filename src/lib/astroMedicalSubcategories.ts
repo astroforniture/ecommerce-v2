@@ -161,7 +161,9 @@ function inferMacroFromProductName(name: string): string | null {
     title.includes('glucomet') ||
     title.includes('sfigmo') ||
     title.includes('pressione') ||
-    title.includes('omron')
+    title.includes('omron') ||
+    title.includes('holter') ||
+    title.includes('dermatoscop')
   ) {
     return 'Diagnostica'
   }
@@ -175,6 +177,18 @@ function inferMacroFromProductName(name: string): string | null {
     title.includes('first aid')
   ) {
     return 'Emergenza e pronto soccorso'
+  }
+
+  // Prima di «lettino» (Arredo): lettini/poltrone ginecologiche restano in Ginecologia.
+  if (
+    title.includes('ginecolog') ||
+    title.includes('pessar') ||
+    title.includes('tiralatte') ||
+    title.includes('colposcop') ||
+    title.includes('videocolposcop') ||
+    title.includes('gynex')
+  ) {
+    return 'Ginecologia'
   }
 
   if (
@@ -195,7 +209,9 @@ function inferMacroFromProductName(name: string): string | null {
     title.includes('ago') ||
     title.includes('aghi') ||
     title.includes('cateter') ||
-    title.includes('cannul')
+    title.includes('cannul') ||
+    title.includes('criochirurg') ||
+    title.includes('cryomega')
   ) {
     return 'Strumentario e chirurgia'
   }
@@ -208,10 +224,6 @@ function inferMacroFromProductName(name: string): string | null {
     title.includes('diaterm')
   ) {
     return 'Elettromedicali'
-  }
-
-  if (title.includes('ginecolog') || title.includes('pessar') || title.includes('tiralatte')) {
-    return 'Ginecologia'
   }
 
   if (title.includes('steriliz') || title.includes('autoclave')) {
@@ -349,6 +361,17 @@ export function countAstroMedicalProductsBySubcategory(
     }
   }
   return counts
+}
+
+/** Prima macro con almeno un prodotto (ordine menu GIMA). */
+export function firstAstroMedicalSubcategoryWithProducts(
+  products: OfficeProduct[],
+): AstroMedicalSubcategoryLabel | null {
+  const counts = countAstroMedicalProductsBySubcategory(products)
+  for (const label of ASTRO_MEDICAL_SUBCATEGORIES) {
+    if ((counts[label] ?? 0) > 0) return label
+  }
+  return null
 }
 
 export function lineaAstroMedicalMacroHref(macroLabel?: string | null): string {

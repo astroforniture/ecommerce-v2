@@ -754,6 +754,186 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33236_b.jpg',
     gimaSku: '33236',
   },
+  // ── Colposcopi ─────────────────────────────────────────────────────────────
+  {
+    sku: 'AMS-0059',
+    name: 'COLPOSCOPIO ALLTION A LED - 3,75X, 7X, 15X > 28.000 Lux',
+    fullDescription:
+      'Colposcopio ALLTION a LED con ingrandimenti 3,75X, 7X, 15X e illuminazione > 28.000 Lux. Codice GIMA 29613. Prezzo fisso, imponibile IVA esclusa.',
+    price: 2100,
+    categoryPath: [macroLabelFromId('ginecologia'), 'Strumenti'],
+    macroId: 'ginecologia',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/29613.jpg',
+    gimaSku: '29613',
+  },
+  {
+    sku: 'AMS-0060',
+    name: 'COLPOSCOPIO GIMA COLPY',
+    fullDescription:
+      'Colposcopio GIMA COLPY. Codice GIMA 29600. Prezzo fisso, imponibile IVA esclusa.',
+    price: 2800,
+    categoryPath: [macroLabelFromId('ginecologia'), 'Strumenti'],
+    macroId: 'ginecologia',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/29600.jpg',
+    gimaSku: '29600',
+  },
+  {
+    sku: 'AMS-0061',
+    name: 'COLPOSCOPIO ALLTION A LED - 9X',
+    fullDescription:
+      'Colposcopio ALLTION a LED con ingrandimento 9X. Codice GIMA 29612. Prezzo fisso, imponibile IVA esclusa.',
+    price: 1900,
+    categoryPath: [macroLabelFromId('ginecologia'), 'Strumenti'],
+    macroId: 'ginecologia',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/29612.jpg',
+    gimaSku: '29612',
+  },
+  {
+    sku: 'AMS-0062',
+    name: 'VIDEOCOLPOSCOPIO A LED COLPRO',
+    fullDescription:
+      'Videocolposcopio a LED COLPRO. Codice GIMA 29620. Prezzo fisso, imponibile IVA esclusa.',
+    price: 2600,
+    categoryPath: [macroLabelFromId('ginecologia'), 'Strumenti'],
+    macroId: 'ginecologia',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/29620.jpg',
+    gimaSku: '29620',
+  },
+  // ── Lettini / poltrone ginecologiche ───────────────────────────────────────
+  {
+    sku: 'AMS-0063',
+    name: 'LETTINO GINECOLOGICO ALTEZZA VAR. - blu',
+    fullDescription:
+      'Lettino ginecologico ad altezza variabile, colore blu. Codice GIMA 27507. Prezzo fisso, imponibile IVA esclusa.',
+    price: 1300,
+    categoryPath: [macroLabelFromId('ginecologia'), 'Arredo'],
+    macroId: 'ginecologia',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27507.jpg',
+    gimaSku: '27507',
+  },
+  {
+    sku: 'AMS-0064',
+    name: 'LETTINO GINECOLOGICO ALTEZZA VAR. - verde',
+    fullDescription:
+      'Lettino ginecologico ad altezza variabile, colore verde. Codice GIMA 27506. Prezzo fisso, imponibile IVA esclusa.',
+    price: 1300,
+    categoryPath: [macroLabelFromId('ginecologia'), 'Arredo'],
+    macroId: 'ginecologia',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27506.jpg',
+    gimaSku: '27506',
+  },
+  {
+    sku: 'AMS-0065',
+    name: 'POLTRONA GINECOLOGICA GYNEX - colore a richiesta',
+    fullDescription:
+      'Poltrona ginecologica GYNEX, colore a richiesta. Codice GIMA 27520. Prezzo fisso, imponibile IVA esclusa.',
+    price: 3000,
+    categoryPath: [macroLabelFromId('ginecologia'), 'Arredo'],
+    macroId: 'ginecologia',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27520.jpg',
+    gimaSku: '27520',
+  },
+  {
+    sku: 'AMS-0066',
+    name: 'LETTO GINECOLOGICO AD ALTEZZA VARIABILE - altri colori',
+    fullDescription:
+      'Letto ginecologico ad altezza variabile, altri colori. Codice GIMA 27496. Prezzo fisso, imponibile IVA esclusa.',
+    price: 1700,
+    categoryPath: [macroLabelFromId('ginecologia'), 'Arredo'],
+    macroId: 'ginecologia',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27496.jpg',
+    gimaSku: '27496',
+  },
+  // ── Defibrillatore / Holter ────────────────────────────────────────────────
+  {
+    sku: 'AMS-0067',
+    name: 'DEFIBRILLATORE iPad CU-SP1 AED - GB,FR,IT,ES,DE,PL,US, JP, KR, Arabo',
+    fullDescription:
+      'Defibrillatore iPad CU-SP1 AED multilingua (GB, FR, IT, ES, DE, PL, US, JP, KR, Arabo). Codice GIMA 35340. Prezzo fisso, imponibile IVA esclusa.',
+    price: 900,
+    categoryPath: [macroLabelFromId('emergenza'), 'Pronto soccorso'],
+    macroId: 'emergenza',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/35340.jpg',
+    gimaSku: '35340',
+  },
+  {
+    sku: 'AMS-0068',
+    name: 'HOLTER ECG + SOFTWARE',
+    fullDescription:
+      'Holter ECG con software. Codice GIMA 35130. Prezzo fisso, imponibile IVA esclusa.',
+    price: 600,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/35130.jpeg',
+    gimaSku: '35130',
+  },
+  {
+    sku: 'AMS-0069',
+    name: 'SISTEMA DI MONITORAGGIO HOLTER M12 - 12 derivazioni',
+    fullDescription:
+      'Sistema di monitoraggio Holter M12 a 12 derivazioni. Codice GIMA 54300. Prezzo fisso, imponibile IVA esclusa.',
+    price: 950,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/54300.jpg',
+    gimaSku: '54300',
+  },
+  // ── Dermatoscopi / Criochirurgia ───────────────────────────────────────────
+  {
+    sku: 'AMS-0070',
+    name: 'DERMATOSCOPIO A LED POLARIZZATI+UV+BIANCHI MIC Wi-Fi & USB con software',
+    fullDescription:
+      'Dermatoscopio a LED polarizzati + UV + bianchi MIC Wi-Fi & USB con software. Codice GIMA 32177. Prezzo fisso, imponibile IVA esclusa.',
+    price: 700,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32177.jpeg',
+    gimaSku: '32177',
+  },
+  {
+    sku: 'AMS-0071',
+    name: 'DERMATOSCOPIO HEINE DELTA 30 - K-230.28.305',
+    fullDescription:
+      'Dermatoscopio HEINE DELTA 30 (K-230.28.305). Codice GIMA 31146. Prezzo fisso, imponibile IVA esclusa.',
+    price: 1500,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/31146.jpg',
+    gimaSku: '31146',
+  },
+  {
+    sku: 'AMS-0072',
+    name: 'DERMATOSCOPIO GIMA 2000 - 10 ingrandimenti',
+    fullDescription:
+      'Dermatoscopio GIMA 2000 a 10 ingrandimenti. Codice GIMA 31187. Prezzo fisso, imponibile IVA esclusa.',
+    price: 190,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/31187.jpg',
+    gimaSku: '31187',
+  },
+  {
+    sku: 'AMS-0073',
+    name: 'DERMATOSCOPIO LED HEINE MINI 3000 - nero',
+    fullDescription:
+      'Dermatoscopio LED HEINE MINI 3000, colore nero. Codice GIMA 31158. Prezzo fisso, imponibile IVA esclusa.',
+    price: 400,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Strumenti'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/31158.jpg',
+    gimaSku: '31158',
+  },
+  {
+    sku: 'AMS-0074',
+    name: 'DISPOSITIVO CRIOCHIRURGICO CRYOMEGA con cartuccia 16 g',
+    fullDescription:
+      'Dispositivo criochirurgico CRYOMEGA con cartuccia 16 g. Codice GIMA 30586. Prezzo unitario imponibile IVA esclusa.',
+    price: 290,
+    categoryPath: [macroLabelFromId('strumentario'), 'Strumenti'],
+    macroId: 'strumentario',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/30586.jpg',
+    gimaSku: '30586',
+  },
   {
     sku: 'AMS-0019',
     name: 'SET 4 ELETTRODI PERIFERICI (PINZE)',

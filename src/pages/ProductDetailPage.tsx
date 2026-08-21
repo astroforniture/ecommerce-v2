@@ -115,11 +115,13 @@ import {
 import { isPunchedEnvelopeProduct } from '../lib/punchedEnvelope'
 import { isTimbroAziendeFarmacieProduct } from '../lib/timbroAziendeFarmacieProduct'
 import { isOfficeProductAstroMedicalLine } from '../lib/isOfficeProductAstroMedicalLine'
+import { resolveAstroMedicalMacro } from '../lib/astroMedicalSubcategories'
 import { showsImmediateAvailability } from '../lib/agendeCatalog'
 import { catalogBackNavFromProduct } from '../lib/catalogBackNavigation'
 import { TimbroAziendeFarmacieDetail } from '../components/product/TimbroAziendeFarmacieDetail'
 import { OfficeProductDetailPurchasePanel } from '../components/product/OfficeProductDetailPurchasePanel'
 import { AstroMedicalHealthcareDisclaimer } from '../components/astroMedical/AstroMedicalHealthcareDisclaimer'
+import { AstroMedicalSubcategoryNav } from '../components/astroMedical/AstroMedicalSubcategoryNav'
 import { ProductFaqSection } from '../components/faq/ProductFaqSection'
 import { CrossSellSection } from '../components/crosssell/CrossSellSection'
 import { getCrossSellForProduct } from '../data/crossSellCatalog'
@@ -928,6 +930,14 @@ export function ProductDetailPage() {
   const isAstroMedicalLeadTimes = useMemo(
     () => Boolean(product && isOfficeProductAstroMedicalLine(product)),
     [product],
+  )
+  const astroMedicalNavProducts = useMemo(
+    () => (isAstroMedicalLeadTimes ? buildLineaAstroMedicalAllOfficeProducts() : []),
+    [isAstroMedicalLeadTimes],
+  )
+  const astroMedicalActiveMacro = useMemo(
+    () => (product && isAstroMedicalLeadTimes ? resolveAstroMedicalMacro(product) : null),
+    [product, isAstroMedicalLeadTimes],
   )
   const isImmediateAvailability = useMemo(
     () => Boolean(product && !isAstroMedicalLeadTimes && showsImmediateAvailability(product)),
@@ -6178,6 +6188,15 @@ export function ProductDetailPage() {
                 : []
           }
         />
+
+        {isAstroMedicalLeadTimes ? (
+          <AstroMedicalSubcategoryNav
+            className="mt-12"
+            products={astroMedicalNavProducts}
+            selectedSubcategory={astroMedicalActiveMacro}
+            linkToCatalog
+          />
+        ) : null}
 
         <OfficeProductDetailRelatedSection
           products={relatedProducts}

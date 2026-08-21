@@ -174,6 +174,12 @@ const BRANDS: readonly BrandLogo[] = [
     src: 'https://www.immaginesrl.it/img/m/97.jpg',
     brandParam: 'Lavor',
   },
+  {
+    id: 'gima',
+    name: 'Gima',
+    src: '/images/logo-gima-ita.jpg',
+    brandParam: 'Gima',
+  },
 ]
 
 /** Velocità autoplay continua (px/s). */
@@ -183,17 +189,29 @@ const MANUAL_ANIM_MS = 420
 const DRAG_CLICK_THRESHOLD_PX = 6
 
 function brandCatalogHref(brand: BrandLogo): string | null {
+  const brandName = (brand.brandParam ?? brand.searchParam ?? '').trim()
+  if (!brandName && brand.name.trim().toLowerCase() === 'partner brand') return null
+
+  const label = brandName || brand.name.trim()
+  if (!label) return null
+
+  // GIMA / Astro Medical → catalogo dedicato
+  if (brand.id === 'gima' || label.toLowerCase() === 'gima') {
+    const params = new URLSearchParams()
+    params.set('brand', 'Gima')
+    return `/categoria/astro-medical?${params.toString()}`
+  }
+
   const params = new URLSearchParams()
   params.set('catalog', 'ufficio')
   if (brand.brandParam?.trim()) {
     params.set('brand', brand.brandParam.trim())
-    return `/office-products?${params.toString()}`
-  }
-  if (brand.searchParam?.trim()) {
+  } else if (brand.searchParam?.trim()) {
     params.set('search', brand.searchParam.trim())
-    return `/office-products?${params.toString()}`
+  } else {
+    params.set('brand', label)
   }
-  return null
+  return `/office-products?${params.toString()}`
 }
 
 function BrandLogoRow({
@@ -237,13 +255,21 @@ function BrandLogoRow({
                 to={href}
                 tabIndex={isClone ? -1 : undefined}
                 aria-label={isClone ? undefined : `Vedi prodotti ${brand.name}`}
+                title={`Vedi prodotti ${brand.name}`}
                 draggable={false}
-                className="brand-marquee-link inline-flex cursor-pointer items-center justify-center rounded-lg p-1 transition-transform duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
+                onPointerDown={(e) => {
+                  // Non avviare il drag del carousel: lascia navigare il link.
+                  e.stopPropagation()
+                }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                }}
+                className="brand-marquee-link inline-flex cursor-pointer items-center justify-center rounded-lg p-1.5 transition-transform duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
               >
                 {img}
               </Link>
             ) : (
-              <span className="inline-flex items-center justify-center p-1">{img}</span>
+              <span className="inline-flex cursor-default items-center justify-center p-1">{img}</span>
             )}
           </li>
         )
@@ -386,8 +412,9 @@ export function BrandMarquee() {
 
   function onPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
     if (event.button !== 0) return
-    // Evita di catturare il drag partito dalle frecce.
-    if ((event.target as HTMLElement).closest('button')) return
+    // Evita di catturare il drag partito dalle frecce o dai link brand.
+    const target = event.target as HTMLElement
+    if (target.closest('button') || target.closest('a')) return
 
     if (manualAnimRef.current !== null) {
       window.cancelAnimationFrame(manualAnimRef.current)

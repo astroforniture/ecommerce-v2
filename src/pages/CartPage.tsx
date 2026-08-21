@@ -28,6 +28,11 @@ import { StripePaymentSection } from '../components/checkout/StripePaymentSectio
 import { persistCheckoutOrder, type CheckoutOrderInput, type CustomerType, isBusinessCustomerType, resolveCheckoutBillingName } from '../lib/checkoutOrder'
 import { isStripeConfigured } from '../lib/stripe'
 import { resolveLoggedInUserFormData } from '../lib/userAuth'
+import {
+  DEFAULT_PRIVACY_MARKETING_CONSENTS,
+  PrivacyMarketingConsents,
+  type PrivacyMarketingConsentValues,
+} from '../components/privacy/PrivacyMarketingConsents'
 import { sendOrderConfirmationEmailSafe } from '../api/transactionalEmails'
 import { buildGa4PurchaseFromCheckout, persistPendingGa4Purchase } from '../lib/googleAnalytics'
 
@@ -75,6 +80,9 @@ export function CartPage() {
   const [billingEmail, setBillingEmail] = useState('')
   const [billingPhone, setBillingPhone] = useState('')
   const [acceptTerms, setAcceptTerms] = useState(false)
+  const [privacyConsents, setPrivacyConsents] = useState<PrivacyMarketingConsentValues>(
+    () => ({ ...DEFAULT_PRIVACY_MARKETING_CONSENTS }),
+  )
   /** true = consegna = fatturazione (default). */
   const [sameAsBillingAddress, setSameAsBillingAddress] = useState(true)
   const [shippingCareOf, setShippingCareOf] = useState('')
@@ -318,6 +326,7 @@ export function CartPage() {
       orderNotes: [
         purchaseOrderNumber.trim() ? `PO / Riferimento: ${purchaseOrderNumber.trim()}` : '',
         promoCode.trim() ? `Codice promozionale: ${promoCode.trim()}` : '',
+        `Consensi privacy — newsletter: ${privacyConsents.newsletter ? 'si' : 'no'}; profilazione: ${privacyConsents.profiling ? 'si' : 'no'}; terze parti: ${privacyConsents.thirdParties ? 'si' : 'no'}`,
       ]
         .filter(Boolean)
         .join('\n'),
@@ -853,6 +862,14 @@ export function CartPage() {
                           >
                             Termini e Condizioni
                           </Link>
+                          {' '}
+                          e la{' '}
+                          <Link
+                            className="font-semibold text-brand-700 hover:underline"
+                            to="/privacy-policy"
+                          >
+                            Privacy Policy
+                          </Link>
                           .
                         </span>
                       </label>
@@ -861,6 +878,13 @@ export function CartPage() {
                           Per completare il checkout è necessario accettare i Termini e Condizioni.
                         </p>
                       ) : null}
+
+                      <PrivacyMarketingConsents
+                        idPrefix="checkout"
+                        values={privacyConsents}
+                        onChange={setPrivacyConsents}
+                        className="mt-5 rounded-xl border border-slate-200 bg-slate-50/70 p-4"
+                      />
 
                       {stripeEnabled ? (
                         <div className="mt-6 -mx-1">

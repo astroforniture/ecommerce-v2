@@ -18,6 +18,7 @@ import {
 import { isQuoteOnlyOfficeProduct } from '../../data/casseDitronProducts'
 import { isOfficeProductAstroMedicalLine } from '../../lib/isOfficeProductAstroMedicalLine'
 import { AstroMedicalDeliveryBadge } from '../astroMedical/AstroMedicalDeliveryBadge'
+import { AstroMedicalProductDocsActions } from '../astroMedical/AstroMedicalProductDocsActions'
 import { ImmediateAvailabilityBadge } from './ImmediateAvailabilityBadge'
 import { ProductQuoteRequestButton } from '../product/ProductQuoteRequestButton'
 import { DiscountPercentBadge } from '../promo/DiscountPercentBadge'
@@ -159,6 +160,9 @@ export function OfficeProductCard({
           <div className={compactGrid ? 'mt-1.5' : 'mt-2'}>
             <ImmediateAvailabilityBadge />
           </div>
+        ) : null}
+        {isAstroMedical ? (
+          <AstroMedicalProductDocsActions product={product} compact={compactGrid} />
         ) : null}
         {!hideCategoryBadge ? (
           <p className="mt-2 text-sm font-medium text-slate-600">{categoryBadge}</p>
