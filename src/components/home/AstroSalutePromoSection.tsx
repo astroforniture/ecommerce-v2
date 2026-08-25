@@ -1,5 +1,5 @@
-/** PDF informativo ufficiale — file in `public/pdf/`. */
-const ASTRO_SALUTE_PDF_URL = '/pdf/POLIAMBULATORIO%20ASTRO%20SALUTE.pdf'
+/** Sito ufficiale Poliambulatorio Astro Salute. */
+const ASTRO_SALUTE_SITE_URL = 'https://www.astro-salute.it/'
 
 /** Banner ufficiale Poliambulatorio (export da PDF informativo). */
 const ASTRO_SALUTE_BANNER_IMAGE = '/images/banners/astro-salute.jpg'
@@ -20,11 +20,11 @@ export function AstroSalutePromoSection() {
         </p>
 
         <a
-          href={ASTRO_SALUTE_PDF_URL}
+          href={ASTRO_SALUTE_SITE_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="group flex justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-sky-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40 focus-visible:ring-offset-2 sm:p-4 md:p-5"
-          aria-label={`Apri il PDF informativo: ${ASTRO_SALUTE_LABEL}`}
+          aria-label={`Visita il sito: ${ASTRO_SALUTE_LABEL}`}
         >
           <img
             src={ASTRO_SALUTE_BANNER_IMAGE}
