@@ -997,11 +997,14 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
   {
     sku: 'AMS-0020',
     name: 'LENZUOLINO PUNTA A PUNTA 80m x 59 cm',
-    fullDescription: 'LENZUOLINO PUNTA A PUNTA 80m x 59 cm',
-    price: 26.5,
+    fullDescription:
+      'Lenzuolino punta a punta 80m x 59 cm. Codice GIMA 27419. Prezzo 7,80 € al rotolo, imponibile IVA esclusa. ' +
+      'Acquisto minimo 6 rotoli, solo quantità multiple di 6.',
+    price: 7.8,
     categoryPath: [macroLabelFromId('farmacia-cura'), 'Lenzuolini medici / Monouso'],
     macroId: 'farmacia-cura',
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27419.jpg',
+    gimaSku: '27419',
   },
   {
     sku: 'AMS-0021',

@@ -939,6 +939,33 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
     ],
     showQuantityDiscountTable: true,
   },
+  {
+    gimaSku: '27419',
+    name: 'LENZUOLINO PUNTA A PUNTA 80m x 59 cm',
+    price: 7.8,
+    packLabel: 'Minimo 6 rotoli',
+    features: {
+      Formato: '80m x 59 cm',
+      Tipo: 'Lenzuolino punta a punta',
+      Unità: 'Rotolo',
+      Acquisto: 'Minimo 6 pezzi, solo multipli di 6',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27419.jpg',
+    description:
+      'Lenzuolino punta a punta 80m x 59 cm. Codice GIMA 27419. Prezzo 7,80 € al rotolo, imponibile IVA esclusa. ' +
+      'Acquisto minimo 6 rotoli, solo quantità multiple di 6.\n\n' +
+      'Sconto quantità: 5% da 5 confezioni da 6 (30 rotoli), 10% da 10 confezioni (60 rotoli).\n\n' +
+      'Linea: Farmacia e cura › Lenzuolini medici / Monouso.',
+    downloadId: '158870',
+    minOrderQuantity: 6,
+    orderQuantityStep: 6,
+    quantityPriceTiers: [
+      { minQuantity: 6, unitPrice: 7.8 },
+      { minQuantity: 30, unitPrice: 7.41 },
+      { minQuantity: 60, unitPrice: 7.02 },
+    ],
+    showQuantityDiscountTable: true,
+  },
 ]
 
 const GIMA_OVERRIDE_BY_SKU = new Map(GIMA_CATALOG_OVERRIDES.map((row) => [row.gimaSku, row]))
@@ -1084,6 +1111,9 @@ function gimaCatalogOverrideForProduct(
   }
   if (name.includes('lenzuolin') && (name.includes('47,5') || name.includes('47.5'))) {
     return GIMA_OVERRIDE_BY_SKU.get('27411') ?? null
+  }
+  if (name.includes('lenzuolin') && name.includes('80m') && name.includes('59')) {
+    return GIMA_OVERRIDE_BY_SKU.get('27419') ?? null
   }
   if (name.includes('lenzuolin') && name.includes('46m') && name.includes('50')) {
     return GIMA_OVERRIDE_BY_SKU.get('27416') ?? null
