@@ -975,8 +975,9 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     sku: 'AMS-0078',
     name: 'LENZUOLINO POLITENATO GOFFRATO - 50m x 60 cm',
     fullDescription:
-      'Lenzuolino politenato goffrato 50m x 60 cm. Codice GIMA 27415. Prezzo unitario imponibile IVA esclusa.',
-    price: 40,
+      'Lenzuolino politenato goffrato 50m x 60 cm. Codice GIMA 27415. Prezzo 7,15 € al rotolo, imponibile IVA esclusa. ' +
+      'Acquisto minimo 6 rotoli, solo quantità multiple di 6.',
+    price: 7.15,
     categoryPath: [macroLabelFromId('farmacia-cura'), 'Lenzuolini medici / Monouso'],
     macroId: 'farmacia-cura',
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27413.jpg',

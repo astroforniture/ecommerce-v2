@@ -896,17 +896,27 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
   {
     gimaSku: '27415',
     name: 'LENZUOLINO POLITENATO GOFFRATO - 50m x 60 cm',
-    price: 40,
-    features: { Formato: '50m x 60 cm', Tipo: 'Lenzuolino politenato goffrato' },
+    price: 7.15,
+    packLabel: 'Minimo 6 rotoli',
+    features: {
+      Formato: '50m x 60 cm',
+      Tipo: 'Lenzuolino politenato goffrato',
+      Unità: 'Rotolo',
+      Acquisto: 'Minimo 6 pezzi, solo multipli di 6',
+    },
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27413.jpg',
     description:
-      'Lenzuolino politenato goffrato 50m x 60 cm. Codice GIMA 27415. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Lenzuolino politenato goffrato 50m x 60 cm. Codice GIMA 27415. Prezzo 7,15 € al rotolo, imponibile IVA esclusa. ' +
+      'Acquisto minimo 6 rotoli, solo quantità multiple di 6.\n\n' +
+      'Sconto quantità: 5% da 5 confezioni da 6 (30 rotoli), 10% da 10 confezioni (60 rotoli).\n\n' +
       'Linea: Farmacia e cura › Lenzuolini medici / Monouso.',
     downloadId: '158870',
+    minOrderQuantity: 6,
+    orderQuantityStep: 6,
     quantityPriceTiers: [
-      { minQuantity: 1, unitPrice: 40 },
-      { minQuantity: 5, unitPrice: 38 },
-      { minQuantity: 10, unitPrice: 36 },
+      { minQuantity: 6, unitPrice: 7.15 },
+      { minQuantity: 30, unitPrice: 6.79 },
+      { minQuantity: 60, unitPrice: 6.44 },
     ],
     showQuantityDiscountTable: true,
   },
