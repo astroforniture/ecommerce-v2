@@ -981,7 +981,7 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
       Unità: 'Rotolo',
       Acquisto: 'Minimo 6 pezzi, solo multipli di 6',
     },
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27410.jpg',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27412.jpg',
     description:
       'Lenzuolino monovelo goffrato 95m x 50 cm. Codice GIMA 27410. Prezzo 6,70 € al rotolo, imponibile IVA esclusa. ' +
       'Acquisto minimo 6 rotoli, solo quantità multiple di 6.\n\n' +

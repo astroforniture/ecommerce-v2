@@ -1016,7 +1016,7 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     price: 6.7,
     categoryPath: [macroLabelFromId('farmacia-cura'), 'Lenzuolini medici / Monouso'],
     macroId: 'farmacia-cura',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27410.jpg',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27412.jpg',
     gimaSku: '27410',
   },
   {
