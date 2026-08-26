@@ -440,14 +440,15 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
   },
   {
     sku: 'AMS-0031',
-    name: 'ELETTRODI MONOUSO FOAM 36-40 mm - Conf. 2000 pz.',
+    name: 'ELETTRODI MONOUSO FOAM 36-40 mm - Conf. 100 pz.',
     fullDescription:
-      'Elettrodi monouso foam diametro 36-40 mm, confezione da 2000 pezzi. Codice GIMA 33314. ' +
-      'Prezzo riferito alla confezione da 2000 pz, imponibile IVA esclusa.',
-    price: 200,
+      'Elettrodi monouso foam diametro 36-40 mm, confezione da 100 pezzi. Codice GIMA 33314. ' +
+      'Prezzo riferito alla confezione da 100 pz, imponibile IVA esclusa.',
+    price: 11,
     categoryPath: [macroLabelFromId('diagnostica'), 'Consumabili'],
     macroId: 'diagnostica',
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33314.jpg',
+    gimaSku: '33314',
   },
   {
     sku: 'AMS-0032',
