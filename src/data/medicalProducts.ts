@@ -1010,11 +1010,14 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
   {
     sku: 'AMS-0021',
     name: 'LENZUOLINO MONOVELO GOFFRATO 95m x 50cm',
-    fullDescription: 'LENZUOLINO MONOVELO GOFFRATO 95m x 50cm',
-    price: 27.0,
+    fullDescription:
+      'Lenzuolino monovelo goffrato 95m x 50 cm. Codice GIMA 27410. Prezzo 6,70 € al rotolo, imponibile IVA esclusa. ' +
+      'Acquisto minimo 6 rotoli, solo quantità multiple di 6.',
+    price: 6.7,
     categoryPath: [macroLabelFromId('farmacia-cura'), 'Lenzuolini medici / Monouso'],
     macroId: 'farmacia-cura',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27418.jpg',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27410.jpg',
+    gimaSku: '27410',
   },
   {
     sku: 'AMS-0022',

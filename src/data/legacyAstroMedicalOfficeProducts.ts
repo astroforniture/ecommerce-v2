@@ -970,6 +970,33 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
     ],
     showQuantityDiscountTable: true,
   },
+  {
+    gimaSku: '27410',
+    name: 'LENZUOLINO MONOVELO GOFFRATO 95m x 50cm',
+    price: 6.7,
+    packLabel: 'Minimo 6 rotoli',
+    features: {
+      Formato: '95m x 50 cm',
+      Tipo: 'Lenzuolino monovelo goffrato',
+      Unità: 'Rotolo',
+      Acquisto: 'Minimo 6 pezzi, solo multipli di 6',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27410.jpg',
+    description:
+      'Lenzuolino monovelo goffrato 95m x 50 cm. Codice GIMA 27410. Prezzo 6,70 € al rotolo, imponibile IVA esclusa. ' +
+      'Acquisto minimo 6 rotoli, solo quantità multiple di 6.\n\n' +
+      'Sconto quantità: 5% da 5 confezioni da 6 (30 rotoli), 10% da 10 confezioni (60 rotoli).\n\n' +
+      'Linea: Farmacia e cura › Lenzuolini medici / Monouso.',
+    downloadId: '158870',
+    minOrderQuantity: 6,
+    orderQuantityStep: 6,
+    quantityPriceTiers: [
+      { minQuantity: 6, unitPrice: 6.7 },
+      { minQuantity: 30, unitPrice: 6.37 },
+      { minQuantity: 60, unitPrice: 6.03 },
+    ],
+    showQuantityDiscountTable: true,
+  },
 ]
 
 const GIMA_OVERRIDE_BY_SKU = new Map(GIMA_CATALOG_OVERRIDES.map((row) => [row.gimaSku, row]))
@@ -1118,6 +1145,9 @@ function gimaCatalogOverrideForProduct(
   }
   if (name.includes('lenzuolin') && name.includes('80m') && name.includes('59')) {
     return GIMA_OVERRIDE_BY_SKU.get('27419') ?? null
+  }
+  if (name.includes('lenzuolin') && name.includes('monovelo')) {
+    return GIMA_OVERRIDE_BY_SKU.get('27410') ?? null
   }
   if (
     name.includes('lettino') &&
