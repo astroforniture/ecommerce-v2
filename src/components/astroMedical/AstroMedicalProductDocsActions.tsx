@@ -132,7 +132,7 @@ export function AstroMedicalProductDocsActions({ product, compact = false }: Pro
             {previewUrl ? (
               <iframe
                 key={previewUrl}
-                title={`Anteprima — ${active === 'brochure' ? brochureLabel : manualLabel}`}
+                title={`Anteprima - ${active === 'brochure' ? brochureLabel : manualLabel}`}
                 src={previewUrl}
                 className="h-[min(62vh,720px)] w-full border-0 bg-white"
               />

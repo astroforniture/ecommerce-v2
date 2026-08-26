@@ -75,6 +75,7 @@ async function generate() {
   ]
   const urls = [...staticUrls]
   const seen = new Set(urls)
+  const excludedSkus = new Set(['AF-CALC-OLIB4646', 'AF-CALC-OLIB5896'])
 
   if (supabaseUrl && supabaseKey) {
     /** Allineato al catalogo shop: URL canonici `/prodotti/:slug`. */
@@ -90,6 +91,7 @@ async function generate() {
       for (const row of rows) {
         const key = String(row?.sku ?? row?.id ?? '').trim()
         if (!key) continue
+        if (excludedSkus.has(key.toUpperCase())) continue
         const nameSlug = String(row?.name ?? '')
           .normalize('NFD')
           .replace(/[\u0300-\u036f]/g, '')

@@ -82,16 +82,16 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
   },
   {
     gimaSku: '33344',
-    name: 'ELETTRODI FOAM MONOUSO 48-50mm - gel - Conf. 1200 pz.',
-    price: 170,
-    packLabel: '1200 pz',
+    name: 'ELETTRODI FOAM MONOUSO 48-50mm - gel - Conf. 100 pz.',
+    price: 11,
+    packLabel: '100 pz',
     features: { Diametro: '48-50 mm', Gel: 'Sì' },
     description:
-      'Elettrodi foam monouso diametro 48-50 mm con gel, confezione da 1200 pezzi. Codice GIMA 33344. ' +
-      'Prezzo riferito alla confezione da 1200 pz, imponibile IVA esclusa.\n\n' +
+      'Elettrodi foam monouso diametro 48-50 mm con gel, confezione da 100 pezzi. Codice GIMA 33344. ' +
+      'Prezzo riferito alla confezione da 100 pz, imponibile IVA esclusa.\n\n' +
       'Linea: Diagnostica › Consumabili. Prezzo unitario imponibile IVA esclusa.',
     downloadId: '158480',
-    quantityPriceTiers: [{ minQuantity: 1, unitPrice: 170 }],
+    quantityPriceTiers: [{ minQuantity: 1, unitPrice: 11 }],
     showQuantityDiscountTable: true,
   },
   {

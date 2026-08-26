@@ -35,9 +35,9 @@ const schema = z
       .regex(/^\d{5}$/, 'CAP non valido (5 cifre)'),
     province: z.string().trim().min(2, 'Seleziona la provincia'),
     /** Consensi marketing: sempre default false; non obbligatori. */
-    consentNewsletter: z.boolean().default(false),
-    consentProfiling: z.boolean().default(false),
-    consentThirdParties: z.boolean().default(false),
+    consentNewsletter: z.boolean(),
+    consentProfiling: z.boolean(),
+    consentThirdParties: z.boolean(),
   })
   .superRefine((data, ctx) => {
     if (data.password !== data.confirmPassword) {

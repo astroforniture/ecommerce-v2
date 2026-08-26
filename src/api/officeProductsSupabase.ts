@@ -64,11 +64,16 @@ import { applyLegacyAstroMedicalProductOverrides } from '../data/legacyAstroMedi
  * Aumenta dopo pulizie massicce su `public.products` (es. titoli): nuove `queryKey` in React Query
  * così il client non riusa dati serializzati vecchi con titoli obsoleti.
  */
-export const OFFICE_CATALOG_DATA_REVISION = 308
+export const OFFICE_CATALOG_DATA_REVISION = 309
 
 const SUPPRESSED_PRODUCTS_BY_ID = new Set([
   '55acce14-88cd-4b12-807d-cd2753894639', // Starbox dorso 5 cm arancio (rimozione richiesta)
   '5e783362-fb42-4415-9481-c973388aaafb', // Starbox dorso 5 cm lilla (rimozione richiesta)
+])
+
+const SUPPRESSED_PRODUCTS_BY_SKU = new Set([
+  'AF-CALC-OLIB4646', // Olivetti SUMMA 303
+  'AF-CALC-OLIB5896', // Olivetti LOGOS 904T
 ])
 
 const SHOP_PRODUCTS_TABLE = 'products' as const
@@ -2023,10 +2028,19 @@ function isRemovedStarboxLillaDorso5(name: string): boolean {
   )
 }
 
+function isRemovedOlivettiCalculator(name: string, sku?: string | null): boolean {
+  const code = String(sku ?? '').trim().toUpperCase()
+  if (SUPPRESSED_PRODUCTS_BY_SKU.has(code)) return true
+  const n = String(name ?? '').toLowerCase()
+  if (!n.includes('olivetti')) return false
+  return n.includes('logos 904t') || n.includes('summa 303')
+}
+
 function isSuppressedCatalogProduct(p: OfficeProduct): boolean {
   const id = String(p.id ?? '').trim().toLowerCase()
   return (
     SUPPRESSED_PRODUCTS_BY_ID.has(id) ||
+    isRemovedOlivettiCalculator(p.name, p.producerCode ?? p.id) ||
     isRemovedEuroboxSingletonName(p.name) ||
     isRemovedStarboxArancioDorso5(p.name) ||
     isRemovedStarboxLillaDorso5(p.name)
@@ -2038,6 +2052,7 @@ function isSuppressedShopRow(row: OfficeProductRow): boolean {
   const name = String(row.name ?? '')
   return (
     SUPPRESSED_PRODUCTS_BY_ID.has(id) ||
+    isRemovedOlivettiCalculator(name, row.sku ?? id) ||
     isRemovedStarboxArancioDorso5(name) ||
     isRemovedStarboxLillaDorso5(name)
   )
