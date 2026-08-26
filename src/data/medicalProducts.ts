@@ -296,9 +296,10 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     name: 'LENZUOLINO 2 VELI - 46m x 50 cm',
     fullDescription: 'LENZUOLINO 2 VELI - 46m x 50 cm',
     price: 24.0,
-    categoryPath: [macroLabelFromId('diagnostica'), 'Consumabili'],
-    macroId: 'diagnostica',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27416.jpg',
+    categoryPath: [macroLabelFromId('farmacia-cura'), 'Lenzuolini medici / Monouso'],
+    macroId: 'farmacia-cura',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27412.jpg',
+    gimaSku: '27416',
   },
   {
     sku: 'AMS-0004',
@@ -934,6 +935,51 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/30586.jpg',
     gimaSku: '30586',
   },
+  // ── Lenzuolini medici / monouso ────────────────────────────────────────────
+  {
+    sku: 'AMS-0075',
+    name: 'LENZUOLINO PUNTA A PUNTA 2 VELI 50m x 59 cm - Conf. 9 rotoli',
+    fullDescription:
+      'Lenzuolino punta a punta 2 veli 50m x 59 cm, confezione da 9 rotoli. Codice GIMA 27428. Prezzo unitario imponibile IVA esclusa.',
+    price: 40,
+    categoryPath: [macroLabelFromId('farmacia-cura'), 'Lenzuolini medici / Monouso'],
+    macroId: 'farmacia-cura',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27428.jpg',
+    gimaSku: '27428',
+  },
+  {
+    sku: 'AMS-0076',
+    name: 'LENZUOLINO PUNTA A PUNTA 2 VELI 100m x 50 cm',
+    fullDescription:
+      'Lenzuolino punta a punta 2 veli 100m x 50 cm. Codice GIMA 27427. Prezzo unitario imponibile IVA esclusa.',
+    price: 43,
+    categoryPath: [macroLabelFromId('farmacia-cura'), 'Lenzuolini medici / Monouso'],
+    macroId: 'farmacia-cura',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27427.jpg',
+    gimaSku: '27427',
+  },
+  {
+    sku: 'AMS-0077',
+    name: 'LENZUOLINO 2 VELI - 47,5m x 59 cm',
+    fullDescription:
+      'Lenzuolino 2 veli 47,5m x 59 cm. Codice GIMA 27411. Prezzo unitario imponibile IVA esclusa.',
+    price: 30,
+    categoryPath: [macroLabelFromId('farmacia-cura'), 'Lenzuolini medici / Monouso'],
+    macroId: 'farmacia-cura',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27412.jpg',
+    gimaSku: '27411',
+  },
+  {
+    sku: 'AMS-0078',
+    name: 'LENZUOLINO POLITENATO GOFFRATO - 50m x 60 cm',
+    fullDescription:
+      'Lenzuolino politenato goffrato 50m x 60 cm. Codice GIMA 27415. Prezzo unitario imponibile IVA esclusa.',
+    price: 40,
+    categoryPath: [macroLabelFromId('farmacia-cura'), 'Lenzuolini medici / Monouso'],
+    macroId: 'farmacia-cura',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27413.jpg',
+    gimaSku: '27415',
+  },
   {
     sku: 'AMS-0019',
     name: 'SET 4 ELETTRODI PERIFERICI (PINZE)',
@@ -948,8 +994,8 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     name: 'LENZUOLINO PUNTA A PUNTA 80m x 59 cm',
     fullDescription: 'LENZUOLINO PUNTA A PUNTA 80m x 59 cm',
     price: 26.5,
-    categoryPath: [macroLabelFromId('diagnostica'), 'Consumabili'],
-    macroId: 'diagnostica',
+    categoryPath: [macroLabelFromId('farmacia-cura'), 'Lenzuolini medici / Monouso'],
+    macroId: 'farmacia-cura',
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27419.jpg',
   },
   {
@@ -957,8 +1003,8 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     name: 'LENZUOLINO MONOVELO GOFFRATO 95m x 50cm',
     fullDescription: 'LENZUOLINO MONOVELO GOFFRATO 95m x 50cm',
     price: 27.0,
-    categoryPath: [macroLabelFromId('diagnostica'), 'Consumabili'],
-    macroId: 'diagnostica',
+    categoryPath: [macroLabelFromId('farmacia-cura'), 'Lenzuolini medici / Monouso'],
+    macroId: 'farmacia-cura',
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27418.jpg',
   },
   {

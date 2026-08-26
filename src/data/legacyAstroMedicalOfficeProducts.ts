@@ -817,6 +817,87 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
     quantityPriceTiers: [{ minQuantity: 1, unitPrice: 290 }],
     showQuantityDiscountTable: true,
   },
+  {
+    gimaSku: '27416',
+    name: 'LENZUOLINO 2 VELI - 46m x 50 cm',
+    price: 24,
+    features: { Formato: '46m x 50 cm', Tipo: 'Lenzuolino 2 veli' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27412.jpg',
+    description:
+      'Lenzuolino 2 veli 46m x 50 cm. Codice GIMA 27416. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Linea: Farmacia e cura › Lenzuolini medici / Monouso.',
+    downloadId: '158870',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '27428',
+    name: 'LENZUOLINO PUNTA A PUNTA 2 VELI 50m x 59 cm - Conf. 9 rotoli',
+    price: 40,
+    packLabel: '9 rotoli',
+    features: { Formato: '50m x 59 cm', Tipo: 'Lenzuolino punta a punta 2 veli' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27428.jpg',
+    description:
+      'Lenzuolino punta a punta 2 veli 50m x 59 cm, confezione da 9 rotoli. Codice GIMA 27428. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Linea: Farmacia e cura › Lenzuolini medici / Monouso.',
+    downloadId: '158870',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 40 },
+      { minQuantity: 5, unitPrice: 38 },
+      { minQuantity: 10, unitPrice: 36 },
+    ],
+    showQuantityDiscountTable: true,
+  },
+  {
+    gimaSku: '27427',
+    name: 'LENZUOLINO PUNTA A PUNTA 2 VELI 100m x 50 cm',
+    price: 43,
+    features: { Formato: '100m x 50 cm', Tipo: 'Lenzuolino punta a punta 2 veli' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27427.jpg',
+    description:
+      'Lenzuolino punta a punta 2 veli 100m x 50 cm. Codice GIMA 27427. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Linea: Farmacia e cura › Lenzuolini medici / Monouso.',
+    downloadId: '158870',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 43 },
+      { minQuantity: 5, unitPrice: 40.85 },
+      { minQuantity: 10, unitPrice: 38.7 },
+    ],
+    showQuantityDiscountTable: true,
+  },
+  {
+    gimaSku: '27411',
+    name: 'LENZUOLINO 2 VELI - 47,5m x 59 cm',
+    price: 30,
+    features: { Formato: '47,5m x 59 cm', Tipo: 'Lenzuolino 2 veli' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27412.jpg',
+    description:
+      'Lenzuolino 2 veli 47,5m x 59 cm. Codice GIMA 27411. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Linea: Farmacia e cura › Lenzuolini medici / Monouso.',
+    downloadId: '158870',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 30 },
+      { minQuantity: 5, unitPrice: 28.5 },
+      { minQuantity: 10, unitPrice: 27 },
+    ],
+    showQuantityDiscountTable: true,
+  },
+  {
+    gimaSku: '27415',
+    name: 'LENZUOLINO POLITENATO GOFFRATO - 50m x 60 cm',
+    price: 40,
+    features: { Formato: '50m x 60 cm', Tipo: 'Lenzuolino politenato goffrato' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27413.jpg',
+    description:
+      'Lenzuolino politenato goffrato 50m x 60 cm. Codice GIMA 27415. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Linea: Farmacia e cura › Lenzuolini medici / Monouso.',
+    downloadId: '158870',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 40 },
+      { minQuantity: 5, unitPrice: 38 },
+      { minQuantity: 10, unitPrice: 36 },
+    ],
+    showQuantityDiscountTable: true,
+  },
 ]
 
 const GIMA_OVERRIDE_BY_SKU = new Map(GIMA_CATALOG_OVERRIDES.map((row) => [row.gimaSku, row]))
@@ -945,6 +1026,26 @@ function gimaCatalogOverrideForProduct(
   }
   if (name.includes('cryomega') || (name.includes('criochirurg') && name.includes('16'))) {
     return GIMA_OVERRIDE_BY_SKU.get('30586') ?? null
+  }
+  if (name.includes('lenzuolin') && name.includes('politenato')) {
+    return GIMA_OVERRIDE_BY_SKU.get('27415') ?? null
+  }
+  if (name.includes('lenzuolin') && name.includes('100m') && name.includes('50')) {
+    return GIMA_OVERRIDE_BY_SKU.get('27427') ?? null
+  }
+  if (
+    name.includes('lenzuolin') &&
+    name.includes('50m') &&
+    name.includes('59') &&
+    name.includes('9 rotoli')
+  ) {
+    return GIMA_OVERRIDE_BY_SKU.get('27428') ?? null
+  }
+  if (name.includes('lenzuolin') && (name.includes('47,5') || name.includes('47.5'))) {
+    return GIMA_OVERRIDE_BY_SKU.get('27411') ?? null
+  }
+  if (name.includes('lenzuolin') && name.includes('46m') && name.includes('50')) {
+    return GIMA_OVERRIDE_BY_SKU.get('27416') ?? null
   }
   return null
 }

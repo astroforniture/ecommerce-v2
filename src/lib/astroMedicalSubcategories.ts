@@ -101,6 +101,8 @@ const EXISTING_SUBCATEGORY_TO_MACRO: Record<string, string> = {
   'farmacia e cura': 'Farmacia e cura',
   monouso: 'Farmacia e cura',
   consumabili: 'Farmacia e cura',
+  'lenzuolini medici / monouso': 'Farmacia e cura',
+  'lenzuolini medici': 'Farmacia e cura',
 
   // Organizzazione / ausili / borse
   'ausili e sanitaria': 'Organizzazione e ausili',
@@ -252,7 +254,8 @@ function inferMacroFromProductName(name: string): string | null {
     title.includes('guant') ||
     title.includes('cerott') ||
     title.includes('garza') ||
-    title.includes('disinfett')
+    title.includes('disinfett') ||
+    title.includes('lenzuolin')
   ) {
     return 'Farmacia e cura'
   }
