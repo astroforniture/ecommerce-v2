@@ -452,11 +452,11 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
   },
   {
     sku: 'AMS-0032',
-    name: 'ELETTRODI FOAM MONOUSO 48-50mm - gel - Conf. 100 pz.',
+    name: 'ELETTRODI FOAM MONOUSO 48-50mm - gel - Conf. 50 pz.',
     fullDescription:
-      'Elettrodi foam monouso diametro 48-50 mm con gel, confezione da 100 pezzi. Codice GIMA 33344. ' +
-      'Prezzo riferito alla confezione da 100 pz, imponibile IVA esclusa.',
-    price: 11,
+      'Elettrodi foam monouso diametro 48-50 mm con gel, confezione da 50 pezzi. Codice GIMA 33344. ' +
+      'Prezzo riferito alla confezione da 50 pz, imponibile IVA esclusa.',
+    price: 7.15,
     categoryPath: [macroLabelFromId('diagnostica'), 'Consumabili'],
     macroId: 'diagnostica',
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33344.jpg',
