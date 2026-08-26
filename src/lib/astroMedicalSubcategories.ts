@@ -69,6 +69,7 @@ const EXISTING_SUBCATEGORY_TO_MACRO: Record<string, string> = {
   'diagnostica professionale': 'Diagnostica',
   'rilevatori di vene': 'Diagnostica',
   diagnostica: 'Diagnostica',
+  elettrodi: 'Diagnostica',
 
   // Emergenza / pronto soccorso
   'medicazione e primo soccorso': 'Emergenza e pronto soccorso',

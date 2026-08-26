@@ -72,12 +72,12 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
     name: 'ELETTRODI MONOUSO FOAM 36-40 mm - Conf. 100 pz.',
     price: 11,
     packLabel: '100 pz',
-    features: { Diametro: '36-40 mm' },
+    features: { Diametro: '36-40 mm', Tipo: 'Elettrodi foam monouso' },
     galleryUrls: ['https://www.gimaitaly.com/images/prodotti/medium/33314_a.jpg'],
     description:
       'Elettrodi monouso foam diametro 36-40 mm, confezione da 100 pezzi. Codice GIMA 33314. ' +
-      'Prezzo riferito alla confezione da 100 pz, imponibile IVA esclusa.\n\n' +
-      'Linea: Diagnostica › Consumabili. Prezzo unitario imponibile IVA esclusa.',
+      'Prezzo 11,00 € per confezione da 100 pz, imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Elettrodi.',
     downloadId: '158480',
     quantityPriceTiers: [{ minQuantity: 1, unitPrice: 11 }],
     showQuantityDiscountTable: true,

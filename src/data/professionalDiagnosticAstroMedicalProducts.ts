@@ -46,7 +46,8 @@ const DIAG_CATALOG: readonly DiagRow[] = [
     name: 'Sistema Mission PT/INR (coagulazione)',
     brand: 'Mission',
     priceImponible: 720,
-    imageUrl: gimaMedium('33314.jpg'),
+    imageUrl: gimaMedium('33313.jpg'),
+    officeIdOverride: `${P}mission-pt-inr`,
     description:
       'Sistema professionale Mission per monitoraggio PT/INR in ambiente clinico o ambulatoriale. ' +
       'Utilizzare strisce dedicate e accessori compatibili; calibrazione e manutenzione secondo manuale produttore. ' +

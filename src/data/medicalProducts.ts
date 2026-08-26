@@ -446,7 +446,7 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
       'Elettrodi monouso foam diametro 36-40 mm, confezione da 100 pezzi. Codice GIMA 33314. ' +
       'Prezzo riferito alla confezione da 100 pz, imponibile IVA esclusa.',
     price: 11,
-    categoryPath: [macroLabelFromId('diagnostica'), 'Consumabili'],
+    categoryPath: [macroLabelFromId('diagnostica'), 'Elettrodi'],
     macroId: 'diagnostica',
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33314.jpg',
     gimaSku: '33314',
