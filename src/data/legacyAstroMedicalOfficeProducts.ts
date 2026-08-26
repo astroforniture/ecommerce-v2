@@ -821,13 +821,17 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
   },
   {
     gimaSku: '27416',
-    name: 'LENZUOLINO 2 VELI - 46m x 50 cm',
-    price: 24,
-    features: { Formato: '46m x 50 cm', Tipo: 'Lenzuolino 2 veli' },
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27412.jpg',
+    name: 'LETTINO DA VISITA IN LEGNO - GIMA 27416',
+    price: 740,
+    features: {
+      Materiale: 'Legno',
+      Tipo: 'Lettino da visita',
+      Unità: '1 pezzo',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27416.jpg',
     description:
-      'Lenzuolino 2 veli 46m x 50 cm. Codice GIMA 27416. Prezzo unitario imponibile IVA esclusa.\n\n' +
-      'Linea: Farmacia e cura › Lenzuolini medici / Monouso.',
+      'Lettino da visita in legno. Codice GIMA 27416. Prezzo 740,00 € al pezzo, imponibile IVA esclusa.\n\n' +
+      'Linea: Arredo e illuminazione › Lettini da visita.',
     downloadId: '158870',
     quantityPriceTiers: [],
   },
@@ -1115,7 +1119,10 @@ function gimaCatalogOverrideForProduct(
   if (name.includes('lenzuolin') && name.includes('80m') && name.includes('59')) {
     return GIMA_OVERRIDE_BY_SKU.get('27419') ?? null
   }
-  if (name.includes('lenzuolin') && name.includes('46m') && name.includes('50')) {
+  if (
+    name.includes('lettino') &&
+    (name.includes('legno') || name.includes('visita') || name.includes('visitato'))
+  ) {
     return GIMA_OVERRIDE_BY_SKU.get('27416') ?? null
   }
   return null

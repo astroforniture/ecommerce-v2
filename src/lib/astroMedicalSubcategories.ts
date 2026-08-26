@@ -81,6 +81,8 @@ const EXISTING_SUBCATEGORY_TO_MACRO: Record<string, string> = {
   'arredo e illuminazione': 'Arredo e illuminazione',
   arredamento: 'Arredo e illuminazione',
   'arredamento medico': 'Arredo e illuminazione',
+  'lettini da visita': 'Arredo e illuminazione',
+  'arredamento medico / lettini da visita': 'Arredo e illuminazione',
 
   // Strumentario / chirurgia
   'strumentario chirurgico': 'Strumentario e chirurgia',

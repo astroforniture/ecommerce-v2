@@ -293,12 +293,13 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
   },
   {
     sku: 'AMS-0003',
-    name: 'LENZUOLINO 2 VELI - 46m x 50 cm',
-    fullDescription: 'LENZUOLINO 2 VELI - 46m x 50 cm',
-    price: 24.0,
-    categoryPath: [macroLabelFromId('farmacia-cura'), 'Lenzuolini medici / Monouso'],
-    macroId: 'farmacia-cura',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27412.jpg',
+    name: 'LETTINO DA VISITA IN LEGNO - GIMA 27416',
+    fullDescription:
+      'Lettino da visita in legno. Codice GIMA 27416. Prezzo 740,00 € al pezzo, imponibile IVA esclusa.',
+    price: 740,
+    categoryPath: [macroLabelFromId('arredo'), 'Lettini da visita'],
+    macroId: 'arredo',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27416.jpg',
     gimaSku: '27416',
   },
   {
