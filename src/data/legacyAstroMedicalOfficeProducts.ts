@@ -49,6 +49,8 @@ type GimaCatalogOverride = {
   quantityPriceTiers: QuantityPriceTier[]
   /** Mostra la tabella listino quantità anche con un solo scaglione (prezzo base). */
   showQuantityDiscountTable?: boolean
+  minOrderQuantity?: number
+  orderQuantityStep?: number
 }
 
 const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
@@ -867,17 +869,27 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
   {
     gimaSku: '27411',
     name: 'LENZUOLINO 2 VELI - 47,5m x 59 cm',
-    price: 30,
-    features: { Formato: '47,5m x 59 cm', Tipo: 'Lenzuolino 2 veli' },
+    price: 5.45,
+    packLabel: 'Minimo 6 rotoli',
+    features: {
+      Formato: '47,5m x 59 cm',
+      Tipo: 'Lenzuolino 2 veli',
+      'Unità': 'Rotolo',
+      'Acquisto': 'Minimo 6 pezzi, solo multipli di 6',
+    },
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27412.jpg',
     description:
-      'Lenzuolino 2 veli 47,5m x 59 cm. Codice GIMA 27411. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Lenzuolino 2 veli 47,5m x 59 cm. Codice GIMA 27411. Prezzo 5,45 € al rotolo, imponibile IVA esclusa. ' +
+      'Acquisto minimo 6 rotoli, solo quantità multiple di 6.\n\n' +
+      'Sconto quantità: 5% da 5 confezioni da 6 (30 rotoli), 10% da 10 confezioni (60 rotoli).\n\n' +
       'Linea: Farmacia e cura › Lenzuolini medici / Monouso.',
     downloadId: '158870',
+    minOrderQuantity: 6,
+    orderQuantityStep: 6,
     quantityPriceTiers: [
-      { minQuantity: 1, unitPrice: 30 },
-      { minQuantity: 5, unitPrice: 28.5 },
-      { minQuantity: 10, unitPrice: 27 },
+      { minQuantity: 6, unitPrice: 5.45 },
+      { minQuantity: 30, unitPrice: 5.18 },
+      { minQuantity: 60, unitPrice: 4.91 },
     ],
     showQuantityDiscountTable: true,
   },
@@ -1070,6 +1082,8 @@ export function applyLegacyAstroMedicalProductOverrides(product: OfficeProduct):
     catalogPagePdfLabel: 'Manuale / Documento PDF',
     quantityPriceTiers: spec.quantityPriceTiers.map((t) => ({ ...t })),
     showQuantityDiscountTable: spec.showQuantityDiscountTable === true,
+    ...(typeof spec.minOrderQuantity === 'number' ? { minOrderQuantity: spec.minOrderQuantity } : {}),
+    ...(typeof spec.orderQuantityStep === 'number' ? { orderQuantityStep: spec.orderQuantityStep } : {}),
     imageGalleryUrls: gallery.length ? gallery : undefined,
     mainFeatures: {
       ...(product.mainFeatures ?? {}),

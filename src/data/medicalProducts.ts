@@ -963,8 +963,9 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     sku: 'AMS-0077',
     name: 'LENZUOLINO 2 VELI - 47,5m x 59 cm',
     fullDescription:
-      'Lenzuolino 2 veli 47,5m x 59 cm. Codice GIMA 27411. Prezzo unitario imponibile IVA esclusa.',
-    price: 30,
+      'Lenzuolino 2 veli 47,5m x 59 cm. Codice GIMA 27411. Prezzo 5,45 € al rotolo, imponibile IVA esclusa. ' +
+      'Acquisto minimo 6 rotoli, solo quantità multiple di 6.',
+    price: 5.45,
     categoryPath: [macroLabelFromId('farmacia-cura'), 'Lenzuolini medici / Monouso'],
     macroId: 'farmacia-cura',
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27412.jpg',
