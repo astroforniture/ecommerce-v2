@@ -62,7 +62,10 @@ function astroMedicalProductMatchesListingQuery(product: OfficeProduct, rawQuery
       .join(' '),
   )
   const nameHaystack = normalizeSearchText(product.name ?? '')
-  return nameHaystack.includes(q) || skuHaystack.includes(q)
+  const categoryHaystack = normalizeSearchText(
+    `${product.category ?? ''} ${product.subcategory ?? ''}`,
+  )
+  return nameHaystack.includes(q) || skuHaystack.includes(q) || categoryHaystack.includes(q)
 }
 
 export function AstroMedicalPage() {
@@ -100,10 +103,14 @@ export function AstroMedicalPage() {
     [catalog],
   )
 
+  const listingSearch = searchQuery.trim()
+
   // Nessuna macro in URL → attiva di default la prima con prodotti (es. Diagnostica).
+  // Con una ricerca attiva non forziamo la macro, così i match restano visibili su tutto il catalogo medico.
   useEffect(() => {
     if (catalogLoading || !defaultSubcategory) return
     if (selectedSubcategory) return
+    if (listingSearch) return
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev)
@@ -112,11 +119,11 @@ export function AstroMedicalPage() {
       },
       { replace: true },
     )
-  }, [catalogLoading, defaultSubcategory, selectedSubcategory, setSearchParams])
+  }, [catalogLoading, defaultSubcategory, selectedSubcategory, listingSearch, setSearchParams])
 
   const filteredList = useMemo(() => {
     let list = catalog
-    if (selectedSubcategory) {
+    if (selectedSubcategory && !listingSearch) {
       list = list.filter((p) => matchesAstroMedicalSubcategoryFilter(p, selectedSubcategory))
     }
     if (brandFromUrl) {
@@ -131,12 +138,11 @@ export function AstroMedicalPage() {
         )
       })
     }
-    const q = searchQuery.trim()
-    if (q) {
-      list = list.filter((p) => astroMedicalProductMatchesListingQuery(p, q))
+    if (listingSearch) {
+      list = list.filter((p) => astroMedicalProductMatchesListingQuery(p, listingSearch))
     }
     return list
-  }, [catalog, selectedSubcategory, brandFromUrl, searchQuery])
+  }, [catalog, selectedSubcategory, brandFromUrl, listingSearch])
 
   function setMedicalSubcategory(value: string) {
     setSearchParams((prev) => {
@@ -256,7 +262,7 @@ export function AstroMedicalPage() {
               ) : (
                 <>
                   {filteredList.length} articol{filteredList.length === 1 ? 'o' : 'i'}
-                  {selectedSubcategory ? (
+                  {selectedSubcategory && !listingSearch ? (
                     <span className="text-medical-700">
                       {' '}
                       · {selectedSubcategory}

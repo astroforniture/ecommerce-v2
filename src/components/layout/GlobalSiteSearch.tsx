@@ -25,8 +25,8 @@ import { SearchSuggestionRow } from './SearchSuggestionRow'
 import { CATALOG_CONNECTION_ERROR_MESSAGE } from '../../lib/catalogConnectionError'
 
 const PLACEHOLDER_ROTATE = [
-  'Cerca per nome, descrizione o codice articolo…',
-  'Codice GIMA / SKU oppure nome prodotto…',
+  'Cerca in Astro Medical: nome o codice GIMA…',
+  'Elettrodi, ECG, lenzuolini, codice articolo…',
 ] as const
 
 const PLACEHOLDER_INTERVAL_MS = 3200
@@ -38,15 +38,12 @@ function applySearchToParams(prev: URLSearchParams, raw: string) {
   const next = new URLSearchParams(prev)
   next.delete('q')
   const v = raw.trim()
-  if (v) next.set('search', v)
-  else next.delete('search')
-  return next
-}
-
-function applyGlobalSearchParams(raw: string): URLSearchParams {
-  const next = new URLSearchParams()
-  const v = raw.trim()
-  if (v) next.set('search', v)
+  if (v) {
+    next.set('search', v)
+    next.delete('subcategory')
+  } else {
+    next.delete('search')
+  }
   return next
 }
 
@@ -58,10 +55,11 @@ export function GlobalSiteSearch() {
   const listboxId = useId()
   const hintId = `${listboxId}-hint`
 
-  const isOfficeCatalog =
-    location.pathname === '/office-products' || location.pathname === '/office'
-  /** Catalogo completo: ufficio + GIMA / Astro Medical (codice o nome). */
-  const searchScope: OfficeSearchCatalogScope = 'all'
+  const isAstroMedicalPage =
+    location.pathname === lineaAstroMedicalCatalogPath() ||
+    location.pathname.startsWith('/categoria/astro-medical')
+  /** Ricerca globale header: solo catalogo Astro Medical / Shop Medico. */
+  const searchScope: OfficeSearchCatalogScope = 'medical'
   const placeholderRotate = PLACEHOLDER_ROTATE
 
   const urlSearch = searchParams.get('search') ?? searchParams.get('q') ?? ''
@@ -240,26 +238,21 @@ export function GlobalSiteSearch() {
       return
     }
 
-    const isAstroMedicalPage =
-      location.pathname === lineaAstroMedicalCatalogPath() ||
-      location.pathname.startsWith('/categoria/astro-medical')
-
     if (isAstroMedicalPage) {
       setSearchParams((prev) => applySearchToParams(prev, raw), { replace: true })
       return
     }
 
-    if (isOfficeCatalog) {
-      setSearchParams(applyGlobalSearchParams(raw), { replace: true })
-    } else if (v) {
-      navigate(`/office-products?search=${encodeURIComponent(v)}`)
+    closeSearchUi(true)
+    if (v) {
+      navigate(`${lineaAstroMedicalCatalogPath()}?search=${encodeURIComponent(v)}`)
     } else {
-      navigate('/office-products?catalog=ufficio')
+      navigate(lineaAstroMedicalCatalogPath())
     }
   }
 
   function scheduleCommitCatalog(raw: string) {
-    if (!isOfficeCatalog) return
+    if (!isAstroMedicalPage) return
     if (catalogDebounceRef.current) clearTimeout(catalogDebounceRef.current)
     catalogDebounceRef.current = setTimeout(() => {
       setSearchParams((prev) => applySearchToParams(prev, raw), { replace: true })
@@ -270,7 +263,7 @@ export function GlobalSiteSearch() {
     setDraft(value)
     const trimmed = value.trim()
     setIsResultsOpen(trimmed.length > 0)
-    if (isOfficeCatalog) {
+    if (isAstroMedicalPage) {
       scheduleCommitCatalog(value)
     }
   }
@@ -285,7 +278,7 @@ export function GlobalSiteSearch() {
     setDraft(query)
     setIsResultsOpen(true)
     setDebouncedSuggest(query.trim())
-    if (isOfficeCatalog) {
+    if (isAstroMedicalPage) {
       scheduleCommitCatalog(query)
     }
   }
@@ -313,15 +306,8 @@ export function GlobalSiteSearch() {
     setDraft('')
     setDebouncedSuggest('')
     setIsResultsOpen(false)
-    if (isOfficeCatalog) {
-      setSearchParams((prev) => {
-        const next = applySearchToParams(prev, '')
-        const category = (next.get('category') ?? '').trim()
-        if (!category || category.toLowerCase() !== 'linea specializzata astro medical') {
-          next.set('catalog', 'ufficio')
-        }
-        return next
-      }, { replace: true })
+    if (isAstroMedicalPage) {
+      setSearchParams((prev) => applySearchToParams(prev, ''), { replace: true })
     }
   }
 

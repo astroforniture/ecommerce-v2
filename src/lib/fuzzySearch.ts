@@ -53,11 +53,13 @@ export function flexibleItalianWordMatch(word: string, term: string): boolean {
   if (w.startsWith(t) || (t.length >= 6 && t.startsWith(w) && w.length >= 5)) return true
 
   if (t.length >= 6) {
-    if (w.includes(t) || (w.length >= 5 && t.includes(w))) return true
+    if (w.includes(t)) return true
+    // Evita «elettrodi» ≈ «elettronica» (prefisso «elettro»).
+    if (w.length >= t.length - 1 && t.includes(w)) return true
     const minLen = Math.min(w.length, t.length)
     let common = 0
     while (common < minLen && w[common] === t[common]) common++
-    if (common >= 6 && common >= minLen - 2) return true
+    if (common >= 7 && common >= t.length - 1) return true
   }
 
   if (w.length >= 3 && t.length >= 4) {

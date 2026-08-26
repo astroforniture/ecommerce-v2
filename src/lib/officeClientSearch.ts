@@ -181,7 +181,16 @@ export function searchOfficeProductsClient(
     return terms.every((term) => termMatchesEntry(entry, term))
   })
 
-  if (queryNorm.length >= 3 && fuseIndex) {
+  const strongHits = candidates.filter(
+    (entry) =>
+      entry.nameNorm.includes(queryNorm) ||
+      entry.subcategoryNorm.includes(queryNorm) ||
+      entry.skuNorm.includes(queryNorm),
+  )
+  // Query distintive (es. «elettrodi»): non diluire con Fuse su «elettronica».
+  if (queryNorm.length >= 5 && strongHits.length > 0) {
+    candidates = strongHits
+  } else if (queryNorm.length >= 3 && fuseIndex) {
     const seen = new Set(candidates.map((entry) => entry.suggestion.id))
     for (const hit of fuseIndex.search(queryNorm, { limit: Math.max(limit * 4, 24) })) {
       const item = hit.item
