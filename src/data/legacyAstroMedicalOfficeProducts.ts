@@ -834,35 +834,54 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
   {
     gimaSku: '27428',
     name: 'LENZUOLINO PUNTA A PUNTA 2 VELI 50m x 59 cm - Conf. 9 rotoli',
-    price: 40,
-    packLabel: '9 rotoli',
-    features: { Formato: '50m x 59 cm', Tipo: 'Lenzuolino punta a punta 2 veli' },
+    price: 4.8,
+    packLabel: 'Minimo 9 rotoli',
+    features: {
+      Formato: '50m x 59 cm',
+      Tipo: 'Lenzuolino punta a punta 2 veli',
+      Unità: 'Rotolo',
+      Acquisto: 'Minimo 9 pezzi, solo multipli di 9',
+    },
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27428.jpg',
     description:
-      'Lenzuolino punta a punta 2 veli 50m x 59 cm, confezione da 9 rotoli. Codice GIMA 27428. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Lenzuolino punta a punta 2 veli 50m x 59 cm. Codice GIMA 27428. Prezzo 4,80 € al rotolo, imponibile IVA esclusa. ' +
+      'Acquisto minimo 9 rotoli, solo quantità multiple di 9.\n\n' +
+      'Sconto quantità: 5% da 5 confezioni da 9 (45 rotoli), 10% da 10 confezioni (90 rotoli).\n\n' +
       'Linea: Farmacia e cura › Lenzuolini medici / Monouso.',
     downloadId: '158870',
+    minOrderQuantity: 9,
+    orderQuantityStep: 9,
     quantityPriceTiers: [
-      { minQuantity: 1, unitPrice: 40 },
-      { minQuantity: 5, unitPrice: 38 },
-      { minQuantity: 10, unitPrice: 36 },
+      { minQuantity: 9, unitPrice: 4.8 },
+      { minQuantity: 45, unitPrice: 4.56 },
+      { minQuantity: 90, unitPrice: 4.32 },
     ],
     showQuantityDiscountTable: true,
   },
   {
     gimaSku: '27427',
     name: 'LENZUOLINO PUNTA A PUNTA 2 VELI 100m x 50 cm',
-    price: 43,
-    features: { Formato: '100m x 50 cm', Tipo: 'Lenzuolino punta a punta 2 veli' },
+    price: 7.5,
+    packLabel: 'Minimo 6 rotoli',
+    features: {
+      Formato: '100m x 50 cm',
+      Tipo: 'Lenzuolino punta a punta 2 veli',
+      Unità: 'Rotolo',
+      Acquisto: 'Minimo 6 pezzi, solo multipli di 6',
+    },
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27427.jpg',
     description:
-      'Lenzuolino punta a punta 2 veli 100m x 50 cm. Codice GIMA 27427. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Lenzuolino punta a punta 2 veli 100m x 50 cm. Codice GIMA 27427. Prezzo 7,50 € al rotolo, imponibile IVA esclusa. ' +
+      'Acquisto minimo 6 rotoli, solo quantità multiple di 6.\n\n' +
+      'Sconto quantità: 5% da 5 confezioni da 6 (30 rotoli), 10% da 10 confezioni (60 rotoli).\n\n' +
       'Linea: Farmacia e cura › Lenzuolini medici / Monouso.',
     downloadId: '158870',
+    minOrderQuantity: 6,
+    orderQuantityStep: 6,
     quantityPriceTiers: [
-      { minQuantity: 1, unitPrice: 43 },
-      { minQuantity: 5, unitPrice: 40.85 },
-      { minQuantity: 10, unitPrice: 38.7 },
+      { minQuantity: 6, unitPrice: 7.5 },
+      { minQuantity: 30, unitPrice: 7.13 },
+      { minQuantity: 60, unitPrice: 6.75 },
     ],
     showQuantityDiscountTable: true,
   },

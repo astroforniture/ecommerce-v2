@@ -12,6 +12,10 @@ export const PURCHASE_QUANTITY_RULES_BY_SKU: Record<string, PurchaseQuantityRule
   '27411': { minOrderQuantity: 6, orderQuantityStep: 6 },
   'GIMA-27415': { minOrderQuantity: 6, orderQuantityStep: 6 },
   '27415': { minOrderQuantity: 6, orderQuantityStep: 6 },
+  'GIMA-27427': { minOrderQuantity: 6, orderQuantityStep: 6 },
+  '27427': { minOrderQuantity: 6, orderQuantityStep: 6 },
+  'GIMA-27428': { minOrderQuantity: 9, orderQuantityStep: 9 },
+  '27428': { minOrderQuantity: 9, orderQuantityStep: 9 },
 }
 
 export function purchaseQuantityRuleForSku(

@@ -941,8 +941,9 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     sku: 'AMS-0075',
     name: 'LENZUOLINO PUNTA A PUNTA 2 VELI 50m x 59 cm - Conf. 9 rotoli',
     fullDescription:
-      'Lenzuolino punta a punta 2 veli 50m x 59 cm, confezione da 9 rotoli. Codice GIMA 27428. Prezzo unitario imponibile IVA esclusa.',
-    price: 40,
+      'Lenzuolino punta a punta 2 veli 50m x 59 cm. Codice GIMA 27428. Prezzo 4,80 € al rotolo, imponibile IVA esclusa. ' +
+      'Acquisto minimo 9 rotoli, solo quantità multiple di 9.',
+    price: 4.8,
     categoryPath: [macroLabelFromId('farmacia-cura'), 'Lenzuolini medici / Monouso'],
     macroId: 'farmacia-cura',
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27428.jpg',
@@ -952,8 +953,9 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     sku: 'AMS-0076',
     name: 'LENZUOLINO PUNTA A PUNTA 2 VELI 100m x 50 cm',
     fullDescription:
-      'Lenzuolino punta a punta 2 veli 100m x 50 cm. Codice GIMA 27427. Prezzo unitario imponibile IVA esclusa.',
-    price: 43,
+      'Lenzuolino punta a punta 2 veli 100m x 50 cm. Codice GIMA 27427. Prezzo 7,50 € al rotolo, imponibile IVA esclusa. ' +
+      'Acquisto minimo 6 rotoli, solo quantità multiple di 6.',
+    price: 7.5,
     categoryPath: [macroLabelFromId('farmacia-cura'), 'Lenzuolini medici / Monouso'],
     macroId: 'farmacia-cura',
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27427.jpg',
