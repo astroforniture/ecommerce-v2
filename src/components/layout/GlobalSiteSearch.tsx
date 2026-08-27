@@ -11,6 +11,7 @@ import {
 } from '../../hooks/useOfficeSearchSuggestions'
 import { productDetailPath } from '../../lib/productRoutes'
 import { lineaAstroMedicalCatalogPath } from '../../data/iHealthAstroMedicalProducts'
+import { isAstroMedicalShopLocation } from '../../lib/isAstroMedicalShopLocation'
 import {
   getSearchHistory,
   pushSearchHistory,
@@ -24,9 +25,14 @@ import type { OfficeSearchSuggestion } from '../../api/officeProductsSupabase'
 import { SearchSuggestionRow } from './SearchSuggestionRow'
 import { CATALOG_CONNECTION_ERROR_MESSAGE } from '../../lib/catalogConnectionError'
 
-const PLACEHOLDER_ROTATE = [
+const PLACEHOLDER_MEDICAL = [
   'Cerca in Astro Medical: nome o codice GIMA…',
   'Elettrodi, ECG, lenzuolini, codice articolo…',
+] as const
+
+const PLACEHOLDER_GLOBAL = [
+  'Cerca per nome, descrizione o codice articolo…',
+  'Codice GIMA / SKU oppure nome prodotto…',
 ] as const
 
 const PLACEHOLDER_INTERVAL_MS = 3200
@@ -34,13 +40,17 @@ const SUGGEST_DEBOUNCE_MS = 80
 const CATALOG_URL_DEBOUNCE_MS = 300
 const MIN_CHARS_SUGGEST = 2
 
-function applySearchToParams(prev: URLSearchParams, raw: string) {
+function applySearchToParams(
+  prev: URLSearchParams,
+  raw: string,
+  options?: { clearSubcategory?: boolean },
+) {
   const next = new URLSearchParams(prev)
   next.delete('q')
   const v = raw.trim()
   if (v) {
     next.set('search', v)
-    next.delete('subcategory')
+    if (options?.clearSubcategory) next.delete('subcategory')
   } else {
     next.delete('search')
   }
@@ -55,12 +65,14 @@ export function GlobalSiteSearch() {
   const listboxId = useId()
   const hintId = `${listboxId}-hint`
 
-  const isAstroMedicalPage =
-    location.pathname === lineaAstroMedicalCatalogPath() ||
-    location.pathname.startsWith('/categoria/astro-medical')
-  /** Ricerca globale header: solo catalogo Astro Medical / Shop Medico. */
-  const searchScope: OfficeSearchCatalogScope = 'medical'
-  const placeholderRotate = PLACEHOLDER_ROTATE
+  const isAstroMedicalShop = isAstroMedicalShopLocation(location.pathname, location.search)
+  const isOfficeCatalog =
+    location.pathname === '/office-products' || location.pathname === '/office'
+  const officeHasCategoryFilter = Boolean((searchParams.get('category') ?? '').trim())
+  const isOfficeGlobalListing = isOfficeCatalog && !officeHasCategoryFilter && !isAstroMedicalShop
+  /** In Astro Medical: solo catalogo medico. Altrove: tutto il catalogo. */
+  const searchScope: OfficeSearchCatalogScope = isAstroMedicalShop ? 'medical' : 'all'
+  const placeholderRotate = isAstroMedicalShop ? PLACEHOLDER_MEDICAL : PLACEHOLDER_GLOBAL
 
   const urlSearch = searchParams.get('search') ?? searchParams.get('q') ?? ''
   const [draft, setDraft] = useState(urlSearch)
@@ -238,24 +250,43 @@ export function GlobalSiteSearch() {
       return
     }
 
-    if (isAstroMedicalPage) {
+    if (isAstroMedicalShop) {
+      if (location.pathname === lineaAstroMedicalCatalogPath() || location.pathname.startsWith('/categoria/astro-medical')) {
+        setSearchParams((prev) => applySearchToParams(prev, raw, { clearSubcategory: true }), {
+          replace: true,
+        })
+        return
+      }
+      closeSearchUi(true)
+      if (v) {
+        navigate(`${lineaAstroMedicalCatalogPath()}?search=${encodeURIComponent(v)}`)
+      } else {
+        navigate(lineaAstroMedicalCatalogPath())
+      }
+      return
+    }
+
+    if (isOfficeGlobalListing) {
       setSearchParams((prev) => applySearchToParams(prev, raw), { replace: true })
       return
     }
 
     closeSearchUi(true)
     if (v) {
-      navigate(`${lineaAstroMedicalCatalogPath()}?search=${encodeURIComponent(v)}`)
+      navigate(`/office-products?search=${encodeURIComponent(v)}`)
     } else {
-      navigate(lineaAstroMedicalCatalogPath())
+      navigate('/office-products?catalog=ufficio')
     }
   }
 
   function scheduleCommitCatalog(raw: string) {
-    if (!isAstroMedicalPage) return
+    if (!isAstroMedicalShop && !isOfficeGlobalListing) return
     if (catalogDebounceRef.current) clearTimeout(catalogDebounceRef.current)
     catalogDebounceRef.current = setTimeout(() => {
-      setSearchParams((prev) => applySearchToParams(prev, raw), { replace: true })
+      setSearchParams(
+        (prev) => applySearchToParams(prev, raw, { clearSubcategory: isAstroMedicalShop }),
+        { replace: true },
+      )
     }, CATALOG_URL_DEBOUNCE_MS)
   }
 
@@ -263,7 +294,7 @@ export function GlobalSiteSearch() {
     setDraft(value)
     const trimmed = value.trim()
     setIsResultsOpen(trimmed.length > 0)
-    if (isAstroMedicalPage) {
+    if (isAstroMedicalShop || isOfficeGlobalListing) {
       scheduleCommitCatalog(value)
     }
   }
@@ -278,7 +309,7 @@ export function GlobalSiteSearch() {
     setDraft(query)
     setIsResultsOpen(true)
     setDebouncedSuggest(query.trim())
-    if (isAstroMedicalPage) {
+    if (isAstroMedicalShop || isOfficeGlobalListing) {
       scheduleCommitCatalog(query)
     }
   }
@@ -306,8 +337,19 @@ export function GlobalSiteSearch() {
     setDraft('')
     setDebouncedSuggest('')
     setIsResultsOpen(false)
-    if (isAstroMedicalPage) {
-      setSearchParams((prev) => applySearchToParams(prev, ''), { replace: true })
+    if (isAstroMedicalShop) {
+      setSearchParams((prev) => applySearchToParams(prev, '', { clearSubcategory: true }), {
+        replace: true,
+      })
+    } else if (isOfficeCatalog) {
+      setSearchParams((prev) => {
+        const next = applySearchToParams(prev, '')
+        const category = (next.get('category') ?? '').trim()
+        if (!category || category.toLowerCase() !== 'linea specializzata astro medical') {
+          next.set('catalog', 'ufficio')
+        }
+        return next
+      }, { replace: true })
     }
   }
 
