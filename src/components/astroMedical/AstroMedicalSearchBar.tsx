@@ -1,13 +1,13 @@
 import { useEffect, useId, useMemo, useRef, useState, type FormEvent } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Loader2, Search, X } from 'lucide-react'
-import { useOfficeSearchSuggestions } from '../../hooks/useOfficeSearchSuggestions'
+import { useOfficeSearchSuggestions, LIVE_SEARCH_DEBOUNCE_MS } from '../../hooks/useOfficeSearchSuggestions'
 import { productDetailPath } from '../../lib/productRoutes'
 import { ProductThumb } from '../crosssell/ProductThumb'
 import type { OfficeSearchSuggestion } from '../../api/officeProductsSupabase'
 import { SearchHighlightText } from '../../lib/searchHighlight'
 
-const SUGGEST_DEBOUNCE_MS = 120
+const SUGGEST_DEBOUNCE_MS = LIVE_SEARCH_DEBOUNCE_MS
 const MIN_CHARS = 2
 
 type AstroMedicalSearchBarProps = {

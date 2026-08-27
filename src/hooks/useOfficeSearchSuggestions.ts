@@ -15,8 +15,10 @@ import {
 import { isSupabaseConfigured } from '../lib/supabaseClient'
 import { isLikelyCatalogConnectionError } from '../lib/catalogConnectionError'
 
-const SUGGESTIONS_STALE_MS = 45_000
+const SUGGESTIONS_STALE_MS = 10 * 60_000
 const INDEX_STALE_MS = 30 * 60_000
+
+export const LIVE_SEARCH_DEBOUNCE_MS = 200
 
 export function officeSearchIndexQueryKey() {
   return ['office-search-index', OFFICE_CATALOG_DATA_REVISION] as const
@@ -95,7 +97,7 @@ export function useOfficeSearchSuggestions({
       indexQuery.isFetched &&
       !indexQuery.isError,
     staleTime: SUGGESTIONS_STALE_MS,
-    gcTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
     placeholderData: (prev) => prev,
     retry: (failureCount, error) =>
       failureCount < 1 && !isLikelyCatalogConnectionError(error),

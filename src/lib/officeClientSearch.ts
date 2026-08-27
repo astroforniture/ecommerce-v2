@@ -36,6 +36,25 @@ type IndexedProduct = {
 let searchIndex: IndexedProduct[] | null = null
 let fuseIndex: Fuse<IndexedProduct> | null = null
 let searchIndexUseLocal: boolean | null = null
+const CLIENT_SEARCH_CACHE_MAX = 48
+const clientSearchResultCache = new Map<string, OfficeSearchSuggestion[]>()
+
+function clientSearchCacheKey(
+  query: string,
+  limit: number,
+  scope: OfficeSearchCatalogScope,
+): string {
+  return `${scope}|${limit}|${normalizeSearchText(query)}`
+}
+
+function rememberClientSearchResult(key: string, data: OfficeSearchSuggestion[]) {
+  clientSearchResultCache.set(key, data)
+  while (clientSearchResultCache.size > CLIENT_SEARCH_CACHE_MAX) {
+    const first = clientSearchResultCache.keys().next().value
+    if (first == null) break
+    clientSearchResultCache.delete(first)
+  }
+}
 
 function productToSuggestion(p: OfficeProduct): OfficeSearchSuggestion {
   const id = String(p.id ?? '').trim()
@@ -130,6 +149,7 @@ export function setOfficeSearchIndexFromProducts(
   searchIndex = buildIndexedProducts(products)
   rebuildFuseIndex(searchIndex)
   searchIndexUseLocal = useLocalSearch
+  clientSearchResultCache.clear()
 }
 
 export function getOfficeSearchIndexSize(): number {
@@ -175,6 +195,10 @@ export function searchOfficeProductsClient(
   const terms = tokenizeSearchQuery(trimmed)
   if (!terms.length || trimmed.length < 2) return []
 
+  const cacheKey = clientSearchCacheKey(trimmed, limit, scope)
+  const cached = clientSearchResultCache.get(cacheKey)
+  if (cached) return cached
+
   const index = getActiveSearchIndex()
   const queryNorm = normalizeSearchText(trimmed)
 
@@ -211,7 +235,7 @@ export function searchOfficeProductsClient(
     candidates = [exact, ...candidates.filter((c) => c.suggestion.id !== exact.suggestion.id)]
   }
 
-  return rankWithFuse(queryNorm, candidates)
+  const results = rankWithFuse(queryNorm, candidates)
     .sort(
       (a, b) =>
         scoreSearchableProduct(b.fields, terms, trimmed) -
@@ -219,6 +243,8 @@ export function searchOfficeProductsClient(
     )
     .slice(0, limit)
     .map((e) => e.suggestion)
+  rememberClientSearchResult(cacheKey, results)
+  return results
 }
 
 function normalizeSkuKey(raw: string): string {

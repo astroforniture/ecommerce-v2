@@ -65,7 +65,7 @@ import { isSuppressedCatalogSku } from '../lib/suppressedCatalogSkus'
  * Aumenta dopo pulizie massicce su `public.products` (es. titoli): nuove `queryKey` in React Query
  * così il client non riusa dati serializzati vecchi con titoli obsoleti.
  */
-export const OFFICE_CATALOG_DATA_REVISION = 321
+export const OFFICE_CATALOG_DATA_REVISION = 322
 
 const SUPPRESSED_PRODUCTS_BY_ID = new Set([
   '55acce14-88cd-4b12-807d-cd2753894639', // Starbox dorso 5 cm arancio (rimozione richiesta)
@@ -111,6 +111,17 @@ const PRODUCT_SHOP_SELECT_FALLBACKS: readonly string[] = [
   'id, name',
 ]
 
+/** Anteprima live search: solo campi usati in dropdown (id, titolo, sku, prezzo, immagine). */
+const SEARCH_PREVIEW_SELECT_FALLBACKS: readonly string[] = [
+  'id, name, sku, brand, price, image_url, category, subcategory, color_name',
+  'id, name, sku, brand, price, image_url, category, subcategory',
+  'id, name, sku, brand, price, image_url, category',
+  'id, name, sku, price, image_url',
+  'id, name, sku, image_url',
+  'id, name, image_url',
+  'id, name',
+]
+
 /** Fetch scheda prodotto: prova prima con `variants` (JSONB misure/colori). */
 const PRODUCT_DETAIL_SELECT_FALLBACKS: readonly string[] = [
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, catalog_page_pdf, datasheet_pdf, pdf_url, faq, related_product_ids, min_order_quantity, order_quantity_step, manufacturer_name, manufacturer_address, importer_name, importer_address, eu_responsible_name, eu_responsible_address, safety_warnings, gpsr',
@@ -144,6 +155,21 @@ const relatedProductsMemoryCache = new Map<
   { fetchedAt: number; data: OfficeProduct[] }
 >()
 const showcaseMemoryCache = new Map<string, { fetchedAt: number; data: OfficeProduct[] }>()
+const SEARCH_SUGGEST_MEM_TTL_MS = 10 * 60 * 1000
+const SEARCH_SUGGEST_MEM_MAX = 48
+const searchSuggestMemoryCache = new Map<
+  string,
+  { at: number; data: OfficeSearchSuggestion[] }
+>()
+
+function rememberSearchSuggestions(key: string, data: OfficeSearchSuggestion[]) {
+  searchSuggestMemoryCache.set(key, { at: Date.now(), data })
+  while (searchSuggestMemoryCache.size > SEARCH_SUGGEST_MEM_MAX) {
+    const first = searchSuggestMemoryCache.keys().next().value
+    if (first == null) break
+    searchSuggestMemoryCache.delete(first)
+  }
+}
 
 const STARBOX_BASE_PRICE = 4.15
 const STARBOX_QUANTITY_TIERS: QuantityPriceTier[] = [
@@ -1871,6 +1897,26 @@ function suggestionDisplayNameFromRow(row: OfficeProductRow): string {
   return applyAgendeCatalogYearIfNeeded(named, row.category)
 }
 
+function mapSearchPreviewToOfficeProduct(row: OfficeProductRow): OfficeProduct {
+  const rawPriceSource = row.price
+  const rawPrice =
+    typeof rawPriceSource === 'string' ? Number.parseFloat(rawPriceSource) : rawPriceSource
+  const idStr = typeof row.id === 'string' ? row.id : String(row.id)
+  const category = normalizeOfficeProductCategory(row.category ?? '')
+  return {
+    id: idStr,
+    name: String(row.name ?? '').trim(),
+    brand: (row.brand ?? '').trim(),
+    producerCode: (row.sku ?? '').trim() || idStr,
+    colorName: (row.color_name ?? '').trim() || undefined,
+    category,
+    subcategory: (row.subcategory ?? '').trim() || undefined,
+    mainFeatures: {},
+    imageUrl: (row.image_url ?? '').trim(),
+    price: Number.isFinite(rawPrice) ? Number(rawPrice) : undefined,
+  }
+}
+
 function mapRowToSuggestion(row: OfficeProductRow): OfficeSearchSuggestion {
   const rawPriceSource = row.price
   const rawPrice =
@@ -3095,9 +3141,9 @@ export async function fetchOfficeSearchCatalogIndex(): Promise<OfficeSearchCatal
     return { products: injected, useLocalSearch: true }
   }
 
-  const rows = await fetchShopProductListOrdered(supabase)
+  const rows = await fetchShopSearchPreviewList(supabase)
   const shop = rows
-    .map(mapRowToOfficeProduct)
+    .map(mapSearchPreviewToOfficeProduct)
     .filter(isGeneralOfficeShopCatalogProduct)
     .filter((p) => !isSuppressedCatalogProduct(p))
 
@@ -3123,42 +3169,47 @@ export async function fetchOfficeProductSearchSuggestions(
     return []
   }
 
+  const cacheKey = `${scope}|${limit}|${trimmed.toLowerCase()}`
+  const cached = searchSuggestMemoryCache.get(cacheKey)
+  if (cached && Date.now() - cached.at < SEARCH_SUGGEST_MEM_TTL_MS) {
+    return cached.data
+  }
+
   if (shouldUseLocalSearchOnly()) {
-    return searchOfficeProductsClient(trimmed, limit, scope)
+    const local = searchOfficeProductsClient(trimmed, limit, scope)
+    rememberSearchSuggestions(cacheKey, local)
+    return local
   }
 
   const clientHits = searchOfficeProductsClient(trimmed, limit, scope)
   const supabase = getSupabaseBrowserClient()
-  if (!supabase) return clientHits
+  if (!supabase) {
+    rememberSearchSuggestions(cacheKey, clientHits)
+    return clientHits
+  }
 
   const esc = escapeIlikePattern(trimmed)
   const pat = `%${esc}%`
   const cap = 24
   const wantsOxfordAlias = searchWantsOxfordModelAlias(terms)
-  const oxfordPat = oxfordModelAliasNameIlikePattern()
-  const searchPatterns = buildSupabaseIlikePatterns(trimmed)
 
-  const patternFetches = searchPatterns.flatMap((pattern) => [
-    fetchShopProductRowsSkuIlike(supabase, pattern, cap),
-    fetchShopProductRowsNameIlike(supabase, pattern, cap),
-    fetchShopProductRowsDescriptionIlike(supabase, pattern, cap),
-    fetchShopProductRowsCategoryIlike(supabase, pattern, cap),
-  ])
-
-  const [skuSuggestionRows, nameRows, oxfordNameRows, ...patternRows] = await Promise.all([
-    fetchShopProductRowsSkuIlike(supabase, pat, cap),
-    fetchShopProductRowsNameIlike(supabase, pat, cap),
+  const [skuSuggestionRows, nameRows, oxfordNameRows] = await Promise.all([
+    fetchSearchPreviewRowsColumnIlike(supabase, 'sku', pat, cap),
+    fetchSearchPreviewRowsColumnIlike(supabase, 'name', pat, cap),
     wantsOxfordAlias
-      ? fetchShopProductRowsNameIlike(supabase, oxfordPat, Math.max(cap, 80))
+      ? fetchSearchPreviewRowsColumnIlike(
+          supabase,
+          'name',
+          oxfordModelAliasNameIlikePattern(),
+          Math.max(cap, 80),
+        )
       : Promise.resolve([] as OfficeProductRow[]),
-    ...patternFetches,
   ])
 
   const merged = mergeRowsById([
     ...skuSuggestionRows,
     ...nameRows,
     ...oxfordNameRows,
-    ...patternRows.flat(),
   ])
 
   function passesScope(row: OfficeProductRow): boolean {
@@ -3182,7 +3233,7 @@ export async function fetchOfficeProductSearchSuggestions(
   for (const hit of remoteHits) {
     if (!byId.has(hit.id)) byId.set(hit.id, hit)
   }
-  return [...byId.values()]
+  const ranked = [...byId.values()]
     .sort(
       (a, b) =>
         scoreSearchableProduct(
@@ -3213,6 +3264,8 @@ export async function fetchOfficeProductSearchSuggestions(
         ),
     )
     .slice(0, limit)
+  rememberSearchSuggestions(cacheKey, ranked)
+  return ranked
 }
 
 function attachQuantityTiers(
@@ -3585,6 +3638,53 @@ async function fetchShopProductRowsColumnIlike(
     }
     console.warn(`[officeProducts] ${column} ilike:`, res.error)
     return []
+  }
+  return []
+}
+
+async function fetchSearchPreviewRowsColumnIlike(
+  supabase: ShopSupabase,
+  column: 'name' | 'sku',
+  pat: string,
+  cap: number,
+): Promise<OfficeProductRow[]> {
+  for (const cols of SEARCH_PREVIEW_SELECT_FALLBACKS) {
+    const res = await supabase
+      .from(SHOP_PRODUCTS_TABLE)
+      .select(cols)
+      .ilike(column, pat)
+      .limit(cap)
+    if (!res.error) {
+      return ((res.data ?? []) as unknown as OfficeProductRow[]).filter(
+        (row) => !isSuppressedShopRow(row),
+      )
+    }
+    const msg = `${(res.error as { message?: string }).message ?? ''}`.toLowerCase()
+    if (isMissingColumnPostgrestError(res.error)) {
+      if (msg.includes(column)) return []
+      continue
+    }
+    console.warn(`[officeProducts] search preview ${column} ilike:`, res.error)
+    return []
+  }
+  return []
+}
+
+async function fetchShopSearchPreviewList(supabase: ShopSupabase): Promise<OfficeProductRow[]> {
+  for (const cols of SEARCH_PREVIEW_SELECT_FALLBACKS) {
+    const res = await supabase
+      .from(SHOP_PRODUCTS_TABLE)
+      .select(cols)
+      .order('name', { ascending: true })
+    if (!res.error) {
+      return ((res.data ?? []) as unknown as OfficeProductRow[]).filter(
+        (row) => !isSuppressedShopRow(row),
+      )
+    }
+    if (!isMissingColumnPostgrestError(res.error)) {
+      console.warn('[officeProducts] search preview list:', res.error)
+      return []
+    }
   }
   return []
 }

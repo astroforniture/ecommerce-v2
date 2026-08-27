@@ -8,6 +8,7 @@ import { useAnchoredDropdownPosition } from '../../hooks/useAnchoredDropdownPosi
 import {
   prefetchOfficeSearchIndex,
   useOfficeSearchSuggestions,
+  LIVE_SEARCH_DEBOUNCE_MS,
 } from '../../hooks/useOfficeSearchSuggestions'
 import { productDetailPath } from '../../lib/productRoutes'
 import { lineaAstroMedicalCatalogPath } from '../../data/iHealthAstroMedicalProducts'
@@ -36,7 +37,7 @@ const PLACEHOLDER_GLOBAL = [
 ] as const
 
 const PLACEHOLDER_INTERVAL_MS = 3200
-const SUGGEST_DEBOUNCE_MS = 80
+const SUGGEST_DEBOUNCE_MS = LIVE_SEARCH_DEBOUNCE_MS
 const CATALOG_URL_DEBOUNCE_MS = 300
 const MIN_CHARS_SUGGEST = 2
 
