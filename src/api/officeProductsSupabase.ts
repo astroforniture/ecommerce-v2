@@ -53,6 +53,7 @@ import { debugLogVetrinaProdottiNomi } from '../lib/debugShowcaseCatalog'
 import { purchaseQuantityRuleForSku } from '../lib/purchaseQuantity'
 import { applyModulisticaQuantityPricing } from '../lib/modulisticaQuantityPricing'
 import { applyLegacyAstroMedicalProductOverrides } from '../data/legacyAstroMedicalOfficeProducts'
+import { isSuppressedCatalogSku } from '../lib/suppressedCatalogSkus'
 
 /**
  * Catalogo lista/vetrina: unisce `public.office_products` (solo colonne base presenti sul DB) e
@@ -64,16 +65,11 @@ import { applyLegacyAstroMedicalProductOverrides } from '../data/legacyAstroMedi
  * Aumenta dopo pulizie massicce su `public.products` (es. titoli): nuove `queryKey` in React Query
  * così il client non riusa dati serializzati vecchi con titoli obsoleti.
  */
-export const OFFICE_CATALOG_DATA_REVISION = 320
+export const OFFICE_CATALOG_DATA_REVISION = 321
 
 const SUPPRESSED_PRODUCTS_BY_ID = new Set([
   '55acce14-88cd-4b12-807d-cd2753894639', // Starbox dorso 5 cm arancio (rimozione richiesta)
   '5e783362-fb42-4415-9481-c973388aaafb', // Starbox dorso 5 cm lilla (rimozione richiesta)
-])
-
-const SUPPRESSED_PRODUCTS_BY_SKU = new Set([
-  'AF-CALC-OLIB4646', // Olivetti SUMMA 303
-  'AF-CALC-OLIB5896', // Olivetti LOGOS 904T
 ])
 
 const SHOP_PRODUCTS_TABLE = 'products' as const
@@ -2029,8 +2025,7 @@ function isRemovedStarboxLillaDorso5(name: string): boolean {
 }
 
 function isRemovedOlivettiCalculator(name: string, sku?: string | null): boolean {
-  const code = String(sku ?? '').trim().toUpperCase()
-  if (SUPPRESSED_PRODUCTS_BY_SKU.has(code)) return true
+  if (isSuppressedCatalogSku(sku)) return true
   const n = String(name ?? '').toLowerCase()
   if (!n.includes('olivetti')) return false
   return n.includes('logos 904t') || n.includes('summa 303')
@@ -2040,6 +2035,8 @@ function isSuppressedCatalogProduct(p: OfficeProduct): boolean {
   const id = String(p.id ?? '').trim().toLowerCase()
   return (
     SUPPRESSED_PRODUCTS_BY_ID.has(id) ||
+    isSuppressedCatalogSku(p.producerCode) ||
+    isSuppressedCatalogSku(p.id) ||
     isRemovedOlivettiCalculator(p.name, p.producerCode ?? p.id) ||
     isRemovedEuroboxSingletonName(p.name) ||
     isRemovedStarboxArancioDorso5(p.name) ||
@@ -2052,6 +2049,8 @@ function isSuppressedShopRow(row: OfficeProductRow): boolean {
   const name = String(row.name ?? '')
   return (
     SUPPRESSED_PRODUCTS_BY_ID.has(id) ||
+    isSuppressedCatalogSku(row.sku) ||
+    isSuppressedCatalogSku(id) ||
     isRemovedOlivettiCalculator(name, row.sku ?? id) ||
     isRemovedStarboxArancioDorso5(name) ||
     isRemovedStarboxLillaDorso5(name)
@@ -3087,7 +3086,9 @@ export type OfficeSearchCatalogIndex = {
  */
 export async function fetchOfficeSearchCatalogIndex(): Promise<OfficeSearchCatalogIndex> {
   const supabase = getSupabaseBrowserClient()
-  const injected = getInjectedLocalCatalogProducts().filter(isGeneralOfficeShopCatalogProduct)
+  const injected = getInjectedLocalCatalogProducts()
+    .filter(isGeneralOfficeShopCatalogProduct)
+    .filter((p) => !isSuppressedCatalogProduct(p))
 
   if (!supabase) {
     setOfficeSearchIndexFromProducts(injected, true)
@@ -3098,6 +3099,7 @@ export async function fetchOfficeSearchCatalogIndex(): Promise<OfficeSearchCatal
   const shop = rows
     .map(mapRowToOfficeProduct)
     .filter(isGeneralOfficeShopCatalogProduct)
+    .filter((p) => !isSuppressedCatalogProduct(p))
 
   const byId = new Map<string, OfficeProduct>()
   for (const p of shop) byId.set(String(p.id), p)
@@ -3605,7 +3607,11 @@ async function fetchShopProductListOrdered(
     let q = supabase.from(SHOP_PRODUCTS_TABLE).select(cols).order('name', { ascending: true })
     if (maxRows != null) q = q.limit(maxRows)
     const res = await q
-    if (!res.error) return (res.data ?? []) as unknown as OfficeProductRow[]
+    if (!res.error) {
+      return ((res.data ?? []) as unknown as OfficeProductRow[]).filter(
+        (row) => !isSuppressedShopRow(row),
+      )
+    }
     if (!isMissingColumnPostgrestError(res.error)) {
       console.warn('[officeProducts] lista shop:', res.error)
       return []
@@ -3626,7 +3632,11 @@ async function fetchShopProductsExcludeId(
       .neq('id', excludeId)
       .order('name', { ascending: true })
       .limit(limit)
-    if (!res.error) return (res.data ?? []) as unknown as OfficeProductRow[]
+    if (!res.error) {
+      return ((res.data ?? []) as unknown as OfficeProductRow[]).filter(
+        (row) => !isSuppressedShopRow(row),
+      )
+    }
     if (!isMissingColumnPostgrestError(res.error)) {
       console.warn('[officeProducts] correlati shop:', res.error)
       return []
@@ -3901,7 +3911,9 @@ export async function fetchOfficeProductByIdentifier(
     if (brochure) product = { ...product, brochureUrl: brochure }
   }
   const { tiersByProductId } = await fetchQuantityPriceTiersByProductId()
-  return attachQuantityTiers(product, tiersByProductId)
+  const withTiers = attachQuantityTiers(product, tiersByProductId)
+  if (isSuppressedCatalogProduct(withTiers)) return null
+  return withTiers
 }
 
 /**
