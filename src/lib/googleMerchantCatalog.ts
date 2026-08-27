@@ -16,7 +16,7 @@ import {
   type GoogleMerchantFeedItem,
 } from './googleMerchantFeed'
 import { resolveMerchantImageLink } from './googleMerchantImages'
-import { isSuppressedCatalogSku } from './suppressedCatalogSkus'
+import { isHiddenFromCustomerCatalog } from './suppressedCatalogSkus'
 import { buildCartucceTonerOfficeProducts } from '../data/cartucceTonerProducts'
 import { buildPileOfficeProducts } from '../data/pileProducts'
 import { buildQuaderniOfficeProducts } from '../data/quaderniProducts'
@@ -212,7 +212,15 @@ export async function buildGoogleMerchantFeedItems(
       const rows = await fetchAllMerchantDbRows({ supabaseUrl, supabaseKey })
       dbCount = rows.length
       for (const row of rows) {
-        if (isSuppressedCatalogSku(row.sku) || isSuppressedCatalogSku(row.id)) continue
+        if (
+          isHiddenFromCustomerCatalog({
+            id: row.id,
+            sku: row.sku,
+            name: row.name,
+          })
+        ) {
+          continue
+        }
         const mapped = mapDbRowToOfficeProduct(row)
         const key = productCatalogKey(mapped.product)
         if (!key) continue
@@ -231,7 +239,16 @@ export async function buildGoogleMerchantFeedItems(
   for (const product of synthetics) {
     const key = productCatalogKey(product)
     if (!key) continue
-    if (isSuppressedCatalogSku(product.producerCode) || isSuppressedCatalogSku(product.id)) continue
+    if (
+      isHiddenFromCustomerCatalog({
+        id: product.id,
+        sku: product.producerCode,
+        producerCode: product.producerCode,
+        name: product.name,
+      })
+    ) {
+      continue
+    }
     // I sintetici hanno priorit? sui duplicati DB (immagini/prezzi FE-canonici).
     byKey.set(key, { product, stock: product.inStock === false ? 0 : null })
     syntheticCount += 1

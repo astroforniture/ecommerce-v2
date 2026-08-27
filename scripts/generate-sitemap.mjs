@@ -96,7 +96,52 @@ async function generate() {
     'AF-PENT-105426',
     'AF-PENT-105424',
     'AF-PENT-105425',
+    '3039',
+    '80328',
+    '1303',
+    '1303B',
+    '81913',
+    '81914',
+    '81499',
+    '81917',
+    '80344',
+    'SHAEL1901',
+    'EL1901',
+    'CANAS8HB',
+    'AS8HB',
+    '2304C001',
+    '60484',
+    '29072',
+    '105424',
+    '105425',
+    '105426',
   ])
+
+  function isHiddenCustomerProduct(sku, name) {
+    const key = String(sku ?? '')
+      .trim()
+      .toUpperCase()
+    if (key && excludedSkus.has(key)) return true
+    const last = key.split('-').pop()
+    if (last && excludedSkus.has(last)) return true
+    const n = String(name ?? '').toLowerCase()
+    if (n.includes('floatune')) return true
+    if (n.includes('fx cg50') || n.includes('fx-cg50')) return true
+    if (n.includes('el1901') || n.includes('el 1901')) return true
+    if (n.includes('hr-8rce') || n.includes('hr 8rce')) return true
+    if (n.includes('mp-1211') || n.includes('mp 1211')) return true
+    if (n.includes('p1-dtsc') || n.includes('2304c001')) return true
+    if (n.includes('as8hb')) return true
+    if (n.includes('mono correction') && n.includes('tombow')) return true
+    if (n.includes('correttore a nastro') && n.includes('tombow') && n.includes('ricaricabile')) {
+      return true
+    }
+    if (n.includes('barattolo matita') && n.includes('lebez')) return true
+    if (n.includes('matita hb') && n.includes('lebez') && !n.includes('barattolo')) return true
+    if (n.includes('calcolatrice') && n.includes('maxi') && n.includes('lebez')) return true
+    if (n.includes('calcolatrice scientifica') && n.includes('lebez')) return true
+    return false
+  }
 
   if (supabaseUrl && supabaseKey) {
     /** Allineato al catalogo shop: URL canonici `/prodotti/:slug`. */
@@ -112,7 +157,7 @@ async function generate() {
       for (const row of rows) {
         const key = String(row?.sku ?? row?.id ?? '').trim()
         if (!key) continue
-        if (excludedSkus.has(key.toUpperCase())) continue
+        if (isHiddenCustomerProduct(key, row?.name)) continue
         const nameSlug = String(row?.name ?? '')
           .normalize('NFD')
           .replace(/[\u0300-\u036f]/g, '')

@@ -102,6 +102,7 @@ import {
   isOfficeGeneralShopCatalogUrl,
   OFFICE_GENERAL_SHOP_PATH,
 } from '../lib/isGeneralOfficeShopCatalogProduct'
+import { isHiddenFromCustomerCatalog } from '../lib/suppressedCatalogSkus'
 import { officeProductMatchesSearchQuery } from '../lib/officeSearchRelevance'
 import { matchesIgieneSubcategoryFilter } from '../lib/prodottiIgieneSubcategories'
 import {
@@ -585,9 +586,18 @@ export function OfficePage() {
     (isOfficeGeneralShopCatalogUrl(searchParams) || !categoryFromUrl?.trim())
 
   const catalogProducts = useMemo(() => {
-    if (searchTrim) return products
-    if (!isGeneralShopCatalog) return products
-    return products.filter(isGeneralOfficeShopCatalogProduct)
+    const visible = products.filter(
+      (p) =>
+        !isHiddenFromCustomerCatalog({
+          id: p.id,
+          sku: p.producerCode,
+          producerCode: p.producerCode,
+          name: p.name,
+        }),
+    )
+    if (searchTrim) return visible
+    if (!isGeneralShopCatalog) return visible
+    return visible.filter(isGeneralOfficeShopCatalogProduct)
   }, [products, isGeneralShopCatalog, searchTrim])
 
   /** Shop generale: URL canonica con `catalog=ufficio` (esclude materiale sanitario). */

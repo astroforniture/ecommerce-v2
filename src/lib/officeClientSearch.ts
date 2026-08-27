@@ -3,7 +3,7 @@ import type { OfficeSearchSuggestion } from '../api/officeProductsSupabase'
 import type { OfficeProduct } from '../types/officeProduct'
 import { extractGimaNumericCodes } from './gimaProductCode'
 import { isOfficeProductAstroMedicalLine } from './isOfficeProductAstroMedicalLine'
-import { isSuppressedCatalogSku } from './suppressedCatalogSkus'
+import { isHiddenFromCustomerCatalog } from './suppressedCatalogSkus'
 import { getInjectedLocalCatalogProducts } from './timbroAziendeFarmacieProduct'
 import { getSearchableSyntheticOfficeProducts } from './debugShowcaseCatalog'
 import { buildLineaAstroMedicalAllOfficeProducts } from '../data/lineaAstroMedicalCombined'
@@ -83,7 +83,15 @@ function buildIndexedProducts(products: readonly OfficeProduct[]): IndexedProduc
     if (!byId.has(String(p.id))) byId.set(String(p.id), p)
   }
   return [...byId.values()]
-    .filter((p) => !isSuppressedCatalogSku(p.producerCode) && !isSuppressedCatalogSku(p.id))
+    .filter(
+      (p) =>
+        !isHiddenFromCustomerCatalog({
+          id: p.id,
+          sku: p.producerCode,
+          producerCode: p.producerCode,
+          name: p.name,
+        }),
+    )
     .map((p) => {
     const gimaCodes = extractGimaNumericCodes(p)
     const fields = officeProductToSearchFields(p)

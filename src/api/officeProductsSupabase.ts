@@ -53,7 +53,7 @@ import { debugLogVetrinaProdottiNomi } from '../lib/debugShowcaseCatalog'
 import { purchaseQuantityRuleForSku } from '../lib/purchaseQuantity'
 import { applyModulisticaQuantityPricing } from '../lib/modulisticaQuantityPricing'
 import { applyLegacyAstroMedicalProductOverrides } from '../data/legacyAstroMedicalOfficeProducts'
-import { isSuppressedCatalogSku } from '../lib/suppressedCatalogSkus'
+import { isHiddenFromCustomerCatalog, isSuppressedCatalogSku } from '../lib/suppressedCatalogSkus'
 
 /**
  * Catalogo lista/vetrina: unisce `public.office_products` (solo colonne base presenti sul DB) e
@@ -65,7 +65,7 @@ import { isSuppressedCatalogSku } from '../lib/suppressedCatalogSkus'
  * Aumenta dopo pulizie massicce su `public.products` (es. titoli): nuove `queryKey` in React Query
  * così il client non riusa dati serializzati vecchi con titoli obsoleti.
  */
-export const OFFICE_CATALOG_DATA_REVISION = 322
+export const OFFICE_CATALOG_DATA_REVISION = 323
 
 const SUPPRESSED_PRODUCTS_BY_ID = new Set([
   '55acce14-88cd-4b12-807d-cd2753894639', // Starbox dorso 5 cm arancio (rimozione richiesta)
@@ -2081,8 +2081,12 @@ function isSuppressedCatalogProduct(p: OfficeProduct): boolean {
   const id = String(p.id ?? '').trim().toLowerCase()
   return (
     SUPPRESSED_PRODUCTS_BY_ID.has(id) ||
-    isSuppressedCatalogSku(p.producerCode) ||
-    isSuppressedCatalogSku(p.id) ||
+    isHiddenFromCustomerCatalog({
+      id: p.id,
+      sku: p.producerCode,
+      producerCode: p.producerCode,
+      name: p.name,
+    }) ||
     isRemovedOlivettiCalculator(p.name, p.producerCode ?? p.id) ||
     isRemovedEuroboxSingletonName(p.name) ||
     isRemovedStarboxArancioDorso5(p.name) ||
@@ -2095,8 +2099,12 @@ function isSuppressedShopRow(row: OfficeProductRow): boolean {
   const name = String(row.name ?? '')
   return (
     SUPPRESSED_PRODUCTS_BY_ID.has(id) ||
-    isSuppressedCatalogSku(row.sku) ||
-    isSuppressedCatalogSku(id) ||
+    isHiddenFromCustomerCatalog({
+      id: row.id,
+      sku: row.sku,
+      producerCode: row.sku,
+      name,
+    }) ||
     isRemovedOlivettiCalculator(name, row.sku ?? id) ||
     isRemovedStarboxArancioDorso5(name) ||
     isRemovedStarboxLillaDorso5(name)
