@@ -65,7 +65,7 @@ import { isHiddenFromCustomerCatalog, isSuppressedCatalogSku } from '../lib/supp
  * Aumenta dopo pulizie massicce su `public.products` (es. titoli): nuove `queryKey` in React Query
  * così il client non riusa dati serializzati vecchi con titoli obsoleti.
  */
-export const OFFICE_CATALOG_DATA_REVISION = 323
+export const OFFICE_CATALOG_DATA_REVISION = 324
 
 const SUPPRESSED_PRODUCTS_BY_ID = new Set([
   '55acce14-88cd-4b12-807d-cd2753894639', // Starbox dorso 5 cm arancio (rimozione richiesta)
@@ -94,7 +94,7 @@ type OfficeProductsLegacyRow = {
  * Non includere `parent_sku` / `main_features` nel select catalogo finché non sono garantiti nello schema.
  */
 const PRODUCT_SHOP_SELECT_FALLBACKS: readonly string[] = [
-  'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq, related_product_ids, min_order_quantity, order_quantity_step',
+  'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq, related_product_ids, min_order_quantity, order_quantity_step, is_catalog_visible',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq, related_product_ids',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url',
@@ -113,7 +113,7 @@ const PRODUCT_SHOP_SELECT_FALLBACKS: readonly string[] = [
 
 /** Anteprima live search: solo campi usati in dropdown (id, titolo, sku, prezzo, immagine). */
 const SEARCH_PREVIEW_SELECT_FALLBACKS: readonly string[] = [
-  'id, name, sku, brand, price, image_url, category, subcategory, color_name',
+  'id, name, sku, brand, price, image_url, category, subcategory, color_name, is_catalog_visible',
   'id, name, sku, brand, price, image_url, category, subcategory',
   'id, name, sku, brand, price, image_url, category',
   'id, name, sku, price, image_url',
@@ -124,7 +124,7 @@ const SEARCH_PREVIEW_SELECT_FALLBACKS: readonly string[] = [
 
 /** Fetch scheda prodotto: prova prima con `variants` (JSONB misure/colori). */
 const PRODUCT_DETAIL_SELECT_FALLBACKS: readonly string[] = [
-  'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, catalog_page_pdf, datasheet_pdf, pdf_url, faq, related_product_ids, min_order_quantity, order_quantity_step, manufacturer_name, manufacturer_address, importer_name, importer_address, eu_responsible_name, eu_responsible_address, safety_warnings, gpsr',
+  'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, catalog_page_pdf, datasheet_pdf, pdf_url, faq, related_product_ids, min_order_quantity, order_quantity_step, manufacturer_name, manufacturer_address, importer_name, importer_address, eu_responsible_name, eu_responsible_address, safety_warnings, gpsr, is_catalog_visible',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, catalog_page_pdf, datasheet_pdf, pdf_url, faq, related_product_ids, min_order_quantity, order_quantity_step',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq, related_product_ids, min_order_quantity, order_quantity_step',
   'id, name, sku, brand, description, subtitle, price, category, subcategory, image_url, format, color_name, variants, ean, brochure_url, faq, related_product_ids',
@@ -1369,6 +1369,7 @@ type OfficeProductRow = ShopProductRow & {
   related_product_ids?: unknown
   min_order_quantity?: number | string | null
   order_quantity_step?: number | string | null
+  is_catalog_visible?: boolean | null
   manufacturer_name?: string | null
   manufacturer_address?: string | null
   importer_name?: string | null
@@ -2105,6 +2106,7 @@ function isSuppressedShopRow(row: OfficeProductRow): boolean {
       producerCode: row.sku,
       name,
     }) ||
+    row.is_catalog_visible === false ||
     isRemovedOlivettiCalculator(name, row.sku ?? id) ||
     isRemovedStarboxArancioDorso5(name) ||
     isRemovedStarboxLillaDorso5(name)
