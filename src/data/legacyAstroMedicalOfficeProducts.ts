@@ -73,7 +73,11 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
     price: 11,
     packLabel: '100 pz',
     features: { Diametro: '36-40 mm', Tipo: 'Elettrodi foam monouso' },
-    galleryUrls: ['https://www.gimaitaly.com/images/prodotti/medium/33314_a.jpg'],
+    imageUrl: '/images/gima-33314-100pz.png',
+    galleryUrls: [
+      '/images/gima-33314-100pz.png',
+      'https://www.gimaitaly.com/images/prodotti/medium/33314_a.jpg',
+    ],
     description:
       'Elettrodi monouso foam diametro 36-40 mm, confezione da 100 pezzi. Codice GIMA 33314. ' +
       'Prezzo 11,00 € per confezione da 100 pz, imponibile IVA esclusa.\n\n' +

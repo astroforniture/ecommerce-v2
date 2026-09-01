@@ -448,7 +448,7 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     price: 11,
     categoryPath: [macroLabelFromId('diagnostica'), 'Elettrodi'],
     macroId: 'diagnostica',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33314.jpg',
+    imageUrl: '/images/gima-33314-100pz.png',
     gimaSku: '33314',
   },
   {
