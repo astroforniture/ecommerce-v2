@@ -972,9 +972,23 @@ export function ProductDetailPage() {
   )
 
   const relatedQuery = useQuery({
-    queryKey: ['office-related', OFFICE_CATALOG_DATA_REVISION, product?.id, product?.category],
+    queryKey: [
+      'office-related',
+      OFFICE_CATALOG_DATA_REVISION,
+      product?.id,
+      product?.category,
+      product?.name,
+    ],
     queryFn: () =>
-      fetchRelatedOfficeProducts(product!.category, product!.id, 4),
+      fetchRelatedOfficeProducts(product!.category, product!.id, 4, {
+        id: product!.id,
+        name: product!.name,
+        description: product!.description,
+        subtitle: product!.subtitle,
+        category: product!.category,
+        subcategory: product!.subcategory,
+        brand: product!.brand,
+      }),
     enabled: Boolean(
       product?.id && product?.category && !isStaticSyntheticOfficeProduct(product),
     ),
@@ -6121,7 +6135,13 @@ export function ProductDetailPage() {
           </div>
         </div>
 
-        {crossSell ? <CrossSellSection crossSell={crossSell} /> : null}
+        {crossSell ? (
+          <CrossSellSection
+            crossSell={crossSell}
+            heading="Completa il tuo acquisto"
+            subheading="Potrebbero interessarti anche"
+          />
+        ) : null}
 
         <OfficeProductDetailDescriptionSection
           description={displayProductDescription ?? ''}

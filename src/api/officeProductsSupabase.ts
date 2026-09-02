@@ -5,6 +5,11 @@ import type {
 } from '../types/officeProduct'
 import { getSupabaseBrowserClient } from '../lib/supabaseClient'
 import { escapeIlikePattern } from '../lib/ilike'
+import {
+  expandRelatedSearchTerms,
+  rankRelatedProducts,
+  type RelatedSeed,
+} from '../lib/relatedProductSuggestions'
 import { decodeProductPathParam } from '../lib/productRoutes'
 import { applyAgendeCatalogYearIfNeeded, applyAgendeImmediateAvailability } from '../lib/agendeCatalog'
 import { normalizeOfficeProductCategory } from '../lib/officeCategories'
@@ -324,8 +329,8 @@ export function clearOfficeProductsMemoryCaches(): void {
   showcaseMemoryCache.clear()
 }
 
-function relatedMemKey(category: string, excludeId: string) {
-  return `${OFFICE_CATALOG_DATA_REVISION}::${category}::${excludeId}`
+function relatedMemKey(category: string, excludeId: string, seedKey = '') {
+  return `${OFFICE_CATALOG_DATA_REVISION}::${category}::${excludeId}::${seedKey}`
 }
 
 function cartaTermicaSkuKey(product: OfficeProduct): string {
@@ -5324,15 +5329,113 @@ export async function fetchProductVariantsByParentSku(
   return all.filter((p) => p.id !== _excludeProductId)
 }
 
+async function fetchShopProductsByCategoryIlike(
+  supabase: ShopSupabase,
+  categoryLabel: string,
+  excludeId: string,
+  limit: number,
+): Promise<OfficeProductRow[]> {
+  const cat = categoryLabel.trim()
+  if (!cat || limit <= 0) return []
+  const pattern = `%${escapeIlikePattern(cat)}%`
+  for (const cols of PRODUCT_SHOP_SELECT_FALLBACKS) {
+    if (!cols.includes('category')) continue
+    try {
+      let q = supabase
+        .from(SHOP_PRODUCTS_TABLE)
+        .select(cols)
+        .ilike('category', pattern)
+        .order('name', { ascending: true })
+        .limit(limit)
+      if (excludeId) q = q.neq('id', excludeId)
+      const res = await q
+      if (!res.error) {
+        return ((res.data ?? []) as unknown as OfficeProductRow[]).filter(
+          (row) => !isSuppressedShopRow(row),
+        )
+      }
+      if (!isMissingColumnPostgrestError(res.error)) {
+        console.warn('[officeProducts] correlati category:', res.error)
+        return []
+      }
+    } catch (e) {
+      console.warn('[officeProducts] correlati category (eccezione):', e)
+    }
+  }
+  return []
+}
+
+async function fetchShopProductsByNameTerms(
+  supabase: ShopSupabase,
+  terms: readonly string[],
+  excludeId: string,
+  limit: number,
+): Promise<OfficeProductRow[]> {
+  const clean = terms
+    .map((t) => t.trim())
+    .filter((t) => t.length >= 3)
+    .slice(0, 6)
+  if (!clean.length || limit <= 0) return []
+
+  const orFilter = clean
+    .map((t) => `name.ilike.%${escapeIlikePattern(t)}%`)
+    .join(',')
+
+  for (const cols of PRODUCT_SHOP_SELECT_FALLBACKS) {
+    try {
+      let q = supabase
+        .from(SHOP_PRODUCTS_TABLE)
+        .select(cols)
+        .or(orFilter)
+        .order('name', { ascending: true })
+        .limit(limit)
+      if (excludeId) q = q.neq('id', excludeId)
+      const res = await q
+      if (!res.error) {
+        return ((res.data ?? []) as unknown as OfficeProductRow[]).filter(
+          (row) => !isSuppressedShopRow(row),
+        )
+      }
+      if (!isMissingColumnPostgrestError(res.error)) {
+        console.warn('[officeProducts] correlati keywords:', res.error)
+        return []
+      }
+    } catch (e) {
+      console.warn('[officeProducts] correlati keywords (eccezione):', e)
+    }
+  }
+  return []
+}
+
+function mergeShopRowsById(rowsLists: readonly OfficeProductRow[][]): OfficeProductRow[] {
+  const byId = new Map<string, OfficeProductRow>()
+  for (const rows of rowsLists) {
+    for (const row of rows) {
+      const id = String((row as { id?: unknown }).id ?? '')
+      if (!id || byId.has(id)) continue
+      byId.set(id, row)
+    }
+  }
+  return [...byId.values()]
+}
+
+function cacheRelatedProducts(memKey: string, data: OfficeProduct[]) {
+  if (relatedProductsMemoryCache.size >= RELATED_MEM_MAX_KEYS) {
+    const oldest = relatedProductsMemoryCache.keys().next().value
+    if (oldest) relatedProductsMemoryCache.delete(oldest)
+  }
+  relatedProductsMemoryCache.set(memKey, { fetchedAt: Date.now(), data })
+}
+
 /**
- * Altri prodotti (escluso l’id corrente), con listini quantità.
- * Nessun filtro su category lato DB: la tabella `products` può non avere quella colonna;
- * il filtro per categoria resta lato UI sugli oggetti già mappati.
+ * Prodotti correlati: stessa categoria + keyword/sinonimi nel titolo/descrizione.
+ * Ranking client-side; fallback a un pool generico se la categoria non è filtrabile.
  */
 export async function fetchRelatedOfficeProducts(
-  _categoryLabel: string,
+  categoryLabel: string,
   excludeProductId: string,
   limit = 4,
+  seed?: RelatedSeed,
 ): Promise<OfficeProduct[]> {
   const supabase = getSupabaseBrowserClient()
   if (!supabase) {
@@ -5341,30 +5444,111 @@ export async function fetchRelatedOfficeProducts(
     )
   }
 
-  const memKey = relatedMemKey(_categoryLabel, excludeProductId)
+  const resolvedSeed: RelatedSeed = {
+    ...seed,
+    id: excludeProductId,
+    category: (seed?.category ?? categoryLabel) || categoryLabel,
+  }
+  const searchTerms = expandRelatedSearchTerms(resolvedSeed)
+  const seedKey = searchTerms.slice(0, 4).join('|')
+  const memKey = relatedMemKey(categoryLabel, excludeProductId, seedKey)
   const cached = relatedProductsMemoryCache.get(memKey)
   const now = Date.now()
   if (cached && now - cached.fetchedAt < RELATED_MEM_TTL_MS) {
     return cached.data
   }
 
-  const [shopRows, quantityFetch] = await Promise.all([
-    fetchShopProductsExcludeId(supabase, excludeProductId, limit),
+  const poolLimit = Math.max(48, limit * 12)
+  const [categoryRows, keywordRows, fallbackRows, quantityFetch] = await Promise.all([
+    fetchShopProductsByCategoryIlike(supabase, categoryLabel, excludeProductId, poolLimit),
+    fetchShopProductsByNameTerms(supabase, searchTerms, excludeProductId, poolLimit),
+    fetchShopProductsExcludeId(supabase, excludeProductId, poolLimit),
     fetchQuantityPriceTiersByProductId(),
   ])
 
   const { tiersByProductId } = quantityFetch
+  const mergedRows = mergeShopRowsById([categoryRows, keywordRows, fallbackRows])
+  const candidates = mergedRows
+    .map(mapRowToOfficeProduct)
+    .map((p) => attachQuantityTiers(p, tiersByProductId))
 
-  const products = shopRows.map(mapRowToOfficeProduct)
-  const withTiers = products.map((p) => attachQuantityTiers(p, tiersByProductId))
+  const localFallback = getInjectedLocalCatalogProducts().map((p) =>
+    attachQuantityTiers(p, tiersByProductId),
+  )
 
-  if (relatedProductsMemoryCache.size >= RELATED_MEM_MAX_KEYS) {
-    const oldest = relatedProductsMemoryCache.keys().next().value
-    if (oldest) relatedProductsMemoryCache.delete(oldest)
-  }
-  relatedProductsMemoryCache.set(memKey, { fetchedAt: now, data: withTiers })
+  const ranked = rankRelatedProducts([resolvedSeed], [...candidates, ...localFallback], {
+    excludeIds: new Set([excludeProductId]),
+    limit,
+    minScore: 8,
+  })
 
+  const withTiers =
+    ranked.length > 0
+      ? ranked
+      : candidates
+          .filter((p) => p.id !== excludeProductId)
+          .slice(0, limit)
+
+  cacheRelatedProducts(memKey, withTiers)
   return withTiers
+}
+
+/**
+ * Cross-sell carrello: correlati da categoria + keyword dei prodotti già nel carrello.
+ */
+export async function fetchRelatedOfficeProductsForCart(
+  seeds: readonly RelatedSeed[],
+  excludeIds: ReadonlySet<string>,
+  limit = 4,
+): Promise<OfficeProduct[]> {
+  if (!seeds.length || limit <= 0) return []
+
+  const supabase = getSupabaseBrowserClient()
+  const primary = seeds[0]!
+  const categoryLabel = (primary.category ?? '').trim()
+  const searchTerms = [
+    ...new Set(seeds.flatMap((s) => expandRelatedSearchTerms(s, 5))),
+  ].slice(0, 8)
+  const seedKey = `${seeds.map((s) => s.id ?? s.name ?? '').join(',')}|${searchTerms.join('|')}`
+  const memKey = relatedMemKey(`cart:${categoryLabel || 'any'}`, seedKey, String(limit))
+  const cached = relatedProductsMemoryCache.get(memKey)
+  const now = Date.now()
+  if (cached && now - cached.fetchedAt < RELATED_MEM_TTL_MS) {
+    return cached.data.filter((p) => !excludeIds.has(p.id) && !excludeIds.has(p.producerCode))
+  }
+
+  const poolLimit = Math.max(64, limit * 16)
+  let categoryRows: OfficeProductRow[] = []
+  let keywordRows: OfficeProductRow[] = []
+  let fallbackRows: OfficeProductRow[] = []
+  let tiersByProductId = new Map<string, QuantityPriceTier[]>()
+
+  if (supabase) {
+    const quantityFetch = await fetchQuantityPriceTiersByProductId()
+    tiersByProductId = quantityFetch.tiersByProductId
+    ;[categoryRows, keywordRows, fallbackRows] = await Promise.all([
+      categoryLabel
+        ? fetchShopProductsByCategoryIlike(supabase, categoryLabel, '', poolLimit)
+        : Promise.resolve([]),
+      fetchShopProductsByNameTerms(supabase, searchTerms, '', poolLimit),
+      fetchShopProductsExcludeId(supabase, [...excludeIds][0] ?? '', poolLimit),
+    ])
+  }
+
+  const mergedRows = mergeShopRowsById([categoryRows, keywordRows, fallbackRows])
+  const candidates = [
+    ...mergedRows.map(mapRowToOfficeProduct),
+    ...getInjectedLocalCatalogProducts(),
+  ].map((p) => attachQuantityTiers(p, tiersByProductId))
+
+  const ranked = rankRelatedProducts(seeds, candidates, {
+    excludeIds,
+    limit,
+    minScore: 8,
+  })
+
+  cacheRelatedProducts(memKey, ranked)
+  return ranked
 }
 
 export type CrossSellRotationPools = {

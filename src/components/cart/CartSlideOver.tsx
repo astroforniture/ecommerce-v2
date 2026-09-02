@@ -9,7 +9,7 @@ import { lineImponible } from '../../lib/quantityPricing'
 import { withOfficeImageCacheBust } from '../../lib/officeImageCacheBust'
 import { OFFICE_CATALOG_DATA_REVISION } from '../../api/officeProductsSupabase'
 import { FreeShippingProgressBar } from './FreeShippingProgressBar'
-import { CartEssentialsGrid } from '../crosssell/CartEssentialsGrid'
+import { CartRelatedProductsSection } from '../crosssell/CartRelatedProductsSection'
 import { OrderCostBreakdown } from './OrderCostBreakdown'
 
 const eur = new Intl.NumberFormat('it-IT', {
@@ -158,10 +158,12 @@ export function CartSlideOver() {
                 })}
               </ul>
 
-              <CartEssentialsGrid
+              <CartRelatedProductsSection
                 className="mt-4 border-t border-slate-100 pt-3"
-                limit={3}
-                title="Essenziali consigliati"
+                limit={4}
+                title="Potrebbero interessarti anche"
+                subtitle="Completa il tuo acquisto"
+                layout="list"
                 onNavigate={closeCartDrawer}
               />
             </>

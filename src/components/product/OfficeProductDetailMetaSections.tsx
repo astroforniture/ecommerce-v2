@@ -242,13 +242,18 @@ export function OfficeProductDetailRelatedSection({
       className="mt-16 border-t border-slate-200 pt-12"
       aria-labelledby="related-products-heading"
     >
+      <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-700">
+        Completa il tuo acquisto
+      </p>
       <h2
         id="related-products-heading"
         className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl"
       >
-        Articoli Correlati
+        Potrebbero interessarti anche
       </h2>
-      <p className="mt-1 text-sm text-muted">Potrebbe interessarti anche</p>
+      <p className="mt-1 text-sm text-muted">
+        Prodotti della stessa categoria o con parole chiave affini
+      </p>
       {products.length === 0 ? (
         <p className="mt-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 px-4 py-8 text-center text-sm text-slate-600">
           Nessun articolo correlato al momento: esplora il catalogo o contattaci per suggerimenti su prodotti

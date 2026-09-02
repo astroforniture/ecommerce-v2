@@ -19,7 +19,7 @@ import {
   SHIPPING_FEE_IVATO,
 } from '../lib/cartShipping'
 import { TIMBRO_AZIENDE_FARMACIE_SKU } from '../lib/timbroAziendeFarmacieProduct'
-import { CartEssentialsGrid } from '../components/crosssell/CartEssentialsGrid'
+import { CartRelatedProductsSection } from '../components/crosssell/CartRelatedProductsSection'
 import { OrderCostBreakdown } from '../components/cart/OrderCostBreakdown'
 import { CheckoutAddressCards } from '../components/checkout/CheckoutAddressCards'
 import { CheckoutStepIndicator } from '../components/checkout/CheckoutStepIndicator'
@@ -634,11 +634,13 @@ export function CartPage() {
                     })}
                     </div>
 
-                    {/* Solo Step 1: una sezione suggerimenti compatta */}
-                    <CartEssentialsGrid
+                    {/* Solo Step 1: correlati dinamici (categoria + keyword) */}
+                    <CartRelatedProductsSection
                       className="mt-4 rounded-2xl border border-slate-100 bg-slate-50/70 p-4"
                       limit={4}
-                      title="Essenziali consigliati"
+                      title="Potrebbero interessarti anche"
+                      subtitle="Completa il tuo acquisto"
+                      layout="cards"
                     />
                   </>
                 ) : (
