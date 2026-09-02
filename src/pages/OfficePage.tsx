@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import {
   AlertCircle,
   ArrowLeft,
   Briefcase,
-  ChevronDown,
   FileText,
   Folder,
   Loader2,
@@ -40,6 +39,7 @@ import {
   AGENDE_SUBCATEGORIES,
   AGENDE_SUBCATEGORY_COVER_IMAGE,
   matchesAgendeSubcategoryFilter,
+  showsImmediateAvailability,
 } from '../lib/agendeCatalog'
 import { AgendeCategoryHero } from '../components/office/AgendeCategoryHero'
 import {
@@ -119,11 +119,11 @@ import { SicurezzaCategoryHero } from '../components/office/SicurezzaCategoryHer
 import { SicurezzaSeoSection } from '../components/office/SicurezzaSeoSection'
 import { matchesAstroMedicalSubcategoryFilter, normalizeAstroMedicalNavFilter } from '../lib/astroMedicalSubcategories'
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '../components/ui/dropdown-menu'
+  CatalogAdvancedFiltersMobileTrigger,
+  CatalogAdvancedFiltersPanel,
+  computeCatalogPriceBounds,
+  parseOptionalPriceParam,
+} from '../components/office/CatalogAdvancedFilters'
 import {
   collectOfficeProductFormatOptions,
   matchesOfficeProductFormatFilter,
@@ -566,6 +566,12 @@ export function OfficePage() {
   const sortBy = parseSortByParam(searchParams.get('sort'))
   const selectedBrands = searchParams.getAll('brand')
   const selectedFormats = searchParams.getAll('format')
+  const minPrice = parseOptionalPriceParam(searchParams.get('minPrice'))
+  const maxPrice = parseOptionalPriceParam(searchParams.get('maxPrice'))
+  const inStockOnly =
+    searchParams.get('inStock') === '1' ||
+    searchParams.get('disponibile') === '1'
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
   const selectedCategoryNorm = officeCategoryFilterFromUrlParam(categoryFromUrl)
   const selectedSubcategory = useMemo(() => {
     const raw = (subcategoryFromUrl ?? '').trim()
@@ -741,6 +747,11 @@ export function OfficePage() {
     [filterOptionProducts],
   )
 
+  const priceBounds = useMemo(
+    () => computeCatalogPriceBounds(filterOptionProducts),
+    [filterOptionProducts],
+  )
+
   const archivioSubcategories = useMemo(() => {
     if (selectedCategoryNorm !== 'archivio') return []
     const present = new Set(
@@ -886,6 +897,28 @@ export function OfficePage() {
     })
   }
 
+  const setPriceRange = useCallback(
+    (nextMin: number | null, nextMax: number | null) => {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev)
+        if (nextMin == null) next.delete('minPrice')
+        else next.set('minPrice', String(nextMin))
+        if (nextMax == null) next.delete('maxPrice')
+        else next.set('maxPrice', String(nextMax))
+        return next
+      })
+    },
+    [setSearchParams],
+  )
+
+  function setInStockOnly(value: boolean) {
+    updateParams((next) => {
+      next.delete('disponibile')
+      if (value) next.set('inStock', '1')
+      else next.delete('inStock')
+    })
+  }
+
   function clearAllFilters() {
     const next = new URLSearchParams()
     const category = searchParams.get('category')
@@ -931,6 +964,12 @@ export function OfficePage() {
       if (selectedFormats.length > 0 && !matchesOfficeProductFormatFilter(p, selectedFormats)) {
         return false
       }
+      if (minPrice != null || maxPrice != null) {
+        if (typeof p.price !== 'number' || !Number.isFinite(p.price)) return false
+        if (minPrice != null && p.price < minPrice) return false
+        if (maxPrice != null && p.price > maxPrice) return false
+      }
+      if (inStockOnly && !showsImmediateAvailability(p)) return false
       if (activeCategory) {
         if (p.category.trim().toLowerCase() !== activeCategory) return false
       }
@@ -995,6 +1034,9 @@ export function OfficePage() {
     selectedFeatures,
     sortBy,
     searchTrim,
+    minPrice,
+    maxPrice,
+    inStockOnly,
   ])
 
   const showArchivioDashboard =
@@ -1045,10 +1087,38 @@ export function OfficePage() {
     (sortBy !== 'price-asc' ? 1 : 0) +
     selectedBrands.length +
     selectedFormats.length +
+    (minPrice != null ? 1 : 0) +
+    (maxPrice != null ? 1 : 0) +
+    (inStockOnly ? 1 : 0) +
     (isLineaAstroMedicalCategory && selectedSubcategory ? 1 : 0) +
     (isProdottiIgieneCategory && selectedSubcategory ? 1 : 0) +
     (isSicurezzaCategory && selectedSubcategory ? 1 : 0) +
     (isAgendeCategory && selectedSubcategory ? 1 : 0)
+
+  const advancedFilterProps = {
+    brands,
+    selectedBrands,
+    onToggleBrand: (brand: string, checked: boolean) =>
+      toggleMultiParam('brand', brand, checked),
+    formats,
+    selectedFormats,
+    onToggleFormat: (format: string, checked: boolean) =>
+      toggleMultiParam('format', format, checked),
+    showFormats: !isCartucceTonerCategory,
+    minPrice,
+    maxPrice,
+    priceBounds,
+    onPriceRangeChange: setPriceRange,
+    inStockOnly,
+    onInStockOnlyChange: setInStockOnly,
+    activeCount:
+      selectedBrands.length +
+      selectedFormats.length +
+      (minPrice != null ? 1 : 0) +
+      (maxPrice != null ? 1 : 0) +
+      (inStockOnly ? 1 : 0),
+    onClear: clearAllFilters,
+  }
 
   return (
     <main className="min-h-[60vh] bg-gradient-to-b from-brand-50/50 to-white">
@@ -1678,8 +1748,8 @@ export function OfficePage() {
         !showCancelleriaDashboard &&
         !showShopperDashboard ? (
         <section className="py-12" aria-labelledby="office-catalog-heading">
-          <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
-            <label className="block max-w-md">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <label className="block w-full max-w-md">
               <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Ordinamento
               </span>
@@ -1696,98 +1766,25 @@ export function OfficePage() {
               </select>
             </label>
 
-            <div className="mt-4 flex flex-wrap gap-3">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    className="inline-flex h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:border-brand-300 hover:bg-brand-50/50"
-                  >
-                    Filtra per marca
-                    {selectedBrands.length > 0 ? (
-                      <span className="rounded-full bg-brand-100 px-2 py-0.5 text-xs font-bold text-brand-800">
-                        {selectedBrands.length}
-                      </span>
-                    ) : null}
-                    <ChevronDown className="size-4 text-slate-500" aria-hidden />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="max-h-64 w-56 overflow-y-auto">
-                  {brands.length ? (
-                    brands.map((brand) => {
-                      const checked = selectedBrands.includes(brand)
-                      return (
-                        <DropdownMenuCheckboxItem
-                          key={brand}
-                          checked={checked}
-                          onCheckedChange={(value) =>
-                            toggleMultiParam('brand', brand, value === true)
-                          }
-                          onSelect={(event) => event.preventDefault()}
-                        >
-                          {brand}
-                        </DropdownMenuCheckboxItem>
-                      )
-                    })
-                  ) : (
-                    <p className="px-2 py-1.5 text-sm text-slate-500">Nessuna marca disponibile</p>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {!isCartucceTonerCategory ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      type="button"
-                      className="inline-flex h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:border-brand-300 hover:bg-brand-50/50"
-                    >
-                      Filtra per formato
-                      {selectedFormats.length > 0 ? (
-                        <span className="rounded-full bg-brand-100 px-2 py-0.5 text-xs font-bold text-brand-800">
-                          {selectedFormats.length}
-                        </span>
-                      ) : null}
-                      <ChevronDown className="size-4 text-slate-500" aria-hidden />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="max-h-64 w-56 overflow-y-auto">
-                    {formats.length ? (
-                      formats.map((format) => {
-                        const checked = selectedFormats.includes(format)
-                        return (
-                          <DropdownMenuCheckboxItem
-                            key={format}
-                            checked={checked}
-                            onCheckedChange={(value) =>
-                              toggleMultiParam('format', format, value === true)
-                            }
-                            onSelect={(event) => event.preventDefault()}
-                          >
-                            {format}
-                          </DropdownMenuCheckboxItem>
-                        )
-                      })
-                    ) : (
-                      <p className="px-2 py-1.5 text-sm text-slate-500">
-                        Nessun formato disponibile
-                      </p>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+            <div className="flex flex-wrap items-center gap-3">
+              <CatalogAdvancedFiltersMobileTrigger
+                {...advancedFilterProps}
+                open={mobileFiltersOpen}
+                onOpenChange={setMobileFiltersOpen}
+              />
+              <span className="text-sm text-slate-600">
+                Filtri attivi: {activeFiltersCount}
+              </span>
+              {activeFiltersCount > 0 ? (
+                <button
+                  type="button"
+                  onClick={clearAllFilters}
+                  className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-brand-300 hover:bg-brand-50"
+                >
+                  <RotateCcw className="size-4" aria-hidden />
+                  Reset filtri
+                </button>
               ) : null}
-            </div>
-
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4 text-sm">
-              <span className="text-slate-600">Filtri attivi: {activeFiltersCount}</span>
-              <button
-                type="button"
-                onClick={clearAllFilters}
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 font-medium text-slate-700 transition hover:border-brand-300 hover:bg-brand-50"
-              >
-                <RotateCcw className="size-4" aria-hidden />
-                Reset filtri
-              </button>
             </div>
           </div>
 
@@ -1818,6 +1815,12 @@ export function OfficePage() {
             />
           ) : null}
 
+          <div className="lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:items-start lg:gap-8">
+            <aside className="mb-6 hidden lg:sticky lg:top-24 lg:mb-0 lg:block lg:self-start">
+              <CatalogAdvancedFiltersPanel {...advancedFilterProps} />
+            </aside>
+
+            <div>
           <div className="mb-8 flex items-center justify-between gap-4">
             <h2 id="office-catalog-heading" className="text-2xl font-bold text-slate-900">
               Prodotti
@@ -1929,6 +1932,8 @@ export function OfficePage() {
                   ))}
                 </ul>
               )}
+          </div>
+            </div>
           </div>
           {isSicurezzaCategory ? <SicurezzaSeoSection /> : null}
         </section>
