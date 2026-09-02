@@ -105,7 +105,12 @@ import {
   productDetailPath,
   productDetailUrlSegment,
 } from '../lib/productRoutes'
-import { clearSeoReady, markSeoReady } from '../lib/siteSeo'
+import { clearSeoReady, markSeoReady, SITE_ORIGIN } from '../lib/siteSeo'
+import {
+  buildProductJsonLd,
+  toAbsoluteAssetUrl,
+  upsertProductJsonLd,
+} from '../components/seo/ProductJsonLd'
 import {
   modelFinishFromProduct,
   modelFinishFromVariant,
@@ -363,7 +368,6 @@ const SHOPPER_PERSONALIZZATE_MAILTO =
   'mailto:info@astro-forniture.it?subject=Richiesta%20preventivo%20Shopper%20Personalizzate'
 const SEO_META_DESCRIPTION_NAME = 'description'
 const SEO_CANONICAL_REL = 'canonical'
-const SEO_JSONLD_ID = 'seo-product-jsonld'
 const SEO_BREADCRUMB_JSONLD_ID = 'seo-breadcrumb-jsonld'
 
 function setMetaProperty(property: string, content: string) {
@@ -408,17 +412,6 @@ function setCanonical(href: string) {
     document.head.appendChild(canonical)
   }
   canonical.setAttribute('href', href)
-}
-
-function upsertProductJsonLd(payload: Record<string, unknown>) {
-  let script = document.getElementById(SEO_JSONLD_ID) as HTMLScriptElement | null
-  if (!script) {
-    script = document.createElement('script')
-    script.id = SEO_JSONLD_ID
-    script.type = 'application/ld+json'
-    document.head.appendChild(script)
-  }
-  script.textContent = JSON.stringify(payload)
 }
 
 function upsertJsonLdById(id: string, payload: Record<string, unknown>) {
@@ -3014,7 +3007,7 @@ export function ProductDetailPage() {
     const representativeMember =
       scopedFamilyMembers.find((m) => m.id === representativeId) ?? product
     const canonicalSegment = productDetailUrlSegment(representativeMember)
-    const canonicalUrl = `${window.location.origin}/prodotti/${encodeURIComponent(canonicalSegment)}`
+    const canonicalUrl = `${SITE_ORIGIN}/prodotti/${encodeURIComponent(canonicalSegment)}`
 
     document.title = title
     setMetaDescription(metaDescription)
@@ -3043,65 +3036,43 @@ export function ProductDetailPage() {
                   : isBigSeiRota
                     ? BIG_SEI_ROTA_HD_IMAGE_BY_COLOR[effectiveBigSeiColor] || surf.imageUrl
                     : surf.imageUrl
-    if (previewImage)
-      setMetaProperty(
-        'og:image',
-        withOfficeImageCacheBust(previewImage, OFFICE_CATALOG_DATA_REVISION),
-      )
+    const imageForSeo = previewImage
+      ? toAbsoluteAssetUrl(
+          withOfficeImageCacheBust(previewImage, OFFICE_CATALOG_DATA_REVISION),
+        )
+      : ''
+    if (imageForSeo) setMetaProperty('og:image', imageForSeo)
     setMetaName('twitter:card', 'summary_large_image')
     setMetaName('twitter:title', title)
     setMetaName('twitter:description', metaDescription)
-    if (previewImage)
-      setMetaName(
-        'twitter:image',
-        withOfficeImageCacheBust(previewImage, OFFICE_CATALOG_DATA_REVISION),
-      )
+    if (imageForSeo) setMetaName('twitter:image', imageForSeo)
 
-    const jsonLd = {
-      '@context': 'https://schema.org',
-      '@type': 'Product',
-      name: displayProductName,
-      description:
-        displayProductDescription || `${displayProductName} - ${product.brand}`,
-      sku: skuForMeta,
-      brand: {
-        '@type': 'Brand',
-        name: product.brand,
-      },
-      image: previewImage
-        ? [withOfficeImageCacheBust(previewImage, OFFICE_CATALOG_DATA_REVISION)]
-        : undefined,
-      offers: quoteOnly
-        ? {
-            '@type': 'Offer',
-            priceCurrency: 'EUR',
-            availability: 'https://schema.org/InStock',
-            url: canonicalUrl,
-            description: 'Prezzo su preventivo',
-          }
-        : {
-            '@type': 'Offer',
-            priceCurrency: 'EUR',
-            price:
-              typeof effectiveBasePrice === 'number' ? effectiveBasePrice.toFixed(2) : '0.00',
-            availability: 'https://schema.org/InStock',
-            url: canonicalUrl,
-          },
-    }
-    upsertProductJsonLd(jsonLd)
+    upsertProductJsonLd(
+      buildProductJsonLd({
+        name: displayProductName,
+        description: displayProductDescription || `${displayProductName} - ${product.brand}`,
+        sku: skuForMeta,
+        brandName: product.brand,
+        imageUrl: imageForSeo || undefined,
+        url: canonicalUrl,
+        price: typeof effectiveBasePrice === 'number' ? effectiveBasePrice : null,
+        inStock: product.inStock,
+        quoteOnly,
+      }),
+    )
 
     const categoryLabel = (product.category ?? '').trim() || 'Catalogo Office'
     const subcategoryLabel = (product.subcategory ?? '').trim()
     const categoryHref =
       categoryLabel.toLowerCase() === 'archivio'
-        ? `${window.location.origin}/office-products?category=Archivio`
-        : `${window.location.origin}/office-products`
+        ? `${SITE_ORIGIN}/office-products?category=Archivio`
+        : `${SITE_ORIGIN}/office-products`
     const subcategoryHref =
       categoryLabel.toLowerCase() === 'archivio' && subcategoryLabel
-        ? `${window.location.origin}/office-products?category=Archivio&subcategory=${encodeURIComponent(subcategoryLabel)}`
+        ? `${SITE_ORIGIN}/office-products?category=Archivio&subcategory=${encodeURIComponent(subcategoryLabel)}`
         : ''
     const breadcrumbItems: Array<Record<string, unknown>> = [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: window.location.origin },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_ORIGIN },
       {
         '@type': 'ListItem',
         position: 2,
@@ -3163,6 +3134,7 @@ export function ProductDetailPage() {
     effectiveBasePrice,
     displayProductName,
     displayProductDescription,
+    product?.inStock,
   ])
 
   function bumpQuantity(delta: number) {
