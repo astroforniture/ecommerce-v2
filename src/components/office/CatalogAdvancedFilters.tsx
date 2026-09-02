@@ -51,7 +51,7 @@ function parsePriceInput(raw: string): number | null {
   return Math.round(n * 100) / 100
 }
 
-/** Pannello filtri: prezzo, marca, disponibilitù (+ formato opzionale). */
+/** Pannello filtri: prezzo, marca, disponibilita (+ formato opzionale). */
 export function CatalogAdvancedFiltersPanel({
   brands,
   selectedBrands,
@@ -118,7 +118,7 @@ export function CatalogAdvancedFiltersPanel({
         <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Prezzo</h4>
         {priceBounds ? (
           <p className="text-[11px] text-slate-500">
-            Range catalogo: {priceBounds.min.toFixed(2)} ù {priceBounds.max.toFixed(2)} ù
+            Range catalogo: {priceBounds.min.toFixed(2)} - {priceBounds.max.toFixed(2)} EUR
           </p>
         ) : null}
         <div className="grid grid-cols-2 gap-2">
@@ -161,7 +161,7 @@ export function CatalogAdvancedFiltersPanel({
         <div className="flex items-center justify-between gap-3">
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Disponibilitù
+              Disponibilita
             </h4>
             <p className="mt-0.5 text-xs text-slate-500">Solo prodotti disponibili</p>
           </div>
