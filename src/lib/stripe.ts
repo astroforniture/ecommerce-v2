@@ -4,7 +4,11 @@ let stripePromise: Promise<Stripe | null> | null = null
 
 /** Chiave pubblica Stripe (pk_test_… o pk_live_…). */
 export function getStripePublishableKey(): string | undefined {
-  const key = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY?.trim()
+  const key = (
+    import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY?.trim() ||
+    import.meta.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim() ||
+    ''
+  )
   if (!key) return undefined
   if (key.startsWith('sk_')) {
     if (import.meta.env.DEV) {
@@ -101,14 +105,18 @@ export function stripeLocalDevBlockMessage(): string {
 
 /** Messaggio se la env contiene una chiave non valida per il frontend. */
 export function getStripeFrontendConfigError(): string | null {
-  const raw = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY?.trim()
+  const raw = (
+    import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY?.trim() ||
+    import.meta.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim() ||
+    ''
+  )
   if (!raw) {
-    return 'Aggiungi VITE_STRIPE_PUBLISHABLE_KEY (pk_test_… o pk_live_…) in .env.local e riavvia npm run dev.'
+    return 'Aggiungi VITE_STRIPE_PUBLISHABLE_KEY (pk_live_… in produzione) in .env.local / Vercel e riavvia.'
   }
   if (raw.startsWith('sk_')) {
     return (
       'VITE_STRIPE_PUBLISHABLE_KEY contiene una Secret key (sk_…). ' +
-      'Nel frontend va solo la Publishable key (pk_test_…). La sk_test_… resta su Supabase secrets.'
+      'Nel frontend va solo la Publishable key (pk_live_… / pk_test_…). La sk_… resta su Supabase secrets.'
     )
   }
   if (!raw.startsWith('pk_')) {

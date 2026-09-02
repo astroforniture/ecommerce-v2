@@ -5,6 +5,8 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  /** Accetta anche NEXT_PUBLIC_* (alias) oltre a VITE_* per chiavi Stripe. */
+  envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
   /**
    * Dev esclusivamente su http://localhost:5173/
    * strictPort: niente fallback5174+ — libera la porta (es. npx kill-port 5173) e rilancia.

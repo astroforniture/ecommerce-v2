@@ -107,6 +107,40 @@ Deno.serve(async (req) => {
       )
     }
 
+    const secretMode = stripeSecretKey.startsWith('sk_live_')
+      ? 'live'
+      : stripeSecretKey.startsWith('sk_test_')
+        ? 'test'
+        : 'unknown'
+
+    // Produzione: forza chiavi LIVE (evita mismatch con pk_live_ sul frontend).
+    const requireLive =
+      (Deno.env.get('STRIPE_REQUIRE_LIVE') ?? '').trim().toLowerCase() === 'true' ||
+      (Deno.env.get('STRIPE_MODE') ?? '').trim().toLowerCase() === 'live'
+    if (requireLive && secretMode !== 'live') {
+      return json(
+        {
+          error:
+            'Stripe backend in modalità TEST (sk_test_). Imposta STRIPE_SECRET_KEY=sk_live_… per i pagamenti reali.',
+          mode: secretMode,
+        },
+        500,
+      )
+    }
+
+    // Disabilita esplicitamente testMode se presente nei secrets legacy.
+    const testModeFlag = (Deno.env.get('STRIPE_TEST_MODE') ?? '').trim().toLowerCase()
+    if (testModeFlag === 'true' || testModeFlag === '1') {
+      return json(
+        {
+          error:
+            'STRIPE_TEST_MODE è attivo. Disattivalo nei secrets Supabase per usare i pagamenti LIVE.',
+          mode: secretMode,
+        },
+        500,
+      )
+    }
+
     let body: Record<string, unknown> = {}
     try {
       const parsed = await req.json()
