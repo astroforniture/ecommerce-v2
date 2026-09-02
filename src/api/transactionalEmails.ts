@@ -1,6 +1,7 @@
 import { FunctionsHttpError } from '@supabase/supabase-js'
 import { getSupabaseBrowserClient } from '../lib/supabaseClient'
 import type {
+  AbandonedCartEmailInput,
   OrderConfirmationEmailInput,
   ShippingEmailInput,
   WelcomeEmailInput,
@@ -101,5 +102,20 @@ export async function sendShippingEmailSafe(input: ShippingEmailInput): Promise<
     if (!result.ok) console.warn('[email] shipping fallita:', result.error)
   } catch (err) {
     console.warn('[email] shipping exception:', err)
+  }
+}
+
+export async function sendAbandonedCartEmailSafe(input: AbandonedCartEmailInput): Promise<void> {
+  try {
+    const result = await invokeTransactionalEmail({
+      type: 'abandoned_cart',
+      to: input.email,
+      customerName: input.customerName,
+      items: input.items,
+      cartUrl: input.cartUrl,
+    })
+    if (!result.ok) console.warn('[email] abandoned_cart fallita:', result.error)
+  } catch (err) {
+    console.warn('[email] abandoned_cart exception:', err)
   }
 }

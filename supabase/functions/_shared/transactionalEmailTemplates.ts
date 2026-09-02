@@ -6,6 +6,7 @@ export const EMAIL_LOGO_URL = `${EMAIL_SITE_ORIGIN}/logo-astro-forniture.png`
 export const EMAIL_SUPPORT = 'info@astro-forniture.it'
 export const EMAIL_CATALOG_URL = `${EMAIL_SITE_ORIGIN}/office-products`
 export const EMAIL_ACCOUNT_URL = `${EMAIL_SITE_ORIGIN}/account`
+export const EMAIL_CART_URL = `${EMAIL_SITE_ORIGIN}/cart`
 export const EMAIL_FROM_DEFAULT = 'Astro Forniture <info@asforniture.it>'
 
 function escapeHtml(value: string): string {
@@ -196,6 +197,52 @@ export function buildShippingEmail(input: {
     ${cta(EMAIL_SITE_ORIGIN, 'Torna su Astro Forniture')}
     <p style="margin:24px 0 0;font-size:13px;line-height:1.5;color:#64748b;">
       Domande sulla spedizione? Contattaci a <a href="mailto:${EMAIL_SUPPORT}" style="color:#c2410c;">${EMAIL_SUPPORT}</a>.
+    </p>`,
+  )
+  return { subject, html }
+}
+
+export function buildAbandonedCartEmail(input: {
+  customerName?: string
+  items?: OrderLine[]
+  cartUrl?: string
+}): { subject: string; html: string } {
+  const subject = `Hai dimenticato qualcosa nel carrello? — ${EMAIL_BRAND_NAME}`
+  const cartUrl = (input.cartUrl?.trim() || EMAIL_CART_URL).replace(/"/g, '')
+  const rows = (input.items ?? [])
+    .slice(0, 8)
+    .map((item) => {
+      const label = item.variant ? `${item.name} (${item.variant})` : item.name
+      return `<tr>
+        <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;font-size:14px;color:#0f172a;">${escapeHtml(label)}</td>
+        <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;font-size:14px;color:#64748b;text-align:center;">${item.quantity}</td>
+      </tr>`
+    })
+    .join('')
+
+  const itemsBlock = rows
+    ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:12px;">
+        <tr>
+          <th align="left" style="padding:8px 0;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Prodotto</th>
+          <th style="padding:8px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Qta</th>
+        </tr>
+        ${rows}
+      </table>`
+    : ''
+
+  const html = layout(
+    subject,
+    `
+    <h1 style="margin:0 0 12px;font-size:22px;line-height:1.3;color:#0f172a;">Il tuo carrello ti aspetta</h1>
+    <p style="margin:0 0 12px;font-size:15px;line-height:1.6;color:#334155;">
+      Ciao ${escapeHtml(input.customerName?.trim() || 'Cliente')}, hai lasciato alcuni articoli nel carrello
+      su <strong>${escapeHtml(EMAIL_BRAND_NAME)}</strong>. Completa l'acquisto quando vuoi: i prodotti sono ancora disponibili.
+    </p>
+    ${itemsBlock}
+    ${cta(cartUrl, 'Torna al carrello')}
+    <p style="margin:24px 0 0;font-size:13px;line-height:1.5;color:#64748b;">
+      Se hai gia completato l'ordine, ignora pure questa email.<br />
+      Assistenza: <a href="mailto:${EMAIL_SUPPORT}" style="color:#c2410c;">${EMAIL_SUPPORT}</a>
     </p>`,
   )
   return { subject, html }

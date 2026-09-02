@@ -26,6 +26,7 @@ import { CheckoutStepIndicator } from '../components/checkout/CheckoutStepIndica
 import { PickupStoreConfirmBox } from '../components/checkout/PickupStoreConfirmBox'
 import { StripePaymentSection } from '../components/checkout/StripePaymentSection'
 import { persistCheckoutOrder, type CheckoutOrderInput, type CustomerType, isBusinessCustomerType, resolveCheckoutBillingName } from '../lib/checkoutOrder'
+import { buildCartSessionItemsJson } from '../lib/cartSession'
 import { isStripeConfigured } from '../lib/stripe'
 import { resolveLoggedInUserFormData } from '../lib/userAuth'
 import {
@@ -100,6 +101,7 @@ export function CartPage() {
   const [isProfileLoading, setIsProfileLoading] = useState(false)
   /** Dati fatturazione bloccati: utente loggato con profilo/metadata caricati. */
   const [billingLocked, setBillingLocked] = useState(false)
+  const [checkoutUserId, setCheckoutUserId] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     let isMounted = true
@@ -116,6 +118,7 @@ export function CartPage() {
           (await client.auth.getSession()).data.session?.user ??
           null
         if (!user || !isMounted) return
+        setCheckoutUserId(user.id)
 
         const profileRes = await client
           .from('profiles')
@@ -441,6 +444,8 @@ export function CartPage() {
   }
 
   const paymentCustomerEmail = billingEmail.trim()
+
+  const cartSessionItems = useMemo(() => buildCartSessionItemsJson(items), [items])
 
   const checkoutBilling = useMemo(
     () => ({
@@ -894,6 +899,8 @@ export function CartPage() {
                             amountIvato={totalWithVat}
                             customerEmail={paymentCustomerEmail}
                             checkoutBilling={checkoutBilling}
+                            cartItems={cartSessionItems}
+                            userId={checkoutUserId}
                             disabled={checkoutBlocked}
                             attemptedCheckout={attemptedCheckout}
                             isSubmitting={isSubmitting}

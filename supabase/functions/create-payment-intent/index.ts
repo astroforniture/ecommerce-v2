@@ -1,4 +1,5 @@
 import Stripe from 'stripe'
+import { getServiceSupabase } from '../_shared/supabaseAdmin.ts'
 
 const corsHeaders: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
@@ -82,6 +83,68 @@ function buildShipping(billing: Record<string, unknown> | undefined) {
   }
 }
 
+function normalizeCartItems(raw: unknown): unknown[] {
+  if (!Array.isArray(raw)) return []
+  return raw
+    .map((row) => {
+      if (!row || typeof row !== 'object') return null
+      const o = row as Record<string, unknown>
+      const id = asOptionalString(o.id, 120)
+      const name = asOptionalString(o.name, 300)
+      if (!id || !name) return null
+      const qty = Number(o.quantity)
+      return {
+        id,
+        sku: asOptionalString(o.sku, 120) ?? id,
+        name,
+        ...(asOptionalString(o.variant, 120) ? { variant: asOptionalString(o.variant, 120) } : {}),
+        quantity: Number.isFinite(qty) && qty > 0 ? Math.floor(qty) : 1,
+        unit_imponibile: Number(o.unit_imponibile ?? o.unitImponibile ?? 0) || 0,
+        row_imponibile: Number(o.row_imponibile ?? o.rowImponibile ?? 0) || 0,
+        ...(asOptionalString(o.imageUrl, 500) ? { imageUrl: asOptionalString(o.imageUrl, 500) } : {}),
+      }
+    })
+    .filter(Boolean)
+}
+
+async function upsertPendingCartSession(input: {
+  email: string
+  items: unknown[]
+  amountCents: number
+  currency: string
+  billing: Record<string, unknown> | undefined
+  paymentIntentId: string
+  userId?: string
+}) {
+  const supabase = getServiceSupabase()
+  if (!supabase) return
+
+  const payload = {
+    email: input.email.toLowerCase(),
+    items_json: input.items,
+    amount_cents: Math.round(input.amountCents),
+    currency: input.currency,
+    billing_json: input.billing ?? null,
+    stripe_payment_intent_id: input.paymentIntentId,
+    status: 'pending',
+    updated_at: new Date().toISOString(),
+    ...(input.userId ? { user_id: input.userId } : {}),
+  }
+
+  const { error } = await supabase.from('cart_sessions').upsert(payload, {
+    onConflict: 'stripe_payment_intent_id',
+  })
+
+  if (error) {
+    // Unique index is partial; fallback insert if upsert unsupported on partial unique.
+    console.warn('[create-payment-intent] cart_sessions upsert failed, trying insert:', error.message)
+    const { error: insertError } = await supabase.from('cart_sessions').insert(payload)
+    if (insertError) {
+      console.error('[create-payment-intent] cart_sessions insert failed:', insertError.message)
+    }
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return corsOk()
@@ -113,7 +176,6 @@ Deno.serve(async (req) => {
         ? 'test'
         : 'unknown'
 
-    // Produzione: forza chiavi LIVE (evita mismatch con pk_live_ sul frontend).
     const requireLive =
       (Deno.env.get('STRIPE_REQUIRE_LIVE') ?? '').trim().toLowerCase() === 'true' ||
       (Deno.env.get('STRIPE_MODE') ?? '').trim().toLowerCase() === 'live'
@@ -121,20 +183,19 @@ Deno.serve(async (req) => {
       return json(
         {
           error:
-            'Stripe backend in modalità TEST (sk_test_). Imposta STRIPE_SECRET_KEY=sk_live_… per i pagamenti reali.',
+            'Stripe backend in modalita TEST (sk_test_). Imposta STRIPE_SECRET_KEY=sk_live_… per i pagamenti reali.',
           mode: secretMode,
         },
         500,
       )
     }
 
-    // Disabilita esplicitamente testMode se presente nei secrets legacy.
     const testModeFlag = (Deno.env.get('STRIPE_TEST_MODE') ?? '').trim().toLowerCase()
     if (testModeFlag === 'true' || testModeFlag === '1') {
       return json(
         {
           error:
-            'STRIPE_TEST_MODE è attivo. Disattivalo nei secrets Supabase per usare i pagamenti LIVE.',
+            'STRIPE_TEST_MODE e attivo. Disattivalo nei secrets Supabase per usare i pagamenti LIVE.',
           mode: secretMode,
         },
         500,
@@ -153,7 +214,7 @@ Deno.serve(async (req) => {
 
     const amountCents = Number(body.amount)
     if (!Number.isFinite(amountCents) || amountCents < 50) {
-      return json({ error: 'Importo non valido (minimo 0,50 €).' }, 400)
+      return json({ error: 'Importo non valido (minimo 0,50 EUR).' }, 400)
     }
 
     const currency =
@@ -170,19 +231,42 @@ Deno.serve(async (req) => {
         ? (body.metadata as Record<string, unknown>)
         : undefined
 
+    const cartItems = normalizeCartItems(body.cartItems ?? body.items)
+    const userId = asOptionalString(body.userId, 64)
+
     const stripe = new Stripe(stripeSecretKey)
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amountCents),
       currency,
       receipt_email: customerEmail?.includes('@') ? customerEmail : undefined,
-      metadata: buildStripeMetadata(billing, extraMetadata),
+      metadata: buildStripeMetadata(billing, {
+        ...extraMetadata,
+        ...(customerEmail ? { customer_email: customerEmail } : {}),
+      }),
       shipping: buildShipping(billing),
       automatic_payment_methods: { enabled: true },
     })
 
     if (!paymentIntent.client_secret) {
       return json({ error: 'PaymentIntent senza client_secret.' }, 500)
+    }
+
+    // Bozza checkout: solo se email presente (utente loggato o email inserita).
+    if (customerEmail?.includes('@') && cartItems.length > 0) {
+      try {
+        await upsertPendingCartSession({
+          email: customerEmail,
+          items: cartItems,
+          amountCents,
+          currency,
+          billing,
+          paymentIntentId: paymentIntent.id,
+          userId,
+        })
+      } catch (sessionErr) {
+        console.error('[create-payment-intent] cart_sessions exception:', sessionErr)
+      }
     }
 
     return json({

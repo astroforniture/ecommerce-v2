@@ -2,6 +2,7 @@ import { Resend } from 'npm:resend@4.1.2'
 import {
   EMAIL_FROM_DEFAULT,
   EMAIL_SUPPORT,
+  buildAbandonedCartEmail,
   buildOrderConfirmationEmail,
   buildShippingEmail,
   buildWelcomeEmail,
@@ -122,9 +123,20 @@ Deno.serve(async (req) => {
     })
     subject = built.subject
     html = built.html
+  } else if (type === 'abandoned_cart') {
+    const built = buildAbandonedCartEmail({
+      customerName: asString(body.customerName, 160) || undefined,
+      items: parseItems(body.items),
+      cartUrl: asString(body.cartUrl, 500) || undefined,
+    })
+    subject = built.subject
+    html = built.html
   } else {
     return json(
-      { error: 'type non supportato. Usa: welcome | order_confirmation | shipping' },
+      {
+        error:
+          'type non supportato. Usa: welcome | order_confirmation | shipping | abandoned_cart',
+      },
       400,
     )
   }

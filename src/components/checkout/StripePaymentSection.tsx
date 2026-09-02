@@ -7,6 +7,7 @@ import {
 } from '@stripe/react-stripe-js'
 import { CreditCard, Loader2 } from 'lucide-react'
 import { createPaymentIntent, type CheckoutBillingPayload } from '../../api/createPaymentIntent'
+import type { CartSessionItemJson } from '../../lib/cartSession'
 import {
   eurosToStripeCents,
   getStripePromise,
@@ -24,6 +25,9 @@ type StripePaymentFormProps = {
   amountIvato: number
   customerEmail: string
   checkoutBilling?: CheckoutBillingPayload
+  /** Snapshot carrello per salvataggio cart_sessions (abandoned cart). */
+  cartItems?: CartSessionItemJson[]
+  userId?: string
   /** true = fatturazione/termini incompleti (validato al click, non disabilita il pulsante). */
   disabled: boolean
   attemptedCheckout: boolean
@@ -32,7 +36,7 @@ type StripePaymentFormProps = {
   onSubmittingChange: (value: boolean) => void
   onError: (message: string) => void
   onPaymentSucceeded: (paymentIntentId: string) => Promise<void>
-  /** Layout più ampio per sidebar checkout Step 2. */
+  /** Layout piu ampio per sidebar checkout Step 2. */
   prominent?: boolean
 }
 
@@ -262,6 +266,7 @@ export function StripePaymentSection(props: StripePaymentFormProps) {
   const liveOnHttp = isStripeLiveOnLocalHttp()
   const canPrepareIntent =
     isStripeConfigured() && !liveOnHttp && props.amountIvato > 0
+  const cartItemsKey = JSON.stringify(props.cartItems ?? [])
 
   // PaymentIntent legato al totale — non ricrearlo ad ogni keystroke della fatturazione.
   useEffect(() => {
@@ -281,10 +286,19 @@ export function StripePaymentSection(props: StripePaymentFormProps) {
       logStripeKeyDiagnostics('prepareIntent')
     }
 
+    let parsedCartItems: CartSessionItemJson[] = []
+    try {
+      parsedCartItems = JSON.parse(cartItemsKey) as CartSessionItemJson[]
+    } catch {
+      parsedCartItems = props.cartItems ?? []
+    }
+
     void createPaymentIntent({
       amountCents,
       customerEmail: props.customerEmail,
       billing: props.checkoutBilling,
+      cartItems: parsedCartItems,
+      userId: props.userId,
       metadata: { source: 'astro-forniture-checkout' },
     })
       .then((result) => {
@@ -311,7 +325,7 @@ export function StripePaymentSection(props: StripePaymentFormProps) {
       .finally(() => {
         if (requestId === intentRequestId.current) setLoadingIntent(false)
       })
-  }, [amountCents, props.customerEmail, canPrepareIntent])
+  }, [amountCents, props.customerEmail, canPrepareIntent, cartItemsKey, props.userId])
 
   if (!isStripeConfigured()) {
     const configError = getStripeFrontendConfigError()

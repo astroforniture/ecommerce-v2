@@ -1,6 +1,7 @@
 import { FunctionsHttpError } from '@supabase/supabase-js'
 import { getSupabaseBrowserClient } from '../lib/supabaseClient'
 import { logCheckoutError, logStripeKeyDiagnostics } from '../lib/stripe'
+import type { CartSessionItemJson } from '../lib/cartSession'
 
 /** Dati fatturazione/spedizione dal form carrello (guest o profilo parziale). Tutti opzionali. */
 export type CheckoutBillingPayload = {
@@ -25,6 +26,9 @@ export type CreatePaymentIntentInput = {
   customerEmail?: string
   billing?: CheckoutBillingPayload
   metadata?: Record<string, string>
+  /** Snapshot carrello per cart_sessions (carrelli abbandonati). */
+  cartItems?: CartSessionItemJson[]
+  userId?: string
 }
 
 export type CreatePaymentIntentResult =
@@ -71,6 +75,8 @@ export async function createPaymentIntent(
     customerEmail: input.customerEmail?.trim() || undefined,
     billing,
     metadata: input.metadata ?? {},
+    cartItems: input.cartItems ?? [],
+    userId: input.userId?.trim() || undefined,
   }
 
   console.log('[Stripe] createPaymentIntent body:', requestBody)
