@@ -2,7 +2,7 @@ import type { OfficeProduct } from '../types/officeProduct'
 import { gimaOfficeProductIdFromImageUrl } from '../lib/gimaImageStem'
 import { LINEA_ASTRO_MEDICAL_CATEGORY } from './iHealthAstroMedicalProducts'
 
-/** Dispositivi diagnostici professionali (listino orientativo Gima / linee Mission, Urilyzer, Combi Screen, ecc.). */
+/** Dispositivi diagnostici professionali (listino orientativo Gima / linee Mission, ecc.). */
 export const PROFESSIONAL_DIAGNOSTIC_OFFICE_ID_PREFIX = 'AF-DIAG-'
 
 let professionalDiagnosticGimaIdSet: ReadonlySet<string> | null = null
@@ -172,92 +172,6 @@ const DIAG_CATALOG: readonly DiagRow[] = [
     description:
       'Dispositivo per determinazione emoglobina in campo o ambulatorio; modalità campione e accessori secondo scheda tecnica. ' +
       'Prezzo unitario imponibile IVA esclusa.',
-  },
-  {
-    slug: 'analisi-urina-gima',
-    name: 'Analizzatore analisi urina Gima',
-    brand: 'Gima',
-    priceImponible: 285,
-    imageUrl: gimaMedium('32100.jpg'),
-    description:
-      'Piattaforma per screening urinario con strisce compatibili; ad uso professionale. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
-  },
-  {
-    slug: 'urilyzer-100',
-    name: 'Urilyzer 100',
-    brand: 'Gima',
-    priceImponible: 898,
-    imageUrl: gimaMedium('32200.jpg'),
-    description:
-      'Analizzatore urinario Urilyzer 100 per laboratorio leggero o ambulatorio; compatibile con strisce dedicate e linea Combi Screen ove applicabile. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
-  },
-  {
-    slug: 'urilyzer-500',
-    name: 'Urilyzer 500',
-    brand: 'Gima',
-    priceImponible: 3690,
-    imageUrl: gimaMedium('32300.jpg'),
-    description:
-      'Analizzatore urinario avanzato Urilyzer 500 per alto volume; strisce e moduli secondo configurazione Gima. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
-  },
-  {
-    slug: 'combi-screen-2p',
-    name: 'Strisce Combi Screen — 2 parametri (10 pz)',
-    brand: 'Gima',
-    priceImponible: 10.4,
-    imageUrl: gimaMedium('32410.jpg'),
-    description:
-      'Strisce urinarie Combi Screen, 2 parametri, confezione 10 test. Per strumenti compatibili (es. linea analisi urina / Urilyzer). ' +
-      'Prezzo unitario imponibile IVA esclusa.',
-  },
-  {
-    slug: 'combi-screen-5p',
-    name: 'Strisce Combi Screen — 5 parametri',
-    brand: 'Gima',
-    priceImponible: 24,
-    imageUrl: gimaMedium('32411.jpg'),
-    description:
-      'Strisce Combi Screen multiparametriche (5 parametri). Verificare compatibilità con analizzatore in uso. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
-  },
-  {
-    slug: 'combi-screen-8p',
-    name: 'Strisce Combi Screen — 8 parametri',
-    brand: 'Gima',
-    priceImponible: 48,
-    imageUrl: gimaMedium('32412.jpg'),
-    description:
-      'Strisce Combi Screen 8 parametri per screening urinario esteso. Prezzo unitario imponibile IVA esclusa.',
-  },
-  {
-    slug: 'combi-screen-10p',
-    name: 'Strisce Combi Screen — 10 parametri',
-    brand: 'Gima',
-    priceImponible: 72,
-    imageUrl: gimaMedium('32413.jpg'),
-    description:
-      'Strisce Combi Screen 10 parametri; utilizzo professionale. Prezzo unitario imponibile IVA esclusa.',
-  },
-  {
-    slug: 'combi-screen-11p',
-    name: 'Strisce Combi Screen — 11 parametri',
-    brand: 'Gima',
-    priceImponible: 95,
-    imageUrl: gimaMedium('32414.jpg'),
-    description:
-      'Strisce Combi Screen 11 parametri. Prezzo unitario imponibile IVA esclusa.',
-  },
-  {
-    slug: 'combi-screen-13p',
-    name: 'Strisce Combi Screen — 13 parametri',
-    brand: 'Gima',
-    priceImponible: 127,
-    imageUrl: gimaMedium('32415.jpg'),
-    description:
-      'Strisce Combi Screen 13 parametri, massima copertura urinaria della linea. Prezzo unitario imponibile IVA esclusa.',
   },
   {
     slug: 'immuno-analizzatore',
@@ -1291,18 +1205,7 @@ const LACTATE_STR = diagnosticGimaIdForSlug('lactate-strisce')
 const HEMO_MAIN = diagnosticGimaIdForSlug('hemo-control')
 const HEMO_MICRO = diagnosticGimaIdForSlug('hemo-microcuvette')
 const HB_SYS = diagnosticGimaIdForSlug('emoglobina-sistema')
-const URINE_GIMA = diagnosticGimaIdForSlug('analisi-urina-gima')
-const URIL_100 = diagnosticGimaIdForSlug('urilyzer-100')
-const URIL_500 = diagnosticGimaIdForSlug('urilyzer-500')
 const IMMUNO = diagnosticGimaIdForSlug('immuno-analizzatore')
-const COMBI_IDS = [
-  diagnosticGimaIdForSlug('combi-screen-2p'),
-  diagnosticGimaIdForSlug('combi-screen-5p'),
-  diagnosticGimaIdForSlug('combi-screen-8p'),
-  diagnosticGimaIdForSlug('combi-screen-10p'),
-  diagnosticGimaIdForSlug('combi-screen-11p'),
-  diagnosticGimaIdForSlug('combi-screen-13p'),
-] as const
 const CASSETTE_PCR = diagnosticGimaIdForSlug('cassette-pcr')
 const CASSETTE_TROP = diagnosticGimaIdForSlug('cassette-troponina')
 const CASSETTE_COVID = diagnosticGimaIdForSlug('cassette-covid')
@@ -1430,7 +1333,7 @@ const MATERNITA_SPECIALISTICA_GIMA_IDS = [
   diagnosticGimaIdForSlug('gima-25859'),
 ] as const
 
-/** Correlati logici: strumento ↔ consumabili; strisce urina ↔ analizzatori urina. */
+/** Correlati logici: strumento <-> consumabili. */
 export function professionalDiagnosticRelatedIdsForProductId(productId: string): string[] {
   const id = diagnosticCanonicalProductId(productId)
 
@@ -1447,10 +1350,7 @@ export function professionalDiagnosticRelatedIdsForProductId(productId: string):
     [LACTATE_STR]: [LACTATE_DEV],
     [HEMO_MAIN]: [HEMO_MICRO],
     [HEMO_MICRO]: [HEMO_MAIN],
-    [HB_SYS]: [URINE_GIMA, URIL_100, MISSION_ANALYZER],
-    [URINE_GIMA]: [...COMBI_IDS.slice(0, 4), URIL_100, URIL_500],
-    [URIL_100]: [URIL_500, URINE_GIMA, ...COMBI_IDS.slice(2, 6)],
-    [URIL_500]: [URIL_100, URINE_GIMA, COMBI_IDS[5]],
+    [HB_SYS]: [HEMO_MAIN, HEMO_MICRO, MISSION_ANALYZER],
     [IMMUNO]: [...CASSETTE_IDS],
     [CASSETTE_PCR]: [IMMUNO, CASSETTE_TROP, CASSETTE_COVID],
     [CASSETTE_TROP]: [IMMUNO, CASSETTE_PCR, CASSETTE_DD],
@@ -1460,10 +1360,6 @@ export function professionalDiagnosticRelatedIdsForProductId(productId: string):
   }
 
   const related: Record<string, readonly string[]> = { ...base }
-  for (const combiId of COMBI_IDS) {
-    const others = COMBI_IDS.filter((c) => c !== combiId)
-    related[combiId] = [URIL_100, URIL_500, URINE_GIMA, others[0], others[1]]
-  }
 
   related[GIMACARE_MON] = [...GIMACARE_STRIP_IDS, ...GIMACARE_SOL_IDS]
   for (const sid of GIMACARE_STRIP_IDS) {
@@ -1505,7 +1401,10 @@ export function professionalDiagnosticRelatedIdsForProductId(productId: string):
   related[diagnosticGimaIdForSlug('multitest-urine-16')] = [diagnosticGimaIdForSlug('multitest-urine-10'), DRUG_READ_24561]
   related[diagnosticGimaIdForSlug('test-salivare-6dro-alcol')] = [diagnosticGimaIdForSlug('test-alcolimetrico'), diagnosticGimaIdForSlug('multitest-urine-10')]
   related[diagnosticGimaIdForSlug('test-alcolimetrico')] = [diagnosticGimaIdForSlug('test-salivare-6dro-alcol'), diagnosticGimaIdForSlug('drug-reader-24561')]
-  related[diagnosticGimaIdForSlug('strisce-urina-vet-11p')] = [diagnosticGimaIdForSlug('analisi-urina-gima'), diagnosticGimaIdForSlug('urilyzer-100')]
+  related[diagnosticGimaIdForSlug('strisce-urina-vet-11p')] = [
+    diagnosticGimaIdForSlug('multitest-urine-10'),
+    diagnosticGimaIdForSlug('multitest-urine-7'),
+  ]
 
   for (const tid of TERMOMETRO_IDS) {
     related[tid] = TERMOMETRO_IDS.filter((x) => x !== tid)
