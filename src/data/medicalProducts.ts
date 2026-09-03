@@ -496,8 +496,8 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     price: 29,
     categoryPath: [macroLabelFromId('diagnostica'), 'Consumabili'],
     macroId: 'diagnostica',
-    // 32967.jpg non è pubblicato su GIMA: asset condiviso con 32969, id catalogo gima-32967.
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32969.jpg',
+    // 32967.jpg non e' pubblicato su GIMA: asset famiglia griglia arancio 210 mm (33021).
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33021.jpg',
     gimaSku: '32967',
   },
   {
@@ -983,6 +983,7 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     price: 7.15,
     categoryPath: [macroLabelFromId('farmacia-cura'), 'Lenzuolini medici / Monouso'],
     macroId: 'farmacia-cura',
+    // Asset famiglia lenzuolini GIMA (27415.jpg non pubblicato; 27413 e' l'immagine ufficiale condivisa).
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27413.jpg',
     gimaSku: '27415',
   },

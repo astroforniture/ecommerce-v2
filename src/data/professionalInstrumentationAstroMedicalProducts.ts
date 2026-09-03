@@ -22,8 +22,12 @@ type ProRow = {
   imageUrl: string
   description: string
   subcategory: string
-  /** ID distinto quando più articoli condividono lo stesso JPG GIMA. */
+  /** ID distinto quando piu articoli condividono lo stesso JPG GIMA. */
   officeIdOverride?: string
+  brochureUrl?: string
+  brochureLinkLabel?: string
+  catalogPagePdfUrl?: string
+  catalogPagePdfLabel?: string
 }
 
 const P = PRO_INSTR_OFFICE_ID_PREFIX
@@ -74,8 +78,13 @@ const PRO_INSTR_CATALOG: readonly ProRow[] = [
     name: 'BILANCIA SECA 761 — uso medico — Classe IIII — GIMA 27280',
     brand: 'Seca',
     priceImponible: 195,
-    imageUrl: gimaMedium('27285.jpg'),
+    // Foto ufficiale prodotto. Download/158466/27280 e' la scheda PDF GIMA.
+    imageUrl: gimaMedium('27280.jpg'),
     officeIdOverride: 'gima-27280',
+    catalogPagePdfUrl: 'https://www.gimaitaly.com/Download/158466/27280',
+    catalogPagePdfLabel: 'Scheda tecnica GIMA (PDF)',
+    brochureUrl: 'https://www.gimaitaly.com/Catalogo/PrintDataSheet?sku=27280',
+    brochureLinkLabel: 'Scheda Tecnica',
     subcategory: SCALE_SUB,
     description:
       'Bilancia Seca 761 per uso medico, Classe IIII; quadrante professionale, struttura metallica. ' +
@@ -280,7 +289,7 @@ const PRO_INSTR_CATALOG: readonly ProRow[] = [
     name: 'GONIOMETRO PER DITA — acciaio inox 15 cm — GIMA 24900',
     brand: 'Gima',
     priceImponible: 21.8,
-    imageUrl: gimaMedium('24904.jpg'),
+    imageUrl: gimaMedium('24900.jpg'),
     officeIdOverride: 'gima-24900',
     subcategory: ANTHRO_SUB,
     description:
@@ -575,6 +584,10 @@ export function buildProfessionalInstrumentationAstroMedicalOfficeProducts(): Of
       imageUrl: row.imageUrl,
       price: row.priceImponible,
       description: row.description,
+      ...(row.brochureUrl ? { brochureUrl: row.brochureUrl } : {}),
+      ...(row.brochureLinkLabel ? { brochureLinkLabel: row.brochureLinkLabel } : {}),
+      ...(row.catalogPagePdfUrl ? { catalogPagePdfUrl: row.catalogPagePdfUrl } : {}),
+      ...(row.catalogPagePdfLabel ? { catalogPagePdfLabel: row.catalogPagePdfLabel } : {}),
     }
   })
 }

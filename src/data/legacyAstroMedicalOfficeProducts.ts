@@ -134,6 +134,8 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
     price: 29,
     packLabel: '5 pz',
     features: { Formato: '210x30 mmxm', Griglia: 'Arancio', Tipo: 'Rotolo ECG' },
+    // 32967.jpg non e' pubblicato su GIMA: asset ufficiale famiglia griglia arancio 210 mm (33021).
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33021.jpg',
     description:
       'Carta termica ECG 210x30 mmxm, rotolo con griglia arancio, confezione da 5 pezzi. Codice GIMA 32967. ' +
       'Prezzo riferito alla confezione da 5 pz, imponibile IVA esclusa.\n\n' +
@@ -931,6 +933,7 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
       Unità: 'Rotolo',
       Acquisto: 'Minimo 6 pezzi, solo multipli di 6',
     },
+    // Asset famiglia lenzuolini GIMA (27415.jpg non pubblicato; 27413 e' l'immagine ufficiale condivisa).
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27413.jpg',
     description:
       'Lenzuolino politenato goffrato 50m x 60 cm. Codice GIMA 27415. Prezzo 7,15 € al rotolo, imponibile IVA esclusa. ' +
