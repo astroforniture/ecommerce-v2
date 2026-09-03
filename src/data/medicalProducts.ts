@@ -971,7 +971,7 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     price: 5.45,
     categoryPath: [macroLabelFromId('farmacia-cura'), 'Lenzuolini medici / Monouso'],
     macroId: 'farmacia-cura',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27412.jpg',
+    imageUrl: '/images/placeholder.jpg',
     gimaSku: '27411',
   },
   {
@@ -1016,7 +1016,7 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     price: 6.7,
     categoryPath: [macroLabelFromId('farmacia-cura'), 'Lenzuolini medici / Monouso'],
     macroId: 'farmacia-cura',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27412.jpg',
+    imageUrl: '/images/placeholder.jpg',
     gimaSku: '27410',
   },
   {

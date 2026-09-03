@@ -552,8 +552,45 @@ const VEIN_DETECTOR_IDS = ['gima-23454', 'gima-23456'].map((s) =>
   sutureGimaIdForSlug(s),
 ) as readonly string[]
 
+/**
+ * Suture con asset gimaitaly.com medium/*.jpg non raggiungibile (404).
+ * Restano nel sorgente per eventuale ripristino, ma non entrano in vetrina.
+ */
+const ETHICON_HIDDEN_CATALOG_SLUGS = new Set([
+  'gima-22298',
+  'gima-22306',
+  'gima-22308',
+  'gima-22317',
+  'gima-22318',
+  'gima-22323',
+  'gima-22324',
+  'gima-22325',
+  'gima-22326',
+  'gima-22327',
+  'gima-22328',
+  'gima-22329',
+  'gima-22364',
+  'gima-22365',
+  'gima-22366',
+])
+
+function isEthiconCatalogRowVisible(slug: string): boolean {
+  return !ETHICON_HIDDEN_CATALOG_SLUGS.has(slug)
+}
+
+function visibleRelatedIds(group: readonly string[]): readonly string[] {
+  return group.filter((id) => {
+    const slug = id.startsWith('gima-') ? id : `gima-${id}`
+    // id puo essere gima-XXXX dallo stem: confronta anche slug catalogo
+    return ![...ETHICON_HIDDEN_CATALOG_SLUGS].some((hidden) => {
+      const hiddenId = sutureGimaIdForSlug(hidden)
+      return hiddenId === id || hidden === slug
+    })
+  })
+}
+
 function relatedFromGroup(group: readonly string[], id: string, max = 12): string[] {
-  return group.filter((x) => x !== id).slice(0, max)
+  return visibleRelatedIds(group).filter((x) => x !== id).slice(0, max)
 }
 
 export function ethiconSuturesRelatedIdsForProductId(productId: string): string[] {
@@ -565,11 +602,13 @@ export function ethiconSuturesRelatedIdsForProductId(productId: string): string[
   if (VICRYL_PLUS_IDS.includes(id)) return relatedFromGroup(VICRYL_PLUS_IDS, id)
   if (VEIN_DETECTOR_IDS.includes(id)) return relatedFromGroup(VEIN_DETECTOR_IDS, id)
 
-  return [...ETHILON_IDS, ...VEIN_DETECTOR_IDS].filter((x) => x !== id).slice(0, 12)
+  return visibleRelatedIds([...ETHILON_IDS, ...VEIN_DETECTOR_IDS])
+    .filter((x) => x !== id)
+    .slice(0, 12)
 }
 
 export function buildEthiconSuturesAstroMedicalOfficeProducts(): OfficeProduct[] {
-  return ETHICON_CATALOG.map((row) => {
+  return ETHICON_CATALOG.filter((row) => isEthiconCatalogRowVisible(row.slug)).map((row) => {
     const id = gimaOfficeProductIdFromImageUrl(row.imageUrl) ?? `${P}${row.slug}`
     return {
       id,
