@@ -6117,6 +6117,7 @@ export function ProductDetailPage() {
                   ? product.discountPercent
                   : null
               }
+              vatRate={product.vatRate}
               quantityRuleHint={(() => {
                 const rule = purchaseQuantityRuleForProduct(product)
                 if (!rule || (rule.minOrderQuantity <= 1 && rule.orderQuantityStep <= 1)) return undefined

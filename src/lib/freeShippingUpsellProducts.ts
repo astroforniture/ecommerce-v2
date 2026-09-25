@@ -3,22 +3,24 @@ import {
   OFFICE_CATALOG_DATA_REVISION,
 } from '../api/officeProductsSupabase'
 import type { OfficeProduct } from '../types/officeProduct'
-import { FREE_SHIPPING_THRESHOLD_IVATO, roundMoney2 } from './cartMerchandiseIvato'
+import {
+  FREE_SHIPPING_THRESHOLD_IVATO,
+  roundMoney2,
+} from './cartMerchandiseIvato'
 import { isOfficeProductAstroMedicalLine } from './isOfficeProductAstroMedicalLine'
 import { effectiveUnitPrice } from './quantityPricing'
 import { getInjectedLocalCatalogProducts } from './timbroAziendeFarmacieProduct'
+import { priceWithVat } from './vatPricing'
 
-const VAT_MULTIPLIER = 1.22
-/** Prezzo unitario imponibile massimo per i consigli «aggiungi al volo». */
 const MAX_UNIT_IMPONIBILE = 15
 const UPSELL_DB_POOL_LIMIT = 80
 
 export function productUnitIvato(
-  product: Pick<OfficeProduct, 'price' | 'quantityPriceTiers'>,
+  product: Pick<OfficeProduct, 'price' | 'quantityPriceTiers' | 'vatRate'>,
   quantity = 1,
 ): number {
   const imponibile = effectiveUnitPrice(product.price, product.quantityPriceTiers, quantity)
-  return roundMoney2(imponibile * VAT_MULTIPLIER)
+  return priceWithVat(imponibile, product.vatRate)
 }
 
 function isEligibleUpsellProduct(

@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react'
 import { FileText } from 'lucide-react'
 import type { MedicalProduct } from '../../data/medicalProducts'
-
-const eur = new Intl.NumberFormat('it-IT', {
-  style: 'currency',
-  currency: 'EUR',
-})
+import { ProductPriceDisplay } from '../product/ProductPriceDisplay'
 
 type Props = {
   product: MedicalProduct
@@ -51,10 +47,7 @@ export function MedicalProductCompactCard({ product }: Props) {
         {isQuote ? (
           <p className="text-xs font-semibold text-slate-600">Su preventivo</p>
         ) : (
-          <p className="text-xs font-bold tabular-nums text-medical-800 sm:text-sm">
-            {eur.format(product.price)}
-            <span className="ml-0.5 text-[10px] font-semibold text-slate-500">+ IVA</span>
-          </p>
+          <ProductPriceDisplay imponibile={product.price} size="compact" />
         )}
       </div>
     </article>

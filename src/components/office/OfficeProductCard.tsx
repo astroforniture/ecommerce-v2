@@ -22,12 +22,9 @@ import { AstroMedicalProductDocsActions } from '../astroMedical/AstroMedicalProd
 import { ImmediateAvailabilityBadge } from './ImmediateAvailabilityBadge'
 import { ProductQuoteRequestButton } from '../product/ProductQuoteRequestButton'
 import { DiscountPercentBadge } from '../promo/DiscountPercentBadge'
+import { ProductPriceDisplay } from '../product/ProductPriceDisplay'
+import { formatEuroIt, priceWithVat } from '../../lib/vatPricing'
 import { showsImmediateAvailability } from '../../lib/agendeCatalog'
-
-const eur = new Intl.NumberFormat('it-IT', {
-  style: 'currency',
-  currency: 'EUR',
-})
 
 type OfficeProductCardProps = {
   product: OfficeProduct
@@ -102,9 +99,6 @@ export function OfficeProductCard({
   const titleCls = compactGrid
     ? 'mt-0.5 min-h-0 text-sm font-bold leading-snug text-slate-900'
     : 'mt-1 min-h-[2.75rem] text-base font-bold leading-snug text-slate-900'
-  const priceCls = compactGrid
-    ? 'text-base font-bold tabular-nums text-brand-800'
-    : 'text-lg font-bold tabular-nums text-brand-800'
   const btnCls = compactGrid
     ? 'inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-brand-700 px-3 py-2 text-xs font-semibold text-white transition hover:bg-brand-800'
     : 'inline-flex items-center gap-2 rounded-lg bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-800'
@@ -177,17 +171,18 @@ export function OfficeProductCard({
         >
           {!isQuoteOnly ? (
             <div>
-              {compareAt ? (
-                <p className="text-xs font-medium tabular-nums text-slate-400 line-through sm:text-sm">
-                  {eur.format(compareAt)}
-                </p>
-              ) : null}
-              <p className={compareAt ? `${priceCls} text-red-600` : priceCls}>
-                {eur.format(unitImponible)} + IVA
-              </p>
+              <ProductPriceDisplay
+                imponibile={unitImponible}
+                vatRate={product.vatRate}
+                compareAtImponibile={compareAt}
+                size={compactGrid ? 'compact' : 'card'}
+                promo={Boolean(compareAt)}
+              />
               {!suppressQuantityTierHint && quantityDiscountHint ? (
                 <p className="mt-1 text-xs font-medium text-brand-700">
-                  da {quantityDiscountHint.minQuantity} pz: {eur.format(quantityDiscountHint.unitPrice)}
+                  da {quantityDiscountHint.minQuantity} pz:{' '}
+                  {formatEuroIt(priceWithVat(quantityDiscountHint.unitPrice, product.vatRate))}{' '}
+                  (IVA incl.)
                 </p>
               ) : null}
             </div>

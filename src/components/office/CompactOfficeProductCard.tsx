@@ -8,12 +8,8 @@ import { withOfficeImageCacheBust } from '../../lib/officeImageCacheBust'
 import { OFFICE_CATALOG_DATA_REVISION } from '../../api/officeProductsSupabase'
 import { DiscountPercentBadge } from '../promo/DiscountPercentBadge'
 import { ImmediateAvailabilityBadge } from './ImmediateAvailabilityBadge'
+import { ProductPriceDisplay } from '../product/ProductPriceDisplay'
 import { showsImmediateAvailability } from '../../lib/agendeCatalog'
-
-const eur = new Intl.NumberFormat('it-IT', {
-  style: 'currency',
-  currency: 'EUR',
-})
 
 type Props = {
   product: OfficeProduct
@@ -77,20 +73,13 @@ export function CompactOfficeProductCard({ product, disableDetailLink }: Props) 
           </div>
         ) : null}
         <div>
-          {compareAt ? (
-            <p className="text-[10px] font-medium tabular-nums text-slate-400 line-through">
-              {eur.format(compareAt)}
-            </p>
-          ) : null}
-          <p
-            className={[
-              'text-xs font-bold tabular-nums sm:text-sm',
-              compareAt ? 'text-red-600' : 'text-brand-800',
-            ].join(' ')}
-          >
-            {eur.format(unitImponible)}
-            <span className="ml-0.5 text-[10px] font-semibold text-slate-500">+ IVA</span>
-          </p>
+          <ProductPriceDisplay
+            imponibile={unitImponible}
+            vatRate={product.vatRate}
+            compareAtImponibile={compareAt}
+            size="compact"
+            promo={Boolean(compareAt)}
+          />
         </div>
       </div>
     </>

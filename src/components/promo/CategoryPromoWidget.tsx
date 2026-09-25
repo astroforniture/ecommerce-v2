@@ -57,9 +57,9 @@ function OfferSlideBody({ offer }: { offer: CategoryPromoOffer }) {
     <>
       <ProductThumb product={offer.product} />
       <p className="mt-3.5 text-base text-slate-600">
-        <span className="mr-2 text-slate-400 line-through">{eur.format(offer.originalPrice)}</span>
-        <span className="text-xl font-bold text-red-600">{eur.format(offer.salePrice)}</span>
-        <span className="ml-1 text-sm text-slate-500">+ IVA / pezzo</span>
+        <span className="mr-2 text-slate-400 line-through">{eur.format(offer.originalPrice * 1.22)}</span>
+        <span className="text-xl font-bold text-red-600">{eur.format(offer.salePrice * 1.22)}</span>
+        <span className="ml-1 text-sm text-slate-500">(IVA inclusa)</span>
       </p>
       <Link
         to={productDetailPath(offer.product)}

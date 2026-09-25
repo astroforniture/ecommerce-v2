@@ -4,18 +4,14 @@ import { Link } from 'react-router-dom'
 import { FileText, Minus, Plus, ShoppingBag, Trash2, X } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { useCartDrawer } from '../../context/CartDrawerContext'
-import { cartMerchandiseBreakdown, roundMoney2 } from '../../lib/cartMerchandiseIvato'
+import { cartMerchandiseBreakdown } from '../../lib/cartMerchandiseIvato'
 import { lineImponible } from '../../lib/quantityPricing'
 import { withOfficeImageCacheBust } from '../../lib/officeImageCacheBust'
 import { OFFICE_CATALOG_DATA_REVISION } from '../../api/officeProductsSupabase'
 import { FreeShippingProgressBar } from './FreeShippingProgressBar'
 import { CartRelatedProductsSection } from '../crosssell/CartRelatedProductsSection'
 import { OrderCostBreakdown } from './OrderCostBreakdown'
-
-const eur = new Intl.NumberFormat('it-IT', {
-  style: 'currency',
-  currency: 'EUR',
-})
+import { ProductPriceDisplay } from '../product/ProductPriceDisplay'
 
 export function CartSlideOver() {
   const { isOpen, closeCartDrawer } = useCartDrawer()
@@ -88,9 +84,7 @@ export function CartSlideOver() {
             <>
               <ul className="space-y-3">
                 {items.map((item) => {
-                  const rowIvato = roundMoney2(
-                    lineImponible(item.price, item.quantityPriceTiers, item.quantity) * 1.22,
-                  )
+                  const rowNet = lineImponible(item.price, item.quantityPriceTiers, item.quantity)
                   const imageUrl = withOfficeImageCacheBust(
                     item.imageUrl,
                     OFFICE_CATALOG_DATA_REVISION,
@@ -119,10 +113,12 @@ export function CartSlideOver() {
                         <p className="line-clamp-2 text-sm font-semibold leading-snug text-slate-900">
                           {item.name}
                         </p>
-                        <p className="mt-1 text-sm font-bold tabular-nums text-brand-800">
-                          {eur.format(rowIvato)}{' '}
-                          <span className="text-xs font-medium text-slate-500">IVA incl.</span>
-                        </p>
+                        <ProductPriceDisplay
+                          imponibile={rowNet}
+                          vatRate={item.vatRate}
+                          size="compact"
+                          className="mt-1"
+                        />
                         <div className="mt-2 flex items-center gap-2">
                           <button
                             type="button"

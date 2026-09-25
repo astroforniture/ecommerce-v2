@@ -55,6 +55,7 @@ function CrossSellCard({ product, slotLabel, onAdd }: CrossSellCardProps) {
           {hasPrice ? (
             <p className="mb-2 text-sm font-bold tabular-nums text-brand-800">
               {eur.format(unitIvato)}{' '}
+              <span className="text-xs font-medium text-slate-500">(IVA inclusa)</span>
               <span className="text-[10px] font-medium text-slate-500">IVA incl.</span>
             </p>
           ) : (

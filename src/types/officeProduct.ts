@@ -53,6 +53,11 @@ export interface OfficeProduct {
   /** Sottotitolo / breve descrizione sotto il titolo in PDP. */
   subtitle?: string
   price?: number
+  /**
+   * Aliquota IVA del prodotto (frazione 0.22 / 0.04 / 0.1 oppure percentuale 22 / 4 / 10).
+   * Default applicativo: 22%. Colonna DB opzionale: `vat_rate` / `iva`.
+   */
+  vatRate?: number
   /** Prezzo di listino (imponibile) prima dello sconto promo; usato per prezzo barrato. */
   compareAtPrice?: number
   /** Percentuale sconto promo visibile a FE (es. 20 → badge "-20%"). */

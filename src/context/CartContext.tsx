@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { OfficeProduct, QuantityPriceTier } from '../types/officeProduct'
 import { lineImponible } from '../lib/quantityPricing'
+import { priceWithVat } from '../lib/vatPricing'
 import {
   nextPurchaseQuantity,
   purchaseQuantityRuleForSku,
@@ -27,6 +28,8 @@ export type CartItem = {
   /** Etichetta variante (es. colore), se presente. */
   variantLabel?: string
   price?: number
+  /** Aliquota IVA snapshot (default 22%). */
+  vatRate?: number
   quantity: number
   /** Snapshot listini al momento dell’aggiunta (per totali coerenti). */
   quantityPriceTiers?: QuantityPriceTier[]
@@ -72,10 +75,6 @@ function applyCatalogPriceSnapshotToCartItem(item: CartItem): CartItem {
 
 function makeLineId(productId: string, variantLabel?: string) {
   return `${productId}|||${variantLabel ?? ''}`
-}
-
-function roundMoney2(n: number): number {
-  return Math.round(n * 100) / 100
 }
 
 function ruleForCartItem(item: Pick<CartItem, 'sku' | 'minOrderQuantity' | 'orderQuantityStep'>): PurchaseQuantityRule | null {
@@ -224,6 +223,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
                 ...item,
                 quantity: nextQtyForPreview,
                 price: product.price,
+                vatRate: product.vatRate,
                 name,
                 imageUrl: (product.imageUrl ?? '').trim() || item.imageUrl,
                 quantityPriceTiers: product.quantityPriceTiers,
@@ -248,6 +248,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           variantLabel,
           imageUrl: (product.imageUrl ?? '').trim() || undefined,
           price: product.price,
+          vatRate: product.vatRate,
           quantity: delta,
           quantityPriceTiers: product.quantityPriceTiers,
           ...(rule
@@ -264,7 +265,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       product.quantityPriceTiers,
       nextQtyForPreview,
     )
-    const rowIvato = roundMoney2(rowImp * 1.22)
+    const rowIvato = priceWithVat(rowImp, product.vatRate)
     setLastAddedPreview({
       name,
       imageUrl: (product.imageUrl ?? '').trim(),

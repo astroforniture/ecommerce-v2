@@ -13,6 +13,8 @@ import {
 import { withOfficeImageCacheBust } from '../lib/officeImageCacheBust'
 import { OFFICE_CATALOG_DATA_REVISION } from '../api/officeProductsSupabase'
 import { cartMerchandiseBreakdown, FREE_SHIPPING_THRESHOLD_IVATO } from '../lib/cartMerchandiseIvato'
+import { priceWithVat } from '../lib/vatPricing'
+import { ProductPriceDisplay } from '../components/product/ProductPriceDisplay'
 import {
   computeShippingFeeIvato,
   orderCostBreakdown,
@@ -57,7 +59,9 @@ function CartLineTierHint({ item }: { item: CartItem }) {
       Listino attivo:{' '}
       <span className="font-semibold text-slate-800">{active.label}</span>
       {' · '}
-      {eur.format(effectiveUnitPrice(item.price, item.quantityPriceTiers, item.quantity))} + IVA / pezzo
+      {eur.format(priceWithVat(effectiveUnitPrice(item.price, item.quantityPriceTiers, item.quantity), item.vatRate))}{' '}
+      (IVA inclusa) /{' '}
+      {eur.format(effectiveUnitPrice(item.price, item.quantityPriceTiers, item.quantity))} + IVA
     </p>
   )
 }
@@ -581,16 +585,22 @@ export function CartPage() {
                                   Su preventivo (0,00 € + IVA)
                                 </p>
                               ) : (
-                                <p className="mt-1 text-sm font-medium text-brand-800">
-                                  {eur.format(unitImponible)} + IVA{' '}
-                                  <span className="font-normal text-slate-600">/ pezzo</span>
-                                </p>
+                                <ProductPriceDisplay
+                                  imponibile={unitImponible}
+                                  vatRate={item.vatRate}
+                                  size="inline"
+                                  unitSuffix="/ pezzo"
+                                  className="mt-1"
+                                />
                               )}
                               {unitImponible > 0 || item.price !== 0 ? (
                                 <p className="mt-0.5 text-sm text-slate-700">
-                                  Totale imponibile riga:{' '}
+                                  Totale riga (IVA inclusa):{' '}
                                   <span className="font-semibold tabular-nums">
-                                    {eur.format(rowImponibile)}
+                                    {eur.format(priceWithVat(rowImponibile, item.vatRate))}
+                                  </span>
+                                  <span className="ml-1 text-xs text-slate-500">
+                                    (imponibile {eur.format(rowImponibile)})
                                   </span>
                                 </p>
                               ) : (

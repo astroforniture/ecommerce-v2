@@ -14,7 +14,7 @@ import {
   merchantAgendeProductType,
 } from './googleMerchantAgende'
 import { isAgendeCategoryProduct } from './agendeCatalog'
-import { VAT_RATE, roundMoney2 } from './cartMerchandiseIvato'
+import { formatGrossPriceFeed } from './vatPricing'
 import { productCatalogKey, productDetailAbsoluteUrl } from './productRoutes'
 import { SITE_BRAND_NAME, SITE_ORIGIN } from './siteSeo'
 
@@ -84,9 +84,11 @@ export function absoluteAssetUrl(url: string, origin = SITE_ORIGIN): string {
   return trimmed.startsWith('/') ? `${base}${trimmed}` : `${base}/${trimmed}`
 }
 
-export function formatMerchantGrossPrice(imponibile: number): string {
-  const gross = roundMoney2(imponibile * (1 + VAT_RATE))
-  return `${gross.toFixed(2)} EUR`
+export function formatMerchantGrossPrice(
+  imponibile: number,
+  vatRate?: number | string | null,
+): string {
+  return formatGrossPriceFeed(imponibile, vatRate)
 }
 
 export function truncateMerchantText(value: string, max: number): string {
@@ -194,7 +196,7 @@ export function mapOfficeProductToMerchantItem(
     description,
     link,
     image_link,
-    price: formatMerchantGrossPrice(product.price as number),
+    price: formatMerchantGrossPrice(product.price as number, product.vatRate),
     availability: resolveAvailability(product, opts.stock),
     brand,
     google_product_category: googleProductCategoryForProduct(product),

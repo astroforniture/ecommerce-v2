@@ -3,11 +3,7 @@ import type { OfficeSearchSuggestion } from '../../api/officeProductsSupabase'
 import { OFFICE_CATALOG_DATA_REVISION } from '../../api/officeProductsSupabase'
 import { withOfficeImageCacheBust } from '../../lib/officeImageCacheBust'
 import { SearchHighlightText } from '../../lib/searchHighlight'
-
-const eur = new Intl.NumberFormat('it-IT', {
-  style: 'currency',
-  currency: 'EUR',
-})
+import { ProductPriceDisplay } from '../product/ProductPriceDisplay'
 
 type SearchSuggestionRowProps = {
   item: OfficeSearchSuggestion
@@ -28,9 +24,6 @@ export function SearchSuggestionRow({
   const titleCls = compact
     ? 'line-clamp-2 text-sm font-semibold text-slate-900'
     : 'line-clamp-2 text-[15px] font-semibold leading-snug text-slate-900'
-  const priceCls = compact
-    ? 'mt-1 text-sm font-bold tabular-nums text-brand-800'
-    : 'mt-1.5 text-base font-bold tabular-nums text-brand-800'
   const imageUrl = withOfficeImageCacheBust(item.imageUrl, OFFICE_CATALOG_DATA_REVISION)
   const articleCode = (item.producerCode || item.id || '').trim()
 
@@ -77,9 +70,16 @@ export function SearchSuggestionRow({
           {item.colorName ? (
             <p className="mt-0.5 text-xs text-slate-500">Colore: {item.colorName}</p>
           ) : null}
-          <p className={priceCls}>
-            {typeof item.price === 'number' ? `${eur.format(item.price)} + IVA` : '—'}
-          </p>
+          {typeof item.price === 'number' ? (
+            <ProductPriceDisplay
+              imponibile={item.price}
+              vatRate={(item as { vatRate?: number }).vatRate}
+              size={compact ? 'compact' : 'card'}
+              className="mt-1"
+            />
+          ) : (
+            <p className="mt-1 text-sm text-slate-500">—</p>
+          )}
         </div>
       </button>
     </li>

@@ -1383,6 +1383,9 @@ type OfficeProductRow = ShopProductRow & {
   eu_responsible_address?: string | null
   safety_warnings?: string | null
   gpsr?: unknown
+  /** Aliquota IVA (0.22 / 22 / 0.04 / 4 / 0.1 / 10). */
+  vat_rate?: number | string | null
+  iva?: number | string | null
 }
 
 function jsonbToMainFeatures(raw: unknown): Record<string, string> {
@@ -1797,6 +1800,12 @@ function mapRowToOfficeProduct(row: OfficeProductRow): OfficeProduct {
     description: description || undefined,
     subtitle: String((row as OfficeProductRow).subtitle ?? '').trim() || undefined,
     price: Number.isFinite(rawPrice) ? Number(rawPrice) : undefined,
+    vatRate: (() => {
+      const rawVat = (row as OfficeProductRow).vat_rate ?? (row as OfficeProductRow).iva
+      if (rawVat == null || rawVat === '') return undefined
+      const n = typeof rawVat === 'number' ? rawVat : Number.parseFloat(String(rawVat).replace(',', '.'))
+      return Number.isFinite(n) ? n : undefined
+    })(),
     format: String((row as OfficeProductRow).format ?? '').trim() || undefined,
     ean: String((row as OfficeProductRow).ean ?? '').trim() || undefined,
     brochureUrl: docs.brochureUrl,

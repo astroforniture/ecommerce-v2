@@ -4,9 +4,9 @@ import { useCart } from '../../context/CartContext'
 import { productUnitIvato } from '../../lib/freeShippingUpsellProducts'
 import { productDetailPath } from '../../lib/productRoutes'
 import { ProductThumb } from './ProductThumb'
+import { ProductPriceDisplay } from '../product/ProductPriceDisplay'
+import { effectiveUnitPrice } from '../../lib/quantityPricing'
 import type { OfficeProduct } from '../../types/officeProduct'
-
-const eur = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' })
 
 type RelatedProductsMiniGridProps = {
   products: readonly OfficeProduct[]
@@ -31,6 +31,7 @@ function MiniCard({
   const unitIvato = productUnitIvato(product, 1)
   const hasPrice = unitIvato > 0
   const detailTo = productDetailPath(product)
+  const unitNet = effectiveUnitPrice(product.price, product.quantityPriceTiers, 1)
 
   return (
     <li className="flex min-w-[148px] max-w-[168px] shrink-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm sm:min-w-[160px] sm:max-w-[180px]">
@@ -56,7 +57,11 @@ function MiniCard({
           {product.name}
         </Link>
         {hasPrice ? (
-          <p className="text-sm font-bold tabular-nums text-brand-800">{eur.format(unitIvato)}</p>
+          <ProductPriceDisplay
+            imponibile={unitNet}
+            vatRate={product.vatRate}
+            size="compact"
+          />
         ) : (
           <p className="text-[10px] text-slate-500">Su preventivo</p>
         )}
@@ -86,6 +91,7 @@ function MiniRow({
   const unitIvato = productUnitIvato(product, 1)
   const hasPrice = unitIvato > 0
   const detailTo = productDetailPath(product)
+  const unitNet = effectiveUnitPrice(product.price, product.quantityPriceTiers, 1)
 
   return (
     <li className="flex items-center gap-2.5 rounded-lg border border-slate-200/90 bg-white px-2 py-2">
@@ -112,9 +118,12 @@ function MiniRow({
           {product.name}
         </Link>
         {hasPrice ? (
-          <p className="mt-0.5 text-sm font-bold tabular-nums text-brand-800">
-            {eur.format(unitIvato)}
-          </p>
+          <ProductPriceDisplay
+            imponibile={unitNet}
+            vatRate={product.vatRate}
+            size="compact"
+            className="mt-0.5"
+          />
         ) : (
           <p className="mt-0.5 text-[10px] text-slate-500">Su preventivo</p>
         )}

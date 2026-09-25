@@ -60,6 +60,8 @@ export type MerchantDbProductRow = {
   stock?: number | string | null
   variants?: unknown
   subtitle?: string | null
+  vat_rate?: number | string | null
+  iva?: number | string | null
 }
 
 export type BuildMerchantFeedOptions = {
@@ -127,6 +129,12 @@ export function mapDbRowToOfficeProduct(row: MerchantDbProductRow): {
     ean: (row.ean ?? '').trim() || undefined,
     variants,
     imageGalleryUrls: gallery?.length ? gallery : undefined,
+    vatRate: (() => {
+      const raw = row.vat_rate ?? row.iva
+      if (raw == null || raw === '') return undefined
+      const n = typeof raw === 'number' ? raw : Number.parseFloat(String(raw).replace(',', '.'))
+      return Number.isFinite(n) ? n : undefined
+    })(),
   }
 
   return { product, stock: parseStock(row.stock) }
@@ -178,18 +186,33 @@ export async function fetchAllMerchantDbRows(opts: {
   let from = 0
   for (;;) {
     const to = from + PAGE_SIZE - 1
-    const { data, error } = await supabase
+    const primary = await supabase
       .from('products')
       .select(
-        'id,sku,name,brand,price,image_url,description,category,subcategory,ean,stock,variants,subtitle',
+        'id,sku,name,brand,price,image_url,description,category,subcategory,ean,stock,variants,subtitle,vat_rate',
       )
       .order('id', { ascending: true })
       .range(from, to)
 
+    let data: MerchantDbProductRow[] | null = (primary.data ?? null) as MerchantDbProductRow[] | null
+    let error = primary.error
+
+    if (error && /vat_rate|column/i.test(error.message)) {
+      const fallback = await supabase
+        .from('products')
+        .select(
+          'id,sku,name,brand,price,image_url,description,category,subcategory,ean,stock,variants,subtitle',
+        )
+        .order('id', { ascending: true })
+        .range(from, to)
+      data = (fallback.data ?? null) as MerchantDbProductRow[] | null
+      error = fallback.error
+    }
+
     if (error) {
       throw new Error(`[merchant-feed] products fetch failed: ${error.message}`)
     }
-    const batch = (data ?? []) as MerchantDbProductRow[]
+    const batch = data ?? []
     rows.push(...batch)
     if (batch.length < PAGE_SIZE) break
     from += PAGE_SIZE

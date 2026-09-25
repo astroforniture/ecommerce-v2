@@ -1,12 +1,16 @@
 import type { CartItem } from '../context/CartContext'
 import { lineImponible } from './quantityPricing'
+import {
+  DEFAULT_VAT_RATE,
+  resolveVatRate,
+  roundMoney2,
+  vatAmountFromNet,
+} from './vatPricing'
+
+export { DEFAULT_VAT_RATE, VAT_RATE, roundMoney2 } from './vatPricing'
+export { resolveVatRate, priceWithVat, formatEuroIt } from './vatPricing'
 
 export const FREE_SHIPPING_THRESHOLD_IVATO = 50
-export const VAT_RATE = 0.22
-
-export function roundMoney2(n: number): number {
-  return Math.round(n * 100) / 100
-}
 
 export type CartMerchandiseBreakdown = {
   taxableTotal: number
@@ -14,15 +18,32 @@ export type CartMerchandiseBreakdown = {
   merchandiseIvato: number
 }
 
-/** Imponibile, IVA e totale merce IVA inclusa (22%) — allineato a carrello / checkout. */
+/** Imponibile, IVA e totale merce IVA inclusa — aliquota per riga se presente. */
 export function cartMerchandiseBreakdown(items: readonly CartItem[]): CartMerchandiseBreakdown {
-  const taxableTotal = roundMoney2(
-    items.reduce(
-      (sum, item) => sum + lineImponible(item.price, item.quantityPriceTiers, item.quantity),
-      0,
-    ),
-  )
-  const vatAmount = roundMoney2(taxableTotal * VAT_RATE)
+  let taxableTotal = 0
+  let vatAmount = 0
+  for (const item of items) {
+    const lineNet = roundMoney2(
+      lineImponible(item.price, item.quantityPriceTiers, item.quantity),
+    )
+    taxableTotal = roundMoney2(taxableTotal + lineNet)
+    vatAmount = roundMoney2(vatAmount + vatAmountFromNet(lineNet, item.vatRate))
+  }
   const merchandiseIvato = roundMoney2(taxableTotal + vatAmount)
   return { taxableTotal, vatAmount, merchandiseIvato }
+}
+
+/** Alias storico: moltiplicatore 1.22 (solo aliquota standard). */
+export function standardVatMultiplier(): number {
+  return 1 + DEFAULT_VAT_RATE
+}
+
+export function lineGross(
+  price: number | undefined,
+  tiers: CartItem['quantityPriceTiers'],
+  quantity: number,
+  vatRate?: number | null,
+): number {
+  const net = lineImponible(price, tiers, quantity)
+  return roundMoney2(net * (1 + resolveVatRate(vatRate)))
 }

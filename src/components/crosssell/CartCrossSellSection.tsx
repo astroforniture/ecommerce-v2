@@ -45,7 +45,8 @@ function CrossSellRow({
         </Link>
         {hasPrice ? (
           <p className="mt-0.5 text-sm font-bold tabular-nums text-brand-800">
-            {eur.format(unitIvato)}
+            {eur.format(unitIvato)}{' '}
+            <span className="text-[10px] font-medium text-slate-500">(IVA inclusa)</span>
           </p>
         ) : (
           <p className="mt-0.5 text-[10px] text-slate-500">Su preventivo</p>

@@ -7,6 +7,8 @@ import { ProductWhatsappQuoteButton } from './ProductWhatsappQuoteButton'
 import { AstroMedicalDeliveryBadge } from '../astroMedical/AstroMedicalDeliveryBadge'
 import { ImmediateAvailabilityBadge } from '../office/ImmediateAvailabilityBadge'
 import { DiscountPercentBadge } from '../promo/DiscountPercentBadge'
+import { ProductPriceDisplay } from './ProductPriceDisplay'
+import { priceWithVat } from '../../lib/vatPricing'
 
 const eur = new Intl.NumberFormat('it-IT', {
   style: 'currency',
@@ -48,6 +50,8 @@ export type OfficeProductDetailPurchasePanelProps = {
   compareAtUnitPrice?: number | null
   /** Percentuale sconto promo (es. 20). */
   discountPercent?: number | null
+  /** Aliquota IVA prodotto (default 22%). */
+  vatRate?: number | null
 }
 
 /**
@@ -75,6 +79,7 @@ export function OfficeProductDetailPurchasePanel({
   immediateAvailability = false,
   compareAtUnitPrice = null,
   discountPercent = null,
+  vatRate = null,
 }: OfficeProductDetailPurchasePanelProps) {
   const root = ['mt-3 w-full space-y-3', rootClassName].filter(Boolean).join(' ')
   const showCompare =
@@ -120,20 +125,15 @@ export function OfficeProductDetailPurchasePanel({
           <p className="text-sm font-medium text-slate-500">{priceLineLabel}</p>
           {showDiscountBadge ? <DiscountPercentBadge percent={discountPercent} /> : null}
         </div>
-        {showCompare ? (
-          <p className="mt-1 text-sm font-medium tabular-nums text-slate-400 line-through">
-            {eur.format(compareAtUnitPrice)} + IVA
-          </p>
-        ) : null}
-        <p
-          className={[
-            'mt-1 text-lg font-semibold tabular-nums',
-            showCompare ? 'text-red-600' : 'text-brand-600',
-          ].join(' ')}
-        >
-          {eur.format(unitForQty)} + IVA{' '}
-          <span className="text-base font-normal text-slate-600">{priceUnitSuffix}</span>
-        </p>
+        <ProductPriceDisplay
+          imponibile={unitForQty}
+          vatRate={vatRate}
+          compareAtImponibile={showCompare ? compareAtUnitPrice : null}
+          size="detail"
+          unitSuffix={priceUnitSuffix}
+          promo={showCompare}
+          className="mt-1"
+        />
 
         <div className="mt-3 flex flex-wrap items-center gap-2.5">
           <span className="text-sm font-medium text-slate-700">Quantità</span>
@@ -157,9 +157,12 @@ export function OfficeProductDetailPurchasePanel({
             </button>
           </div>
           <p className="ml-auto text-right text-xs text-slate-600 sm:text-sm">
-            Totale imponibile
-            <span className="ml-2 text-2xl font-bold tabular-nums text-brand-900">
-              {eur.format(lineTotal)}
+            Totale (IVA inclusa)
+            <span className="ml-2 block text-2xl font-bold tabular-nums text-brand-900 sm:inline">
+              {eur.format(priceWithVat(lineTotal, vatRate))}
+            </span>
+            <span className="mt-0.5 block text-xs font-normal text-slate-500">
+              imponibile {eur.format(lineTotal)}
             </span>
           </p>
         </div>

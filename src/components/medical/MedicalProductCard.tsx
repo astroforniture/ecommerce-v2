@@ -1,11 +1,7 @@
 import { useState } from 'react'
 import { FileText, ShoppingBag } from 'lucide-react'
 import type { MedicalProduct } from '../../data/medicalProducts'
-
-const eur = new Intl.NumberFormat('it-IT', {
-  style: 'currency',
-  currency: 'EUR',
-})
+import { ProductPriceDisplay } from '../product/ProductPriceDisplay'
 
 type MedicalProductCardProps = {
   product: MedicalProduct
@@ -48,9 +44,15 @@ export function MedicalProductCard({ product }: MedicalProductCardProps) {
         <p className="mt-2 line-clamp-4 flex-1 text-sm leading-relaxed text-muted">
           {product.fullDescription}
         </p>
-        <p className="mt-4 text-lg font-semibold tabular-nums text-medical-800">
-          {eur.format(product.price)}
-        </p>
+        {isQuote ? (
+          <p className="mt-4 text-sm font-semibold text-slate-700">Su preventivo</p>
+        ) : (
+          <ProductPriceDisplay
+            imponibile={product.price}
+            size="card"
+            className="mt-4 [&_p:first-child]:text-medical-800"
+          />
+        )}
         <button
           type="button"
           className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-medical-700 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-medical-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-medical-600"
