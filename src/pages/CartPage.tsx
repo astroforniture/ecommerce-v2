@@ -36,7 +36,7 @@ import {
   PrivacyMarketingConsents,
   type PrivacyMarketingConsentValues,
 } from '../components/privacy/PrivacyMarketingConsents'
-import { sendOrderConfirmationEmailSafe } from '../api/transactionalEmails'
+import { sendAdminNewOrderEmailSafe, sendOrderConfirmationEmailSafe } from '../api/transactionalEmails'
 import { buildGa4PurchaseFromCheckout, persistPendingGa4Purchase } from '../lib/googleAnalytics'
 
 const eur = new Intl.NumberFormat('it-IT', {
@@ -402,6 +402,57 @@ export function CartPage() {
       totalWithVat: checkoutInput.totalWithVat,
       deliveryMethod: checkoutInput.deliveryLabel,
       shippingAddress: shippingAddress || undefined,
+    })
+
+    const billingAddress = [
+      checkoutInput.addressStreet,
+      [checkoutInput.addressZip, checkoutInput.addressCity].filter(Boolean).join(' '),
+      checkoutInput.addressProvince,
+    ]
+      .filter(Boolean)
+      .join(', ')
+
+    const orderNotesCombined = [
+      checkoutInput.shippingCareOf ? `Presso/C.o.: ${checkoutInput.shippingCareOf}` : '',
+      checkoutInput.orderNotes,
+      checkoutInput.shippingNotes,
+    ]
+      .filter(Boolean)
+      .join('\n')
+
+    void sendAdminNewOrderEmailSafe({
+      orderRef: result.orderRef,
+      firstName: checkoutInput.firstName,
+      lastName: checkoutInput.lastName,
+      customerName: resolveCheckoutBillingName(checkoutInput),
+      email: customerEmail,
+      phone: checkoutInput.billingPhone,
+      billingAddress: billingAddress || undefined,
+      shippingAddress: shippingAddress || undefined,
+      items: checkoutInput.items.map((item) => ({
+        name: item.name,
+        quantity: item.quantity,
+        unitImponibile: Number(
+          effectiveUnitPrice(item.price, item.quantityPriceTiers, item.quantity).toFixed(2),
+        ),
+        variant: item.variantLabel,
+      })),
+      taxableTotal: checkoutInput.taxableTotal,
+      vatAmount: checkoutInput.vatAmount,
+      shippingFee: checkoutInput.shippingFee,
+      totalWithVat: checkoutInput.totalWithVat,
+      paymentMethod: stripePaymentIntentId ? 'Stripe / Carta' : 'Checkout',
+      orderNotes: orderNotesCombined || undefined,
+      deliveryMethod: checkoutInput.deliveryLabel,
+    }).then((ok) => {
+      if (!ok) return
+      void supabase
+        .from('orders')
+        .update({ admin_notified_at: new Date().toISOString() })
+        .eq('id', result.orderId)
+        .then(({ error }) => {
+          if (error) console.warn('[email] admin_notified_at:', error.message)
+        })
     })
 
     const purchase = buildGa4PurchaseFromCheckout({

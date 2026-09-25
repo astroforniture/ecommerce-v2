@@ -2,10 +2,12 @@ import { FunctionsHttpError } from '@supabase/supabase-js'
 import { getSupabaseBrowserClient } from '../lib/supabaseClient'
 import type {
   AbandonedCartEmailInput,
+  AdminNewOrderEmailInput,
   OrderConfirmationEmailInput,
   ShippingEmailInput,
   WelcomeEmailInput,
 } from '../lib/emails/templates'
+import { EMAIL_SUPPORT } from '../lib/emails/brand'
 
 export type TransactionalEmailResult =
   | { ok: true; id?: string }
@@ -117,5 +119,41 @@ export async function sendAbandonedCartEmailSafe(input: AbandonedCartEmailInput)
     if (!result.ok) console.warn('[email] abandoned_cart fallita:', result.error)
   } catch (err) {
     console.warn('[email] abandoned_cart exception:', err)
+  }
+}
+
+/** Notifica nuovo ordine a info@astro-forniture.it (Resend via Edge Function). */
+export async function sendAdminNewOrderEmailSafe(
+  input: AdminNewOrderEmailInput,
+): Promise<boolean> {
+  try {
+    const result = await invokeTransactionalEmail({
+      type: 'admin_new_order',
+      to: EMAIL_SUPPORT,
+      orderRef: input.orderRef,
+      firstName: input.firstName,
+      lastName: input.lastName,
+      customerName: input.customerName,
+      customerEmail: input.email,
+      phone: input.phone,
+      billingAddress: input.billingAddress,
+      shippingAddress: input.shippingAddress,
+      items: input.items,
+      taxableTotal: input.taxableTotal,
+      vatAmount: input.vatAmount,
+      shippingFee: input.shippingFee,
+      totalWithVat: input.totalWithVat,
+      paymentMethod: input.paymentMethod ?? 'Stripe / Carta',
+      orderNotes: input.orderNotes,
+      deliveryMethod: input.deliveryMethod,
+    })
+    if (!result.ok) {
+      console.warn('[email] admin_new_order fallita:', result.error)
+      return false
+    }
+    return true
+  } catch (err) {
+    console.warn('[email] admin_new_order exception:', err)
+    return false
   }
 }

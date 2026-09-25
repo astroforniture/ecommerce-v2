@@ -3,6 +3,7 @@ import {
   EMAIL_FROM_DEFAULT,
   EMAIL_SUPPORT,
   buildAbandonedCartEmail,
+  buildAdminNewOrderEmail,
   buildOrderConfirmationEmail,
   buildShippingEmail,
   buildWelcomeEmail,
@@ -85,7 +86,7 @@ Deno.serve(async (req) => {
 
   const type = asString(body.type, 64)
   const to = asString(body.to ?? body.email, 320)
-  if (!to || !to.includes('@')) {
+  if (type !== 'admin_new_order' && (!to || !to.includes('@'))) {
     return json({ error: 'Destinatario email mancante o non valido' }, 400)
   }
 
@@ -131,14 +132,43 @@ Deno.serve(async (req) => {
     })
     subject = built.subject
     html = built.html
+  } else if (type === 'admin_new_order') {
+    const orderRef = asString(body.orderRef, 64)
+    if (!orderRef) return json({ error: 'orderRef obbligatorio' }, 400)
+    const built = buildAdminNewOrderEmail({
+      orderRef,
+      firstName: asString(body.firstName, 80) || undefined,
+      lastName: asString(body.lastName, 80) || undefined,
+      customerName: asString(body.customerName, 160) || undefined,
+      email: asString(body.customerEmail ?? body.email, 320) || undefined,
+      phone: asString(body.phone ?? body.billingPhone, 80) || undefined,
+      billingAddress: asString(body.billingAddress, 500) || undefined,
+      shippingAddress: asString(body.shippingAddress, 500) || undefined,
+      items: parseItems(body.items),
+      taxableTotal: asNumber(body.taxableTotal),
+      vatAmount: asNumber(body.vatAmount),
+      shippingFee: asNumber(body.shippingFee),
+      totalWithVat: asNumber(body.totalWithVat),
+      paymentMethod: asString(body.paymentMethod, 120) || 'Stripe / Carta',
+      orderNotes: asString(body.orderNotes, 2000) || undefined,
+      deliveryMethod: asString(body.deliveryMethod, 120) || undefined,
+    })
+    subject = built.subject
+    html = built.html
   } else {
     return json(
       {
         error:
-          'type non supportato. Usa: welcome | order_confirmation | shipping | abandoned_cart',
+          'type non supportato. Usa: welcome | order_confirmation | shipping | abandoned_cart | admin_new_order',
       },
       400,
     )
+  }
+
+  const recipient =
+    type === 'admin_new_order' ? asString(body.to, 320) || EMAIL_SUPPORT : to
+  if (!recipient || !recipient.includes('@')) {
+    return json({ error: 'Destinatario email mancante o non valido' }, 400)
   }
 
   const from = asString(Deno.env.get('RESEND_FROM'), 200) || EMAIL_FROM_DEFAULT
@@ -147,7 +177,7 @@ Deno.serve(async (req) => {
   try {
     const result = await resend.emails.send({
       from,
-      to,
+      to: recipient,
       subject,
       html,
       replyTo: EMAIL_SUPPORT,

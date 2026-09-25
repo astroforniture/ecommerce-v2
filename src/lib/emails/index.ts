@@ -3,12 +3,14 @@ export type {
   OrderConfirmationEmailInput,
   OrderEmailLineItem,
   ShippingEmailInput,
+  AdminNewOrderEmailInput,
 } from './templates'
 
 export {
   buildWelcomeEmail,
   buildOrderConfirmationEmail,
   buildShippingEmail,
+  buildAdminNewOrderEmail,
 } from './templates'
 
 export { createResendClient, sendResendEmail } from './sendViaResend'

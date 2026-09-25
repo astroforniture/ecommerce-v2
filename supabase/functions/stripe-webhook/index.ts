@@ -1,5 +1,12 @@
 import Stripe from 'https://esm.sh/stripe@17.7.0?target=deno'
+import { Resend } from 'npm:resend@4.1.2'
 import { getServiceSupabase } from '../_shared/supabaseAdmin.ts'
+import {
+  EMAIL_FROM_DEFAULT,
+  EMAIL_SUPPORT,
+  buildAdminNewOrderEmail,
+  type OrderLine,
+} from '../_shared/transactionalEmailTemplates.ts'
 
 const corsHeaders: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
@@ -14,6 +21,44 @@ function json(body: Record<string, unknown>, status = 200): Response {
     status,
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   })
+}
+
+function asString(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function asNumber(value: unknown): number {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value === 'string') {
+    const n = Number.parseFloat(value.replace(',', '.'))
+    return Number.isFinite(n) ? n : 0
+  }
+  return 0
+}
+
+function buildOrderRef(id: string): string {
+  const year = new Date().getFullYear()
+  const clean = id.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()
+  const tail = clean.slice(-6).padStart(6, '0')
+  return `AF-${year}-${tail || '000000'}`
+}
+
+function parseOrderItems(raw: unknown): OrderLine[] {
+  if (!Array.isArray(raw)) return []
+  return raw
+    .map((row) => {
+      if (!row || typeof row !== 'object') return null
+      const o = row as Record<string, unknown>
+      const name = asString(o.name ?? o.product_name)
+      if (!name) return null
+      return {
+        name,
+        quantity: Math.max(1, Math.floor(asNumber(o.quantity))),
+        unitImponibile: asNumber(o.unit_imponibile ?? o.unitImponibile ?? o.price),
+        variant: asString(o.variant) || undefined,
+      }
+    })
+    .filter((x): x is OrderLine => Boolean(x))
 }
 
 async function setCartSessionStatusByPaymentIntent(
@@ -49,7 +94,6 @@ async function setCartSessionStatusByCheckoutSession(
     return setCartSessionStatusByPaymentIntent(paymentIntentId, status)
   }
 
-  // Fallback: metadata may store cart_session_id in future Checkout Sessions.
   const { data, error } = await supabase
     .from('cart_sessions')
     .update({ status, updated_at: new Date().toISOString() })
@@ -62,6 +106,101 @@ async function setCartSessionStatusByCheckoutSession(
     return { updated: 0 }
   }
   return { updated: data?.length ?? 0 }
+}
+
+/** Backup: notifica admin se l'ordine e gia in DB (dopo checkout client). */
+async function notifyAdminNewOrderFromPaymentIntent(paymentIntentId: string) {
+  const supabase = getServiceSupabase()
+  const apiKey = Deno.env.get('RESEND_API_KEY')?.trim()
+  if (!supabase || !apiKey || !paymentIntentId) return { sent: false }
+
+  // Piccolo ritardo: l'ordine viene inserito dal client subito dopo il PaymentIntent.
+  await new Promise((r) => setTimeout(r, 2500))
+
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('stripe_payment_intent_id', paymentIntentId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) {
+    console.warn('[stripe-webhook] order lookup:', error.message)
+    return { sent: false }
+  }
+  if (!data) {
+    console.log('[stripe-webhook] nessun ordine ancora per PI', paymentIntentId)
+    return { sent: false }
+  }
+
+  const row = data as Record<string, unknown>
+  if (row.admin_notified_at) {
+    console.log('[stripe-webhook] admin gia notificato per ordine', row.id)
+    return { sent: false, skipped: true }
+  }
+
+  const orderId = asString(row.id)
+  const orderRef = buildOrderRef(orderId)
+  const billingAddress = [
+    asString(row.billing_street),
+    [asString(row.billing_zip), asString(row.billing_city)].filter(Boolean).join(' '),
+    asString(row.billing_province),
+  ]
+    .filter(Boolean)
+    .join(', ')
+  const shippingAddress = [
+    asString(row.shipping_address) || asString(row.shipping_street),
+    [asString(row.shipping_zip), asString(row.shipping_city)].filter(Boolean).join(' '),
+    asString(row.shipping_province),
+  ]
+    .filter(Boolean)
+    .join(', ')
+
+  const built = buildAdminNewOrderEmail({
+    orderRef,
+    customerName: asString(row.customer_name) || asString(row.billing_name) || undefined,
+    email: asString(row.billing_email) || asString(row.customer_email) || undefined,
+    phone: asString(row.billing_phone) || undefined,
+    billingAddress: billingAddress || undefined,
+    shippingAddress: shippingAddress || undefined,
+    items: parseOrderItems(row.items_json),
+    taxableTotal: asNumber(row.taxable_total ?? row.subtotal),
+    vatAmount: asNumber(row.vat_amount ?? row.vat_total),
+    shippingFee: asNumber(row.shipping_cost ?? row.shipping_fee),
+    totalWithVat: asNumber(row.total_amount ?? row.total),
+    paymentMethod: 'Stripe / Carta',
+    orderNotes: asString(row.order_notes) || undefined,
+    deliveryMethod: asString(row.delivery_method) || undefined,
+  })
+
+  const from = Deno.env.get('RESEND_FROM')?.trim() || EMAIL_FROM_DEFAULT
+  const resend = new Resend(apiKey)
+  const sendResult = await resend.emails.send({
+    from,
+    to: EMAIL_SUPPORT,
+    subject: built.subject,
+    html: built.html,
+    replyTo: EMAIL_SUPPORT,
+  })
+
+  if (sendResult.error) {
+    console.error('[stripe-webhook] admin email Resend error:', sendResult.error)
+    return { sent: false }
+  }
+
+  const notifiedAt = new Date().toISOString()
+  const mark = await supabase
+    .from('orders')
+    .update({ admin_notified_at: notifiedAt })
+    .eq('id', orderId)
+  if (mark.error) {
+    // Colonna assente: non bloccare.
+    console.warn('[stripe-webhook] admin_notified_at update:', mark.error.message)
+  }
+
+  console.log('[stripe-webhook] admin new-order email sent', orderRef, sendResult.data?.id)
+  return { sent: true, orderRef }
 }
 
 Deno.serve(async (req) => {
@@ -106,6 +245,10 @@ Deno.serve(async (req) => {
         const pi = event.data.object as Stripe.PaymentIntent
         const result = await setCartSessionStatusByPaymentIntent(pi.id, 'completed')
         console.log('[stripe-webhook] payment_intent.succeeded', pi.id, result)
+        // Fire-and-forget backup admin notification (non bloccare la risposta Stripe).
+        void notifyAdminNewOrderFromPaymentIntent(pi.id).catch((err) =>
+          console.error('[stripe-webhook] admin notify failed:', err),
+        )
         break
       }
       case 'payment_intent.canceled': {
@@ -115,7 +258,6 @@ Deno.serve(async (req) => {
         break
       }
       case 'payment_intent.payment_failed': {
-        // Keep pending so reminder logic can still recover the cart.
         console.log(
           '[stripe-webhook] payment_intent.payment_failed',
           (event.data.object as Stripe.PaymentIntent).id,
@@ -134,6 +276,11 @@ Deno.serve(async (req) => {
           piId,
         )
         console.log('[stripe-webhook] checkout.session.completed', session.id, result)
+        if (piId) {
+          void notifyAdminNewOrderFromPaymentIntent(piId).catch((err) =>
+            console.error('[stripe-webhook] admin notify failed:', err),
+          )
+        }
         break
       }
       case 'checkout.session.expired': {

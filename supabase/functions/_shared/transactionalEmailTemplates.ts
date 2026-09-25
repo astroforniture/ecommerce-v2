@@ -247,3 +247,109 @@ export function buildAbandonedCartEmail(input: {
   )
   return { subject, html }
 }
+
+export type AdminNewOrderEmailInput = {
+  orderRef: string
+  firstName?: string
+  lastName?: string
+  customerName?: string
+  email?: string
+  phone?: string
+  billingAddress?: string
+  shippingAddress?: string
+  items: OrderLine[]
+  taxableTotal: number
+  vatAmount: number
+  shippingFee: number
+  totalWithVat: number
+  paymentMethod?: string
+  orderNotes?: string
+  deliveryMethod?: string
+}
+
+/** Notifica interna nuovo ordine → info@astro-forniture.it */
+export function buildAdminNewOrderEmail(
+  input: AdminNewOrderEmailInput,
+): { subject: string; html: string } {
+  const orderRef = input.orderRef.trim() || 'N/D'
+  const subject = `Nuovo Ordine Ricevuto # ${orderRef}`
+  const fullName =
+    [input.firstName?.trim(), input.lastName?.trim()].filter(Boolean).join(' ') ||
+    input.customerName?.trim() ||
+    'Cliente'
+
+  const rows = input.items
+    .map((item) => {
+      const label = item.variant ? `${item.name} (${item.variant})` : item.name
+      const line = item.unitImponibile * item.quantity
+      return `<tr>
+        <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;font-size:14px;color:#0f172a;">${escapeHtml(label)}</td>
+        <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;font-size:14px;color:#64748b;text-align:center;">${item.quantity}</td>
+        <td style="padding:10px 8px;border-bottom:1px solid #e2e8f0;font-size:14px;color:#0f172a;text-align:right;">${formatEuroIt(item.unitImponibile)}</td>
+        <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;font-size:14px;color:#0f172a;text-align:right;">${formatEuroIt(line)}</td>
+      </tr>`
+    })
+    .join('')
+
+  const notesBlock = input.orderNotes?.trim()
+    ? `<p style="margin:16px 0 0;padding:12px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;font-size:14px;line-height:1.6;color:#9a3412;">
+        <strong>Note ordine:</strong><br />${escapeHtml(input.orderNotes.trim()).replace(/\n/g, '<br />')}
+      </p>`
+    : ''
+
+  const html = layout(
+    subject,
+    `
+    <h1 style="margin:0 0 12px;font-size:22px;line-height:1.3;color:#0f172a;">Nuovo ordine ricevuto</h1>
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#334155;">
+      È stato completato un nuovo ordine <strong>${escapeHtml(orderRef)}</strong> su ${escapeHtml(EMAIL_BRAND_NAME)}.
+    </p>
+
+    <h2 style="margin:20px 0 8px;font-size:15px;color:#0f172a;">Dati cliente</h2>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;color:#334155;">
+      <tr><td style="padding:4px 0;width:140px;color:#64748b;">Nome / Cognome</td><td style="padding:4px 0;">${escapeHtml(fullName)}</td></tr>
+      <tr><td style="padding:4px 0;color:#64748b;">Email</td><td style="padding:4px 0;">${escapeHtml(input.email?.trim() || '—')}</td></tr>
+      <tr><td style="padding:4px 0;color:#64748b;">Telefono</td><td style="padding:4px 0;">${escapeHtml(input.phone?.trim() || '—')}</td></tr>
+    </table>
+
+    <h2 style="margin:20px 0 8px;font-size:15px;color:#0f172a;">Indirizzi</h2>
+    <p style="margin:0 0 8px;font-size:14px;line-height:1.6;color:#334155;">
+      <strong>Fatturazione:</strong><br />${escapeHtml(input.billingAddress?.trim() || 'Non indicato')}
+    </p>
+    <p style="margin:0;font-size:14px;line-height:1.6;color:#334155;">
+      <strong>Spedizione:</strong><br />${escapeHtml(input.shippingAddress?.trim() || 'Non indicato')}
+    </p>
+
+    <h2 style="margin:20px 0 8px;font-size:15px;color:#0f172a;">Articoli ordinati</h2>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <th align="left" style="padding:8px 0;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Prodotto</th>
+        <th style="padding:8px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Qtà</th>
+        <th align="right" style="padding:8px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Prezzo unit.</th>
+        <th align="right" style="padding:8px 0;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Totale</th>
+      </tr>
+      ${rows || `<tr><td colspan="4" style="padding:12px 0;font-size:14px;color:#64748b;">Nessun articolo</td></tr>`}
+    </table>
+
+    <h2 style="margin:20px 0 8px;font-size:15px;color:#0f172a;">Riepilogo economico</h2>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      <tr><td style="padding:4px 0;font-size:14px;color:#64748b;">Imponibile</td><td style="padding:4px 0;font-size:14px;color:#0f172a;text-align:right;">${formatEuroIt(input.taxableTotal)}</td></tr>
+      <tr><td style="padding:4px 0;font-size:14px;color:#64748b;">IVA</td><td style="padding:4px 0;font-size:14px;color:#0f172a;text-align:right;">${formatEuroIt(input.vatAmount)}</td></tr>
+      <tr><td style="padding:4px 0;font-size:14px;color:#64748b;">Spese di spedizione</td><td style="padding:4px 0;font-size:14px;color:#0f172a;text-align:right;">${formatEuroIt(input.shippingFee)}</td></tr>
+      <tr><td style="padding:10px 0 0;font-size:16px;font-weight:700;color:#0f172a;">Totale complessivo</td><td style="padding:10px 0 0;font-size:16px;font-weight:700;color:#0f172a;text-align:right;">${formatEuroIt(input.totalWithVat)}</td></tr>
+    </table>
+
+    <p style="margin:16px 0 0;font-size:14px;color:#334155;">
+      <strong>Pagamento:</strong> ${escapeHtml(input.paymentMethod?.trim() || 'Stripe / Carta')}
+    </p>
+    ${
+      input.deliveryMethod
+        ? `<p style="margin:8px 0 0;font-size:14px;color:#334155;"><strong>Consegna:</strong> ${escapeHtml(input.deliveryMethod)}</p>`
+        : ''
+    }
+    ${notesBlock}
+    ${cta(`${EMAIL_SITE_ORIGIN}/admin/orders`, 'Apri backoffice ordini')}
+    `,
+  )
+  return { subject, html }
+}
