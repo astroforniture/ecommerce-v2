@@ -1004,6 +1004,119 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
     ],
     showQuantityDiscountTable: true,
   },
+  // ── Kit primo soccorso ─────────────────────────────────────────────────────
+  {
+    gimaSku: '34193',
+    name: 'KIT GRANDE MULTIRED - valigetta',
+    price: 140,
+    features: {
+      Tipo: 'Kit dispositivi medici',
+      Formato: 'Valigetta plastica case 3',
+      Dimensioni: '443×338×147 mm',
+      Peso: '3,3 kg (vuota) / 8,4 kg (completa)',
+      RDM: '136318',
+      EAN: '8056389237720',
+      Unità: '1 pezzo',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/34193_a.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/34193_a.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/34193_b.jpg',
+    ],
+    description:
+      'Kit grande Multired in valigetta plastica (case 3). Dimensioni 443×338×147 mm. ' +
+      'Plastica tripolymero lucida, facile da pulire; guarnizione in neoprene antipolvere; ' +
+      'staffa a muro; divisori interni; chiusura sicura con 2 ganci girevoli. ' +
+      'Peso 3,3 kg (vuota) / 8,4 kg (completa). Codice GIMA 34193. RDM 136318. EAN 8056389237720.\n\n' +
+      'Contenuto standard: 5 paia guanti sterili; 1 maschera di sicurezza con visiera; ' +
+      '3 soluzioni fisiologiche sterili 500 ml; 2 disinfettanti Iodopovidone 10% 500 ml; ' +
+      '10 garze sterili 10×10 cm; 2 garze sterili 18×40 cm; 2 bendaggi sterili 40×60 cm; ' +
+      '1 conf. cotone; 2 pinzette sterili; 1 conf. benda elastica a rete; ' +
+      '2 cerotti adesivi 5 m × 2,5 cm; 2 Plastosan 20 medicazioni assortite; ' +
+      '1 forbice Lister 14,5 cm; 3 lacci emostatici; 2 ghiaccio istantaneo monouso; ' +
+      '2 sacchetti rifiuti; 1 termometro clinico digitale; 1 sfigmomanometro con stetoscopio; ' +
+      '2 bende di garza 10 cm × 3,5 m; 1 coperta isotermica oro/argento 160×210 cm; ' +
+      '1 triangolo TNT 136×96×96 cm; 1 conf. 8 bustine sapone/disinfettante; ' +
+      '2 bende elastiche 4 m × 6 cm; 1 benda compressiva sterile 80×100; ' +
+      '1 apribocca Pinocchio; 2 gel ustioni bustine 3,5 g.\n\n' +
+      'Prezzo 140,00 € al pezzo, imponibile IVA esclusa. ' +
+      'Sconto quantità: 10% da 10 a 24 pezzi (126,00 €), 15% da 25 pezzi (119,00 €).\n\n' +
+      'Linea: Emergenza e pronto soccorso › Pronto soccorso.',
+    downloadId: '158650',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 140 },
+      { minQuantity: 10, unitPrice: 126 },
+      { minQuantity: 25, unitPrice: 119 },
+    ],
+    showQuantityDiscountTable: true,
+  },
+  {
+    gimaSku: '34195',
+    name: 'KIT GRANDE - cassetta plastica "1"',
+    price: 80,
+    features: {
+      Tipo: 'Kit dispositivi medici',
+      Formato: 'Cassetta plastica "1"',
+      Dimensioni: '460×345×135 mm',
+      Peso: '6,2 kg',
+      RDM: '135086',
+      EAN: '8056389237171',
+      PARAF: '903630186',
+      Unità: '1 pezzo',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/34195.jpg',
+    description:
+      'Kit grande di primo soccorso in cassetta plastica "1". Dimensioni 460×345×135 mm, peso 6,2 kg. ' +
+      'Codice GIMA 34195. RDM 135086. EAN 8056389237171. PARAF 903630186.\n\n' +
+      'Contenuto standard: 2 flaconi soluzione antisettica 500 ml; 5 paia guanti protettivi sterili; ' +
+      '2 scatole da 10 cerotti assortiti; 2 rotoli cerotto adesivo 2,5 cm × 5 m; 1 garza tubolare a rete; ' +
+      '10 conf. compressa sterile 10×10 cm; 2 conf. compressa sterile 18×40 cm; 1 conf. cotone; ' +
+      '1 maschera con visiera; 1 paio forbici 14,5 cm; 2 pinzette sterili; 3 lacci emostatici; ' +
+      '1 sfigmomanometro + stetoscopio; 2 coperte sterili 40×60 cm; 2 conf. ghiaccio istantaneo monouso; ' +
+      '1 termometro digitale; 2 sacchetti rifiuti; 3 soluzioni irriganti 500 ml.\n\n' +
+      'Prezzo 80,00 € al pezzo, imponibile IVA esclusa. ' +
+      'Sconto quantità: 10% da 10 a 24 pezzi (72,00 €), 15% da 25 pezzi (68,00 €).\n\n' +
+      'Linea: Emergenza e pronto soccorso › Pronto soccorso.',
+    downloadId: '158650',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 80 },
+      { minQuantity: 10, unitPrice: 72 },
+      { minQuantity: 25, unitPrice: 68 },
+    ],
+    showQuantityDiscountTable: true,
+  },
+  {
+    gimaSku: '34184',
+    name: 'KIT PICCOLO "A" - in valigetta plastica',
+    price: 20,
+    features: {
+      Tipo: 'Kit dispositivi medici',
+      Formato: 'Valigetta plastica "A"',
+      Dimensioni: '290×215×90 mm',
+      Peso: '1,4 kg',
+      Norma: 'D.M. 388 art. 2',
+      RDM: '135951',
+      EAN: '8034028010897',
+      PARAF: '910552710',
+      Unità: '1 pezzo',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/34184.jpg',
+    description:
+      'Kit piccolo di primo soccorso in valigetta plastica "A", consigliato per uffici o laboratori fino a 2 persone. ' +
+      'Conforme D.M. 388 art. 2. Dimensioni 290×215×90 mm, peso 1,4 kg. ' +
+      'Codice GIMA 34184. RDM 135951. EAN 8034028010897. PARAF 910552710.\n\n' +
+      'Contenuto standard: 1 flacone soluzione antisettica 125 ml; 2 paia guanti protettivi sterili; ' +
+      '1 scatola da 10 cerotti assortiti; 1 rotolo cerotto adesivo 2,5 cm × 5 m; ' +
+      '1 benda di garza 10 cm × 3,5 m; 3 conf. compressa sterile 10×10 cm; ' +
+      '1 conf. compressa sterile 18×40 cm; 1 conf. cotone; 1 paio forbici 14,5 cm; ' +
+      '1 pinzetta sterile; 1 laccio emostatico; 1 conf. ghiaccio istantaneo monouso; ' +
+      '1 sacchetto rifiuti; 1 soluzione irrigante 250 ml.\n\n' +
+      'Prezzo 20,00 € al pezzo, imponibile IVA esclusa.\n\n' +
+      'Linea: Emergenza e pronto soccorso › Pronto soccorso.',
+    downloadId: '158318',
+    quantityPriceTiers: [{ minQuantity: 1, unitPrice: 20 }],
+    showQuantityDiscountTable: true,
+  },
 ]
 
 const GIMA_OVERRIDE_BY_SKU = new Map(GIMA_CATALOG_OVERRIDES.map((row) => [row.gimaSku, row]))
@@ -1161,6 +1274,15 @@ function gimaCatalogOverrideForProduct(
     (name.includes('legno') || name.includes('visita') || name.includes('visitato'))
   ) {
     return GIMA_OVERRIDE_BY_SKU.get('27416') ?? null
+  }
+  if (name.includes('multired') || (name.includes('kit grande') && name.includes('valigetta'))) {
+    return GIMA_OVERRIDE_BY_SKU.get('34193') ?? null
+  }
+  if (name.includes('kit grande') && name.includes('cassetta') && name.includes('plastica')) {
+    return GIMA_OVERRIDE_BY_SKU.get('34195') ?? null
+  }
+  if (name.includes('kit piccolo') && (name.includes('"a"') || name.includes('valigetta'))) {
+    return GIMA_OVERRIDE_BY_SKU.get('34184') ?? null
   }
   return null
 }

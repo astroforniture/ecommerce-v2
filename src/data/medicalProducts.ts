@@ -386,11 +386,42 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
   {
     sku: 'AMS-0013',
     name: 'KIT GRANDE MULTIRED - valigetta',
-    fullDescription: 'KIT GRANDE MULTIRED - valigetta',
-    price: 195.0,
+    fullDescription:
+      'Kit grande Multired in valigetta plastica (case 3). Dimensioni 443×338×147 mm, plastica tripolymero lucida, ' +
+      'guarnizione neoprene antipolvere, staffa a muro, divisori interni e chiusura a due ganci. ' +
+      'Peso 3,3 kg (vuota) / 8,4 kg (completa). Codice GIMA 34193. RDM 136318. EAN 8056389237720. ' +
+      'Prezzo 140,00 € al pezzo, imponibile IVA esclusa. Sconto quantità: 10% da 10 a 24 pezzi, 15% da 25 pezzi.',
+    price: 140,
     categoryPath: [macroLabelFromId('emergenza'), 'Pronto soccorso'],
     macroId: 'emergenza',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/34193.jpg',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/34193_a.jpg',
+    gimaSku: '34193',
+  },
+  {
+    sku: 'AMS-0079',
+    name: 'KIT GRANDE - cassetta plastica "1"',
+    fullDescription:
+      'Kit grande di primo soccorso in cassetta plastica "1". Dimensioni 460×345×135 mm, peso 6,2 kg. ' +
+      'Codice GIMA 34195. RDM 135086. EAN 8056389237171. PARAF 903630186. ' +
+      'Prezzo 80,00 € al pezzo, imponibile IVA esclusa. Sconto quantità: 10% da 10 a 24 pezzi, 15% da 25 pezzi.',
+    price: 80,
+    categoryPath: [macroLabelFromId('emergenza'), 'Pronto soccorso'],
+    macroId: 'emergenza',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/34195.jpg',
+    gimaSku: '34195',
+  },
+  {
+    sku: 'AMS-0080',
+    name: 'KIT PICCOLO "A" - in valigetta plastica',
+    fullDescription:
+      'Kit piccolo di primo soccorso in valigetta plastica "A", consigliato per uffici o laboratori fino a 2 persone. ' +
+      'Conforme D.M. 388 art. 2. Dimensioni 290×215×90 mm, peso 1,4 kg. Codice GIMA 34184. ' +
+      'RDM 135951. EAN 8034028010897. PARAF 910552710. Prezzo 20,00 € al pezzo, imponibile IVA esclusa.',
+    price: 20,
+    categoryPath: [macroLabelFromId('emergenza'), 'Pronto soccorso'],
+    macroId: 'emergenza',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/34184.jpg',
+    gimaSku: '34184',
   },
   {
     sku: 'AMS-0014',
