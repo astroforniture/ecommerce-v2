@@ -424,6 +424,19 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     gimaSku: '34184',
   },
   {
+    sku: 'AMS-0081',
+    name: 'KIT PRONTO SOCCORSO ALL. 1 - armadietto metallo',
+    fullDescription:
+      'Kit pronto soccorso Allegato 1 (D.Lgs. 81/2008) in armadietto metallico. Dimensioni 460×300×140 mm, peso 7,5 kg. ' +
+      'Codice GIMA 34199. RDM 142028. EAN 8056389237904. PARAF 922540582. ' +
+      'Prezzo 90,00 € al pezzo, imponibile IVA esclusa. Sconto quantità: 10% da 10 a 24 pezzi, 15% da 25 pezzi.',
+    price: 90,
+    categoryPath: [macroLabelFromId('emergenza'), 'Armadietti Medicazione'],
+    macroId: 'emergenza',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/34199.jpg',
+    gimaSku: '34199',
+  },
+  {
     sku: 'AMS-0014',
     name: 'BILANCIA BODY FAT OMRON BF511',
     fullDescription: 'BILANCIA BODY FAT OMRON BF511',

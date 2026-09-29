@@ -77,6 +77,7 @@ const EXISTING_SUBCATEGORY_TO_MACRO: Record<string, string> = {
   'borse mediche e emergenza': 'Emergenza e pronto soccorso',
   'emergenza e pronto soccorso': 'Emergenza e pronto soccorso',
   'pronto soccorso': 'Emergenza e pronto soccorso',
+  'armadietti medicazione': 'Emergenza e pronto soccorso',
 
   // Arredo
   'arredo e illuminazione': 'Arredo e illuminazione',

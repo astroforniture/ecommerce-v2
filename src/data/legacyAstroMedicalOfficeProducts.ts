@@ -1117,6 +1117,45 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
     quantityPriceTiers: [{ minQuantity: 1, unitPrice: 20 }],
     showQuantityDiscountTable: true,
   },
+  {
+    gimaSku: '34199',
+    name: 'KIT PRONTO SOCCORSO ALL. 1 - armadietto metallo',
+    price: 90,
+    features: {
+      Tipo: 'Kit dispositivi medici',
+      Formato: 'Armadietto metallico',
+      Dimensioni: '460×300×140 mm',
+      Peso: '7,5 kg',
+      Norma: 'Allegato 1 D.Lgs. 81/2008',
+      RDM: '142028',
+      EAN: '8056389237904',
+      PARAF: '922540582',
+      Unità: '1 pezzo',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/34199.jpg',
+    description:
+      'Kit pronto soccorso Allegato 1 (D.Lgs. 81/2008) in armadietto metallico. ' +
+      'Dimensioni 460×300×140 mm, peso 7,5 kg. Codice GIMA 34199. RDM 142028. ' +
+      'EAN 8056389237904. PARAF 922540582.\n\n' +
+      'Contenuto standard (Allegato 1): 2 flaconi soluzione antisettica 500 ml; ' +
+      '5 paia guanti protettivi sterili; 2 scatole da 10 cerotti assortiti; ' +
+      '2 rotoli cerotto adesivo 2,5 cm × 5 m; 1 garza tubolare a rete; ' +
+      '10 conf. compressa sterile 10×10 cm; 2 conf. compressa sterile 18×40 cm; ' +
+      '1 conf. cotone; 1 maschera con visiera; 1 paio forbici 14,5 cm; 2 pinzette sterili; ' +
+      '3 lacci emostatici; 1 sfigmomanometro + stetoscopio; 2 coperte sterili 40×60 cm; ' +
+      '2 conf. ghiaccio istantaneo monouso; 1 termometro digitale; 2 sacchetti rifiuti; ' +
+      '3 soluzioni irriganti 500 ml.\n\n' +
+      'Prezzo 90,00 € al pezzo, imponibile IVA esclusa. ' +
+      'Sconto quantità: 10% da 10 a 24 pezzi (81,00 €), 15% da 25 pezzi (76,50 €).\n\n' +
+      'Linea: Emergenza e pronto soccorso › Armadietti Medicazione.',
+    downloadId: '158650',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 90 },
+      { minQuantity: 10, unitPrice: 81 },
+      { minQuantity: 25, unitPrice: 76.5 },
+    ],
+    showQuantityDiscountTable: true,
+  },
 ]
 
 const GIMA_OVERRIDE_BY_SKU = new Map(GIMA_CATALOG_OVERRIDES.map((row) => [row.gimaSku, row]))
@@ -1283,6 +1322,17 @@ function gimaCatalogOverrideForProduct(
   }
   if (name.includes('kit piccolo') && (name.includes('"a"') || name.includes('valigetta'))) {
     return GIMA_OVERRIDE_BY_SKU.get('34184') ?? null
+  }
+  if (
+    name.includes('34199') ||
+    (name.includes('armadiet') &&
+      name.includes('metallo') &&
+      (name.includes('all. 1') ||
+        name.includes('all 1') ||
+        name.includes('allegato 1') ||
+        name.includes('pronto soccorso')))
+  ) {
+    return GIMA_OVERRIDE_BY_SKU.get('34199') ?? null
   }
   return null
 }
