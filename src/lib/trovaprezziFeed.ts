@@ -2,10 +2,10 @@
  * Feed Trovaprezzi — prezzi IVA inclusa (specifiche marketplace).
  *
  * Endpoint:
- *   https://www.asforniture.it/feeds/trovaprezzi.xml
- *   https://www.asforniture.it/feeds/trovaprezzi.csv
- *   https://www.asforniture.it/api/trovaprezzi-feed
- *   https://www.asforniture.it/api/feeds/trovaprezzi
+ *   https://asforniture.it/feeds/trovaprezzi.xml
+ *   https://asforniture.it/feeds/trovaprezzi.csv
+ *   https://asforniture.it/api/feeds/trovaprezzi
+ *   https://asforniture.it/api/trovaprezzi-feed
  */
 
 import type { OfficeProduct } from '../types/officeProduct'

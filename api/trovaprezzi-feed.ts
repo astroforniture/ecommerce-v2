@@ -1,22 +1,22 @@
 /**
- * Trovaprezzi product feed endpoint (alias legacy).
+ * Trovaprezzi product feed endpoint (handler serverless flat — path affidabile su Vercel).
  *
- * Preferisci il path canonico:
- *   https://www.asforniture.it/api/feeds/trovaprezzi
+ * Path canonici (rewrite + alias):
+ *   https://asforniture.it/api/feeds/trovaprezzi
+ *   https://asforniture.it/api/feeds/trovaprezzi?format=csv
+ *   https://asforniture.it/api/trovaprezzi-feed
+ *   https://asforniture.it/feeds/trovaprezzi.xml
+ *   https://asforniture.it/feeds/trovaprezzi.csv
  *
- * Alias:
- *   https://www.asforniture.it/api/trovaprezzi-feed
- *   https://www.asforniture.it/api/trovaprezzi-feed?format=csv
- *   https://www.asforniture.it/feeds/trovaprezzi.xml
- *
- * Il campo Price e sempre IVA inclusa. ShippingCost segue le regole carrello.
+ * Il campo Price è sempre IVA inclusa. ShippingCost segue le regole carrello.
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 
-const SITE_ORIGIN = 'https://www.asforniture.it'
+/** Preferisci apex: www risponde 308 Permanent Redirect. */
+const SITE_ORIGIN = 'https://asforniture.it'
 
 async function loadFeed(format: 'xml' | 'csv'): Promise<string> {
   const fileName = format === 'csv' ? 'trovaprezzi.csv' : 'trovaprezzi.xml'
@@ -24,6 +24,8 @@ async function loadFeed(format: 'xml' | 'csv'): Promise<string> {
     path.join(process.cwd(), 'public', 'feeds', fileName),
     path.join(process.cwd(), 'feeds', fileName),
     path.join(process.cwd(), 'dist', 'feeds', fileName),
+    // Output Vite su Vercel a volte è sotto .vercel/output/static
+    path.join(process.cwd(), '.vercel', 'output', 'static', 'feeds', fileName),
   ]
   for (const filePath of candidates) {
     try {
@@ -34,11 +36,21 @@ async function loadFeed(format: 'xml' | 'csv'): Promise<string> {
   }
 
   const origin = (process.env.VITE_SITE_URL || SITE_ORIGIN).replace(/\/$/, '')
-  const res = await fetch(`${origin}/feeds/${fileName}`)
-  if (!res.ok) {
-    throw new Error(`Unable to load Trovaprezzi feed (${res.status})`)
+  // Evita loop www↔apex: prova apex e www.
+  const origins = Array.from(
+    new Set([
+      origin.replace('://www.', '://'),
+      origin.includes('://www.') ? origin : origin.replace('://', '://www.'),
+      SITE_ORIGIN,
+    ]),
+  )
+  let lastStatus = 0
+  for (const base of origins) {
+    const res = await fetch(`${base}/feeds/${fileName}`, { redirect: 'follow' })
+    if (res.ok) return await res.text()
+    lastStatus = res.status
   }
-  return await res.text()
+  throw new Error(`Unable to load Trovaprezzi feed (${lastStatus || 'missing'})`)
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

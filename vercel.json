@@ -1,6 +1,37 @@
 {
   "buildCommand": "npm run build",
+  "headers": [
+    {
+      "source": "/feeds/trovaprezzi.xml",
+      "headers": [
+        { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, s-maxage=3600, stale-while-revalidate=86400" }
+      ]
+    },
+    {
+      "source": "/feeds/trovaprezzi.csv",
+      "headers": [
+        { "key": "Content-Type", "value": "text/csv; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, s-maxage=3600, stale-while-revalidate=86400" }
+      ]
+    },
+    {
+      "source": "/feeds/google-merchant-feed.xml",
+      "headers": [
+        { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, s-maxage=3600, stale-while-revalidate=86400" }
+      ]
+    }
+  ],
   "rewrites": [
+    {
+      "source": "/api/feeds/trovaprezzi",
+      "destination": "/api/trovaprezzi-feed"
+    },
+    {
+      "source": "/api/feeds/trovaprezzi/",
+      "destination": "/api/trovaprezzi-feed"
+    },
     {
       "source": "/office-products",
       "has": [{ "type": "query", "key": "category", "value": "Cancelleria" }, { "type": "query", "key": "cancelleriaView", "value": "shopper-carta" }],
