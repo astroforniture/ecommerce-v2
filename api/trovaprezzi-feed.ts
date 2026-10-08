@@ -1,11 +1,15 @@
 /**
- * Trovaprezzi product feed endpoint.
+ * Trovaprezzi product feed endpoint (alias legacy).
  *
+ * Preferisci il path canonico:
+ *   https://www.asforniture.it/api/feeds/trovaprezzi
+ *
+ * Alias:
  *   https://www.asforniture.it/api/trovaprezzi-feed
  *   https://www.asforniture.it/api/trovaprezzi-feed?format=csv
  *   https://www.asforniture.it/feeds/trovaprezzi.xml
  *
- * Il campo Price e sempre IVA inclusa.
+ * Il campo Price e sempre IVA inclusa. ShippingCost segue le regole carrello.
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node'

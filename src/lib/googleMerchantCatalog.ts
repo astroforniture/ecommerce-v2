@@ -62,6 +62,8 @@ export type MerchantDbProductRow = {
   subtitle?: string | null
   vat_rate?: number | string | null
   iva?: number | string | null
+  /** false = nascosto dal catalogo cliente (bozza / escluso). Default DB: true. */
+  is_catalog_visible?: boolean | null
 }
 
 export type BuildMerchantFeedOptions = {
@@ -189,7 +191,7 @@ export async function fetchAllMerchantDbRows(opts: {
     const primary = await supabase
       .from('products')
       .select(
-        'id,sku,name,brand,price,image_url,description,category,subcategory,ean,stock,variants,subtitle,vat_rate',
+        'id,sku,name,brand,price,image_url,description,category,subcategory,ean,stock,variants,subtitle,vat_rate,is_catalog_visible',
       )
       .order('id', { ascending: true })
       .range(from, to)
@@ -197,7 +199,7 @@ export async function fetchAllMerchantDbRows(opts: {
     let data: MerchantDbProductRow[] | null = (primary.data ?? null) as MerchantDbProductRow[] | null
     let error = primary.error
 
-    if (error && /vat_rate|column/i.test(error.message)) {
+    if (error && /vat_rate|is_catalog_visible|column/i.test(error.message)) {
       const fallback = await supabase
         .from('products')
         .select(
@@ -235,6 +237,8 @@ export async function buildGoogleMerchantFeedItems(
       const rows = await fetchAllMerchantDbRows({ supabaseUrl, supabaseKey })
       dbCount = rows.length
       for (const row of rows) {
+        // Solo prodotti visibili a catalogo (null/undefined = true, legacy senza colonna).
+        if (row.is_catalog_visible === false) continue
         if (
           isHiddenFromCustomerCatalog({
             id: row.id,

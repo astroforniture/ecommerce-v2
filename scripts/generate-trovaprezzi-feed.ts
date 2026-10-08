@@ -1,6 +1,6 @@
 /**
  * Genera feed Trovaprezzi (XML + CSV) in public/feeds/.
- * Prezzo = IVA inclusa.
+ * Prezzo = IVA inclusa; ShippingCost = regole carrello; EAN se presente.
  *
  *   npx tsx scripts/generate-trovaprezzi-feed.ts
  *   npm run generate:trovaprezzi-feed
@@ -14,6 +14,7 @@ import {
   resolveMerchantFeedEnv,
 } from '../src/lib/googleMerchantCatalog'
 import {
+  mapMerchantItemToTrovaprezziOffer,
   renderTrovaprezziCsv,
   renderTrovaprezziXml,
   type TrovaprezziOffer,
@@ -43,25 +44,11 @@ async function main() {
   const { items, dbCount, syntheticCount } = await buildGoogleMerchantFeedItems(env)
 
   const offers: TrovaprezziOffer[] = items
-    .map((item) => {
-      const priceNum = Number.parseFloat(item.price.replace(/[^\d.]/g, ''))
-      if (!Number.isFinite(priceNum) || priceNum <= 0) return null
-      return {
-        code: item.id,
-        name: item.title,
-        description: item.description,
-        price: priceNum,
-        priceFormatted: priceNum.toFixed(2).replace('.', ','),
-        link: item.link,
-        image: item.image_link,
-        brand: item.brand,
-        categories: item.product_type || 'Cancelleria',
-        shippingCost: 0,
-        availability: (item.availability === 'in_stock' ? '1' : '0') as '1' | '0',
-        vatPercent: 22,
-      }
-    })
+    .map((item) => mapMerchantItemToTrovaprezziOffer(item))
     .filter((o): o is TrovaprezziOffer => o != null)
+
+  const withEan = offers.filter((o) => o.eanCode).length
+  const freeShip = offers.filter((o) => o.shippingCost === 0).length
 
   const outDir = path.join(root, 'public', 'feeds')
   await mkdir(outDir, { recursive: true })
@@ -69,7 +56,7 @@ async function main() {
   await writeFile(path.join(outDir, 'trovaprezzi.csv'), renderTrovaprezziCsv(offers), 'utf8')
 
   console.log(
-    `[trovaprezzi-feed] written ${offers.length} offers (db=${dbCount}, synthetic=${syntheticCount}) ? public/feeds/trovaprezzi.xml|csv`,
+    `[trovaprezzi-feed] written ${offers.length} offers (db=${dbCount}, synthetic=${syntheticCount}, ean=${withEan}, freeShip=${freeShip}) → public/feeds/trovaprezzi.xml|csv`,
   )
 }
 

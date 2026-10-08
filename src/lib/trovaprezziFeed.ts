@@ -5,9 +5,12 @@
  *   https://www.asforniture.it/feeds/trovaprezzi.xml
  *   https://www.asforniture.it/feeds/trovaprezzi.csv
  *   https://www.asforniture.it/api/trovaprezzi-feed
+ *   https://www.asforniture.it/api/feeds/trovaprezzi
  */
 
 import type { OfficeProduct } from '../types/officeProduct'
+import { computeShippingFeeIvato } from './cartShipping'
+import type { GoogleMerchantFeedItem } from './googleMerchantFeed'
 import {
   absoluteAssetUrl,
   isFeedableOfficeProduct,
@@ -32,6 +35,8 @@ export type TrovaprezziOffer = {
   shippingCost: number
   availability: '1' | '0'
   vatPercent: number
+  /** EAN/GTIN numerico se disponibile; altrimenti assente. */
+  eanCode?: string
 }
 
 function escapeXml(value: string): string {
@@ -47,6 +52,20 @@ function csvEscape(value: string | number): string {
   const text = String(value ?? '')
   if (/[;"\n\r]/.test(text)) return `"${text.replace(/"/g, '""')}"`
   return text
+}
+
+/** Normalizza EAN/GTIN: solo cifre, lunghezza tipica 8–14; altrimenti undefined. */
+export function normalizeTrovaprezziEan(
+  raw: string | null | undefined,
+): string | undefined {
+  const digits = String(raw ?? '').replace(/\D/g, '')
+  if (digits.length >= 8 && digits.length <= 14) return digits
+  return undefined
+}
+
+/** Spese spedizione feed = stessa regola carrello sul prezzo ivato dell'offerta. */
+export function trovaprezziShippingCostForPrice(priceIvato: number): number {
+  return computeShippingFeeIvato(priceIvato, 'shipping')
 }
 
 export function mapOfficeProductToTrovaprezziOffer(
@@ -73,6 +92,10 @@ export function mapOfficeProductToTrovaprezziOffer(
     (product.subtitle ?? '').trim() ||
     `${product.name}${product.brand ? ` - ${product.brand}` : ''}`
 
+  const eanCode = normalizeTrovaprezziEan(
+    product.ean ?? product.mainFeatures?.EAN ?? product.mainFeatures?.['Codice EAN'],
+  )
+
   return {
     code,
     name: truncateMerchantText(product.name, 150),
@@ -83,16 +106,51 @@ export function mapOfficeProductToTrovaprezziOffer(
     image,
     brand: (product.brand ?? '').trim() || SITE_BRAND_NAME,
     categories: categories || 'Cancelleria',
-    shippingCost: 0,
+    shippingCost: trovaprezziShippingCostForPrice(price),
     availability: product.inStock === false ? '0' : '1',
     vatPercent: vatPercentLabel(resolveVatRate(product.vatRate)),
+    ...(eanCode ? { eanCode } : {}),
+  }
+}
+
+/** Converte item Merchant (già filtrati) in offerte Trovaprezzi. */
+export function mapMerchantItemToTrovaprezziOffer(
+  item: GoogleMerchantFeedItem,
+): TrovaprezziOffer | null {
+  const priceNum = Number.parseFloat(String(item.price ?? '').replace(/[^\d.]/g, ''))
+  if (!Number.isFinite(priceNum) || priceNum <= 0) return null
+  const code = (item.id ?? '').trim()
+  if (!code) return null
+  const link = (item.link ?? '').trim()
+  const image = (item.image_link ?? '').trim()
+  if (!link || !image) return null
+
+  const eanCode = normalizeTrovaprezziEan(item.gtin)
+
+  return {
+    code,
+    name: truncateMerchantText(item.title, 150),
+    description: truncateMerchantText(item.description, 2000),
+    price: priceNum,
+    priceFormatted: priceNum.toFixed(2).replace('.', ','),
+    link,
+    image,
+    brand: (item.brand ?? '').trim() || SITE_BRAND_NAME,
+    categories: (item.product_type ?? '').trim() || 'Cancelleria',
+    shippingCost: trovaprezziShippingCostForPrice(priceNum),
+    availability: item.availability === 'in_stock' ? '1' : '0',
+    vatPercent: 22,
+    ...(eanCode ? { eanCode } : {}),
   }
 }
 
 export function renderTrovaprezziXml(offers: readonly TrovaprezziOffer[]): string {
   const body = offers
-    .map(
-      (o) => `  <Offer>
+    .map((o) => {
+      const eanLine = o.eanCode
+        ? `\n    <EanCode>${escapeXml(o.eanCode)}</EanCode>`
+        : ''
+      return `  <Offer>
     <Code>${escapeXml(o.code)}</Code>
     <Name>${escapeXml(o.name)}</Name>
     <Description>${escapeXml(o.description)}</Description>
@@ -103,9 +161,9 @@ export function renderTrovaprezziXml(offers: readonly TrovaprezziOffer[]): strin
     <Categories>${escapeXml(o.categories)}</Categories>
     <ShippingCost>${o.shippingCost.toFixed(2)}</ShippingCost>
     <Availability>${o.availability}</Availability>
-    <Vat>${o.vatPercent}</Vat>
-  </Offer>`,
-    )
+    <Vat>${o.vatPercent}</Vat>${eanLine}
+  </Offer>`
+    })
     .join('\n')
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -129,6 +187,7 @@ export function renderTrovaprezziCsv(offers: readonly TrovaprezziOffer[]): strin
     'ShippingCost',
     'Availability',
     'Vat',
+    'EanCode',
   ]
   const rows = offers.map((o) =>
     [
@@ -143,6 +202,7 @@ export function renderTrovaprezziCsv(offers: readonly TrovaprezziOffer[]): strin
       o.shippingCost.toFixed(2),
       o.availability,
       o.vatPercent,
+      o.eanCode ?? '',
     ]
       .map(csvEscape)
       .join(';'),
