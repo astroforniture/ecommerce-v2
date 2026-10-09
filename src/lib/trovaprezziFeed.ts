@@ -17,9 +17,12 @@ import {
   truncateMerchantText,
 } from './googleMerchantFeed'
 import { productCatalogKey, productDetailAbsoluteUrl } from './productRoutes'
-import { applySicurezzaPromoDiscount } from './sicurezzaPromoDiscount'
+import { enrichProductForMerchantFeed } from './feedProductEnrichment'
+import { extractOfficeProductEan, normalizeProductEan } from './productEan'
 import { SITE_BRAND_NAME, SITE_ORIGIN } from './siteSeo'
 import { priceWithVat, resolveVatRate, vatPercentLabel } from './vatPricing'
+
+export { extractOfficeProductEan, normalizeProductEan as normalizeTrovaprezziEan } from './productEan'
 
 /** Valori Availability accettati da Trovaprezzi (stringa, non "1"/"0"). */
 export type TrovaprezziAvailability =
@@ -65,15 +68,6 @@ function csvEscape(value: string | number): string {
   return text
 }
 
-/** Normalizza EAN/GTIN: solo cifre, lunghezza tipica 8–14; altrimenti undefined. */
-export function normalizeTrovaprezziEan(
-  raw: string | null | undefined,
-): string | undefined {
-  const digits = String(raw ?? '').replace(/\D/g, '')
-  if (digits.length >= 8 && digits.length <= 14) return digits
-  return undefined
-}
-
 /** Spese spedizione feed = stessa regola carrello sul prezzo ivato dell'offerta. */
 export function trovaprezziShippingCostForPrice(priceIvato: number): number {
   return computeShippingFeeIvato(priceIvato, 'shipping')
@@ -103,7 +97,7 @@ export function mapOfficeProductToTrovaprezziOffer(
   product: OfficeProduct,
   opts: { origin?: string; stock?: number | null } = {},
 ): TrovaprezziOffer | null {
-  const priced = applySicurezzaPromoDiscount(product)
+  const priced = enrichProductForMerchantFeed(product)
   if (!isFeedableOfficeProduct(priced)) return null
   const origin = (opts.origin ?? SITE_ORIGIN).replace(/\/$/, '')
   const code = productCatalogKey(priced)
@@ -132,9 +126,7 @@ export function mapOfficeProductToTrovaprezziOffer(
     (priced.subtitle ?? '').trim() ||
     `${priced.name}${priced.brand ? ` - ${priced.brand}` : ''}`
 
-  const eanCode = normalizeTrovaprezziEan(
-    priced.ean ?? priced.mainFeatures?.EAN ?? priced.mainFeatures?.['Codice EAN'],
-  )
+  const eanCode = extractOfficeProductEan(priced)
 
   return {
     code,
@@ -166,7 +158,7 @@ export function mapMerchantItemToTrovaprezziOffer(
   const image = (item.image_link ?? '').trim()
   if (!link || !image) return null
 
-  const eanCode = normalizeTrovaprezziEan(item.gtin)
+  const eanCode = normalizeProductEan(item.gtin)
 
   return {
     code,

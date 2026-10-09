@@ -16,7 +16,7 @@ import {
   type GoogleMerchantFeedItem,
 } from './googleMerchantFeed'
 import { resolveMerchantImageLink } from './googleMerchantImages'
-import { applySicurezzaPromoDiscount } from './sicurezzaPromoDiscount'
+import { enrichProductForMerchantFeed } from './feedProductEnrichment'
 import { isHiddenFromCustomerCatalog } from './suppressedCatalogSkus'
 import { buildCartucceTonerOfficeProducts } from '../data/cartucceTonerProducts'
 import { buildPileOfficeProducts } from '../data/pileProducts'
@@ -117,6 +117,12 @@ export function mapDbRowToOfficeProduct(row: MerchantDbProductRow): {
       .filter(Boolean)
       .filter((u, i, arr) => arr.indexOf(u) === i) ?? undefined
 
+  const eanFromColumn = (row.ean ?? '').trim() || undefined
+  const eanFromVariant = variants
+    ?.map((v) => String(v.ean ?? '').trim())
+    .find((e) => e.length >= 8)
+  const ean = eanFromColumn || eanFromVariant || undefined
+
   const product: OfficeProduct = {
     id,
     name: (row.name ?? '').trim(),
@@ -124,12 +130,12 @@ export function mapDbRowToOfficeProduct(row: MerchantDbProductRow): {
     producerCode: sku || id,
     category: (row.category ?? '').trim(),
     subcategory: (row.subcategory ?? '').trim() || undefined,
-    mainFeatures: {},
+    mainFeatures: ean ? { EAN: ean } : {},
     imageUrl: (row.image_url ?? '').trim(),
     description: (row.description ?? '').trim() || undefined,
     subtitle: (row.subtitle ?? '').trim() || undefined,
     price,
-    ean: (row.ean ?? '').trim() || undefined,
+    ean,
     variants,
     imageGalleryUrls: gallery?.length ? gallery : undefined,
     vatRate: (() => {
@@ -251,7 +257,7 @@ export async function buildGoogleMerchantFeedItems(
         }
         const mapped = mapDbRowToOfficeProduct(row)
         // Allinea prezzo feed al listino sito (es. promo Sicurezza -20%).
-        const product = applySicurezzaPromoDiscount(mapped.product)
+        const product = enrichProductForMerchantFeed(mapped.product)
         const key = productCatalogKey(product)
         if (!key) continue
         byKey.set(key, { product, stock: mapped.stock })
@@ -280,7 +286,7 @@ export async function buildGoogleMerchantFeedItems(
       continue
     }
     // I sintetici hanno priorità sui duplicati DB (immagini/prezzi FE-canonici).
-    const priced = applySicurezzaPromoDiscount(product)
+    const priced = enrichProductForMerchantFeed(product)
     byKey.set(key, { product: priced, stock: priced.inStock === false ? 0 : null })
     syntheticCount += 1
   }

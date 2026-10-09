@@ -14,6 +14,7 @@ import {
   merchantAgendeProductType,
 } from './googleMerchantAgende'
 import { isAgendeCategoryProduct } from './agendeCatalog'
+import { extractOfficeProductEan } from './productEan'
 import { formatGrossPriceFeed } from './vatPricing'
 import { productCatalogKey, productDetailAbsoluteUrl } from './productRoutes'
 import { SITE_BRAND_NAME, SITE_ORIGIN } from './siteSeo'
@@ -185,8 +186,7 @@ export function mapOfficeProductToMerchantItem(
         .filter(Boolean)
         .join(' > ') || undefined
 
-  const ean = (product.ean ?? product.mainFeatures?.EAN ?? '').replace(/\D/g, '')
-  const gtin = ean.length >= 8 && ean.length <= 14 ? ean : undefined
+  const gtin = extractOfficeProductEan(product)
   const mpnRaw = (product.producerCode ?? '').trim() || catalogKey
   const mpn = mpnRaw ? mpnRaw.slice(0, 70) : undefined
 
