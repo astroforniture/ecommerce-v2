@@ -17,23 +17,34 @@ import {
   truncateMerchantText,
 } from './googleMerchantFeed'
 import { productCatalogKey, productDetailAbsoluteUrl } from './productRoutes'
+import { applySicurezzaPromoDiscount } from './sicurezzaPromoDiscount'
 import { SITE_BRAND_NAME, SITE_ORIGIN } from './siteSeo'
 import { priceWithVat, resolveVatRate, vatPercentLabel } from './vatPricing'
+
+/** Valori Availability accettati da Trovaprezzi (stringa, non "1"/"0"). */
+export type TrovaprezziAvailability =
+  | 'disponibile'
+  | 'non disponibile'
+  | 'disponibilità limitata'
+  | 'in arrivo'
+  | 'vedere sito'
 
 export type TrovaprezziOffer = {
   code: string
   name: string
   description: string
-  /** Prezzo finale IVA inclusa (numero). */
+  /** Prezzo finale di vendita IVA inclusa (dopo promo/sconti). */
   price: number
   /** Prezzo formattato IT con 2 decimali. */
   priceFormatted: string
+  /** Prezzo listino IVA inclusa, se diverso dal prezzo di vendita. */
+  originalPrice?: number
   link: string
   image: string
   brand: string
   categories: string
   shippingCost: number
-  availability: '1' | '0'
+  availability: TrovaprezziAvailability | string
   vatPercent: number
   /** EAN/GTIN numerico se disponibile; altrimenti assente. */
   eanCode?: string
@@ -68,52 +79,82 @@ export function trovaprezziShippingCostForPrice(priceIvato: number): number {
   return computeShippingFeeIvato(priceIvato, 'shipping')
 }
 
+/**
+ * Availability Trovaprezzi:
+ * - evitare "1" (interpretato come disponibilità limitata / bollino giallo)
+ * - preferire "disponibile" o giacenza numerica >= 2
+ */
+export function resolveTrovaprezziAvailability(
+  product: Pick<OfficeProduct, 'inStock'>,
+  stock?: number | null,
+): string {
+  if (product.inStock === false) return 'non disponibile'
+  if (typeof stock === 'number' && Number.isFinite(stock)) {
+    const qty = Math.floor(stock)
+    if (qty <= 0) return 'non disponibile'
+    // stock=1 → Trovaprezzi mostra "disponibilità limitata"; forza stringa verde.
+    if (qty === 1) return 'disponibile'
+    return String(qty)
+  }
+  return 'disponibile'
+}
+
 export function mapOfficeProductToTrovaprezziOffer(
   product: OfficeProduct,
-  opts: { origin?: string } = {},
+  opts: { origin?: string; stock?: number | null } = {},
 ): TrovaprezziOffer | null {
-  if (!isFeedableOfficeProduct(product)) return null
+  const priced = applySicurezzaPromoDiscount(product)
+  if (!isFeedableOfficeProduct(priced)) return null
   const origin = (opts.origin ?? SITE_ORIGIN).replace(/\/$/, '')
-  const code = productCatalogKey(product)
+  const code = productCatalogKey(priced)
   if (!code) return null
-  const link = productDetailAbsoluteUrl(product, origin)
-  const image = absoluteAssetUrl(product.imageUrl, origin)
+  const link = productDetailAbsoluteUrl(priced, origin)
+  const image = absoluteAssetUrl(priced.imageUrl, origin)
   if (!link || !image) return null
 
-  const imponibile = product.price as number
-  const price = priceWithVat(imponibile, product.vatRate)
-  const categories = [product.category, product.subcategory]
+  const imponibile = priced.price as number
+  const price = priceWithVat(imponibile, priced.vatRate)
+  const listImponibile =
+    typeof priced.compareAtPrice === 'number' &&
+    priced.compareAtPrice > imponibile
+      ? priced.compareAtPrice
+      : undefined
+  const originalPrice =
+    listImponibile != null ? priceWithVat(listImponibile, priced.vatRate) : undefined
+
+  const categories = [priced.category, priced.subcategory]
     .map((s) => (s ?? '').trim())
     .filter(Boolean)
     .join(' > ')
 
   const descriptionRaw =
-    (product.description ?? '').trim() ||
-    (product.subtitle ?? '').trim() ||
-    `${product.name}${product.brand ? ` - ${product.brand}` : ''}`
+    (priced.description ?? '').trim() ||
+    (priced.subtitle ?? '').trim() ||
+    `${priced.name}${priced.brand ? ` - ${priced.brand}` : ''}`
 
   const eanCode = normalizeTrovaprezziEan(
-    product.ean ?? product.mainFeatures?.EAN ?? product.mainFeatures?.['Codice EAN'],
+    priced.ean ?? priced.mainFeatures?.EAN ?? priced.mainFeatures?.['Codice EAN'],
   )
 
   return {
     code,
-    name: truncateMerchantText(product.name, 150),
+    name: truncateMerchantText(priced.name, 150),
     description: truncateMerchantText(descriptionRaw, 2000),
     price,
     priceFormatted: price.toFixed(2).replace('.', ','),
+    ...(originalPrice != null && originalPrice > price ? { originalPrice } : {}),
     link,
     image,
-    brand: (product.brand ?? '').trim() || SITE_BRAND_NAME,
+    brand: (priced.brand ?? '').trim() || SITE_BRAND_NAME,
     categories: categories || 'Cancelleria',
     shippingCost: trovaprezziShippingCostForPrice(price),
-    availability: product.inStock === false ? '0' : '1',
-    vatPercent: vatPercentLabel(resolveVatRate(product.vatRate)),
+    availability: resolveTrovaprezziAvailability(priced, opts.stock),
+    vatPercent: vatPercentLabel(resolveVatRate(priced.vatRate)),
     ...(eanCode ? { eanCode } : {}),
   }
 }
 
-/** Converte item Merchant (già filtrati) in offerte Trovaprezzi. */
+/** Converte item Merchant (già filtrati / con promo applicata) in offerte Trovaprezzi. */
 export function mapMerchantItemToTrovaprezziOffer(
   item: GoogleMerchantFeedItem,
 ): TrovaprezziOffer | null {
@@ -138,7 +179,8 @@ export function mapMerchantItemToTrovaprezziOffer(
     brand: (item.brand ?? '').trim() || SITE_BRAND_NAME,
     categories: (item.product_type ?? '').trim() || 'Cancelleria',
     shippingCost: trovaprezziShippingCostForPrice(priceNum),
-    availability: item.availability === 'in_stock' ? '1' : '0',
+    availability:
+      item.availability === 'in_stock' ? 'disponibile' : 'non disponibile',
     vatPercent: 22,
     ...(eanCode ? { eanCode } : {}),
   }
@@ -147,6 +189,10 @@ export function mapMerchantItemToTrovaprezziOffer(
 export function renderTrovaprezziXml(offers: readonly TrovaprezziOffer[]): string {
   const body = offers
     .map((o) => {
+      const originalLine =
+        typeof o.originalPrice === 'number' && o.originalPrice > o.price
+          ? `\n    <OriginalPrice>${o.originalPrice.toFixed(2)}</OriginalPrice>`
+          : ''
       const eanLine = o.eanCode
         ? `\n    <EanCode>${escapeXml(o.eanCode)}</EanCode>`
         : ''
@@ -154,13 +200,13 @@ export function renderTrovaprezziXml(offers: readonly TrovaprezziOffer[]): strin
     <Code>${escapeXml(o.code)}</Code>
     <Name>${escapeXml(o.name)}</Name>
     <Description>${escapeXml(o.description)}</Description>
-    <Price>${o.price.toFixed(2)}</Price>
+    <Price>${o.price.toFixed(2)}</Price>${originalLine}
     <Link>${escapeXml(o.link)}</Link>
     <Image>${escapeXml(o.image)}</Image>
     <Brand>${escapeXml(o.brand)}</Brand>
     <Categories>${escapeXml(o.categories)}</Categories>
     <ShippingCost>${o.shippingCost.toFixed(2)}</ShippingCost>
-    <Availability>${o.availability}</Availability>
+    <Availability>${escapeXml(String(o.availability))}</Availability>
     <Vat>${o.vatPercent}</Vat>${eanLine}
   </Offer>`
     })
@@ -180,6 +226,7 @@ export function renderTrovaprezziCsv(offers: readonly TrovaprezziOffer[]): strin
     'Name',
     'Description',
     'Price',
+    'OriginalPrice',
     'Link',
     'Image',
     'Brand',
@@ -195,6 +242,7 @@ export function renderTrovaprezziCsv(offers: readonly TrovaprezziOffer[]): strin
       o.name,
       o.description,
       o.price.toFixed(2),
+      typeof o.originalPrice === 'number' ? o.originalPrice.toFixed(2) : '',
       o.link,
       o.image,
       o.brand,

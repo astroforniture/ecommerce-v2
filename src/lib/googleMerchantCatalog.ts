@@ -16,6 +16,7 @@ import {
   type GoogleMerchantFeedItem,
 } from './googleMerchantFeed'
 import { resolveMerchantImageLink } from './googleMerchantImages'
+import { applySicurezzaPromoDiscount } from './sicurezzaPromoDiscount'
 import { isHiddenFromCustomerCatalog } from './suppressedCatalogSkus'
 import { buildCartucceTonerOfficeProducts } from '../data/cartucceTonerProducts'
 import { buildPileOfficeProducts } from '../data/pileProducts'
@@ -249,9 +250,11 @@ export async function buildGoogleMerchantFeedItems(
           continue
         }
         const mapped = mapDbRowToOfficeProduct(row)
-        const key = productCatalogKey(mapped.product)
+        // Allinea prezzo feed al listino sito (es. promo Sicurezza -20%).
+        const product = applySicurezzaPromoDiscount(mapped.product)
+        const key = productCatalogKey(product)
         if (!key) continue
-        byKey.set(key, mapped)
+        byKey.set(key, { product, stock: mapped.stock })
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)
@@ -276,8 +279,9 @@ export async function buildGoogleMerchantFeedItems(
     ) {
       continue
     }
-    // I sintetici hanno priorit? sui duplicati DB (immagini/prezzi FE-canonici).
-    byKey.set(key, { product, stock: product.inStock === false ? 0 : null })
+    // I sintetici hanno priorità sui duplicati DB (immagini/prezzi FE-canonici).
+    const priced = applySicurezzaPromoDiscount(product)
+    byKey.set(key, { product: priced, stock: priced.inStock === false ? 0 : null })
     syntheticCount += 1
   }
 
