@@ -437,6 +437,19 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     gimaSku: '34199',
   },
   {
+    sku: 'AMS-0082',
+    name: 'Timpanometro Timpani',
+    fullDescription:
+      "Timpanometro portatile versatile e compatto per valutazioni e screening dell'orecchio medio. " +
+      'Interfaccia intuitiva e massima precisione diagnostica per il settore medicale e specialistico. ' +
+      'Codice GIMA 53560. Classe IIa. RDM 2351784. EAN 8054187380747. Prezzo 3.000,00 € al pezzo, imponibile IVA esclusa.',
+    price: 3000,
+    categoryPath: [macroLabelFromId('diagnostica'), 'Apparecchiature Diagnostiche'],
+    macroId: 'diagnostica',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/53560.jpg',
+    gimaSku: '53560',
+  },
+  {
     sku: 'AMS-0014',
     name: 'BILANCIA BODY FAT OMRON BF511',
     fullDescription: 'BILANCIA BODY FAT OMRON BF511',

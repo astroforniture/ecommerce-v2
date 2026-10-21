@@ -67,6 +67,7 @@ const EXISTING_SUBCATEGORY_TO_MACRO: Record<string, string> = {
   'bilance pesapersone': 'Diagnostica',
   'bilance professionali e pesaneonati': 'Diagnostica',
   'diagnostica professionale': 'Diagnostica',
+  'apparecchiature diagnostiche': 'Diagnostica',
   'rilevatori di vene': 'Diagnostica',
   diagnostica: 'Diagnostica',
   elettrodi: 'Diagnostica',
@@ -169,7 +170,9 @@ function inferMacroFromProductName(name: string): string | null {
     title.includes('pressione') ||
     title.includes('omron') ||
     title.includes('holter') ||
-    title.includes('dermatoscop')
+    title.includes('dermatoscop') ||
+    title.includes('timpanometr') ||
+    title.includes('timpani')
   ) {
     return 'Diagnostica'
   }

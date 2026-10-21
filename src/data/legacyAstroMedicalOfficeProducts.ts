@@ -1156,6 +1156,48 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
     ],
     showQuantityDiscountTable: true,
   },
+  // ── Diagnostica / apparecchiature ───────────────────────────────────────────
+  {
+    gimaSku: '53560',
+    name: 'Timpanometro Timpani',
+    price: 3000,
+    features: {
+      Tipo: 'Dispositivo medico Classe IIa',
+      Modello: 'Timpani handheld tympanometer',
+      'Probe tone': '226 Hz a 85 dB SPL',
+      Display: 'Touch-screen colore 2,8"',
+      Dimensioni: '65 × 44 × 240 mm',
+      Peso: '340 g',
+      Memoria: '50 pazienti',
+      Software: 'Inventis Maestro (compatibile Noah)',
+      RDM: '2351784',
+      CND: 'Z12149005',
+      EAN: '8054187380747',
+      Unità: '1 pezzo',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/53560.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/53560.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/53560_c.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/53560_a.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/53560_e.jpg',
+    ],
+    description:
+      "Timpanometro portatile versatile e compatto per valutazioni e screening dell'orecchio medio. " +
+      'Interfaccia intuitiva e massima precisione diagnostica per il settore medicale e specialistico.\n\n' +
+      'Timpani è un dispositivo leggero, compatto e potente per eseguire test di screening dell’orecchio medio ' +
+      'in modo semplice, rapido e accurato. La versione base consente timpanometria automatica con probe tone 226 Hz; ' +
+      'licenze opzionali abilitano riflessi acustici e audiometria tonale di screening. Display a colori touch-screen. ' +
+      'In dotazione: software Inventis Maestro, cavo USB, alimentatore medicale, olivi assortiti, manuali GB/IT, valigetta.\n\n' +
+      'Specifiche: range pressione +200 / −400 daPa; compliance 0,2–8,0 ml a 226 Hz; memoria 50 pazienti; ' +
+      'batteria Li-ion (>4 h uso continuo); interfaccia USB; dimensioni 65×44×240 mm; peso 340 g. ' +
+      'Classificazione Classe IIa (93/42/CEE). Made in Italy. Codice GIMA 53560. RDM 2351784. EAN 8054187380747.\n\n' +
+      'Prezzo 3.000,00 € al pezzo, imponibile IVA esclusa.\n\n' +
+      'Linea: Diagnostica › Apparecchiature Diagnostiche.',
+    downloadId: '158583',
+    quantityPriceTiers: [{ minQuantity: 1, unitPrice: 3000 }],
+    showQuantityDiscountTable: true,
+  },
 ]
 
 const GIMA_OVERRIDE_BY_SKU = new Map(GIMA_CATALOG_OVERRIDES.map((row) => [row.gimaSku, row]))
@@ -1333,6 +1375,9 @@ function gimaCatalogOverrideForProduct(
         name.includes('pronto soccorso')))
   ) {
     return GIMA_OVERRIDE_BY_SKU.get('34199') ?? null
+  }
+  if (name.includes('timpani') || name.includes('timpanometr')) {
+    return GIMA_OVERRIDE_BY_SKU.get('53560') ?? null
   }
   return null
 }
