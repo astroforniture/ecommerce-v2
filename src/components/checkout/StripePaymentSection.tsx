@@ -18,7 +18,6 @@ import {
   stripeElementsAppearance,
   stripeLocalDevBlockMessage,
   getStripeFrontendConfigError,
-  getStripePublishableKeyMode,
 } from '../../lib/stripe'
 
 type StripePaymentFormProps = {
@@ -150,14 +149,7 @@ function PaymentFormInner({
       if (error) {
         logCheckoutError('confirmPayment', error)
         console.log('[Stripe] confirmPayment error object:', error)
-        const mode = getStripePublishableKeyMode()
-        const mismatchHint =
-          mode === 'live'
-            ? ' Stai usando pk_live_: la carta 4242 funziona solo in modalità TEST (pk_test_ + sk_test_).'
-            : mode === 'test'
-              ? ' Verifica che su Supabase STRIPE_SECRET_KEY sia sk_test_… (stesso account Stripe del pk_test_).'
-              : ''
-        const msg = `${error.message ?? 'Pagamento non riuscito.'}${mismatchHint}`
+        const msg = error.message ?? 'Pagamento non riuscito.'
         setPayError(msg)
         onError(msg)
         return
@@ -280,8 +272,7 @@ function PaymentFormInner({
       ) : null}
 
       <p className={prominent ? 'text-sm text-slate-500' : 'text-xs text-slate-500'}>
-        Pagamento protetto da Stripe. In modalità test usa la carta{' '}
-        <code className="rounded bg-slate-100 px-1">4242 4242 4242 4242</code>.
+        Pagamento protetto da Stripe.
       </p>
     </form>
   )
