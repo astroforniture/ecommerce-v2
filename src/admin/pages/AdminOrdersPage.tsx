@@ -21,6 +21,7 @@ const eur = new Intl.NumberFormat("it-IT", {
 function statusVariant(status: string): "default" | "success" | "warning" | "brand" {
   const s = status.toLowerCase();
   if (s.includes("annull")) return "warning";
+  if (s === "pending" || s.includes("attesa")) return "warning";
   if (s.includes("complet") || s.includes("paid") || s.includes("pagat")) return "success";
   if (s.includes("sped") || s.includes("shipped")) return "brand";
   return "default";
@@ -77,6 +78,24 @@ export function AdminOrdersPage() {
             {eur.format(row.original.total)}
           </div>
         ),
+      },
+      {
+        id: "payment",
+        header: "Pagamento",
+        cell: ({ row }) => {
+          const method = row.original.paymentMethod?.trim() || "—";
+          const pi = row.original.stripePaymentIntentId?.trim();
+          return (
+            <div className="max-w-[14rem]">
+              <span className="block text-sm capitalize text-slate-800">{method}</span>
+              {pi ? (
+                <span className="block truncate font-mono text-[11px] text-slate-500" title={pi}>
+                  {pi}
+                </span>
+              ) : null}
+            </div>
+          );
+        },
       },
       {
         accessorKey: "status",

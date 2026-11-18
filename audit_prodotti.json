@@ -1,0 +1,448 @@
+{
+  "generatedAt": "2026-09-03T05:23:21.406Z",
+  "readOnly": true,
+  "totals": {
+    "scanned": 388,
+    "local": 388,
+    "supabase": 0,
+    "withIssues": 24
+  },
+  "findings": [
+    {
+      "id": "gima-27411",
+      "sku": "gima-27411",
+      "title": "LENZUOLINO 2 VELI - 47,5m x 59 cm",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Gima",
+      "subcategory": "Farmacia e cura",
+      "price": 5.45,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/27412.jpg",
+      "imageStem": "27412",
+      "source": "local",
+      "anomalies": [
+        "Immagine Condivisa Sospetta",
+        "Mismatch Immagine"
+      ],
+      "notes": [
+        "URL condiviso da 3 titoli dissimili (es. Lactate Scout 4 | LENZUOLINO 2 VELI - 47,5m x 59 cm | LENZUOLINO MONOVELO GOFFRATO 95m x 50cm)",
+        "Codice nel titolo/SKU (27411) diverso dallo stem immagine (27412)"
+      ]
+    },
+    {
+      "id": "gima-27410",
+      "sku": "gima-27410",
+      "title": "LENZUOLINO MONOVELO GOFFRATO 95m x 50cm",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Gima",
+      "subcategory": "Farmacia e cura",
+      "price": 6.7,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/27412.jpg",
+      "imageStem": "27412",
+      "source": "local",
+      "anomalies": [
+        "Immagine Condivisa Sospetta",
+        "Mismatch Immagine"
+      ],
+      "notes": [
+        "URL condiviso da 3 titoli dissimili (es. Lactate Scout 4 | LENZUOLINO 2 VELI - 47,5m x 59 cm | LENZUOLINO MONOVELO GOFFRATO 95m x 50cm)",
+        "Codice nel titolo/SKU (27410) diverso dallo stem immagine (27412)"
+      ]
+    },
+    {
+      "id": "gima-27280",
+      "sku": "gima-27280",
+      "title": "BILANCIA SECA 761 — uso medico — Classe IIII — GIMA 27280",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Seca",
+      "subcategory": "Bilance mediche professionali",
+      "price": 195,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/27285.jpg",
+      "imageStem": "27285",
+      "source": "local",
+      "anomalies": [
+        "Mismatch Immagine"
+      ],
+      "notes": [
+        "Codice nel titolo/SKU (27280) diverso dallo stem immagine (27285)"
+      ]
+    },
+    {
+      "id": "gima-32967",
+      "sku": "gima-32967",
+      "title": "Carta termica ECG 210x30 mmxm - rotolo griglia arancio - Conf. 5pz",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Gima",
+      "subcategory": "Diagnostica",
+      "price": 29,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/32969.jpg",
+      "imageStem": "32969",
+      "source": "local",
+      "anomalies": [
+        "Mismatch Immagine"
+      ],
+      "notes": [
+        "Codice nel titolo/SKU (32967) diverso dallo stem immagine (32969)"
+      ]
+    },
+    {
+      "id": "gima-32560",
+      "sku": "gima-32560",
+      "title": "FONENDO \"TRAD\" - lira nera",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Gima",
+      "subcategory": "Diagnostica",
+      "price": 4.2,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/32555_57-64_b.jpg",
+      "imageStem": "32555_57-64_b",
+      "source": "local",
+      "anomalies": [
+        "Mismatch Immagine"
+      ],
+      "notes": [
+        "Codice nel titolo/SKU (32560) diverso dallo stem immagine (32555_57-64_b)"
+      ]
+    },
+    {
+      "id": "gima-24900",
+      "sku": "gima-24900",
+      "title": "GONIOMETRO PER DITA — acciaio inox 15 cm — GIMA 24900",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Gima",
+      "subcategory": "Antropometria e misurazione",
+      "price": 21.8,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/24904.jpg",
+      "imageStem": "24904",
+      "source": "local",
+      "anomalies": [
+        "Mismatch Immagine"
+      ],
+      "notes": [
+        "Codice nel titolo/SKU (24900) diverso dallo stem immagine (24904)"
+      ]
+    },
+    {
+      "id": "gima-27415",
+      "sku": "gima-27415",
+      "title": "LENZUOLINO POLITENATO GOFFRATO - 50m x 60 cm",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Gima",
+      "subcategory": "Farmacia e cura",
+      "price": 7.15,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/27413.jpg",
+      "imageStem": "27413",
+      "source": "local",
+      "anomalies": [
+        "Mismatch Immagine"
+      ],
+      "notes": [
+        "Codice nel titolo/SKU (27415) diverso dallo stem immagine (27413)"
+      ]
+    },
+    {
+      "id": "gima-26496-150x150",
+      "sku": "gima-26496-150x150",
+      "title": "TELO CHIRURGICO 150×150 cm — GIMA 26496",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Gima",
+      "subcategory": "Strumentario chirurgico",
+      "price": 12,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/26495-97.jpg",
+      "imageStem": "26495-97",
+      "source": "local",
+      "anomalies": [
+        "Mismatch Immagine"
+      ],
+      "notes": [
+        "Codice nel titolo/SKU (26496) diverso dallo stem immagine (26495-97)"
+      ]
+    },
+    {
+      "id": "gima-22365",
+      "sku": "gima-22365",
+      "title": "SUTURA ASSORBIBILE ETHICON VICRYL PLUS — 2/0 ago 26 mm SH — intrecciata — GIMA 22365",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Ethicon",
+      "subcategory": "Suture chirurgiche",
+      "price": 322,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/22365.jpg",
+      "imageStem": "22365",
+      "source": "local",
+      "anomalies": [
+        "Broken Link Immagine"
+      ],
+      "notes": [
+        "URL immagine non raggiungibile (HEAD/GET fallito)"
+      ]
+    },
+    {
+      "id": "gima-22364",
+      "sku": "gima-22364",
+      "title": "SUTURA ASSORBIBILE ETHICON VICRYL PLUS — 3/0 ago 22 mm SH-1 — intrecciata — GIMA 22364",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Ethicon",
+      "subcategory": "Suture chirurgiche",
+      "price": 318,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/22364.jpg",
+      "imageStem": "22364",
+      "source": "local",
+      "anomalies": [
+        "Broken Link Immagine"
+      ],
+      "notes": [
+        "URL immagine non raggiungibile (HEAD/GET fallito)"
+      ]
+    },
+    {
+      "id": "gima-22366",
+      "sku": "gima-22366",
+      "title": "SUTURA ASSORBIBILE ETHICON VICRYL PLUS — 4/0 ago 13 mm P-3 — intrecciata — GIMA 22366",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Ethicon",
+      "subcategory": "Suture chirurgiche",
+      "price": 295,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/22366.jpg",
+      "imageStem": "22366",
+      "source": "local",
+      "anomalies": [
+        "Broken Link Immagine"
+      ],
+      "notes": [
+        "URL immagine non raggiungibile (HEAD/GET fallito)"
+      ]
+    },
+    {
+      "id": "gima-22308",
+      "sku": "gima-22308",
+      "title": "SUTURA MONOFILAMENTO ETHICON ETHILON — 3/0 ago 13 mm P-3 — GIMA 22308",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Ethicon",
+      "subcategory": "Suture chirurgiche",
+      "price": 485,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/22308.jpg",
+      "imageStem": "22308",
+      "source": "local",
+      "anomalies": [
+        "Broken Link Immagine"
+      ],
+      "notes": [
+        "URL immagine non raggiungibile (HEAD/GET fallito)"
+      ]
+    },
+    {
+      "id": "gima-22298",
+      "sku": "gima-22298",
+      "title": "SUTURA MONOFILAMENTO ETHICON ETHILON — 4/0 ago 16 mm — GIMA 22298",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Ethicon",
+      "subcategory": "Suture chirurgiche",
+      "price": 165,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/22298.jpg",
+      "imageStem": "22298",
+      "source": "local",
+      "anomalies": [
+        "Broken Link Immagine"
+      ],
+      "notes": [
+        "URL immagine non raggiungibile (HEAD/GET fallito)"
+      ]
+    },
+    {
+      "id": "gima-22306",
+      "sku": "gima-22306",
+      "title": "SUTURA MONOFILAMENTO ETHICON ETHILON — 5/0 ago 19 mm C-2 — GIMA 22306",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Ethicon",
+      "subcategory": "Suture chirurgiche",
+      "price": 164,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/22306.jpg",
+      "imageStem": "22306",
+      "source": "local",
+      "anomalies": [
+        "Broken Link Immagine"
+      ],
+      "notes": [
+        "URL immagine non raggiungibile (HEAD/GET fallito)"
+      ]
+    },
+    {
+      "id": "gima-22324",
+      "sku": "gima-22324",
+      "title": "SUTURA MONOFILAMENTO ETHICON PROLENE BLUE — 3/0 ago 19 mm FS-3 — GIMA 22324",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Ethicon",
+      "subcategory": "Suture chirurgiche",
+      "price": 218,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/22324.jpg",
+      "imageStem": "22324",
+      "source": "local",
+      "anomalies": [
+        "Broken Link Immagine"
+      ],
+      "notes": [
+        "URL immagine non raggiungibile (HEAD/GET fallito)"
+      ]
+    },
+    {
+      "id": "gima-22327",
+      "sku": "gima-22327",
+      "title": "SUTURA MONOFILAMENTO ETHICON PROLENE BLUE — 3/0 ago 19 mm PS-2 — GIMA 22327",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Ethicon",
+      "subcategory": "Suture chirurgiche",
+      "price": 212,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/22327.jpg",
+      "imageStem": "22327",
+      "source": "local",
+      "anomalies": [
+        "Broken Link Immagine"
+      ],
+      "notes": [
+        "URL immagine non raggiungibile (HEAD/GET fallito)"
+      ]
+    },
+    {
+      "id": "gima-22329",
+      "sku": "gima-22329",
+      "title": "SUTURA MONOFILAMENTO ETHICON PROLENE BLUE — 4/0 ago 13 mm P-3 — GIMA 22329",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Ethicon",
+      "subcategory": "Suture chirurgiche",
+      "price": 192,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/22329.jpg",
+      "imageStem": "22329",
+      "source": "local",
+      "anomalies": [
+        "Broken Link Immagine"
+      ],
+      "notes": [
+        "URL immagine non raggiungibile (HEAD/GET fallito)"
+      ]
+    },
+    {
+      "id": "gima-22326",
+      "sku": "gima-22326",
+      "title": "SUTURA MONOFILAMENTO ETHICON PROLENE BLUE — 4/0 ago 19 mm FS-2 — GIMA 22326",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Ethicon",
+      "subcategory": "Suture chirurgiche",
+      "price": 200,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/22326.jpg",
+      "imageStem": "22326",
+      "source": "local",
+      "anomalies": [
+        "Broken Link Immagine"
+      ],
+      "notes": [
+        "URL immagine non raggiungibile (HEAD/GET fallito)"
+      ]
+    },
+    {
+      "id": "gima-22325",
+      "sku": "gima-22325",
+      "title": "SUTURA MONOFILAMENTO ETHICON PROLENE BLUE — 4/0 ago 19 mm PS-2 — GIMA 22325",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Ethicon",
+      "subcategory": "Suture chirurgiche",
+      "price": 195,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/22325.jpg",
+      "imageStem": "22325",
+      "source": "local",
+      "anomalies": [
+        "Broken Link Immagine"
+      ],
+      "notes": [
+        "URL immagine non raggiungibile (HEAD/GET fallito)"
+      ]
+    },
+    {
+      "id": "gima-22328",
+      "sku": "gima-22328",
+      "title": "SUTURA MONOFILAMENTO ETHICON PROLENE BLUE — 5/0 ago 13 mm P-3 — GIMA 22328",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Ethicon",
+      "subcategory": "Suture chirurgiche",
+      "price": 188,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/22328.jpg",
+      "imageStem": "22328",
+      "source": "local",
+      "anomalies": [
+        "Broken Link Immagine"
+      ],
+      "notes": [
+        "URL immagine non raggiungibile (HEAD/GET fallito)"
+      ]
+    },
+    {
+      "id": "gima-22323",
+      "sku": "gima-22323",
+      "title": "SUTURA MONOFILAMENTO ETHICON PROLENE BLUE — 5/0 ago 19 mm FS-2 — GIMA 22323",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Ethicon",
+      "subcategory": "Suture chirurgiche",
+      "price": 205,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/22323.jpg",
+      "imageStem": "22323",
+      "source": "local",
+      "anomalies": [
+        "Broken Link Immagine"
+      ],
+      "notes": [
+        "URL immagine non raggiungibile (HEAD/GET fallito)"
+      ]
+    },
+    {
+      "id": "gima-22317",
+      "sku": "gima-22317",
+      "title": "SUTURA SETA ETHICON PERMA-HAND — 3/0 ago 19 mm RB-1 — intrecciata — GIMA 22317",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Ethicon",
+      "subcategory": "Suture chirurgiche",
+      "price": 54,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/22317.jpg",
+      "imageStem": "22317",
+      "source": "local",
+      "anomalies": [
+        "Broken Link Immagine"
+      ],
+      "notes": [
+        "URL immagine non raggiungibile (HEAD/GET fallito)"
+      ]
+    },
+    {
+      "id": "gima-22318",
+      "sku": "gima-22318",
+      "title": "SUTURA SETA ETHICON PERMA-HAND — 4/0 ago 19 mm FS-2S — intrecciata — GIMA 22318",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Ethicon",
+      "subcategory": "Suture chirurgiche",
+      "price": 56,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/22318.jpg",
+      "imageStem": "22318",
+      "source": "local",
+      "anomalies": [
+        "Broken Link Immagine"
+      ],
+      "notes": [
+        "URL immagine non raggiungibile (HEAD/GET fallito)"
+      ]
+    },
+    {
+      "id": "gima-27412",
+      "sku": "gima-27412",
+      "title": "Lactate Scout 4",
+      "category": "Linea Specializzata Astro Medical",
+      "brand": "Gima",
+      "subcategory": "Diagnostica professionale",
+      "price": 741,
+      "imageUrl": "https://www.gimaitaly.com/images/prodotti/medium/27412.jpg",
+      "imageStem": "27412",
+      "source": "local",
+      "anomalies": [
+        "Immagine Condivisa Sospetta"
+      ],
+      "notes": [
+        "URL condiviso da 3 titoli dissimili (es. Lactate Scout 4 | LENZUOLINO 2 VELI - 47,5m x 59 cm | LENZUOLINO MONOVELO GOFFRATO 95m x 50cm)"
+      ]
+    }
+  ]
+}

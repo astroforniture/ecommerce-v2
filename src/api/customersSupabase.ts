@@ -108,6 +108,17 @@ function parseShipping(row: Record<string, unknown>): {
   return { street, city, zip, province }
 }
 
+/** Ordini da escludere da conteggio/spesa (bozze Stripe o annullati). */
+function isValidCustomerOrder(status: string): boolean {
+  const s = status.trim().toLowerCase()
+  if (!s) return true
+  if (s.includes('annull')) return false
+  if (s === 'pending' || s.includes('in attesa di pagamento') || s.includes('pending payment')) {
+    return false
+  }
+  return true
+}
+
 function toCustomerOrder(row: Record<string, unknown>): AdminCustomerOrder {
   const shipping = parseShipping(row)
   return {
@@ -142,7 +153,8 @@ function toCustomer(
     asString(row.companyName)
   const email = asString(row.email) || asString(row.user_email)
   const shipping = parseShipping(row)
-  const totalSpent = orders.reduce((sum, order) => sum + order.total, 0)
+  const validOrders = orders.filter((order) => isValidCustomerOrder(order.status))
+  const totalSpent = validOrders.reduce((sum, order) => sum + order.total, 0)
 
   return {
     id: asString(row.id),
@@ -153,14 +165,14 @@ function toCustomer(
     phone: asString(row.telefono) || asString(row.phone),
     companyName,
     registeredAt: asString(row.created_at) || asString(row.registered_at) || null,
-    ordersCount: orders.length,
+    ordersCount: validOrders.length,
     totalSpent,
     status: 'Attivo',
     shippingStreet: shipping.street,
     shippingCity: shipping.city,
     shippingZip: shipping.zip,
     shippingProvince: shipping.province,
-    orders,
+    orders: validOrders,
   }
 }
 

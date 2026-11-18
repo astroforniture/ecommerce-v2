@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
+import { DownloadOfficeCatalogPdfButton } from '../catalog/DownloadOfficeCatalogPdfButton'
 import { GlobalSiteSearch } from './GlobalSiteSearch'
 import { HeaderAnnouncementBar } from './HeaderAnnouncementBar'
 import { MegaMenuNav } from './MegaMenuNav'
@@ -48,10 +49,11 @@ export function SiteHeader() {
       <div className="border-b border-slate-200">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-            <nav className="flex items-center text-xs font-semibold uppercase tracking-[0.14em] text-slate-700 sm:text-sm">
+            <nav className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-700 sm:gap-3 sm:text-sm">
               <Link to={OFFICE_GENERAL_SHOP_PATH} className="transition hover:text-black">
                 Shop
               </Link>
+              <DownloadOfficeCatalogPdfButton variant="header" />
             </nav>
 
             <Link to="/" className="inline-flex items-center justify-center" aria-label="Astro Forniture">

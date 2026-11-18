@@ -2,6 +2,11 @@ import Stripe from 'https://esm.sh/stripe@17.7.0?target=deno'
 import { Resend } from 'npm:resend@4.1.2'
 import { getServiceSupabase } from '../_shared/supabaseAdmin.ts'
 import {
+  buildOrderRef,
+  ensureOrderPaidFromPaymentIntent,
+  paymentMethodLabelFromIntent,
+} from '../_shared/ensureStripeOrder.ts'
+import {
   EMAIL_FROM_DEFAULT,
   EMAIL_SUPPORT,
   buildAdminNewOrderEmail,
@@ -34,13 +39,6 @@ function asNumber(value: unknown): number {
     return Number.isFinite(n) ? n : 0
   }
   return 0
-}
-
-function buildOrderRef(id: string): string {
-  const year = new Date().getFullYear()
-  const clean = id.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()
-  const tail = clean.slice(-6).padStart(6, '0')
-  return `AF-${year}-${tail || '000000'}`
 }
 
 function parseOrderItems(raw: unknown): OrderLine[] {
@@ -169,7 +167,7 @@ async function notifyAdminNewOrderFromPaymentIntent(paymentIntentId: string) {
     vatAmount: asNumber(row.vat_amount ?? row.vat_total),
     shippingFee: asNumber(row.shipping_cost ?? row.shipping_fee),
     totalWithVat: asNumber(row.total_amount ?? row.total),
-    paymentMethod: 'Stripe / Carta',
+    paymentMethod: asString(row.payment_method) || 'Stripe',
     orderNotes: asString(row.order_notes) || undefined,
     deliveryMethod: asString(row.delivery_method) || undefined,
   })
@@ -241,10 +239,33 @@ Deno.serve(async (req) => {
 
   try {
     switch (event.type) {
-      case 'payment_intent.succeeded': {
+      case 'payment_intent.succeeded':
+      case 'payment_intent.amount_capturable_updated': {
+        // Klarna/async: succeeded arriva dopo il redirect; amount_capturable è raro ma sicuro.
         const pi = event.data.object as Stripe.PaymentIntent
+        if (event.type === 'payment_intent.amount_capturable_updated' && pi.status !== 'succeeded') {
+          console.log('[stripe-webhook] skip non-succeeded', event.type, pi.id, pi.status)
+          break
+        }
         const result = await setCartSessionStatusByPaymentIntent(pi.id, 'completed')
-        console.log('[stripe-webhook] payment_intent.succeeded', pi.id, result)
+        console.log('[stripe-webhook]', event.type, pi.id, result)
+
+        const supabase = getServiceSupabase()
+        if (supabase) {
+          try {
+            // Aggiorna pending → Pagato; NON cancella order_items già salvati pre-redirect.
+            const ensured = await ensureOrderPaidFromPaymentIntent(supabase, pi)
+            console.log(
+              '[stripe-webhook] ensure order',
+              pi.id,
+              ensured,
+              paymentMethodLabelFromIntent(pi),
+            )
+          } catch (ensureErr) {
+            console.error('[stripe-webhook] ensureOrderPaidFromPaymentIntent failed:', ensureErr)
+          }
+        }
+
         // Fire-and-forget backup admin notification (non bloccare la risposta Stripe).
         void notifyAdminNewOrderFromPaymentIntent(pi.id).catch((err) =>
           console.error('[stripe-webhook] admin notify failed:', err),
@@ -277,6 +298,20 @@ Deno.serve(async (req) => {
         )
         console.log('[stripe-webhook] checkout.session.completed', session.id, result)
         if (piId) {
+          const supabase = getServiceSupabase()
+          const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY')?.trim()
+          if (supabase && stripeSecretKey) {
+            try {
+              const stripeClient = new Stripe(stripeSecretKey, {
+                apiVersion: '2024-11-20.acacia',
+                httpClient: Stripe.createFetchHttpClient(),
+              })
+              const pi = await stripeClient.paymentIntents.retrieve(piId)
+              await ensureOrderPaidFromPaymentIntent(supabase, pi)
+            } catch (ensureErr) {
+              console.error('[stripe-webhook] checkout.session ensure order failed:', ensureErr)
+            }
+          }
           void notifyAdminNewOrderFromPaymentIntent(piId).catch((err) =>
             console.error('[stripe-webhook] admin notify failed:', err),
           )

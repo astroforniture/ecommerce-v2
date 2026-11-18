@@ -37,6 +37,12 @@ export type CheckoutOrderInput = {
   shippingFee: number
   totalWithVat: number
   stripePaymentIntentId?: string
+  /** Ordine salvato prima del redirect Stripe (Klarna / async). */
+  pendingPayment?: boolean
+  /** auth.users.id / profiles.id quando l'utente è loggato. */
+  userId?: string
+  /** Es. stripe | klarna */
+  paymentMethod?: string
   /** Campi e-invoice: derivati dai dati di fatturazione (sempre richiesti a DB). */
   invoiceCompanyName: string
   invoiceVatNumber: string
@@ -79,6 +85,12 @@ function extractMissingColumn(message: string): string | null {
   return match?.[1] ?? null
 }
 
+function resolveOrderStatus(input: CheckoutOrderInput): string {
+  if (!input.stripePaymentIntentId) return 'Ricevuto'
+  if (input.pendingPayment) return 'pending'
+  return 'Pagato'
+}
+
 function buildOrdersInsertPayload(input: CheckoutOrderInput): Record<string, unknown> {
   const isBusiness = isBusinessCustomerType(input.customerType)
   const billingName = resolveCheckoutBillingName(input)
@@ -107,6 +119,10 @@ function buildOrdersInsertPayload(input: CheckoutOrderInput): Record<string, unk
     .filter(Boolean)
     .join('\n')
 
+  const paymentMethod =
+    input.paymentMethod?.trim() ||
+    (input.stripePaymentIntentId ? 'stripe' : undefined)
+
   // Fatturazione (billing_*) e spedizione (shipping_*) restano campi distinti.
   const payload: Record<string, unknown> = {
     customer_name: billingName,
@@ -120,7 +136,7 @@ function buildOrdersInsertPayload(input: CheckoutOrderInput): Record<string, unk
     shipping_zip: shippingZip,
     shipping_province: shippingProvince || undefined,
     delivery_method: input.deliveryLabel,
-    status: input.stripePaymentIntentId ? 'Pagato' : 'Ricevuto',
+    status: resolveOrderStatus(input),
     billing_name: billingName,
     billing_street: billingStreet,
     billing_zip: billingZip,
@@ -155,16 +171,80 @@ function buildOrdersInsertPayload(input: CheckoutOrderInput): Record<string, unk
     e_invoice_sdi_or_pec: input.invoiceSdiOrPec.trim() || undefined,
     order_notes: combinedNotes || undefined,
     stripe_payment_intent_id: input.stripePaymentIntentId?.trim() || undefined,
-    payment_method: input.stripePaymentIntentId ? 'stripe' : undefined,
+    payment_method: paymentMethod,
+    user_id: input.userId?.trim() || undefined,
   }
 
   return sanitizeOrderPayload(payload)
 }
 
-export async function persistCheckoutOrder(
+function buildOrderItemsPayload(orderId: string, items: CartItem[]) {
+  return items.map((item) => {
+    const unit = Number(
+      effectiveUnitPrice(item.price, item.quantityPriceTiers, item.quantity).toFixed(2),
+    )
+    const total = Number(
+      lineImponible(item.price, item.quantityPriceTiers, item.quantity).toFixed(2),
+    )
+    return {
+      order_id: orderId,
+      product_id: item.id,
+      product_name: item.name,
+      name: item.name,
+      sku: item.sku,
+      variant: item.variantLabel || null,
+      quantity: item.quantity,
+      price: unit,
+      total,
+      unit_imponibile: unit,
+      unit_price: unit,
+      image_url: item.imageUrl || null,
+    }
+  })
+}
+
+async function insertOrderItemsWithFallback(
+  supabase: SupabaseClient,
+  orderId: string,
+  items: CartItem[],
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  let rows: Record<string, unknown>[] = buildOrderItemsPayload(orderId, items)
+
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    const { error } = await supabase.from('order_items').insert(rows)
+    if (!error) return { ok: true }
+
+    const missing = extractMissingColumn(error.message)
+    if (!missing) {
+      return { ok: false, error: error.message }
+    }
+    rows = rows.map((row) => {
+      const { [missing]: _removed, ...rest } = row
+      return rest
+    })
+  }
+
+  return { ok: false, error: 'Salvataggio articoli fallito dopo retry colonne.' }
+}
+
+async function replaceOrderItems(
+  supabase: SupabaseClient,
+  orderId: string,
+  items: CartItem[],
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { count } = await supabase
+    .from('order_items')
+    .select('id', { count: 'exact', head: true })
+    .eq('order_id', orderId)
+
+  if ((count ?? 0) > 0) return { ok: true }
+  return insertOrderItemsWithFallback(supabase, orderId, items)
+}
+
+async function insertOrderWithColumnFallback(
   supabase: SupabaseClient,
   input: CheckoutOrderInput,
-): Promise<{ ok: true; orderId: string; orderRef: string } | { ok: false; error: string }> {
+): Promise<{ ok: true; orderId: string } | { ok: false; error: string }> {
   let orderPayload = buildOrdersInsertPayload(input)
   console.log('[Supabase][/orders] payload sanitizzato:', {
     keys: Object.keys(orderPayload),
@@ -175,7 +255,6 @@ export async function persistCheckoutOrder(
   let error: { message: string; code?: string; details?: string; hint?: string } | null = null
   const strippedColumns: string[] = []
 
-  // Se lo schema remoto non ha ancora alcune colonne opzionali, le togliamo e ritentiamo.
   for (let attempt = 0; attempt < 12; attempt += 1) {
     const result = await supabase.from('orders').insert(orderPayload).select('id').single()
     data = (result.data as { id?: string } | null) ?? null
@@ -193,7 +272,6 @@ export async function persistCheckoutOrder(
     const { [missing]: _removed, ...rest } = orderPayload
     orderPayload = rest
 
-    // Alias comuni: se manca shipping_cost ma esiste shipping_fee (o viceversa).
     if (missing === 'shipping_cost' && removedValue != null && !('shipping_fee' in orderPayload)) {
       orderPayload.shipping_fee = removedValue
     } else if (
@@ -202,12 +280,6 @@ export async function persistCheckoutOrder(
       !('shipping_cost' in orderPayload)
     ) {
       orderPayload.shipping_cost = removedValue
-    } else if (
-      missing === 'shipping_province' &&
-      removedValue != null &&
-      typeof removedValue === 'string'
-    ) {
-      // Se manca shipping_province, la provincia resta in billing; non blocchiamo l'ordine.
     }
 
     strippedColumns.push(missing)
@@ -218,55 +290,96 @@ export async function persistCheckoutOrder(
   }
 
   if (error) {
+    // Ordine già creato (es. preventivo pre-Klarna): non trattarlo come fallimento bloccante.
+    if (error.code === '23505' || /duplicate|unique/i.test(error.message)) {
+      console.warn('[Supabase][/orders] insert duplicato PI — ordine già presente:', error.message)
+      return {
+        ok: false,
+        error: `Ordine già presente per questo pagamento. Dettaglio: ${error.message}`,
+      }
+    }
     console.error('[Supabase][/orders] insert fallito — oggetto errore completo:', error)
-    console.error('[Supabase][/orders] dettaglio:', {
-      message: error.message,
-      code: error.code,
-      details: error.details,
-      hint: error.hint,
-      strippedColumns,
-      payloadKeys: Object.keys(orderPayload),
-      payloadSample: {
-        customer_name: orderPayload.customer_name,
-        customer_email: orderPayload.customer_email,
-        total_amount: orderPayload.total_amount,
-        stripe_payment_intent_id: orderPayload.stripe_payment_intent_id,
-        wants_electronic_invoice: orderPayload.wants_electronic_invoice,
-      },
-    })
     return {
       ok: false,
       error: `Invio ordine non riuscito. Verifica i dati e riprova. Dettaglio: ${error.message}`,
     }
   }
 
-  const orderId = (data as { id?: string } | null)?.id ?? ''
+  const orderId = data?.id ?? ''
   if (!orderId) {
-    console.error('[Supabase][/orders] insert ok ma id assente — data:', data)
     return { ok: false, error: 'Ordine creato ma ID ordine non disponibile.' }
   }
+  return { ok: true, orderId }
+}
 
-  const orderItemsPayload = input.items.map((item) => ({
-    order_id: orderId,
-    product_name: item.name,
-    quantity: item.quantity,
-    price: Number(
-      effectiveUnitPrice(item.price, item.quantityPriceTiers, item.quantity).toFixed(2),
-    ),
-  }))
+/**
+ * Salva (o aggiorna) l'ordine checkout.
+ * Se esiste già un ordine con lo stesso stripe_payment_intent_id, aggiorna lo stato
+ * (es. da "In attesa di pagamento" → "Pagato") senza duplicare.
+ */
+export async function persistCheckoutOrder(
+  supabase: SupabaseClient,
+  input: CheckoutOrderInput,
+): Promise<{ ok: true; orderId: string; orderRef: string } | { ok: false; error: string }> {
+  const piId = input.stripePaymentIntentId?.trim()
 
-  const { error: itemsError } = await supabase.from('order_items').insert(orderItemsPayload)
-  if (itemsError) {
-    console.error('[Supabase][/order_items] insert fallito — oggetto errore completo:', itemsError)
-    console.error('[Supabase][/order_items] dettaglio:', {
-      message: itemsError.message,
-      code: itemsError.code,
-      details: itemsError.details,
-      hint: itemsError.hint,
-      orderId,
-      itemsCount: orderItemsPayload.length,
-    })
-    const rollbackRes = await supabase.from('orders').delete().eq('id', orderId)
+  if (piId) {
+    const { data: existing, error: lookupError } = await supabase
+      .from('orders')
+      .select('id, status')
+      .eq('stripe_payment_intent_id', piId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (lookupError) {
+      console.warn('[Supabase][/orders] lookup by PI:', lookupError.message)
+    }
+
+    if (existing?.id) {
+      const orderId = existing.id as string
+      const patch = buildOrdersInsertPayload(input)
+      delete patch.stripe_payment_intent_id
+
+      let updatePayload = { ...patch }
+      for (let attempt = 0; attempt < 12; attempt += 1) {
+        const { error: updateError } = await supabase
+          .from('orders')
+          .update(updatePayload)
+          .eq('id', orderId)
+        if (!updateError) break
+        const missing = extractMissingColumn(updateError.message)
+        if (!missing || !(missing in updatePayload)) {
+          console.error('[Supabase][/orders] update fallito:', updateError)
+          return {
+            ok: false,
+            error: `Aggiornamento ordine non riuscito: ${updateError.message}`,
+          }
+        }
+        const { [missing]: _r, ...rest } = updatePayload
+        updatePayload = rest
+      }
+
+      const itemsResult = await replaceOrderItems(supabase, orderId, input.items)
+      if (!itemsResult.ok) {
+        console.warn('[Supabase][/order_items] ensure items:', itemsResult.error)
+      }
+
+      return {
+        ok: true,
+        orderId,
+        orderRef: buildOrderReference(orderId),
+      }
+    }
+  }
+
+  const inserted = await insertOrderWithColumnFallback(supabase, input)
+  if (!inserted.ok) return inserted
+
+  const itemsResult = await insertOrderItemsWithFallback(supabase, inserted.orderId, input.items)
+  if (!itemsResult.ok) {
+    console.error('[Supabase][/order_items] insert fallito:', itemsResult.error)
+    const rollbackRes = await supabase.from('orders').delete().eq('id', inserted.orderId)
     if (rollbackRes.error) {
       console.error('[Supabase][/orders] rollback fallito:', rollbackRes.error)
     }
@@ -275,13 +388,13 @@ export async function persistCheckoutOrder(
       : ' Ordine annullato automaticamente.'
     return {
       ok: false,
-      error: `Salvataggio articoli fallito: ${itemsError.message}.${rollbackHint}`,
+      error: `Salvataggio articoli fallito: ${itemsResult.error}.${rollbackHint}`,
     }
   }
 
   return {
     ok: true,
-    orderId,
-    orderRef: buildOrderReference(orderId),
+    orderId: inserted.orderId,
+    orderRef: buildOrderReference(inserted.orderId),
   }
 }

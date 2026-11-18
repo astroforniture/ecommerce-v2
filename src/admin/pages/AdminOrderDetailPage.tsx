@@ -21,6 +21,8 @@ const eur = new Intl.NumberFormat('it-IT', {
 })
 
 const STATUS_OPTIONS = [
+  'pending',
+  'Pagato',
   'Ricevuto',
   'In Elaborazione',
   'Pronto per il ritiro',
@@ -38,6 +40,7 @@ function formatDate(input?: string): string {
 function statusVariant(status: string): 'default' | 'success' | 'warning' | 'brand' {
   const s = status.toLowerCase()
   if (s.includes('annull')) return 'warning'
+  if (s === 'pending' || s.includes('attesa')) return 'warning'
   if (s.includes('complet') || s.includes('paid') || s.includes('pagat')) return 'success'
   if (s.includes('sped') || s.includes('shipped')) return 'brand'
   return 'default'
@@ -249,6 +252,11 @@ export function AdminOrderDetailPage() {
           <Info label="Indirizzo di Consegna" value={deliveryAddressDisplay} />
           <Info label="Telefono" value={order.billingPhone} />
           <Info label="Consegna" value={order.deliveryMethod} />
+          <Info label="Metodo pagamento" value={order.paymentMethod || '—'} />
+          <Info
+            label="Stripe PaymentIntent"
+            value={order.stripePaymentIntentId || '—'}
+          />
           {order.wantsElectronicInvoice ? (
             <>
               <Info label="Fattura elettronica" value="Richiesta" />

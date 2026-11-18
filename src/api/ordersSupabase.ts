@@ -33,6 +33,9 @@ export type AdminOrder = {
   eInvoiceSdiOrPec?: string
   orderNotes?: string
   trackingNumber?: string
+  stripePaymentIntentId?: string
+  paymentMethod?: string
+  userId?: string
   items: Array<{
     sku: string
     name: string
@@ -132,7 +135,10 @@ function asDetailItems(value: unknown): AdminOrderDetailItem[] {
       const row = (raw ?? {}) as Record<string, unknown>
       const productRaw = (row.products ?? {}) as Record<string, unknown>
       const sku = asString(row.sku) || asString(productRaw.sku)
-      const name = asString(row.name) || asString(productRaw.name)
+      const name =
+        asString(row.name) ||
+        asString(row.product_name) ||
+        asString(productRaw.name)
       return {
         id: asString(row.id) || `${asString(row.order_id)}:${sku}:${name}`,
         productId: asString(row.product_id) || asString(productRaw.id) || undefined,
@@ -191,6 +197,13 @@ function fromRow(row: Record<string, unknown>): AdminOrder {
     eInvoiceSdiOrPec: asString(row.e_invoice_sdi_or_pec),
     orderNotes: asString(row.order_notes),
     trackingNumber: asString(row.tracking_number) || undefined,
+    stripePaymentIntentId: asString(row.stripe_payment_intent_id) || undefined,
+    paymentMethod: asString(row.payment_method) || undefined,
+    userId:
+      asString(row.user_id) ||
+      asString(row.profile_id) ||
+      asString(row.customer_id) ||
+      undefined,
     items: asItems(row.items_json),
   }
 }
@@ -272,7 +285,7 @@ export async function fetchOrderDetailForAdmin(orderId: string): Promise<AdminOr
     supabase
       .from('order_items')
       .select(
-        'id, order_id, product_id, sku, name, variant, variante, colore, quantity, unit_imponibile, unit_price, price, image_url, products:products(id, sku, name, price, image_url)',
+        'id, order_id, product_id, sku, name, product_name, variant, variante, colore, quantity, unit_imponibile, unit_price, price, image_url, products:products(id, sku, name, price, image_url)',
       )
       .eq('order_id', cleanId),
   ])

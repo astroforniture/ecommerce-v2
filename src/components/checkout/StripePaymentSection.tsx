@@ -36,6 +36,11 @@ type StripePaymentFormProps = {
   onSubmittingChange: (value: boolean) => void
   onError: (message: string) => void
   onPaymentSucceeded: (paymentIntentId: string) => Promise<void>
+  /**
+   * Salva l'ordine (In attesa di pagamento) + order_items PRIMA di confirmPayment,
+   * così Klarna/redirect non perdono gli articoli.
+   */
+  onBeforeConfirmPayment?: (paymentIntentId: string) => Promise<boolean>
   /** Layout piu ampio per sidebar checkout Step 2. */
   prominent?: boolean
 }
@@ -50,8 +55,10 @@ function PaymentFormInner({
   onSubmittingChange,
   onError,
   onPaymentSucceeded,
+  onBeforeConfirmPayment,
+  paymentIntentId,
   prominent = false,
-}: StripePaymentFormProps) {
+}: StripePaymentFormProps & { paymentIntentId: string }) {
   const stripe = useStripe()
   const elements = useElements()
   const [elementReady, setElementReady] = useState(false)
@@ -104,6 +111,23 @@ function PaymentFormInner({
         return
       }
 
+      if (onBeforeConfirmPayment) {
+        if (!paymentIntentId) {
+          const msg = 'PaymentIntent non pronto. Attendi e riprova.'
+          setPayError(msg)
+          onError(msg)
+          return
+        }
+        console.log('[Stripe] handlePay: onBeforeConfirmPayment (ordine preventivo)', paymentIntentId)
+        const prepared = await onBeforeConfirmPayment(paymentIntentId)
+        if (!prepared) {
+          const msg = 'Impossibile salvare l’ordine prima del pagamento. Riprova.'
+          setPayError(msg)
+          onError(msg)
+          return
+        }
+      }
+
       console.log('[Stripe] handlePay: confirmPayment()')
       const confirmParams: {
         return_url: string
@@ -115,6 +139,8 @@ function PaymentFormInner({
         confirmParams.receipt_email = customerEmail
       }
 
+      // Con Klarna/redirect il browser lascia la pagina: l'ordine preventivo + webhook
+      // completano il flusso. return_url riceve payment_intent + redirect_status.
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         redirect: 'if_required',
@@ -150,15 +176,21 @@ function PaymentFormInner({
         return
       }
 
-      if (paymentIntent?.status === 'processing') {
-        const msg = 'Pagamento in elaborazione. Riceverai conferma a breve.'
-        setPayError(msg)
-        onError(msg)
+      if (
+        paymentIntent?.status === 'processing' ||
+        paymentIntent?.status === 'requires_capture'
+      ) {
+        // Metodi async: l'ordine preventivo è già in DB; webhook → Pagato.
+        console.log('[Stripe] handlePay: async/processing', paymentIntent.id, paymentIntent.status)
+        window.location.assign(
+          `${window.location.origin}/checkout/success?payment_intent=${encodeURIComponent(paymentIntent.id)}&redirect_status=succeeded`,
+        )
         return
       }
 
       if (paymentIntent?.status === 'requires_action') {
-        const msg = 'Completa la verifica richiesta dalla banca (3D Secure) e riprova.'
+        // Di solito Stripe redirecta da solo; se resta in-page, avvisa.
+        const msg = 'Completa la verifica richiesta (3D Secure / Klarna) nella finestra aperta.'
         setPayError(msg)
         onError(msg)
         return
@@ -257,6 +289,7 @@ function PaymentFormInner({
 
 export function StripePaymentSection(props: StripePaymentFormProps) {
   const [clientSecret, setClientSecret] = useState<string | null>(null)
+  const [paymentIntentId, setPaymentIntentId] = useState('')
   const [intentError, setIntentError] = useState('')
   const [loadingIntent, setLoadingIntent] = useState(false)
   const intentRequestId = useRef(0)
@@ -272,6 +305,7 @@ export function StripePaymentSection(props: StripePaymentFormProps) {
   useEffect(() => {
     if (!canPrepareIntent) {
       setClientSecret(null)
+      setPaymentIntentId('')
       setIntentError('')
       setLoadingIntent(false)
       return
@@ -305,6 +339,7 @@ export function StripePaymentSection(props: StripePaymentFormProps) {
         if (requestId !== intentRequestId.current) return
         if (!result.ok) {
           setClientSecret(null)
+          setPaymentIntentId('')
           setIntentError(result.error)
           console.warn('[Stripe] createPaymentIntent failed:', result.error)
           logCheckoutError('createPaymentIntent result.ok=false', result)
@@ -315,11 +350,13 @@ export function StripePaymentSection(props: StripePaymentFormProps) {
           clientSecretPrefix: result.clientSecret.slice(0, 18) + '…',
         })
         setClientSecret(result.clientSecret)
+        setPaymentIntentId(result.paymentIntentId ?? '')
       })
       .catch((err) => {
         if (requestId !== intentRequestId.current) return
         logCheckoutError('createPaymentIntent promise reject', err)
         setClientSecret(null)
+        setPaymentIntentId('')
         setIntentError(err instanceof Error ? err.message : 'Errore creazione PaymentIntent.')
       })
       .finally(() => {
@@ -404,7 +441,7 @@ export function StripePaymentSection(props: StripePaymentFormProps) {
               locale: 'it',
             }}
           >
-            <PaymentFormInner {...props} />
+            <PaymentFormInner {...props} paymentIntentId={paymentIntentId} />
           </Elements>
         </div>
       ) : null}

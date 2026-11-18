@@ -37,6 +37,8 @@ import {
   type PrivacyMarketingConsentValues,
 } from '../components/privacy/PrivacyMarketingConsents'
 import { sendAdminNewOrderEmailSafe, sendOrderConfirmationEmailSafe } from '../api/transactionalEmails'
+import { finalizeStripeOrder } from '../api/finalizeStripeOrder'
+import { prepareCheckoutOrder } from '../api/prepareCheckoutOrder'
 import { buildGa4PurchaseFromCheckout, persistPendingGa4Purchase } from '../lib/googleAnalytics'
 
 const eur = new Intl.NumberFormat('it-IT', {
@@ -299,6 +301,7 @@ export function CartPage() {
   function buildCheckoutInput(
     customerEmail: string,
     stripePaymentIntentId?: string,
+    options?: { pendingPayment?: boolean; paymentMethod?: string },
   ): CheckoutOrderInput {
     return {
       items,
@@ -329,6 +332,9 @@ export function CartPage() {
       shippingFee,
       totalWithVat,
       stripePaymentIntentId,
+      pendingPayment: options?.pendingPayment,
+      paymentMethod: options?.paymentMethod,
+      userId: checkoutUserId,
       ...buildInvoiceFieldsFromBilling(),
       orderNotes: [
         purchaseOrderNumber.trim() ? `PO / Riferimento: ${purchaseOrderNumber.trim()}` : '',
@@ -361,15 +367,40 @@ export function CartPage() {
     })
 
     const checkoutInput = buildCheckoutInput(customerEmail, stripePaymentIntentId)
-    const result = await persistCheckoutOrder(supabase, checkoutInput)
+    let orderId = ''
+    let orderRef = ''
 
-    if (!result.ok) {
-      console.error('[Checkout] completeOrder fallito:', result)
-      setSubmitError(result.error)
-      return false
+    // Con PI: preferisci finalize server-side (service role) — evita doppio insert
+    // e aggiorna "In attesa di pagamento" → "Pagato" anche con RLS admin-only.
+    if (stripePaymentIntentId) {
+      const finalized = await finalizeStripeOrder(stripePaymentIntentId)
+      if (finalized.ok && finalized.orderId && finalized.orderRef) {
+        orderId = finalized.orderId
+        orderRef = finalized.orderRef
+        console.log('[Checkout] completeOrder via finalize-stripe-order:', finalized)
+      } else {
+        console.warn('[Checkout] finalize non sufficiente, fallback persist:', finalized)
+        const result = await persistCheckoutOrder(supabase, checkoutInput)
+        if (!result.ok) {
+          console.error('[Checkout] completeOrder fallito:', result)
+          setSubmitError(result.error)
+          return false
+        }
+        orderId = result.orderId
+        orderRef = result.orderRef
+      }
+    } else {
+      const result = await persistCheckoutOrder(supabase, checkoutInput)
+      if (!result.ok) {
+        console.error('[Checkout] completeOrder fallito:', result)
+        setSubmitError(result.error)
+        return false
+      }
+      orderId = result.orderId
+      orderRef = result.orderRef
     }
 
-    console.log('[Checkout] completeOrder ok:', result)
+    console.log('[Checkout] completeOrder ok:', { orderId, orderRef })
 
     const shippingAddress = [
       checkoutInput.shippingStreet || checkoutInput.addressStreet,
@@ -387,7 +418,7 @@ export function CartPage() {
     void sendOrderConfirmationEmailSafe({
       email: customerEmail,
       customerName: resolveCheckoutBillingName(checkoutInput),
-      orderRef: result.orderRef,
+      orderRef,
       items: checkoutInput.items.map((item) => ({
         name: item.name,
         quantity: item.quantity,
@@ -421,7 +452,7 @@ export function CartPage() {
       .join('\n')
 
     void sendAdminNewOrderEmailSafe({
-      orderRef: result.orderRef,
+      orderRef,
       firstName: checkoutInput.firstName,
       lastName: checkoutInput.lastName,
       customerName: resolveCheckoutBillingName(checkoutInput),
@@ -445,18 +476,18 @@ export function CartPage() {
       orderNotes: orderNotesCombined || undefined,
       deliveryMethod: checkoutInput.deliveryLabel,
     }).then((ok) => {
-      if (!ok) return
+      if (!ok || !orderId) return
       void supabase
         .from('orders')
         .update({ admin_notified_at: new Date().toISOString() })
-        .eq('id', result.orderId)
+        .eq('id', orderId)
         .then(({ error }) => {
           if (error) console.warn('[email] admin_notified_at:', error.message)
         })
     })
 
     const purchase = buildGa4PurchaseFromCheckout({
-      orderRef: result.orderRef,
+      orderRef,
       items: checkoutInput.items,
       totalWithVat: checkoutInput.totalWithVat,
       vatAmount: checkoutInput.vatAmount,
@@ -465,8 +496,8 @@ export function CartPage() {
     persistPendingGa4Purchase(purchase)
 
     clearCart()
-    navigate(`/checkout/success?order=${encodeURIComponent(result.orderRef)}`, {
-      state: { orderRef: result.orderRef, purchase },
+    navigate(`/checkout/success?order=${encodeURIComponent(orderRef)}`, {
+      state: { orderRef, purchase },
     })
     return true
   }
@@ -479,6 +510,34 @@ export function CartPage() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  /**
+   * Prima del redirect Stripe (Klarna/async): crea orders(pending) + order_items
+   * via Edge Function e collega order_id ai metadata Stripe.
+   */
+  async function handleBeforeConfirmPayment(paymentIntentId: string): Promise<boolean> {
+    const supabase = getSupabaseBrowserClient()
+    if (!supabase) {
+      setSubmitError('Configurazione Supabase mancante.')
+      return false
+    }
+    const customerEmail = await resolveCustomerEmail(supabase)
+    const checkoutInput = buildCheckoutInput(customerEmail, paymentIntentId, {
+      pendingPayment: true,
+      paymentMethod: 'stripe',
+    })
+    const result = await prepareCheckoutOrder({
+      paymentIntentId,
+      checkout: checkoutInput,
+    })
+    if (!result.ok) {
+      console.error('[Checkout] prepare-checkout-order fallito:', result)
+      setSubmitError(result.error)
+      return false
+    }
+    console.log('[Checkout] ordine pending + Stripe metadata ok:', result)
+    return true
   }
 
   async function handleCheckoutClick() {
@@ -969,6 +1028,7 @@ export function CartPage() {
                             onSubmittingChange={setIsSubmitting}
                             onError={setSubmitError}
                             onPaymentSucceeded={handleStripePaymentSucceeded}
+                            onBeforeConfirmPayment={handleBeforeConfirmPayment}
                             prominent
                           />
                         </div>

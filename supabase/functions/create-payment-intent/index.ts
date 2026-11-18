@@ -234,15 +234,40 @@ Deno.serve(async (req) => {
     const cartItems = normalizeCartItems(body.cartItems ?? body.items)
     const userId = asOptionalString(body.userId, 64)
 
+    const itemsSummary = cartItems
+      .slice(0, 8)
+      .map((row) => {
+        const o = row as {
+          sku?: string
+          name?: string
+          quantity?: number
+          unit_imponibile?: number
+        }
+        const label = [o.sku, o.name].filter(Boolean).join(' ')
+        const unit = Number(o.unit_imponibile ?? 0)
+        const pricePart = Number.isFinite(unit) && unit > 0 ? ` @${unit.toFixed(2)}€` : ''
+        return `${o.quantity ?? 1}x ${label}${pricePart}`.trim()
+      })
+      .join(' | ')
+      .slice(0, 480)
+
     const stripe = new Stripe(stripeSecretKey)
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amountCents),
       currency,
+      description:
+        cartItems.length > 0
+          ? `Astro Forniture — ${cartItems.length} articol${cartItems.length === 1 ? 'o' : 'i'}`
+          : 'Astro Forniture checkout',
       receipt_email: customerEmail?.includes('@') ? customerEmail : undefined,
       metadata: buildStripeMetadata(billing, {
         ...extraMetadata,
         ...(customerEmail ? { customer_email: customerEmail } : {}),
+        ...(userId ? { user_id: userId } : {}),
+        amount_cents: String(Math.round(amountCents)),
+        item_count: String(cartItems.length),
+        ...(itemsSummary ? { items_summary: itemsSummary } : {}),
       }),
       shipping: buildShipping(billing),
       automatic_payment_methods: { enabled: true },
@@ -252,11 +277,13 @@ Deno.serve(async (req) => {
       return json({ error: 'PaymentIntent senza client_secret.' }, 500)
     }
 
-    // Bozza checkout: solo se email presente (utente loggato o email inserita).
-    if (customerEmail?.includes('@') && cartItems.length > 0) {
+    // Snapshot carrello sempre (anche guest senza email): serve al webhook Klarna/async.
+    if (cartItems.length > 0) {
       try {
         await upsertPendingCartSession({
-          email: customerEmail,
+          email: customerEmail?.includes('@')
+            ? customerEmail
+            : `guest+${paymentIntent.id.slice(-10)}@astroforniture.local`,
           items: cartItems,
           amountCents,
           currency,
