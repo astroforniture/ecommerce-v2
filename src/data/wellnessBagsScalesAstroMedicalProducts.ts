@@ -170,23 +170,35 @@ const WELLNESS_CATALOG: readonly WellRow[] = [
     slug: 'gima-28593',
     name: 'THERMY GEL CALDO-FREDDO 14×18 cm — GIMA 28593',
     brand: 'Gima',
-    priceImponible: 33.4,
+    priceImponible: 40,
     imageUrl: gimaMedium('28593.jpg'),
     subcategory: THERMO_SUB,
+    gimaSku: '28593',
+    downloadId: '180367',
     description:
       'Gel caldo/freddo atossico riutilizzabile 14×18 cm; microonde, acqua calda o freezer. ' +
-      'Dispositivo medico Classe I. Abbinare fodera velcro GIMA 28596. Prezzo unitario imponibile IVA esclusa.',
+      'Dispositivo medico Classe I. Abbinare fodera velcro GIMA 28596. Codice GIMA 28593. ' +
+      'Prezzo 40,00 € imponibile IVA esclusa.',
   },
   {
     slug: 'gima-28594',
+    officeIdOverride: 'gima-28594',
     name: 'THERMY GEL CALDO-FREDDO 11×26 cm — GIMA 28594',
     brand: 'Gima',
-    priceImponible: 34.5,
-    imageUrl: gimaMedium('28594.jpg'),
+    priceImponible: 46,
+    imageUrl: gimaMedium('28594_b.jpg'),
     subcategory: THERMO_SUB,
+    gimaSku: '28594',
+    downloadId: '180367',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 46 },
+      { minQuantity: 5, unitPrice: 41.4 },
+    ],
+    showQuantityDiscountTable: true,
     description:
       'Gel caldo/freddo 11×26 cm per lombalgia, torcicollo, traumi e distorsioni. ' +
-      'Utilizzabile con fodera velcro GIMA 28596. Prezzo unitario imponibile IVA esclusa.',
+      'Utilizzabile con fodera velcro GIMA 28596. Codice GIMA 28594. ' +
+      'Prezzo 46,00 € imponibile IVA esclusa. Sconto quantità: 10% da 5 a 499 pezzi.',
   },
   {
     slug: 'gima-28596',
@@ -224,34 +236,41 @@ const WELLNESS_CATALOG: readonly WellRow[] = [
     slug: 'gima-28670',
     name: 'TERMOFORO senza copertura — GIMA 28670',
     brand: 'Gima',
-    priceImponible: 38,
+    priceImponible: 30,
     imageUrl: gimaMedium('28670.jpg'),
     subcategory: THERMO_SUB,
+    gimaSku: '28670',
+    downloadId: '158292',
     description:
       'Termoforo elettrico senza copertura; 3 impostazioni di temperatura. Dimensioni circa 40×30 cm. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
+      'Codice GIMA 28670. Prezzo 30,00 € imponibile IVA esclusa.',
   },
   {
     slug: 'gima-28671',
+    officeIdOverride: 'gima-28671',
     name: 'TERMOFORO con copertura — GIMA 28671',
     brand: 'Gima',
-    priceImponible: 48,
-    imageUrl: gimaMedium('28671.jpg'),
+    priceImponible: 40,
+    imageUrl: gimaMedium('28671_c.jpg'),
     subcategory: THERMO_SUB,
+    gimaSku: '28671',
+    downloadId: '158292',
     description:
       'Termoforo elettrico con copertura; 6 impostazioni. Dimensioni circa 63×42 cm. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
+      'Codice GIMA 28671. Prezzo 40,00 € imponibile IVA esclusa.',
   },
   {
     slug: 'gima-28674',
     name: 'TERMOFORO COLLO E SPALLE — GIMA 28674',
     brand: 'Gima',
-    priceImponible: 43,
+    priceImponible: 40,
     imageUrl: gimaMedium('28674.jpg'),
     subcategory: THERMO_SUB,
+    gimaSku: '28674',
+    downloadId: '158292',
     description:
       'Termoforo anatomico per collo e spalle; terapia del calore mirata. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
+      'Codice GIMA 28674. Prezzo 40,00 € imponibile IVA esclusa.',
   },
   {
     slug: 'gima-28675',
@@ -271,23 +290,27 @@ const WELLNESS_CATALOG: readonly WellRow[] = [
     slug: 'gima-28664',
     name: 'PLAID RISCALDABILE — GIMA 28664',
     brand: 'Gima',
-    priceImponible: 68,
+    priceImponible: 55,
     imageUrl: gimaMedium('28664.jpg'),
     subcategory: THERMO_SUB,
+    gimaSku: '28664',
+    downloadId: '158292',
     description:
       'Plaid riscaldabile elettrico per benessere domestico e recupero muscolare. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
+      'Codice GIMA 28664. Prezzo 55,00 € imponibile IVA esclusa.',
   },
   {
     slug: 'gima-28668',
     name: 'SCALDAPIEDI con massaggio — GIMA 28668',
     brand: 'Gima',
-    priceImponible: 89,
+    priceImponible: 45,
     imageUrl: gimaMedium('28668.jpg'),
     subcategory: THERMO_SUB,
+    gimaSku: '28668',
+    downloadId: '158292',
     description:
       'Scaldapiedi elettrico con funzione massaggio; comfort e rilassamento. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
+      'Codice GIMA 28668. Prezzo 45,00 € imponibile IVA esclusa.',
   },
   {
     slug: 'gima-28921',

@@ -1016,51 +1016,101 @@ const DIAG_FINAL_CATALOG: readonly DiagRow[] = [
     slug: 'gima-25637',
     name: 'MASKOP con visiera avvolgente - lacci',
     brand: 'Gima',
-    priceImponible: 33,
+    priceImponible: 32,
     imageUrl: gimaMedium('25637.jpg'),
     subcategory: 'DPI vie respiratorie',
+    vatRate: 0.05,
+    gimaSku: '25637',
+    downloadId: '158747',
     description:
-      'Maschera con visiera avvolgente Maskop, fissaggio con lacci. Prezzo unitario imponibile IVA esclusa.',
+      'Maschera con visiera avvolgente Maskop, fissaggio con lacci. Codice GIMA 25637. ' +
+      'Prezzo 32,00 € imponibile IVA esclusa (IVA 5%).',
   },
   {
     slug: 'gima-25257',
     name: 'OCCHIALI X5-PRO - blu',
     brand: 'Gima',
-    priceImponible: 4.2,
+    priceImponible: 4,
     imageUrl: gimaMedium('25257.jpg'),
     subcategory: 'Protezione oculare',
+    vatRate: 0.05,
+    gimaSku: '25257',
+    downloadId: '158432',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 4 },
+      { minQuantity: 10, unitPrice: 3.6 },
+      { minQuantity: 50, unitPrice: 3.2 },
+    ],
+    showQuantityDiscountTable: true,
     description:
-      'Occhiali di protezione X5-PRO, montatura blu. Prezzo unitario imponibile IVA esclusa.',
+      'Occhiali di protezione X5-PRO, montatura blu. Codice GIMA 25257. ' +
+      'Prezzo 4,00 € imponibile IVA esclusa (IVA 5%). ' +
+      'Sconto quantità: 10% da 10 a 49, 20% da 50 pezzi.',
   },
   {
     slug: 'gima-25258',
     name: 'OCCHIALI X5-PRO - neri',
     brand: 'Gima',
-    priceImponible: 110,
+    priceImponible: 70,
     imageUrl: gimaMedium('25258.jpg'),
     subcategory: 'Protezione oculare',
+    vatRate: 0.05,
+    gimaSku: '25258',
+    downloadId: '158432',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 70 },
+      { minQuantity: 5, unitPrice: 63 },
+      { minQuantity: 10, unitPrice: 56 },
+    ],
+    showQuantityDiscountTable: true,
     description:
-      'Occhiali di protezione X5-PRO, montatura nera. Prezzo unitario imponibile IVA esclusa.',
+      'Occhiali di protezione X5-PRO, montatura nera. Codice GIMA 25258. ' +
+      'Prezzo 70,00 € imponibile IVA esclusa (IVA 5%). ' +
+      'Sconto quantità: 10% da 5 a 9, 20% da 10 pezzi.',
   },
   {
     slug: 'gima-25260',
     name: 'OCCHIALI 505UP',
     brand: 'Gima',
-    priceImponible: 8,
+    priceImponible: 8.4,
     imageUrl: gimaMedium('25260.jpg'),
     subcategory: 'Protezione oculare',
+    vatRate: 0.05,
+    gimaSku: '25260',
+    downloadId: '158432',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 8.4 },
+      { minQuantity: 10, unitPrice: 7.56 },
+      { minQuantity: 50, unitPrice: 6.72 },
+    ],
+    showQuantityDiscountTable: true,
     description:
-      'Occhiali di protezione 505UP. Prezzo unitario imponibile IVA esclusa.',
+      'Occhiali di protezione 505UP. Codice GIMA 25260. ' +
+      'Prezzo 8,40 € imponibile IVA esclusa (IVA 5%). ' +
+      'Sconto quantità: 10% da 10 a 49, 20% da 50 pezzi.',
   },
   {
     slug: 'gima-25660',
+    officeIdOverride: 'gima-25660',
     name: 'OCCHIALI POLYSAFE MEDICAL',
     brand: 'Gima',
-    priceImponible: 5.1,
-    imageUrl: gimaMedium('25660.jpg'),
+    priceImponible: 5,
+    imageUrl: gimaMedium('25660_b.jpg'),
+    imageGalleryUrls: [gimaMedium('25660_b.jpg'), gimaMedium('25660_c.jpg')],
     subcategory: 'Protezione oculare',
+    vatRate: 0.05,
+    gimaSku: '25660',
+    downloadId: '158432',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 5 },
+      { minQuantity: 100, unitPrice: 4 },
+      { minQuantity: 500, unitPrice: 3.5 },
+    ],
+    showQuantityDiscountTable: true,
     description:
-      'Occhiali Polysafe Medical. Prezzo unitario imponibile IVA esclusa.',
+      'Occhiali Polysafe Medical. Codice GIMA 25660. ' +
+      'Prezzo 5,00 € imponibile IVA esclusa (IVA 5%). ' +
+      'Sconto quantità: 20% da 100 a 499, 30% da 500 pezzi.',
   },
   {
     slug: 'gima-20500',

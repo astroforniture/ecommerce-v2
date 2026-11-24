@@ -43,8 +43,8 @@ type GimaCatalogOverride = {
   imageUrl?: string
   galleryUrls?: string[]
   description: string
-  /** Path Download GIMA: `https://www.gimaitaly.com/Download/{id}/{sku}` */
-  downloadId: string
+  /** Path Download GIMA: `https://www.gimaitaly.com/Download/{id}/{sku}` (omit if none). */
+  downloadId?: string
   /** Vuoto = prezzo fisso per confezione (niente tabella scaglioni). */
   quantityPriceTiers: QuantityPriceTier[]
   /** Mostra la tabella listino quantità anche con un solo scaglione (prezzo base). */
@@ -1091,6 +1091,80 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
     quantityPriceTiers: [{ minQuantity: 1, unitPrice: 35 }],
     showQuantityDiscountTable: true,
   },
+  {
+    gimaSku: '36630',
+    name: 'MEDICAL SOAP sapone disinfettante - 1L',
+    price: 7,
+    features: {
+      Formato: '1 L',
+      Tipo: 'Sapone disinfettante',
+      Unità: '1 flacone',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/36630.jpg',
+    description:
+      'Medical Soap sapone disinfettante 1 L. Codice GIMA 36630. Prezzo 7,00 € imponibile IVA esclusa. ' +
+      'Sconto quantità: 10% da 12 a 47, 20% da 48 pezzi.\n\n' +
+      'Linea: Farmacia e cura › Disinfezione.',
+    downloadId: '158702',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 7 },
+      { minQuantity: 12, unitPrice: 6.3 },
+      { minQuantity: 48, unitPrice: 5.6 },
+    ],
+    showQuantityDiscountTable: true,
+  },
+  {
+    gimaSku: '36565',
+    name: 'POVI-IODINE 100 ANTISETTICO - 500 ml',
+    price: 12,
+    features: {
+      Formato: '500 ml',
+      Tipo: 'Antisettico iodio',
+      Unità: '1 flacone',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/36565_a.jpg',
+    description:
+      'Povi-Iodine 100 antisettico 500 ml. Codice GIMA 36565. Prezzo 12,00 € imponibile IVA esclusa.\n\n' +
+      'Linea: Farmacia e cura › Disinfezione.',
+    downloadId: '158658',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '36633',
+    name: 'SALVIETTINE DISINFETTANTI ALLA CLOREXIDINA',
+    price: 6.5,
+    features: {
+      Tipo: 'Salviettine disinfettanti',
+      Principio: 'Clorexidina',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/36633.jpg',
+    description:
+      'Salviettine disinfettanti alla clorexidina. Codice GIMA 36633. ' +
+      'Prezzo 6,50 € imponibile IVA esclusa.\n\n' +
+      'Linea: Farmacia e cura › Disinfezione.',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '23803',
+    name: 'SIRINGA INSULINA AGO INSERITO 27G',
+    price: 9,
+    features: {
+      Gauge: '27G',
+      Tipo: 'Siringa insulina con ago inserito',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/23803.jpg',
+    description:
+      'Siringa insulina con ago inserito 27G. Codice GIMA 23803. Prezzo 9,00 € imponibile IVA esclusa. ' +
+      'Sconto quantità: 10% da 10 a 49, 20% da 50 pezzi.\n\n' +
+      'Linea: Farmacia e cura › Consumabili.',
+    downloadId: '158266',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 9 },
+      { minQuantity: 10, unitPrice: 8.1 },
+      { minQuantity: 50, unitPrice: 7.2 },
+    ],
+    showQuantityDiscountTable: true,
+  },
   // ── Kit primo soccorso ─────────────────────────────────────────────────────
   {
     gimaSku: '34193',
@@ -1446,6 +1520,18 @@ function gimaCatalogOverrideForProduct(
   if (name.includes('disinfettante spray') && name.includes('400')) {
     return GIMA_OVERRIDE_BY_SKU.get('36620') ?? null
   }
+  if (name.includes('medical soap') || (name.includes('sapone disinfettante') && name.includes('1l'))) {
+    return GIMA_OVERRIDE_BY_SKU.get('36630') ?? null
+  }
+  if (name.includes('povi-iodine') || name.includes('povi iodine')) {
+    return GIMA_OVERRIDE_BY_SKU.get('36565') ?? null
+  }
+  if (name.includes('salviettine') && name.includes('clorexidina')) {
+    return GIMA_OVERRIDE_BY_SKU.get('36633') ?? null
+  }
+  if (name.includes('siringa insulina') && name.includes('27g')) {
+    return GIMA_OVERRIDE_BY_SKU.get('23803') ?? null
+  }
   if (
     name.includes('venflon') &&
     name.includes('18g') &&
@@ -1493,6 +1579,7 @@ export function applyLegacyAstroMedicalProductOverrides(product: OfficeProduct):
   const gallery = (spec.galleryUrls?.length ? spec.galleryUrls : product.imageGalleryUrls ?? [])
     .map((url) => url.trim())
     .filter((url) => url && url !== imageUrl)
+  const downloadId = String(spec.downloadId ?? '').trim()
   return {
     ...product,
     name: spec.name,
@@ -1501,8 +1588,12 @@ export function applyLegacyAstroMedicalProductOverrides(product: OfficeProduct):
     imageUrl,
     brochureUrl: `https://www.gimaitaly.com/Catalogo/PrintDataSheet?sku=${spec.gimaSku}`,
     brochureLinkLabel: 'Scheda Tecnica',
-    catalogPagePdfUrl: `https://www.gimaitaly.com/Download/${spec.downloadId}/${spec.gimaSku}`,
-    catalogPagePdfLabel: 'Manuale / Documento PDF',
+    ...(downloadId
+      ? {
+          catalogPagePdfUrl: `https://www.gimaitaly.com/Download/${downloadId}/${spec.gimaSku}`,
+          catalogPagePdfLabel: 'Manuale / Documento PDF',
+        }
+      : {}),
     quantityPriceTiers: spec.quantityPriceTiers.map((t) => ({ ...t })),
     showQuantityDiscountTable: spec.showQuantityDiscountTable === true,
     ...(typeof spec.minOrderQuantity === 'number' ? { minOrderQuantity: spec.minOrderQuantity } : {}),
