@@ -61,7 +61,7 @@ export function merchantAgendeFormatLabel(
   return null
 }
 
-/** Linea/modello agenda: ALFA, DELTA, TEXT, WEEKLY PATTERN, PP, … */
+/** Linea/modello agenda: ALFA, DELTA, TEXT, WEEKLY PATTERN, PP, â€¦ */
 export function merchantAgendeLineBrand(
   product: Pick<OfficeProduct, 'brand' | 'name' | 'id' | 'producerCode'>,
 ): string | null {

@@ -41,7 +41,7 @@ export async function prepareCheckoutOrder(input: {
   const billingProvince = c.addressProvince.trim().toUpperCase()
   const shippingStreetRaw = c.shippingStreet.trim() || billingStreet
   const careOf = c.shippingCareOf.trim()
-  const shippingStreet = careOf ? `c/o ${careOf} — ${shippingStreetRaw}` : shippingStreetRaw
+  const shippingStreet = careOf ? `c/o ${careOf} â€” ${shippingStreetRaw}` : shippingStreetRaw
 
   const items = buildCartSessionItemsJson(c.items).map((item, idx) => {
     const src = c.items[idx]
