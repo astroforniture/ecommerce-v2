@@ -906,7 +906,7 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
       'Unità': 'Rotolo',
       'Acquisto': 'Minimo 6 pezzi, solo multipli di 6',
     },
-    imageUrl: '/images/placeholder.jpg',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27412.jpg',
     description:
       'Lenzuolino 2 veli 47,5m x 59 cm. Codice GIMA 27411. Prezzo 5,45 € al rotolo, imponibile IVA esclusa. ' +
       'Acquisto minimo 6 rotoli, solo quantità multiple di 6.\n\n' +
@@ -988,7 +988,7 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
       Unità: 'Rotolo',
       Acquisto: 'Minimo 6 pezzi, solo multipli di 6',
     },
-    imageUrl: '/images/placeholder.jpg',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27412.jpg',
     description:
       'Lenzuolino monovelo goffrato 95m x 50 cm. Codice GIMA 27410. Prezzo 6,70 € al rotolo, imponibile IVA esclusa. ' +
       'Acquisto minimo 6 rotoli, solo quantità multiple di 6.\n\n' +
@@ -1002,6 +1002,93 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
       { minQuantity: 30, unitPrice: 6.37 },
       { minQuantity: 60, unitPrice: 6.03 },
     ],
+    showQuantityDiscountTable: true,
+  },
+  {
+    gimaSku: '36635',
+    name: 'GERMOXID LIQUIDO DISINFETTANTE CUTE (250 ml)',
+    price: 26,
+    features: {
+      Formato: '250 ml',
+      Tipo: 'Disinfettante cute',
+      Unità: '1 flacone',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/36635.jpg',
+    description:
+      'Germoxid liquido disinfettante cute 250 ml. Codice GIMA 36635. ' +
+      'Prezzo 26,00 € imponibile IVA esclusa.\n\n' +
+      'Linea: Farmacia e cura › Disinfezione.',
+    downloadId: '158630',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '26311',
+    name: 'ZOCCOLI BIANCHI - senza fori',
+    price: 24,
+    features: {
+      Colore: 'Bianco',
+      Tipo: 'Zoccoli senza fori',
+      Unità: '1 paio',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/26311-22_a.jpg',
+    galleryUrls: [
+      'https://www.gimaitaly.com/images/prodotti/medium/26311-22_a.jpg',
+      'https://www.gimaitaly.com/images/prodotti/medium/26311-22_b.jpg',
+    ],
+    description:
+      'Zoccoli bianchi senza fori. Codice GIMA 26311. Prezzo 24,00 € imponibile IVA esclusa. ' +
+      'Sconto quantità: 10% da 10 a 29, 15% da 30 a 59, 20% da 60 pezzi.\n\n' +
+      'Linea: Organizzazione e ausili › Abbigliamento.',
+    downloadId: '158215',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 24 },
+      { minQuantity: 10, unitPrice: 21.6 },
+      { minQuantity: 30, unitPrice: 20.4 },
+      { minQuantity: 60, unitPrice: 19.2 },
+    ],
+    showQuantityDiscountTable: true,
+  },
+  {
+    gimaSku: '36620',
+    name: 'DISINFETTANTE SPRAY - 400 ml',
+    price: 9,
+    features: {
+      Formato: '400 ml',
+      Tipo: 'Disinfettante spray',
+      Unità: '1 bomboletta',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/36620.jpg',
+    description:
+      'Disinfettante spray 400 ml. Codice GIMA 36620. Prezzo 9,00 € imponibile IVA esclusa. ' +
+      'Sconto quantità: 10% da 12 a 47, 20% da 48 a 119, 25% da 120 pezzi.\n\n' +
+      'Linea: Farmacia e cura › Disinfezione.',
+    downloadId: '158742',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 9 },
+      { minQuantity: 12, unitPrice: 8.1 },
+      { minQuantity: 48, unitPrice: 7.2 },
+      { minQuantity: 120, unitPrice: 6.75 },
+    ],
+    showQuantityDiscountTable: true,
+  },
+  {
+    gimaSku: '23715',
+    name: 'AGO CANNULA BD VENFLON 18G 45 mm',
+    price: 35,
+    packLabel: '50 pz',
+    features: {
+      Gauge: '18G',
+      Lunghezza: '45 mm',
+      Marca: 'BD Venflon',
+      Confezione: '50 pz',
+    },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/23715.jpg',
+    description:
+      'Ago cannula BD Venflon 18G 45 mm, confezione da 50 pezzi. Codice GIMA 23715. ' +
+      'Prezzo 35,00 € per confezione da 50 pz, imponibile IVA esclusa.\n\n' +
+      'Linea: Farmacia e cura › Consumabili.',
+    downloadId: '158223',
+    quantityPriceTiers: [{ minQuantity: 1, unitPrice: 35 }],
     showQuantityDiscountTable: true,
   },
   // ── Kit primo soccorso ─────────────────────────────────────────────────────
@@ -1349,6 +1436,22 @@ function gimaCatalogOverrideForProduct(
   }
   if (name.includes('lenzuolin') && name.includes('monovelo')) {
     return GIMA_OVERRIDE_BY_SKU.get('27410') ?? null
+  }
+  if (name.includes('germoxid')) {
+    return GIMA_OVERRIDE_BY_SKU.get('36635') ?? null
+  }
+  if (name.includes('zoccoli') && name.includes('bianchi') && name.includes('senza fori')) {
+    return GIMA_OVERRIDE_BY_SKU.get('26311') ?? null
+  }
+  if (name.includes('disinfettante spray') && name.includes('400')) {
+    return GIMA_OVERRIDE_BY_SKU.get('36620') ?? null
+  }
+  if (
+    name.includes('venflon') &&
+    name.includes('18g') &&
+    (name.includes('45') || name.includes('18 g'))
+  ) {
+    return GIMA_OVERRIDE_BY_SKU.get('23715') ?? null
   }
   if (
     name.includes('lettino') &&

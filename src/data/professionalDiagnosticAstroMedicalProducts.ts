@@ -1,4 +1,4 @@
-import type { OfficeProduct } from '../types/officeProduct'
+import type { OfficeProduct, QuantityPriceTier } from '../types/officeProduct'
 import { gimaOfficeProductIdFromImageUrl } from '../lib/gimaImageStem'
 import { LINEA_ASTRO_MEDICAL_CATEGORY } from './iHealthAstroMedicalProducts'
 
@@ -30,6 +30,18 @@ type DiagRow = {
    * (stesso `imageUrl` → stesso stem) e serve uno slug univoco per cache e PDP.
    */
   officeIdOverride?: string
+  /** Galleria PDP (oltre a `imageUrl`). */
+  imageGalleryUrls?: string[]
+  /** Aliquota IVA (es. 0.05 = 5%). Default applicativo 22%. */
+  vatRate?: number
+  /** Etichetta confezione in `mainFeatures`. */
+  packLabel?: string
+  /** Codice GIMA per scheda tecnica / download. */
+  gimaSku?: string
+  /** Path Download GIMA: `https://www.gimaitaly.com/Download/{id}/{sku}` */
+  downloadId?: string
+  quantityPriceTiers?: QuantityPriceTier[]
+  showQuantityDiscountTable?: boolean
 }
 
 const P = PROFESSIONAL_DIAGNOSTIC_OFFICE_ID_PREFIX
@@ -830,94 +842,175 @@ const DIAG_FINAL_CATALOG: readonly DiagRow[] = [
       'Laccio emostatico Jetpull 2° senza lattice. Prezzo unitario imponibile IVA esclusa.',
   },
   {
-    slug: 'gima-20695',
+    slug: 'gima-20700',
+    officeIdOverride: 'gima-20700',
     name: 'GISAFE MASCHERINA TIPO IIR - azzurra',
     brand: 'Gima',
-    priceImponible: 0.99,
-    imageUrl: gimaMedium('20695.jpg'),
+    priceImponible: 3,
+    imageUrl: gimaMedium('20700_a.jpg'),
+    imageGalleryUrls: [gimaMedium('20700_a.jpg'), gimaMedium('20700_d.jpg')],
     subcategory: 'DPI vie respiratorie',
+    vatRate: 0.05,
+    gimaSku: '20700',
+    downloadId: '158575',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 3 },
+      { minQuantity: 50, unitPrice: 2.7 },
+      { minQuantity: 100, unitPrice: 2.4 },
+      { minQuantity: 500, unitPrice: 2.1 },
+    ],
+    showQuantityDiscountTable: true,
     description:
-      'Mascherina chirurgica tipo IIR Gisafe, colore azzurro, confezione flowpack. Prezzo unitario imponibile IVA esclusa.',
+      'Mascherina chirurgica tipo IIR Gisafe, colore azzurro. Codice GIMA 20700. ' +
+      'Prezzo 3,00 € imponibile IVA esclusa (IVA 5%). ' +
+      'Sconto quantità: 10% da 50 a 99, 20% da 100 a 499, 30% da 500 pezzi.',
   },
   {
     slug: 'gima-20697',
+    officeIdOverride: 'gima-20697',
     name: 'GISAFE MASCHERINA TIPO IIR - rosa',
     brand: 'Gima',
-    priceImponible: 4,
-    imageUrl: gimaMedium('20697.jpg'),
+    priceImponible: 5,
+    imageUrl: gimaMedium('20697_b.jpg'),
+    imageGalleryUrls: [gimaMedium('20697_b.jpg'), gimaMedium('20697_d.jpg')],
     subcategory: 'DPI vie respiratorie',
+    vatRate: 0.05,
+    gimaSku: '20697',
+    downloadId: '158575',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 5 },
+      { minQuantity: 50, unitPrice: 4.5 },
+      { minQuantity: 100, unitPrice: 4 },
+      { minQuantity: 500, unitPrice: 3.5 },
+    ],
+    showQuantityDiscountTable: true,
     description:
-      'Mascherina tipo IIR Gisafe, rosa, in scatola. Prezzo unitario imponibile IVA esclusa.',
+      'Mascherina tipo IIR Gisafe, rosa, in scatola. Codice GIMA 20697. ' +
+      'Prezzo 5,00 € imponibile IVA esclusa (IVA 5%). ' +
+      'Sconto quantità: 10% da 50 a 99, 20% da 100 a 499, 30% da 500 pezzi.',
   },
   {
     slug: 'gima-20699',
+    officeIdOverride: 'gima-20699',
     name: 'GISAFE MASCHERINA TIPO IIR - verde chiaro - scatola',
     brand: 'Gima',
-    priceImponible: 3.4,
-    imageUrl: gimaMedium('20699.jpg'),
+    priceImponible: 3.5,
+    imageUrl: gimaMedium('20699_c.jpg'),
+    imageGalleryUrls: [gimaMedium('20699_c.jpg')],
     subcategory: 'DPI vie respiratorie',
+    vatRate: 0.05,
+    gimaSku: '20699',
+    downloadId: '158575',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 3.5 },
+      { minQuantity: 50, unitPrice: 3.15 },
+      { minQuantity: 100, unitPrice: 2.8 },
+      { minQuantity: 500, unitPrice: 2.45 },
+    ],
+    showQuantityDiscountTable: true,
     description:
-      'Mascherina tipo IIR Gisafe, verde chiaro, in scatola. Prezzo unitario imponibile IVA esclusa.',
+      'Mascherina tipo IIR Gisafe, verde chiaro, in scatola. Codice GIMA 20699. ' +
+      'Prezzo 3,50 € imponibile IVA esclusa (IVA 5%). ' +
+      'Sconto quantità: 10% da 50 a 99, 20% da 100 a 499, 30% da 500 pezzi.',
   },
   {
     slug: 'gima-20701',
     name: 'GISAFE MASCHERINA TIPO IIR - nera - scatola',
     brand: 'Gima',
-    priceImponible: 5.25,
+    priceImponible: 4.5,
     imageUrl: gimaMedium('20701.jpg'),
     subcategory: 'DPI vie respiratorie',
+    vatRate: 0.05,
+    gimaSku: '20701',
+    downloadId: '158575',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 4.5 },
+      { minQuantity: 50, unitPrice: 4.05 },
+      { minQuantity: 100, unitPrice: 3.6 },
+      { minQuantity: 500, unitPrice: 3.15 },
+    ],
+    showQuantityDiscountTable: true,
     description:
-      'Mascherina tipo IIR Gisafe, nera, in scatola. Prezzo unitario imponibile IVA esclusa.',
+      'Mascherina tipo IIR Gisafe, nera, in scatola. Codice GIMA 20701. ' +
+      'Prezzo 4,50 € imponibile IVA esclusa (IVA 5%). ' +
+      'Sconto quantità: 10% da 50 a 99, 20% da 100 a 499, 30% da 500 pezzi.',
   },
   {
     slug: 'gima-20703',
+    officeIdOverride: 'gima-20703',
     name: 'MASCHERINA CHIRURGICA 4 VELI - verde con lacci',
     brand: 'Gima',
-    priceImponible: 71.5,
-    imageUrl: gimaMedium('20703.jpg'),
+    priceImponible: 70,
+    imageUrl: gimaMedium('20703_b.jpg'),
+    imageGalleryUrls: [gimaMedium('20703_b.jpg'), gimaMedium('20703_c.jpg')],
     subcategory: 'DPI vie respiratorie',
+    vatRate: 0.05,
+    gimaSku: '20703',
+    downloadId: '158815',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 70 },
+      { minQuantity: 5, unitPrice: 63 },
+      { minQuantity: 10, unitPrice: 56 },
+    ],
+    showQuantityDiscountTable: true,
     description:
-      'Mascherina chirurgica a 4 veli, verde, con lacci. Prezzo unitario imponibile IVA esclusa.',
+      'Mascherina chirurgica a 4 veli, verde, con lacci. Codice GIMA 20703. ' +
+      'Prezzo 70,00 € imponibile IVA esclusa (IVA 5%). ' +
+      'Sconto quantità: 10% da 5 a 9, 20% da 10 pezzi.',
   },
   {
     slug: 'gima-20715',
     name: '3M AURA 1862+ MASCHERINA FFP2 IIR',
     brand: '3M',
-    priceImponible: 86,
+    priceImponible: 90,
     imageUrl: gimaMedium('20715.jpg'),
     subcategory: 'DPI vie respiratorie',
+    vatRate: 0.05,
+    packLabel: '20 pz',
+    gimaSku: '20715',
+    downloadId: '158258',
     description:
-      'Mascherina pieghevole 3M Aura 1862+ FFP2 con prestazioni IIR secondo scheda produttore. Prezzo unitario imponibile IVA esclusa.',
-  },
-  {
-    slug: 'gima-20732',
-    name: 'MASCHERINA FFP2 - bianca - Multi-lingua 1',
-    brand: 'Gima',
-    priceImponible: 4.9,
-    imageUrl: gimaMedium('20732.jpg'),
-    subcategory: 'DPI vie respiratorie',
-    description:
-      'Mascherina FFP2 bianca, versione multilingua 1. Prezzo unitario imponibile IVA esclusa.',
+      'Mascherina pieghevole 3M Aura 1862+ FFP2 con prestazioni IIR secondo scheda produttore. ' +
+      'Confezione da 20 pezzi. Codice GIMA 20715. Prezzo 90,00 € imponibile IVA esclusa (IVA 5%).',
   },
   {
     slug: 'gima-20733',
-    name: 'MASCHERINA FFP2 - bianca - Multi-lingua 2',
+    officeIdOverride: 'gima-20733',
+    name: 'MASCHERINA FFP2 - bianca - Multi-lingua 1',
     brand: 'Gima',
-    priceImponible: 4.55,
-    imageUrl: gimaMedium('20733.jpg'),
+    priceImponible: 4,
+    imageUrl: gimaMedium('20733_a.jpg'),
+    imageGalleryUrls: [gimaMedium('20733_a.jpg'), gimaMedium('20733_b.jpg')],
     subcategory: 'DPI vie respiratorie',
+    vatRate: 0.05,
+    gimaSku: '20733',
+    downloadId: '158867',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 4 },
+      { minQuantity: 50, unitPrice: 3.6 },
+      { minQuantity: 100, unitPrice: 2.8 },
+      { minQuantity: 1000, unitPrice: 2.6 },
+    ],
+    showQuantityDiscountTable: true,
     description:
-      'Mascherina FFP2 bianca, versione multilingua 2. Prezzo unitario imponibile IVA esclusa.',
+      'Mascherina FFP2 bianca, versione multilingua 1. Codice GIMA 20733. ' +
+      'Prezzo 4,00 € imponibile IVA esclusa (IVA 5%). ' +
+      'Sconto quantità: 10% da 50 a 99, 30% da 100 a 999, 35% da 1000 pezzi.',
   },
   {
     slug: 'gima-25636',
+    officeIdOverride: 'gima-25636',
     name: 'MASKOP con visiera avvolgente - elastici',
     brand: 'Gima',
-    priceImponible: 33,
-    imageUrl: gimaMedium('25636.jpg'),
+    priceImponible: 32,
+    imageUrl: gimaMedium('25636_a.jpg'),
     subcategory: 'DPI vie respiratorie',
+    vatRate: 0.05,
+    gimaSku: '25636',
+    downloadId: '158747',
     description:
-      'Maschera con visiera avvolgente Maskop, fissaggio con elastici. Prezzo unitario imponibile IVA esclusa.',
+      'Maschera con visiera avvolgente Maskop, fissaggio con elastici. Codice GIMA 25636. ' +
+      'Prezzo 32,00 € imponibile IVA esclusa (IVA 5%).',
   },
   {
     slug: 'gima-25637',
@@ -980,24 +1073,22 @@ const DIAG_FINAL_CATALOG: readonly DiagRow[] = [
       'Forbici per bende con clip, lunghezza 14 cm. Prezzo unitario imponibile IVA esclusa.',
   },
   {
-    slug: 'gima-25879',
-    name: 'TRAVELJOHN WC PORTATILE IN CARTA',
-    brand: 'Gima',
-    priceImponible: 10.8,
-    imageUrl: gimaMedium('25879.jpg'),
-    subcategory: 'Ausili e sanitaria',
-    description:
-      'WC portatile TravelJohn in carta; uso da campo o emergenza secondo istruzioni. Prezzo unitario imponibile IVA esclusa.',
-  },
-  {
     slug: 'gima-25880',
     name: 'TRAVELJOHN WC PORTATILE',
     brand: 'Gima',
-    priceImponible: 11.25,
+    priceImponible: 10,
     imageUrl: gimaMedium('25880.jpg'),
     subcategory: 'Ausili e sanitaria',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 10 },
+      { minQuantity: 10, unitPrice: 9 },
+      { minQuantity: 50, unitPrice: 8 },
+      { minQuantity: 100, unitPrice: 7.5 },
+    ],
+    showQuantityDiscountTable: true,
     description:
-      'WC portatile TravelJohn. Prezzo unitario imponibile IVA esclusa.',
+      'WC portatile TravelJohn. Prezzo 10,00 € imponibile IVA esclusa. ' +
+      'Sconto quantità: 10% da 10 a 49, 20% da 50 a 99, 25% da 100 pezzi.',
   },
   {
     slug: 'gima-25958',
@@ -1084,23 +1175,41 @@ const DIAG_FINAL_CATALOG: readonly DiagRow[] = [
   },
   {
     slug: 'gima-41700',
+    officeIdOverride: 'gima-41700',
     name: 'TIRALATTE MANUALE',
     brand: 'Gima',
-    priceImponible: 19.3,
-    imageUrl: gimaMedium('41700.jpg'),
+    priceImponible: 15,
+    imageUrl: gimaMedium('41700_a.jpg'),
+    imageGalleryUrls: [
+      gimaMedium('41700_a.jpg'),
+      gimaMedium('41700_b.jpg'),
+      gimaMedium('41700_d.jpg'),
+    ],
     subcategory: 'Maternità e specialistica',
+    gimaSku: '41700',
+    downloadId: '158429',
     description:
-      'Tiralatte manuale; modalità d’uso e manutenzione secondo istruzioni in confezione. Prezzo unitario imponibile IVA esclusa.',
+      'Tiralatte manuale; modalità d’uso e manutenzione secondo istruzioni in confezione. ' +
+      'Codice GIMA 41700. Prezzo 15,00 € imponibile IVA esclusa.',
   },
   {
     slug: 'gima-41701',
+    officeIdOverride: 'gima-41701',
     name: 'TIRALATTE ELETTRICO',
     brand: 'Gima',
-    priceImponible: 61.6,
-    imageUrl: gimaMedium('41701.jpg'),
+    priceImponible: 45,
+    imageUrl: gimaMedium('41701_a.jpg'),
+    imageGalleryUrls: [
+      gimaMedium('41701_a.jpg'),
+      gimaMedium('41701_c.jpg'),
+      gimaMedium('41701_b.jpg'),
+    ],
     subcategory: 'Maternità e specialistica',
+    gimaSku: '41701',
+    downloadId: '158429',
     description:
-      'Tiralatte elettrico; alimentazione e ricambi come da kit produttore. Prezzo unitario imponibile IVA esclusa.',
+      'Tiralatte elettrico; alimentazione e ricambi come da kit produttore. ' +
+      'Codice GIMA 41701. Prezzo 45,00 € imponibile IVA esclusa.',
   },
   {
     slug: 'gima-25836',
@@ -1124,43 +1233,75 @@ const DIAG_FINAL_CATALOG: readonly DiagRow[] = [
   },
   {
     slug: 'gima-25774',
-    name: 'CONTENITORE RIFIUTI 30 litri',
+    officeIdOverride: 'gima-25774',
+    name: 'CONTENITORE RIFIUTI 30 litri - coperchio singolo',
     brand: 'Gima',
-    priceImponible: 9.6,
-    imageUrl: gimaMedium('25774.jpg'),
+    priceImponible: 10,
+    imageUrl: gimaMedium('25774_b.jpg'),
     subcategory: 'Smaltimento rifiuti speciali',
+    gimaSku: '25774',
+    downloadId: '158408',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 10 },
+      { minQuantity: 10, unitPrice: 9 },
+      { minQuantity: 20, unitPrice: 8.5 },
+    ],
+    showQuantityDiscountTable: true,
     description:
-      'Contenitore per rifiuti speciali 30 litri; conformità e smaltimento secondo normativa locale. Prezzo unitario imponibile IVA esclusa.',
+      'Contenitore per rifiuti speciali 30 litri con coperchio singolo; conformità e smaltimento secondo normativa locale. ' +
+      'Codice GIMA 25774. Prezzo 10,00 € imponibile IVA esclusa. ' +
+      'Sconto quantità: 10% da 10 a 19, 15% da 20 pezzi.',
   },
   {
     slug: 'gima-25778',
-    name: 'CONTENITORE RIFIUTI 60 litri',
+    officeIdOverride: 'gima-25778',
+    name: 'CONTENITORE RIFIUTI 60 litri - coperchio singolo',
     brand: 'Gima',
-    priceImponible: 14,
-    imageUrl: gimaMedium('25778.jpg'),
+    priceImponible: 15,
+    imageUrl: gimaMedium('25778_b.jpg'),
     subcategory: 'Smaltimento rifiuti speciali',
+    gimaSku: '25778',
+    downloadId: '158408',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 15 },
+      { minQuantity: 10, unitPrice: 13.5 },
+      { minQuantity: 20, unitPrice: 12.75 },
+    ],
+    showQuantityDiscountTable: true,
     description:
-      'Contenitore per rifiuti speciali 60 litri; capienza e chiusura come da scheda Gima. Prezzo unitario imponibile IVA esclusa.',
+      'Contenitore per rifiuti speciali 60 litri con coperchio singolo; capienza e chiusura come da scheda Gima. ' +
+      'Codice GIMA 25778. Prezzo 15,00 € imponibile IVA esclusa. ' +
+      'Sconto quantità: 10% da 10 a 19, 15% da 20 pezzi.',
   },
   {
     slug: 'gima-25780',
+    officeIdOverride: 'gima-25780',
     name: 'CONTENITORE TAGLIENTI POCKET',
     brand: 'Gima',
-    priceImponible: 295,
-    imageUrl: gimaMedium('25780.jpg'),
+    priceImponible: 319,
+    imageUrl: gimaMedium('25780_a.jpg'),
+    imageGalleryUrls: [gimaMedium('25780_a.jpg'), gimaMedium('25780_b.jpg')],
     subcategory: 'Smaltimento rifiuti speciali',
+    gimaSku: '25780',
+    downloadId: '158635',
     description:
-      'Contenitore per taglienti linea Pocket; uso sicuro secondo IFU. Prezzo unitario imponibile IVA esclusa.',
+      'Contenitore per taglienti linea Pocket; uso sicuro secondo IFU. ' +
+      'Codice GIMA 25780. Prezzo 319,00 € imponibile IVA esclusa.',
   },
   {
     slug: 'gima-25784',
+    officeIdOverride: 'gima-25784',
     name: 'CONTENITORE TAGLIENTI LINEA CS - 4 litri',
     brand: 'Gima',
-    priceImponible: 125,
-    imageUrl: gimaMedium('25784.jpg'),
+    priceImponible: 129,
+    imageUrl: gimaMedium('25784_a.jpg'),
+    imageGalleryUrls: [gimaMedium('25784_a.jpg'), gimaMedium('25784_b.jpg')],
     subcategory: 'Smaltimento rifiuti speciali',
+    gimaSku: '25784',
+    downloadId: '158408',
     description:
-      'Contenitore per taglienti linea CS 4 litri; compatibile con protocolli di smaltimento taglienti. Prezzo unitario imponibile IVA esclusa.',
+      'Contenitore per taglienti linea CS 4 litri; compatibile con protocolli di smaltimento taglienti. ' +
+      'Codice GIMA 25784. Prezzo 129,00 € imponibile IVA esclusa.',
   },
 ]
 
@@ -1283,7 +1424,7 @@ const MEDICAZIONE_GIMA_IDS = [
 const LACCIO_GIMA_IDS = [diagnosticGimaIdForSlug('gima-25721'), diagnosticGimaIdForSlug('gima-25722'), diagnosticGimaIdForSlug('gima-25723')] as const
 
 const GISAFE_IIR_IDS = [
-  diagnosticGimaIdForSlug('gima-20695'),
+  diagnosticGimaIdForSlug('gima-20700'),
   diagnosticGimaIdForSlug('gima-20697'),
   diagnosticGimaIdForSlug('gima-20699'),
   diagnosticGimaIdForSlug('gima-20701'),
@@ -1293,7 +1434,6 @@ const GISAFE_IIR_IDS = [
 const DPI_VIE_RESPIRATORIE_IDS = [
   diagnosticGimaIdForSlug('gima-20703'),
   diagnosticGimaIdForSlug('gima-20715'),
-  diagnosticGimaIdForSlug('gima-20732'),
   diagnosticGimaIdForSlug('gima-20733'),
   diagnosticGimaIdForSlug('gima-25636'),
   diagnosticGimaIdForSlug('gima-25637'),
@@ -1306,7 +1446,7 @@ const OCCHIALI_GIMA_IDS = [
   diagnosticGimaIdForSlug('gima-25660'),
 ] as const
 
-const TRAVELJOHN_GIMA_IDS = [diagnosticGimaIdForSlug('gima-25879'), diagnosticGimaIdForSlug('gima-25880')] as const
+const TRAVELJOHN_GIMA_IDS = [diagnosticGimaIdForSlug('gima-25880')] as const
 
 const CONTENITORE_URINA_GIMA_IDS = [
   diagnosticGimaIdForSlug('gima-25958'),
@@ -1463,16 +1603,39 @@ export function buildProfessionalDiagnosticAstroMedicalOfficeProducts(): OfficeP
       row.officeIdOverride ??
       gimaOfficeProductIdFromImageUrl(row.imageUrl) ??
       `${P}${row.slug}`
-    return {
-    id,
-    name: row.name,
-    brand: row.brand,
-    producerCode: id,
-    category: LINEA_ASTRO_MEDICAL_CATEGORY,
-    subcategory: row.subcategory ?? 'Diagnostica professionale',
-    mainFeatures: {},
-    imageUrl: row.imageUrl,
-    price: row.priceImponible,
-    description: row.description,
-  }})
+    const gimaSku = String(row.gimaSku ?? '').trim()
+    const gallery = (row.imageGalleryUrls ?? [])
+      .map((url) => url.trim())
+      .filter((url) => url && url !== row.imageUrl)
+    const product: OfficeProduct = {
+      id,
+      name: row.name,
+      brand: row.brand,
+      producerCode: id,
+      category: LINEA_ASTRO_MEDICAL_CATEGORY,
+      subcategory: row.subcategory ?? 'Diagnostica professionale',
+      mainFeatures: {
+        ...(gimaSku ? { 'Codice GIMA': gimaSku } : {}),
+        ...(row.packLabel ? { Confezione: row.packLabel } : {}),
+      },
+      imageUrl: row.imageUrl,
+      price: row.priceImponible,
+      description: row.description,
+    }
+    if (gallery.length) product.imageGalleryUrls = gallery
+    if (typeof row.vatRate === 'number') product.vatRate = row.vatRate
+    if (gimaSku) {
+      product.brochureUrl = `https://www.gimaitaly.com/Catalogo/PrintDataSheet?sku=${gimaSku}`
+      product.brochureLinkLabel = 'Scheda Tecnica'
+    }
+    if (gimaSku && row.downloadId) {
+      product.catalogPagePdfUrl = `https://www.gimaitaly.com/Download/${row.downloadId}/${gimaSku}`
+      product.catalogPagePdfLabel = 'Manuale / Documento PDF'
+    }
+    if (row.quantityPriceTiers?.length) {
+      product.quantityPriceTiers = row.quantityPriceTiers.map((t) => ({ ...t }))
+      product.showQuantityDiscountTable = row.showQuantityDiscountTable === true
+    }
+    return product
+  })
 }

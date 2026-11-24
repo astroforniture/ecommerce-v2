@@ -1,4 +1,4 @@
-import type { OfficeProduct } from '../types/officeProduct'
+import type { OfficeProduct, QuantityPriceTier } from '../types/officeProduct'
 import { gimaOfficeProductIdFromImageUrl } from '../lib/gimaImageStem'
 import { LINEA_ASTRO_MEDICAL_CATEGORY } from './iHealthAstroMedicalProducts'
 
@@ -22,6 +22,14 @@ type WellRow = {
   imageUrl: string
   description: string
   subcategory: string
+  officeIdOverride?: string
+  imageGalleryUrls?: string[]
+  vatRate?: number
+  packLabel?: string
+  gimaSku?: string
+  downloadId?: string
+  quantityPriceTiers?: QuantityPriceTier[]
+  showQuantityDiscountTable?: boolean
 }
 
 const P = WELLNESS_BAGS_SCALES_OFFICE_ID_PREFIX
@@ -182,25 +190,35 @@ const WELLNESS_CATALOG: readonly WellRow[] = [
   },
   {
     slug: 'gima-28596',
-    name: 'FODERA THERMY GEL con chiusura velcro 25,5×12,5 cm — GIMA 28596',
+    name: 'FODERA PER THERMY GEL con chiusura in velcro',
     brand: 'Gima',
-    priceImponible: 12.5,
+    priceImponible: 75,
     imageUrl: gimaMedium('28596.jpg'),
     subcategory: THERMO_SUB,
+    gimaSku: '28596',
+    downloadId: '180367',
     description:
-      'Fodera con velcro per panetti Thermy Gel; evita contatto diretto sulla pelle. ' +
-      'Compatibile con GIMA 28593 e 28594. Prezzo unitario imponibile IVA esclusa.',
+      'Fodera con chiusura in velcro per panetti Thermy Gel; evita contatto diretto sulla pelle. ' +
+      'Compatibile con GIMA 28593 e 28594. Codice GIMA 28596. Prezzo 75,00 € imponibile IVA esclusa.',
   },
   {
     slug: 'gima-28605',
-    name: 'BORSA GHIACCIO Ø 28 cm — apertura 6 cm — GIMA 28605',
+    name: 'BORSA GHIACCIO Ø 28 cm — apertura 6 cm',
     brand: 'Gima',
-    priceImponible: 8.8,
+    priceImponible: 8,
     imageUrl: gimaMedium('28605.jpg'),
     subcategory: THERMO_SUB,
+    gimaSku: '28605',
+    downloadId: '158855',
+    quantityPriceTiers: [
+      { minQuantity: 1, unitPrice: 8 },
+      { minQuantity: 100, unitPrice: 6.4 },
+    ],
+    showQuantityDiscountTable: true,
     description:
       'Borsa per ghiaccio, diametro 28 cm, apertura 6 cm; per crioterapia e primo soccorso. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
+      'Codice GIMA 28605. Prezzo 8,00 € imponibile IVA esclusa. ' +
+      'Sconto quantità: 20% da 100 pezzi.',
   },
   {
     slug: 'gima-28670',
@@ -237,13 +255,17 @@ const WELLNESS_CATALOG: readonly WellRow[] = [
   },
   {
     slug: 'gima-28675',
+    officeIdOverride: 'gima-28675',
     name: 'CINTURA RISCALDANTE — GIMA 28675',
     brand: 'Gima',
-    priceImponible: 52,
-    imageUrl: gimaMedium('28675.jpg'),
+    priceImponible: 32,
+    imageUrl: gimaMedium('28675_b.jpg'),
     subcategory: THERMO_SUB,
+    gimaSku: '28675',
+    downloadId: '158292',
     description:
-      'Cintura riscaldante elettrica per zona lombare e addome. Prezzo unitario imponibile IVA esclusa.',
+      'Cintura riscaldante elettrica per zona lombare e addome. Codice GIMA 28675. ' +
+      'Prezzo 32,00 € imponibile IVA esclusa.',
   },
   {
     slug: 'gima-28664',
@@ -315,12 +337,12 @@ const WELLNESS_CATALOG: readonly WellRow[] = [
     slug: 'gima-28614',
     name: 'POMPA per ciambella gomma — GIMA 28614',
     brand: 'Gima',
-    priceImponible: 16,
+    priceImponible: 4.9,
     imageUrl: gimaMedium('28614.jpg'),
     subcategory: AIDS_SUB,
     description:
       'Pompa per gonfiaggio ciambelle GIMA 28610, 28611 e 28612. Dispositivo medico Classe I. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
+      'Codice GIMA 28614. Prezzo 4,90 € imponibile IVA esclusa.',
   },
   {
     slug: 'gima-27087',
@@ -517,7 +539,12 @@ function wellRowForSlug(slug: string): WellRow {
 }
 
 function wellGimaIdForSlug(slug: string): string {
-  return gimaOfficeProductIdFromImageUrl(wellRowForSlug(slug).imageUrl) ?? `${P}${slug}`
+  const row = wellRowForSlug(slug)
+  return (
+    row.officeIdOverride ??
+    gimaOfficeProductIdFromImageUrl(row.imageUrl) ??
+    `${P}${slug}`
+  )
 }
 
 export function wellnessBagsScalesCanonicalProductId(productId: string): string {
@@ -632,18 +659,43 @@ export function wellnessBagsScalesRelatedIdsForProductId(productId: string): str
 
 export function buildWellnessBagsScalesAstroMedicalOfficeProducts(): OfficeProduct[] {
   return WELLNESS_CATALOG.map((row) => {
-    const id = gimaOfficeProductIdFromImageUrl(row.imageUrl) ?? `${P}${row.slug}`
-    return {
+    const id =
+      row.officeIdOverride ??
+      gimaOfficeProductIdFromImageUrl(row.imageUrl) ??
+      `${P}${row.slug}`
+    const gimaSku = String(row.gimaSku ?? '').trim()
+    const gallery = (row.imageGalleryUrls ?? [])
+      .map((url) => url.trim())
+      .filter((url) => url && url !== row.imageUrl)
+    const product: OfficeProduct = {
       id,
       name: row.name,
       brand: row.brand,
       producerCode: id,
       category: LINEA_ASTRO_MEDICAL_CATEGORY,
       subcategory: row.subcategory,
-      mainFeatures: {},
+      mainFeatures: {
+        ...(gimaSku ? { 'Codice GIMA': gimaSku } : {}),
+        ...(row.packLabel ? { Confezione: row.packLabel } : {}),
+      },
       imageUrl: row.imageUrl,
       price: row.priceImponible,
       description: row.description,
     }
+    if (gallery.length) product.imageGalleryUrls = gallery
+    if (typeof row.vatRate === 'number') product.vatRate = row.vatRate
+    if (gimaSku) {
+      product.brochureUrl = `https://www.gimaitaly.com/Catalogo/PrintDataSheet?sku=${gimaSku}`
+      product.brochureLinkLabel = 'Scheda Tecnica'
+    }
+    if (gimaSku && row.downloadId) {
+      product.catalogPagePdfUrl = `https://www.gimaitaly.com/Download/${row.downloadId}/${gimaSku}`
+      product.catalogPagePdfLabel = 'Manuale / Documento PDF'
+    }
+    if (row.quantityPriceTiers?.length) {
+      product.quantityPriceTiers = row.quantityPriceTiers.map((t) => ({ ...t }))
+      product.showQuantityDiscountTable = row.showQuantityDiscountTable === true
+    }
+    return product
   })
 }
