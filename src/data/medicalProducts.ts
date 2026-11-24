@@ -284,8 +284,8 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     name: 'CAVO ECG VETERINARIA 5 derivazioni per 33305/6',
     fullDescription:
       'Cavo ECG veterinaria 5 derivazioni compatibile con ECG GIMA 33305/33306. Codice GIMA 33319. ' +
-      'Prezzo fisso, imponibile IVA esclusa.',
-    price: 130,
+      'Prezzo 120,00 € imponibile IVA esclusa.',
+    price: 120,
     categoryPath: [macroLabelFromId('elettromedicali'), 'Elettromedicali'],
     macroId: 'elettromedicali',
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33319.jpg',
@@ -312,15 +312,6 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/21401-05.jpg',
   },
   {
-    sku: 'AMS-0005',
-    name: 'MISURATORE DI PRESSIONE GIMA BLUETOOTH',
-    fullDescription: 'MISURATORE DI PRESSIONE GIMA BLUETOOTH',
-    price: 89.0,
-    categoryPath: [macroLabelFromId('elettromedicali'), 'Elettromedicali'],
-    macroId: 'elettromedicali',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32915.jpg',
-  },
-  {
     sku: 'AMS-0006',
     name: 'Carta termica ECG 210x295 mm (Pacco griglia arancio)',
     fullDescription: 'Carta termica ECG 210x295 mm (Pacco griglia arancio)',
@@ -328,15 +319,6 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     categoryPath: [macroLabelFromId('diagnostica'), 'Consumabili'],
     macroId: 'diagnostica',
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/32984.jpg',
-  },
-  {
-    sku: 'AMS-0007',
-    name: 'TERMOMETRO NO CONTACT AEON A200',
-    fullDescription: 'TERMOMETRO NO CONTACT AEON A200',
-    price: 45.9,
-    categoryPath: [macroLabelFromId('elettromedicali'), 'Elettromedicali'],
-    macroId: 'elettromedicali',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/25550.jpg',
   },
   {
     sku: 'AMS-0008',
@@ -457,7 +439,8 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     price: 98.0,
     categoryPath: [macroLabelFromId('elettromedicali'), 'Elettromedicali'],
     macroId: 'elettromedicali',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27293.jpg',
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27293_a.jpg',
+    gimaSku: '27293',
   },
   {
     sku: 'AMS-0015',
@@ -1051,10 +1034,11 @@ export const ASTRO_MEDICAL_STATIC_CATALOG_SEED: readonly MedicalProduct[] = [
     sku: 'AMS-0019',
     name: 'SET 4 ELETTRODI PERIFERICI (PINZE)',
     fullDescription: 'SET 4 ELETTRODI PERIFERICI (PINZE)',
-    price: 64.0,
+    price: 20,
     categoryPath: [macroLabelFromId('elettromedicali'), 'Elettromedicali'],
     macroId: 'elettromedicali',
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33364.jpeg',
+    gimaSku: '33364',
   },
   {
     sku: 'AMS-0020',

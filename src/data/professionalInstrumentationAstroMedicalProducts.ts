@@ -1,4 +1,4 @@
-import type { OfficeProduct } from '../types/officeProduct'
+import type { OfficeProduct, QuantityPriceTier } from '../types/officeProduct'
 import { gimaOfficeProductIdFromImageUrl } from '../lib/gimaImageStem'
 import { LINEA_ASTRO_MEDICAL_CATEGORY } from './iHealthAstroMedicalProducts'
 
@@ -24,6 +24,11 @@ type ProRow = {
   subcategory: string
   /** ID distinto quando piu articoli condividono lo stesso JPG GIMA. */
   officeIdOverride?: string
+  imageGalleryUrls?: string[]
+  gimaSku?: string
+  downloadId?: string
+  quantityPriceTiers?: QuantityPriceTier[]
+  showQuantityDiscountTable?: boolean
   brochureUrl?: string
   brochureLinkLabel?: string
   catalogPagePdfUrl?: string
@@ -438,14 +443,18 @@ const PRO_INSTR_CATALOG: readonly ProRow[] = [
   },
   {
     slug: 'gima-28073',
+    officeIdOverride: 'gima-28073',
     name: 'AEROSOL MYNEB — a pistone — GIMA 28073',
     brand: 'Gima',
-    priceImponible: 54,
-    imageUrl: gimaMedium('28073.jpg'),
+    priceImponible: 48,
+    imageUrl: gimaMedium('28073_d.jpg'),
+    imageGalleryUrls: [gimaMedium('28073_d.jpg'), gimaMedium('28073_a.jpg')],
     subcategory: RESP_SUB,
+    gimaSku: '28073',
+    downloadId: '158811',
     description:
       'Aerosol a pistone MyNeb per terapia inalatoria domiciliare e ambulatoriale. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
+      'Codice GIMA 28073. Prezzo 48,00 € imponibile IVA esclusa.',
   },
 ] as const
 
@@ -573,21 +582,45 @@ export function buildProfessionalInstrumentationAstroMedicalOfficeProducts(): Of
       row.officeIdOverride ??
       gimaOfficeProductIdFromImageUrl(row.imageUrl) ??
       `${P}${row.slug}`
-    return {
+    const gimaSku = String(row.gimaSku ?? '').trim()
+    const gallery = (row.imageGalleryUrls ?? [])
+      .map((url) => url.trim())
+      .filter((url, i, arr) => url && url !== row.imageUrl && arr.indexOf(url) === i)
+    const brochureUrl =
+      row.brochureUrl ||
+      (gimaSku ? `https://www.gimaitaly.com/Catalogo/PrintDataSheet?sku=${gimaSku}` : undefined)
+    const catalogPagePdfUrl =
+      row.catalogPagePdfUrl ||
+      (gimaSku && row.downloadId
+        ? `https://www.gimaitaly.com/Download/${row.downloadId}/${gimaSku}`
+        : undefined)
+    const product: OfficeProduct = {
       id,
       name: row.name,
       brand: row.brand,
       producerCode: id,
       category: LINEA_ASTRO_MEDICAL_CATEGORY,
       subcategory: row.subcategory,
-      mainFeatures: {},
+      mainFeatures: {
+        ...(gimaSku ? { 'Codice GIMA': gimaSku } : {}),
+      },
       imageUrl: row.imageUrl,
       price: row.priceImponible,
       description: row.description,
-      ...(row.brochureUrl ? { brochureUrl: row.brochureUrl } : {}),
-      ...(row.brochureLinkLabel ? { brochureLinkLabel: row.brochureLinkLabel } : {}),
-      ...(row.catalogPagePdfUrl ? { catalogPagePdfUrl: row.catalogPagePdfUrl } : {}),
-      ...(row.catalogPagePdfLabel ? { catalogPagePdfLabel: row.catalogPagePdfLabel } : {}),
     }
+    if (gallery.length) product.imageGalleryUrls = gallery
+    if (brochureUrl) {
+      product.brochureUrl = brochureUrl
+      product.brochureLinkLabel = row.brochureLinkLabel || 'Scheda Tecnica'
+    }
+    if (catalogPagePdfUrl) {
+      product.catalogPagePdfUrl = catalogPagePdfUrl
+      product.catalogPagePdfLabel = row.catalogPagePdfLabel || 'Manuale / Documento PDF'
+    }
+    if (row.quantityPriceTiers?.length) {
+      product.quantityPriceTiers = row.quantityPriceTiers.map((t) => ({ ...t }))
+      product.showQuantityDiscountTable = row.showQuantityDiscountTable === true
+    }
+    return product
   })
 }

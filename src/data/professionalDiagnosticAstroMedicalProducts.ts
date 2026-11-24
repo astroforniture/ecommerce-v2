@@ -411,13 +411,16 @@ const DIAG_FINAL_CATALOG: readonly DiagRow[] = [
   },
   {
     slug: 'analizzatore-24600',
-    name: 'Analizzatore 24600 (lettura cassette)',
+    name: 'ANALIZZATORE IMMUNOLOGICO DI FLUORESCENZA',
     brand: 'Gima',
-    priceImponible: 2460,
+    priceImponible: 1000,
     imageUrl: gimaMedium('24600.jpg'),
+    gimaSku: '24600',
+    downloadId: '158530',
     description:
-      'Analizzatore codice 24600 per cassette dedicate (PCR, procalcitonina, D-dimero, Influenza A/B, RSV, vitamina D, ecc.). ' +
-      'Listino imponibile IVA esclusa; configurazione commerciale da confermare con Gima.',
+      'Analizzatore immunologico di fluorescenza codice GIMA 24600 per cassette dedicate ' +
+      '(PCR, procalcitonina, D-dimero, Influenza A/B, RSV, vitamina D, ecc.). ' +
+      'Prezzo 1.000,00 € imponibile IVA esclusa.',
   },
   {
     slug: 'cassette-24600-pcr',

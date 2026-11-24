@@ -305,14 +305,38 @@ const GIMA_CATALOG_OVERRIDES: readonly GimaCatalogOverride[] = [
   {
     gimaSku: '33319',
     name: 'CAVO ECG VETERINARIA 5 derivazioni per 33305/6',
-    price: 130,
+    price: 120,
     features: { Derivazioni: '5', Compatibilità: 'ECG GIMA 33305 / 33306', Tipo: 'Cavo ECG veterinaria' },
     imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33319.jpg',
     description:
       'Cavo ECG veterinaria 5 derivazioni, compatibile con elettrocardiografo GIMA 33305/33306. ' +
-      'Codice GIMA 33319. Prezzo fisso, imponibile IVA esclusa.\n\n' +
+      'Codice GIMA 33319. Prezzo 120,00 € imponibile IVA esclusa.\n\n' +
       'Linea: Elettromedicali.',
     downloadId: '158305',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '27293',
+    name: 'BILANCIA BODY FAT OMRON BF511',
+    price: 98,
+    features: { Marca: 'OMRON', Modello: 'BF511', Tipo: 'Bilancia body fat' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/27293_a.jpg',
+    description:
+      'Bilancia body fat OMRON BF511. Codice GIMA 27293. Prezzo unitario imponibile IVA esclusa.\n\n' +
+      'Linea: Elettromedicali.',
+    downloadId: '158560',
+    quantityPriceTiers: [],
+  },
+  {
+    gimaSku: '33364',
+    name: 'SET 4 ELETTRODI PERIFERICI (PINZE)',
+    price: 20,
+    features: { Pezzi: '4', Tipo: 'Elettrodi periferici a pinza' },
+    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/33364.jpeg',
+    description:
+      'Set 4 elettrodi periferici (pinze). Codice GIMA 33364. Prezzo 20,00 € imponibile IVA esclusa.\n\n' +
+      'Linea: Elettromedicali.',
+    downloadId: '158480',
     quantityPriceTiers: [],
   },
   // ── Sfigmomanometri e misuratori di pressione ──────────────────────────────
@@ -1408,6 +1432,10 @@ function gimaCatalogOverrideForProduct(
     return GIMA_OVERRIDE_BY_SKU.get('32524') ?? null
   }
   if (name.includes('cavo') && name.includes('ecg') && name.includes('vet')) return GIMA_OVERRIDE_BY_SKU.get('33319') ?? null
+  if (name.includes('omron') && name.includes('bf511')) return GIMA_OVERRIDE_BY_SKU.get('27293') ?? null
+  if (name.includes('elettrodi periferici') || (name.includes('elettrodi') && name.includes('pinze'))) {
+    return GIMA_OVERRIDE_BY_SKU.get('33364') ?? null
+  }
   if (name.includes('sfigmo') && name.includes('london')) return GIMA_OVERRIDE_BY_SKU.get('32725') ?? null
   if (name.includes('sfigmo') && name.includes('kobe')) return GIMA_OVERRIDE_BY_SKU.get('32690') ?? null
   if (name.includes('sfigmo') && name.includes('minor')) return GIMA_OVERRIDE_BY_SKU.get('32714') ?? null

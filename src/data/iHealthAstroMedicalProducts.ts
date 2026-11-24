@@ -1,4 +1,4 @@
-import type { OfficeProduct } from '../types/officeProduct'
+import type { OfficeProduct, QuantityPriceTier } from '../types/officeProduct'
 import { gimaOfficeProductIdFromImageUrl } from '../lib/gimaImageStem'
 
 /** Categoria catalogo office (deve coincidere con `?category=` e filtri listing). */
@@ -46,23 +46,35 @@ type IHealthRow = {
   imageUrl: string
   priceImponible: number
   description: string
+  officeIdOverride?: string
+  imageGalleryUrls?: string[]
+  gimaSku?: string
+  downloadId?: string
+  quantityPriceTiers?: QuantityPriceTier[]
+  showQuantityDiscountTable?: boolean
 }
+
+const GIMA_MED = 'https://www.gimaitaly.com/images/prodotti/medium'
 
 const IHEALTH_CATALOG: readonly IHealthRow[] = [
   {
     slug: 'neo-bp5s',
+    officeIdOverride: 'gima-23495',
     name: 'Misuratore Pressione iHealth NEO BP5S (braccio)',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/23495.jpg',
+    imageUrl: `${GIMA_MED}/23495_a.jpg`,
+    imageGalleryUrls: [`${GIMA_MED}/23495_a.jpg`, `${GIMA_MED}/23495_b.jpg`],
     priceImponible: 106.0,
+    gimaSku: '23495',
+    downloadId: '158277',
     description:
       'Misuratore digitale da braccio iHealth NEO BP5S: monitoraggio della pressione arteriosa in uso domestico o professionale leggero. ' +
       'Compatibile con app iHealth per storico misurazioni; funzioni e precisione secondo specifiche del produttore. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
+      'Codice GIMA 23495. Prezzo unitario imponibile IVA esclusa.',
   },
   {
     slug: 'track',
     name: 'Misuratore Pressione iHealth TRACK (braccio)',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/23499.jpg',
+    imageUrl: `${GIMA_MED}/23499.jpg`,
     priceImponible: 32.0,
     description:
       'Misuratore pressione da braccio iHealth TRACK, formato compatto per uso quotidiano. ' +
@@ -72,82 +84,84 @@ const IHEALTH_CATALOG: readonly IHealthRow[] = [
   {
     slug: 'fit-hs2s',
     name: 'Bilancia Analisi iHealth FIT HS2S Wireless',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/23503.jpg',
-    priceImponible: 60.5,
+    imageUrl: `${GIMA_MED}/23503.jpg`,
+    priceImponible: 50,
+    gimaSku: '23503',
+    downloadId: '158466',
     description:
       'Bilancia smart iHealth FIT HS2S con analisi corporea e connessione wireless. ' +
       'Pensata per il monitoraggio del peso e dei parametri indicati dal produttore tramite app dedicata. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
-  },
-  {
-    slug: 'strisce-glicemia-small',
-    name: 'Strisce Glicemia iHealth (Conf. Small)',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/23511.jpg',
-    priceImponible: 14.0,
-    description:
-      'Strisce reattive per glicemia iHealth, confezione small. ' +
-      'Da utilizzare esclusivamente con i glucometri compatibili indicati dal produttore; conservazione e modalità d’uso come da istruzioni in confezione. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
+      'Codice GIMA 23503. Prezzo 50,00 € imponibile IVA esclusa.',
   },
   {
     slug: 'strisce-glicemia-large',
     name: 'Strisce Glicemia iHealth (Conf. Large)',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/23512.jpg',
+    imageUrl: `${GIMA_MED}/23512.jpg`,
     priceImponible: 28.0,
+    gimaSku: '23512',
+    downloadId: '158849',
     description:
       'Strisce reattive per glicemia iHealth, confezione large. ' +
       'Compatibilità e scadenza secondo indicazioni iHealth; abbinare al glucometro della stessa linea. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
+      'Codice GIMA 23512. Prezzo unitario imponibile IVA esclusa.',
   },
   {
     slug: 'glucometro-bg5',
+    officeIdOverride: 'gima-23510-14',
     name: 'Glucometro iHealth BG5 (senza strisce)',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/23510-14.jpg',
+    imageUrl: `${GIMA_MED}/23510-14.jpg`,
     priceImponible: 41.9,
+    gimaSku: '23514',
+    downloadId: '158849',
     description:
       'Glucometro iHealth BG5 per rilevazione della glicemia (senza strisce in dotazione). ' +
       'Richiede strisce dedicate iHealth vendute separatamente; trasmissione dati e funzioni come da documentazione ufficiale. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
+      'Codice GIMA 23514. Prezzo unitario imponibile IVA esclusa.',
   },
   {
     slug: 'pulsox-wireless',
+    officeIdOverride: 'gima-23525',
     name: 'Pulsoximetro Wireless iHealth',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/23525.jpg',
+    imageUrl: `${GIMA_MED}/23525_a.jpg`,
     priceImponible: 81.0,
+    gimaSku: '23525',
+    downloadId: '158617',
     description:
       'Pulsossimetro wireless iHealth per saturazione e frequenza; utilizzo non invasivo a dito. ' +
       'Adatto a monitoraggio rapido in contesti domestici o mobili; specifiche di misura e app secondo produttore. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
-  },
-  {
-    slug: 'bp5-braccio',
-    name: 'Misuratore Pressione iHealth BP5 (braccio)',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/23500.jpeg',
-    priceImponible: 82.0,
-    description:
-      'Misuratore pressione da braccio iHealth BP5 con connettività secondo scheda tecnica. ' +
-      'Per tracciamento pressione e polso in modo semplice; cuffia e alimentazione come da kit produttore. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
+      'Codice GIMA 23525. Prezzo unitario imponibile IVA esclusa.',
   },
   {
     slug: 'sense-bp7-polso',
+    officeIdOverride: 'gima-23501',
     name: 'Misuratore Pressione iHealth SENSE BP7 (polso)',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/23501.jpeg',
-    priceImponible: 14.4,
+    imageUrl: `${GIMA_MED}/23501_a.jpeg`,
+    imageGalleryUrls: [
+      `${GIMA_MED}/23501_a.jpeg`,
+      `${GIMA_MED}/23501_c.jpeg`,
+      `${GIMA_MED}/23501_d.jpeg`,
+    ],
+    priceImponible: 13.5,
+    gimaSku: '23501',
+    downloadId: '158277',
     description:
       'Misuratore pressione da polso iHealth SENSE BP7, formato tascabile. ' +
       'Indicato per controlli rapidi; seguire le istruzioni di posizionamento per letture affidabili. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
+      'Codice GIMA 23501. Prezzo 13,50 € imponibile IVA esclusa.',
   },
   {
     slug: 'view-bp7s-polso',
+    officeIdOverride: 'gima-23502',
     name: 'Misuratore Pressione iHealth VIEW BP7S (polso c/display)',
-    imageUrl: 'https://www.gimaitaly.com/images/prodotti/medium/23502.jpg',
+    imageUrl: `${GIMA_MED}/23502_a.jpg`,
+    imageGalleryUrls: [`${GIMA_MED}/23502_a.jpg`, `${GIMA_MED}/23502_b.jpg`],
     priceImponible: 89.0,
+    gimaSku: '23502',
+    downloadId: '158277',
     description:
       'Misuratore pressione da polso iHealth VIEW BP7S con display integrato. ' +
       'Visualizzazione immediata dei valori; funzioni aggiuntive e memoria secondo specifiche iHealth. ' +
-      'Prezzo unitario imponibile IVA esclusa.',
+      'Codice GIMA 23502. Prezzo unitario imponibile IVA esclusa.',
   },
 ] as const
 
@@ -159,7 +173,11 @@ function iHealthRowForSlug(slug: string): IHealthRow {
 
 function iHealthGimaIdForSlug(slug: string): string {
   const row = iHealthRowForSlug(slug)
-  return gimaOfficeProductIdFromImageUrl(row.imageUrl) ?? `${IHEALTH_OFFICE_ID_PREFIX}${slug}`
+  return (
+    row.officeIdOverride ??
+    gimaOfficeProductIdFromImageUrl(row.imageUrl) ??
+    `${IHEALTH_OFFICE_ID_PREFIX}${slug}`
+  )
 }
 
 export function iHealthCanonicalProductId(productId: string): string {
@@ -181,13 +199,11 @@ export function isIHealthOfficeProductId(id: string): boolean {
 const PRESSURE_IDS: readonly string[] = [
   iHealthGimaIdForSlug('neo-bp5s'),
   iHealthGimaIdForSlug('track'),
-  iHealthGimaIdForSlug('bp5-braccio'),
   iHealthGimaIdForSlug('sense-bp7-polso'),
   iHealthGimaIdForSlug('view-bp7s-polso'),
 ]
 
 const GLUCOMETRO_ID = iHealthGimaIdForSlug('glucometro-bg5')
-const STRISCE_S_ID = iHealthGimaIdForSlug('strisce-glicemia-small')
 const STRISCE_L_ID = iHealthGimaIdForSlug('strisce-glicemia-large')
 const BILANCIA_ID = iHealthGimaIdForSlug('fit-hs2s')
 const PULSOX_ID = iHealthGimaIdForSlug('pulsox-wireless')
@@ -199,14 +215,11 @@ export function iHealthAstroMedicalRelatedIdsForProductId(productId: string): st
   if (PRESSURE_IDS.includes(id)) {
     return PRESSURE_IDS.filter((x) => x !== id)
   }
-  if (id === STRISCE_S_ID) {
-    return [GLUCOMETRO_ID, STRISCE_L_ID]
-  }
   if (id === STRISCE_L_ID) {
-    return [GLUCOMETRO_ID, STRISCE_S_ID]
+    return [GLUCOMETRO_ID, PULSOX_ID]
   }
   if (id === GLUCOMETRO_ID) {
-    return [STRISCE_S_ID, STRISCE_L_ID, PULSOX_ID, BILANCIA_ID]
+    return [STRISCE_L_ID, PULSOX_ID, BILANCIA_ID]
   }
   if (id === BILANCIA_ID) {
     return [PULSOX_ID, iHealthGimaIdForSlug('track'), iHealthGimaIdForSlug('neo-bp5s'), GLUCOMETRO_ID]
@@ -220,17 +233,37 @@ export function iHealthAstroMedicalRelatedIdsForProductId(productId: string): st
 export function buildIHealthAstroMedicalOfficeProducts(): OfficeProduct[] {
   return IHEALTH_CATALOG.map((row) => {
     const id = iHealthGimaIdForSlug(row.slug)
-    return {
+    const gimaSku = String(row.gimaSku ?? '').trim()
+    const gallery = (row.imageGalleryUrls ?? [])
+      .map((url) => url.trim())
+      .filter((url, i, arr) => url && url !== row.imageUrl && arr.indexOf(url) === i)
+    const product: OfficeProduct = {
       id,
       name: row.name,
       brand: 'iHealth',
       producerCode: id,
       category: LINEA_ASTRO_MEDICAL_CATEGORY,
       subcategory: 'Elettromedicali',
-      mainFeatures: {},
+      mainFeatures: {
+        ...(gimaSku ? { 'Codice GIMA': gimaSku } : {}),
+      },
       imageUrl: row.imageUrl,
       price: row.priceImponible,
       description: row.description,
     }
+    if (gallery.length) product.imageGalleryUrls = gallery
+    if (gimaSku) {
+      product.brochureUrl = `https://www.gimaitaly.com/Catalogo/PrintDataSheet?sku=${gimaSku}`
+      product.brochureLinkLabel = 'Scheda Tecnica'
+    }
+    if (gimaSku && row.downloadId) {
+      product.catalogPagePdfUrl = `https://www.gimaitaly.com/Download/${row.downloadId}/${gimaSku}`
+      product.catalogPagePdfLabel = 'Manuale / Documento PDF'
+    }
+    if (row.quantityPriceTiers?.length) {
+      product.quantityPriceTiers = row.quantityPriceTiers.map((t) => ({ ...t }))
+      product.showQuantityDiscountTable = row.showQuantityDiscountTable === true
+    }
+    return product
   })
 }
