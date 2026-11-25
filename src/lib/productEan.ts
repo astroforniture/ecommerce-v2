@@ -1,6 +1,6 @@
 import type { OfficeProduct, ProductVariantOption } from '../types/officeProduct'
 
-/** Normalizza EAN/GTIN: solo cifre, lunghezza tipica 8–14. */
+/** Normalizza EAN/GTIN: solo cifre, lunghezza tipica 8â€“14. */
 export function normalizeProductEan(raw: string | null | undefined): string | undefined {
   const digits = String(raw ?? '').replace(/\D/g, '')
   if (digits.length >= 8 && digits.length <= 14) return digits
