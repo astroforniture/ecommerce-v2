@@ -99,6 +99,7 @@ async function parseSitemapRoutes() {
       '/servizi/biglietti-da-visita',
       '/servizi/vetrofanie',
       '/servizi/rilegature',
+      '/personalizzato/roll-up',
       '/prodotti/macchine-per-ufficio',
     ]
   }

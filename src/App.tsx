@@ -41,7 +41,9 @@ import { OfficePage } from './pages/OfficePage'
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage'
 import { ProductDetailPage } from './pages/ProductDetailPage'
 import { BindingServicePage } from './pages/BindingServicePage'
+import { PersonalizzatoRollupPage } from './pages/PersonalizzatoRollupPage'
 import { ServizioDetailPage } from './pages/ServizioDetailPage'
+import { PERSONALIZZATO_ROLLUP_PATH } from './data/personalizzatoCatalog'
 import { FaqPage } from './pages/FaqPage'
 import { ContattiPage } from './pages/ContattiPage'
 import { TermsSalesPage } from './pages/TermsSalesPage'
@@ -183,6 +185,11 @@ export default function App() {
           />
         ))}
         <Route path="/servizi/:slug" element={<ServizioDetailPage />} />
+        <Route path={PERSONALIZZATO_ROLLUP_PATH} element={<PersonalizzatoRollupPage />} />
+        <Route
+          path="/personalizzato"
+          element={<Navigate to={PERSONALIZZATO_ROLLUP_PATH} replace />}
+        />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/register" element={<RegisterPage />} />

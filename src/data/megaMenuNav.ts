@@ -64,6 +64,12 @@ import {
 import { cancelleriaPileListingPath } from './pileProducts'
 import { cancelleriaQuaderniListingPath } from './quaderniProducts'
 import { cancelleriaTimbriListingPath } from '../lib/timbroAziendeFarmacieProduct'
+import {
+  PERSONALIZZATO_CATEGORY_LABEL,
+  PERSONALIZZATO_NAV_ITEMS,
+  PERSONALIZZATO_ROLLUP_BANNER_URL,
+  PERSONALIZZATO_ROLLUP_PATH,
+} from './personalizzatoCatalog'
 
 export type MegaMenuPreviewSource =
   | { kind: 'office-subcategory'; category: string; subcategory: string }
@@ -377,6 +383,18 @@ export const MEGA_MENU_CATEGORIES: MegaMenuCategory[] = [
       label: item.label,
       href: item.href,
       preview: { kind: 'none' },
+    })),
+  },
+  {
+    id: 'personalizzato',
+    label: PERSONALIZZATO_CATEGORY_LABEL,
+    href: PERSONALIZZATO_ROLLUP_PATH,
+    subs: PERSONALIZZATO_NAV_ITEMS.map((item) => ({
+      id: `pers-${item.href}`,
+      label: item.label,
+      href: item.href,
+      coverImageUrl: PERSONALIZZATO_ROLLUP_BANNER_URL,
+      preview: { kind: 'none' as const },
     })),
   },
 ]

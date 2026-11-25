@@ -68,6 +68,8 @@ async function generate() {
     '/servizi/shopper-personalizzate',
     '/servizi/biglietti-da-visita',
     '/servizi/vetrofanie',
+    '/personalizzato/roll-up',
+    '/personalizzato',
     '/privacy-policy',
     '/cookie-policy',
     '/termini-condizioni-vendita',

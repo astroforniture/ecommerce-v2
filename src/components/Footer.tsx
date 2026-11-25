@@ -13,6 +13,7 @@ import {
   COMPANY_TRADE_NAME,
 } from '../data/companyContacts'
 import { LEGAL_GOVERNANCE_FOOTER_LINKS } from '../data/legalGovernanceNav'
+import { PERSONALIZZATO_CATEGORY_LABEL, PERSONALIZZATO_NAV_ITEMS } from '../data/personalizzatoCatalog'
 import { SERVIZI_NAV_ITEMS } from '../data/serviziCatalog'
 
 const FOOTER_VALUES: ReadonlyArray<{
@@ -73,7 +74,7 @@ const Footer = () => {
       </section>
 
       <div className="w-full border-t border-slate-200 px-4 py-8 text-slate-700 md:px-8">
-        <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto grid max-w-7xl gap-8 sm:grid-cols-2 lg:grid-cols-5">
           <div className="space-y-1.5 text-sm leading-relaxed md:text-left">
             <p className="font-semibold text-slate-900">{COMPANY_TRADE_NAME}</p>
             <p>Astro Forniture di Borella Mario</p>
@@ -186,6 +187,21 @@ const Footer = () => {
                   Rilegature Notarili e Tesi
                 </Link>
               </li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-slate-900">
+              {PERSONALIZZATO_CATEGORY_LABEL}
+            </p>
+            <ul className="mt-3 space-y-2 text-sm">
+              {PERSONALIZZATO_NAV_ITEMS.map((item) => (
+                <li key={item.href}>
+                  <Link className="text-slate-700 underline-offset-4 hover:underline" to={item.href}>
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>

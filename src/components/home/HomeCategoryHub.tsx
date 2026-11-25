@@ -3,6 +3,10 @@ import { cartucceTonerCategoryHref, prodottiIgieneCategoryHref } from '../../lib
 import { agendeCategoryHref } from '../../lib/agendeCatalog'
 import { sicurezzaCategoryHref } from '../../lib/sicurezzaCatalog'
 import { lineaAstroMedicalCatalogPath } from '../../data/iHealthAstroMedicalProducts'
+import {
+  PERSONALIZZATO_CATEGORY_LABEL,
+  PERSONALIZZATO_ROLLUP_PATH,
+} from '../../data/personalizzatoCatalog'
 
 type HomeCategoryLink = {
   id: string
@@ -22,6 +26,11 @@ const HOME_CATEGORY_LINKS: HomeCategoryLink[] = [
   { id: 'sicurezza', label: 'Sicurezza', href: sicurezzaCategoryHref() },
   { id: 'macchine', label: 'Macchine ufficio', href: '/prodotti/macchine-per-ufficio' },
   {
+    id: 'personalizzato',
+    label: PERSONALIZZATO_CATEGORY_LABEL,
+    href: PERSONALIZZATO_ROLLUP_PATH,
+  },
+  {
     id: 'astro-medical',
     label: 'Astro Medical',
     href: lineaAstroMedicalCatalogPath(),
@@ -34,7 +43,7 @@ export function HomeCategoryHub() {
     <section className="border-b border-slate-100 bg-white" aria-label="Categorie principali">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-          <nav className="flex min-w-max items-stretch justify-center gap-3 sm:gap-4 lg:grid lg:min-w-0 lg:grid-cols-10 lg:gap-2">
+          <nav className="flex min-w-max items-stretch justify-center gap-3 sm:gap-4 lg:grid lg:min-w-0 lg:grid-cols-11 lg:gap-2">
             {HOME_CATEGORY_LINKS.map((item) => (
               <Link
                 key={item.id}
